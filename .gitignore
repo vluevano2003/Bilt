@@ -1,15 +1,21 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# dependencias (NUNCA se suben)
 node_modules/
 
-# Expo
+# Expo y compilación
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+app-example/
 
-# Native
+# --- SECCIÓN CRÍTICA: VARIABLES DE ENTORNO ---
+# Bloqueamos el archivo .env principal y cualquier variante local
+.env
+.env.local
+.env.*.local
+# --------------------------------------------
+
+# Archivos Nativos y Llaves de seguridad
 .kotlin/
 *.orig.*
 *.jks
@@ -17,27 +23,19 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+/ios
+/android
 
-# Metro
+# Metro y Debug
 .metro-health-check*
-
-# debug
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
+# Sistema (macOS / Windows)
 .DS_Store
+Thumbs.db
 *.pem
 
-# local env files
-.env*.local
-
-# typescript
+# TypeScript
 *.tsbuildinfo
-
-app-example
-
-# generated native folders
-/ios
-/android
