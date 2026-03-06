@@ -1,24 +1,54 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack, useRouter, useSegments } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { colors } from "../src/constants/theme";
+import { AuthProvider, useAuth } from "../src/context/AuthContext";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+/**
+ * RootLayoutNav es el componente que maneja la navegación principal de la aplicación
+ * @returns
+ */
+function RootLayoutNav() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+  // Redirige al usuario según su estado de autenticación y la ruta actual
+  useEffect(() => {
+    if (isLoading) return;
 
+    const inTabsGroup = segments[0] === "(tabs)";
+
+    if (!user && inTabsGroup) {
+      router.replace("/");
+    } else if (user && !inTabsGroup) {
+      router.replace("/(tabs)/home");
+    }
+  }, [user, isLoading, segments]);
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          justifyContent: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  // Renderiza las pantallas de la aplicación dentro del Stack Navigator
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+
+// RootLayout es el componente raíz que envuelve toda la aplicación con el AuthProvider
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

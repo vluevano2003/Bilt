@@ -15,21 +15,37 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
+  TextInputProps,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from "react-native";
-import { auth, db, storage } from "../config/firebase";
-import { colors } from "../constants/theme";
+import { auth, db, storage } from "../src/config/firebase";
+import { colors } from "../src/constants/theme";
+
+interface CustomInputProps extends TextInputProps {
+  style?: any;
+}
 
 /**
- * Un input estándar que puedes usar en cualquier pantalla
- * @param {*} param0
- * @returns
+ * ButtonProps define las propiedades para los botones personalizados, incluyendo título, función onPress, estilo opcional, estado de deshabilitado y estado de carga
  */
-const CustomInput = ({ style, ...props }) => (
+interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+  loading?: boolean;
+}
+
+/**
+ * CustomInput es un componente de entrada de texto personalizado que acepta propiedades estándar de TextInput y un estilo opcional, aplicando estilos predefinidos y configurando el color del texto del marcador de posición
+ */
+const CustomInput = ({ style, ...props }: CustomInputProps) => (
   <TextInput
     style={[styles.input, style]}
     placeholderTextColor={colors.textSecondary}
@@ -38,11 +54,15 @@ const CustomInput = ({ style, ...props }) => (
 );
 
 /**
- * Un botón primario con fondo sólido
- * @param {*} param0
- * @returns
+ * PrimaryButton es un componente de botón personalizado que muestra un título, maneja la función onPress, aplica estilos personalizados y muestra un indicador de carga cuando loading es verdadero. También ajusta la opacidad cuando está deshabilitado
  */
-const PrimaryButton = ({ title, onPress, style, disabled, loading }) => (
+const PrimaryButton = ({
+  title,
+  onPress,
+  style,
+  disabled,
+  loading,
+}: ButtonProps) => (
   <TouchableOpacity
     style={[styles.buttonPrimary, style, disabled && { opacity: 0.6 }]}
     onPress={onPress}
@@ -57,19 +77,16 @@ const PrimaryButton = ({ title, onPress, style, disabled, loading }) => (
 );
 
 /**
- * Un botón secundario transparente con borde
- * @param {*} param0
- * @returns
+ * SecondaryButton es un componente de botón personalizado que muestra un título, maneja la función onPress, aplica estilos personalizados y tiene un diseño transparente con borde. No muestra indicador de carga ni cambia de apariencia cuando está deshabilitado
  */
-const SecondaryButton = ({ title, onPress, style }) => (
+const SecondaryButton = ({ title, onPress, style }: ButtonProps) => (
   <TouchableOpacity style={[styles.buttonSecondary, style]} onPress={onPress}>
     <Text style={styles.buttonTextSecondary}>{title}</Text>
   </TouchableOpacity>
 );
 
 /**
- * Pantalla de login y registro con un proceso de registro dividido en pasos, manejo de imagen de perfil, y validaciones básicas.
- * @returns
+ * LoginScreen es el componente principal que maneja la lógica de inicio de sesión y registro de usuarios. Permite a los usuarios ingresar su correo electrónico, contraseña, nombre de usuario, fecha de nacimiento, género, altura y peso. También permite subir una foto de perfil y manejar la autenticación con Firebase. El componente tiene un diseño responsivo y utiliza botones personalizados para mejorar la experiencia del usuario
  */
 export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -79,7 +96,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
@@ -100,8 +117,7 @@ export default function LoginScreen() {
     }
   };
 
-  // Maneja la selección de fecha tanto para Android como para iOS
-  const onChangeDate = (event, selectedDate) => {
+  const onChangeDate = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") setShowDatePicker(false);
     if (selectedDate) {
       setDate(selectedDate);
@@ -117,15 +133,12 @@ export default function LoginScreen() {
     }
   };
 
-  // Función para manejar el registro de usuario, incluyendo la subida de la imagen de perfil si se seleccionó una
   const handleRegister = async () => {
     if (!height || !weight) {
       Alert.alert("Error", "Por favor completa tus métricas.");
       return;
     }
-
     setIsLoading(true);
-
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -154,29 +167,22 @@ export default function LoginScreen() {
         measurementSystem: "metric",
         createdAt: new Date(),
       });
-
-      Alert.alert("¡Éxito!", "Cuenta creada y configurada para mutar.");
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("Error al registrar", error.message);
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // Función para manejar el inicio de sesión del usuario
   const handleLogin = async () => {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("¡Bienvenido!", "Iniciaste sesión correctamente");
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("Error al entrar", "Credenciales incorrectas");
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // Función para avanzar al siguiente paso del registro, con validaciones básicas para cada paso
   const nextStep = () => {
     if (step === 1 && (!email || !password))
       return Alert.alert("Faltan datos", "Ingresa un correo y contraseña.");
@@ -190,7 +196,6 @@ export default function LoginScreen() {
     setStep(step + 1);
   };
 
-  // Renderiza el componente de Google para evitar repetir código
   const GoogleSignInButton = () => (
     <>
       <View style={styles.dividerContainer}>
@@ -224,7 +229,7 @@ export default function LoginScreen() {
       >
         <View style={styles.formContainer}>
           <Image
-            source={require("../../assets/images/logo_white_nobg.png")}
+            source={require("../assets/images/logo_white_nobg.png")}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -293,7 +298,7 @@ export default function LoginScreen() {
                     ) : (
                       <View style={styles.avatarPlaceholder}>
                         <AntDesign
-                          name="camerao"
+                          name="camera"
                           size={32}
                           color={colors.textSecondary}
                         />
@@ -479,9 +484,6 @@ export default function LoginScreen() {
   );
 }
 
-/**
- * Estilos para la pantalla de login y registro
- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scrollContainer: { flexGrow: 1, justifyContent: "center" },

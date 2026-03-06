@@ -1,33 +1,64 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { AntDesign } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { colors } from "../../src/constants/theme";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
+        headerStyle: { backgroundColor: colors.surface },
+        headerTitleStyle: { color: colors.textPrimary, fontWeight: "900" },
+      }}
+    >
+      {/*Pantalla Principal (Archivo: home.tsx)*/}
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Inicio",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="home" size={24} color={color} />
+          ),
         }}
       />
+
+      {/*Historial de Rutinas (Archivo: history.tsx)*/}
       <Tabs.Screen
-        name="explore"
+        name="history"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Historial",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="clock-circle" size={24} color={color} />
+          ),
+        }}
+      />
+
+      {/*Creador de Rutinas (Archivo: routines.tsx)*/}
+      <Tabs.Screen
+        name="routines"
+        options={{
+          title: "Rutinas",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="form" size={24} color={color} />
+          ),
+        }}
+      />
+
+      {/*Perfil de Usuario (Archivo: profile.tsx)*/}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="user" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>
