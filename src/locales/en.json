@@ -1,0 +1,82 @@
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "or": "OR"
+  },
+  "login": {
+    "title": "BILT TRACKER",
+    "subtitle": "Your progress, your pace",
+    "emailPlaceholder": "Email address",
+    "passwordPlaceholder": "Password",
+    "forgotPassword": "Forgot your password?",
+    "loginButton": "Log In",
+    "noAccount": "Don't have an account? Sign up here",
+    "forgotSubtitle": "Recover access to your account",
+    "forgotInfo": "Enter your email below and we will send you instructions.",
+    "sendLink": "Send link",
+    "backToLogin": "Back to login",
+    "hasAccount": "Already have an account? Log in"
+  },
+  "register": {
+    "step": "Step {{step}} of 4",
+    "addPhoto": "Add photo",
+    "usernamePlaceholder": "What do they call you at the gym? (Username)",
+    "birthDateLabel": "Date of birth:",
+    "selectDate": "Select date",
+    "confirmDate": "Confirm date",
+    "genderLabel": "Gender:",
+    "male": "Male",
+    "female": "Female",
+    "systemLabel": "Measurement system:",
+    "metric": "Metric (cm/kg)",
+    "imperial": "Imperial (in/lbs)",
+    "heightCm": "Height (cm)",
+    "heightIn": "Height (in)",
+    "weightKg": "Weight (kg)",
+    "weightLbs": "Weight (lbs)"
+  },
+  "google": {
+    "comingSoonTitle": "Coming Soon",
+    "comingSoonMsg": "We are working hard to bring Google Sign-In. Check back soon!",
+    "continue": "Continue with Google"
+  },
+  "alerts": {
+    "missingData": "Missing data",
+    "completeMetrics": "Complete your metrics to continue.",
+    "error": "Error",
+    "mustBeNumbers": "Must be numbers.",
+    "unusualHeightCm": "Unusual height (cm).",
+    "unusualWeightKg": "Unusual weight (kg).",
+    "unusualHeightIn": "Unusual height (in).",
+    "unusualWeightLbs": "Unusual weight (lbs).",
+    "emptyFields": "Empty fields",
+    "needEmailPassword": "We need email and password.",
+    "invalidEmailTitle": "Invalid email",
+    "invalidEmailFormat": "Incorrect format.",
+    "missingEmail": "Missing email",
+    "writeEmail": "Enter your email address.",
+    "wrongFormatTitle": "Incorrect format",
+    "includeAt": "Make sure to include '@' and domain.",
+    "sent": "Sent!",
+    "checkSpam": "Check your inbox or SPAM folder.",
+    "incomplete": "Incomplete",
+    "enterEmailPassword": "Enter email and password.",
+    "minChars": "Minimum 6 characters.",
+    "missingNickname": "Missing your nickname.",
+    "missingDateGender": "Missing date or gender.",
+    "minAge": "You must be at least 13 years old.",
+    "checkYear": "Verify your birth year."
+  },
+  "errors": {
+    "invalidEmail": "The email format is invalid. Check for trailing spaces.",
+    "userNotFound": "We couldn't find an account associated with this email.",
+    "wrongPassword": "Incorrect password. Try again.",
+    "emailInUse": "This email is already registered to another account. Try logging in.",
+    "weakPassword": "Password is too weak. Use at least 6 characters.",
+    "networkFailed": "It seems there is no internet connection. Check your network and try again.",
+    "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
+    "unexpected": "An unexpected error occurred. Please try again later."
+  }
+}

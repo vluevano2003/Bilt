@@ -1,0 +1,82 @@
+{
+  "common": {
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar",
+    "or": "O"
+  },
+  "login": {
+    "title": "BILT TRACKER",
+    "subtitle": "Tu progreso, tu ritmo",
+    "emailPlaceholder": "Correo electrónico",
+    "passwordPlaceholder": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "loginButton": "Iniciar Sesión",
+    "noAccount": "¿No tienes cuenta? Regístrate aquí",
+    "forgotSubtitle": "Recupera el acceso a tu cuenta",
+    "forgotInfo": "Escribe tu correo electrónico a continuación y te enviaremos instrucciones.",
+    "sendLink": "Enviar enlace",
+    "backToLogin": "Volver al inicio de sesión",
+    "hasAccount": "¿Ya tienes cuenta? Inicia sesión"
+  },
+  "register": {
+    "step": "Paso {{step}} de 4",
+    "addPhoto": "Añadir foto",
+    "usernamePlaceholder": "¿Cómo te llaman en el gym? (Usuario)",
+    "birthDateLabel": "Fecha de nacimiento:",
+    "selectDate": "Seleccionar fecha",
+    "confirmDate": "Confirmar fecha",
+    "genderLabel": "Género:",
+    "male": "Hombre",
+    "female": "Mujer",
+    "systemLabel": "Sistema de medida:",
+    "metric": "Métrico (cm/kg)",
+    "imperial": "Imperial (in/lbs)",
+    "heightCm": "Altura (cm)",
+    "heightIn": "Altura (in)",
+    "weightKg": "Peso (kg)",
+    "weightLbs": "Peso (lbs)"
+  },
+  "google": {
+    "comingSoonTitle": "Próximamente",
+    "comingSoonMsg": "Estamos trabajando duro para traer el inicio de sesión con Google. ¡Vuelve pronto!",
+    "continue": "Continuar con Google"
+  },
+  "alerts": {
+    "missingData": "Faltan datos",
+    "completeMetrics": "Completa tus métricas para continuar.",
+    "error": "Error",
+    "mustBeNumbers": "Deben ser números.",
+    "unusualHeightCm": "Estatura poco común (cm).",
+    "unusualWeightKg": "Peso poco común (kg).",
+    "unusualHeightIn": "Estatura poco común (in).",
+    "unusualWeightLbs": "Peso poco común (lbs).",
+    "emptyFields": "Campos vacíos",
+    "needEmailPassword": "Necesitamos correo y contraseña.",
+    "invalidEmailTitle": "Correo inválido",
+    "invalidEmailFormat": "Formato incorrecto.",
+    "missingEmail": "Falta correo",
+    "writeEmail": "Escribe tu dirección de correo.",
+    "wrongFormatTitle": "Formato incorrecto",
+    "includeAt": "Asegúrate de incluir '@' y dominio.",
+    "sent": "¡Enviado!",
+    "checkSpam": "Revisa tu bandeja de entrada o SPAM.",
+    "incomplete": "Incompleto",
+    "enterEmailPassword": "Ingresa correo y contraseña.",
+    "minChars": "Mínimo 6 caracteres.",
+    "missingNickname": "Falta tu apodo.",
+    "missingDateGender": "Falta fecha o género.",
+    "minAge": "Debes tener al menos 13 años.",
+    "checkYear": "Verifica el año de nacimiento."
+  },
+  "errors": {
+    "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
+    "userNotFound": "No encontramos ninguna cuenta asociada a este correo.",
+    "wrongPassword": "La contraseña es incorrecta. Inténtalo de nuevo.",
+    "emailInUse": "Este correo ya está registrado en otra cuenta. Intenta iniciar sesión.",
+    "weakPassword": "La contraseña es muy débil. Usa al menos 6 caracteres.",
+    "networkFailed": "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
+    "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
+    "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde."
+  }
+}

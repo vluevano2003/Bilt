@@ -1,6 +1,7 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
+import "../src/config/i18n";
 import { colors } from "../src/constants/theme";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 
