@@ -1,8 +1,11 @@
 import { AntDesign } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { colors } from "../../src/constants/theme";
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -22,7 +25,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Inicio",
+          title: t("tabs.home"),
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
           ),
@@ -33,7 +36,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: "Historial",
+          title: t("tabs.history"),
           tabBarIcon: ({ color }) => (
             <AntDesign name="clock-circle" size={24} color={color} />
           ),
@@ -44,7 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="routines"
         options={{
-          title: "Rutinas",
+          title: t("tabs.routines"),
           tabBarIcon: ({ color }) => (
             <AntDesign name="form" size={24} color={color} />
           ),
@@ -55,7 +58,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Perfil",
+          title: t("tabs.profile"),
           tabBarIcon: ({ color }) => (
             <AntDesign name="user" size={24} color={color} />
           ),

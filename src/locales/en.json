@@ -78,5 +78,35 @@
     "networkFailed": "It seems there is no internet connection. Check your network and try again.",
     "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
     "unexpected": "An unexpected error occurred. Please try again later."
+  },
+  "profile": {
+    "title": "My Profile",
+    "years": "years old",
+    "username": "Username",
+    "measurementSystem": "Measurement System",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "height": "Height",
+    "weight": "Weight",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "editProfile": "Edit Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "logout": "Log Out",
+    "alerts": {
+      "error": "Error",
+      "success": "Success",
+      "errorLoad": "Could not load profile information.",
+      "successSave": "Profile updated successfully.",
+      "errorSave": "Could not save changes."
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "history": "History",
+    "routines": "Routines",
+    "profile": "Profile"
   }
 }

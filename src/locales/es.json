@@ -78,5 +78,35 @@
     "networkFailed": "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
     "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
     "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde."
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "years": "años",
+    "username": "Nombre de usuario",
+    "measurementSystem": "Sistema de medición",
+    "metric": "Métrico",
+    "imperial": "Imperial",
+    "height": "Estatura",
+    "weight": "Peso",
+    "saveChanges": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "editProfile": "Editar Perfil",
+    "settings": "Configuración",
+    "language": "Idioma",
+    "darkMode": "Modo Oscuro",
+    "logout": "Cerrar Sesión",
+    "alerts": {
+      "error": "Error",
+      "success": "Éxito",
+      "errorLoad": "No se pudo cargar la información del perfil.",
+      "successSave": "Perfil actualizado correctamente.",
+      "errorSave": "No se pudieron guardar los cambios."
+    }
+  },
+  "tabs": {
+    "home": "Inicio",
+    "history": "Historial",
+    "routines": "Rutinas",
+    "profile": "Perfil"
   }
 }

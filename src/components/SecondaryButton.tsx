@@ -12,10 +12,20 @@ interface ButtonProps {
   title: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 }
 
-export const SecondaryButton = ({ title, onPress, style }: ButtonProps) => (
-  <TouchableOpacity style={[styles.buttonSecondary, style]} onPress={onPress}>
+export const SecondaryButton = ({
+  title,
+  onPress,
+  style,
+  disabled,
+}: ButtonProps) => (
+  <TouchableOpacity
+    style={[styles.buttonSecondary, style, disabled && { opacity: 0.6 }]}
+    onPress={onPress}
+    disabled={disabled}
+  >
     <Text style={styles.buttonTextSecondary}>{title}</Text>
   </TouchableOpacity>
 );

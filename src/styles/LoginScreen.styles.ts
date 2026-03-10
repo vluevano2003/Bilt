@@ -75,8 +75,6 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 5,
   },
-
-  // --- AQUÍ ESTÁ EL ESTILO QUE FALTABA PARA EL SELECTOR DE FECHA ---
   input: {
     backgroundColor: colors.surface,
     color: colors.textPrimary,

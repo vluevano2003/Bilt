@@ -17,7 +17,7 @@ import { GoogleSignInButton } from "../src/components/GoogleSignInButton";
 import { PrimaryButton } from "../src/components/PrimaryButton";
 import { SecondaryButton } from "../src/components/SecondaryButton";
 import { colors } from "../src/constants/theme";
-import { styles } from "./LoginScreen.styles";
+import { styles } from "../src/styles/LoginScreen.styles";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
