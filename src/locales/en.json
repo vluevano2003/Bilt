@@ -5,6 +5,13 @@
     "finish": "Finish",
     "or": "OR"
   },
+  "tabs": {
+    "home": "Home",
+    "social": "Community",
+    "routines": "Routines",
+    "history": "History",
+    "profile": "Profile"
+  },
   "login": {
     "title": "BILT TRACKER",
     "subtitle": "Your progress, your pace",
@@ -42,6 +49,57 @@
     "comingSoonMsg": "We are working hard to bring Google Sign-In. Check back soon!",
     "continue": "Continue with Google"
   },
+  "social": {
+    "feed": "Activity",
+    "findFriends": "Search",
+    "searchPlaceholder": "Search users...",
+    "follow": "Follow",
+    "requested": "Requested",
+    "following": "Following",
+    "noResults": "No users found.",
+    "searchInstructions": "Search users by their username to follow them.",
+    "requests": "Requests",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "profile": {
+    "title": "My Profile",
+    "profileOf": "Profile",
+    "years": "years",
+    "username": "Username",
+    "email": "Email",
+    "gender": "Gender",
+    "measurementSystem": "Measurement System",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "height": "Height",
+    "weight": "Weight",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "editProfile": "Edit Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "logout": "Log Out",
+    "posts": "Routines",
+    "followers": "Followers",
+    "following": "Following",
+    "friends": "friends",
+    "privateAccount": "Private Account",
+    "privateMsg": "Follow this user to see their routines and progress.",
+    "visibilityOptions": "Visibility Options",
+    "showAge": "Show Age",
+    "showGender": "Show Gender",
+    "showHeight": "Show Height",
+    "showWeight": "Show Weight",
+    "alerts": {
+      "error": "Error",
+      "success": "Success",
+      "errorLoad": "Could not load profile information.",
+      "successSave": "Profile updated successfully.",
+      "errorSave": "Could not save changes."
+    }
+  },
   "alerts": {
     "missingData": "Missing data",
     "completeMetrics": "Complete your metrics to continue.",
@@ -78,35 +136,5 @@
     "networkFailed": "It seems there is no internet connection. Check your network and try again.",
     "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
     "unexpected": "An unexpected error occurred. Please try again later."
-  },
-  "profile": {
-    "title": "My Profile",
-    "years": "years old",
-    "username": "Username",
-    "measurementSystem": "Measurement System",
-    "metric": "Metric",
-    "imperial": "Imperial",
-    "height": "Height",
-    "weight": "Weight",
-    "saveChanges": "Save Changes",
-    "cancel": "Cancel",
-    "editProfile": "Edit Profile",
-    "settings": "Settings",
-    "language": "Language",
-    "darkMode": "Dark Mode",
-    "logout": "Log Out",
-    "alerts": {
-      "error": "Error",
-      "success": "Success",
-      "errorLoad": "Could not load profile information.",
-      "successSave": "Profile updated successfully.",
-      "errorSave": "Could not save changes."
-    }
-  },
-  "tabs": {
-    "home": "Home",
-    "history": "History",
-    "routines": "Routines",
-    "profile": "Profile"
   }
 }

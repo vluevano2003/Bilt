@@ -1,12 +1,28 @@
 import * as ImagePicker from "expo-image-picker";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { auth, db, storage } from "../src/config/firebase";
 
-export const useProfile = () => {
+export interface SocialUser {
+  id: string;
+  username: string;
+  profilePictureUrl?: string;
+  status?: "pending" | "accepted";
+}
+
+export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -18,11 +34,32 @@ export const useProfile = () => {
   const [birthDate, setBirthDate] = useState("");
   const [age, setAge] = useState("");
 
+  const [email, setEmail] = useState("");
+  const [gender, setGender] = useState("");
   const [measurementSystem, setMeasurementSystem] = useState<
     "metric" | "imperial"
   >("metric");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [showAge, setShowAge] = useState(true);
+  const [showWeight, setShowWeight] = useState(true);
+  const [showHeight, setShowHeight] = useState(true);
+  const [showGender, setShowGender] = useState(true);
+
+  const [followStatus, setFollowStatus] = useState<
+    "none" | "pending" | "following"
+  >("none");
+  const [hasPendingRequestFromThem, setHasPendingRequestFromThem] =
+    useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  const currentUserId = auth.currentUser?.uid;
+  const targetUid = profileUid || currentUserId;
+  const isOwnProfile = targetUid === currentUserId;
 
   const calculateAge = (dateString: string) => {
     if (!dateString) return "";
@@ -45,9 +82,9 @@ export const useProfile = () => {
   };
 
   const fetchUserData = async () => {
-    if (!auth.currentUser) return;
+    if (!targetUid) return;
     try {
-      const docRef = doc(db, "users", auth.currentUser.uid);
+      const docRef = doc(db, "users", targetUid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -56,9 +93,17 @@ export const useProfile = () => {
         setProfilePic(data.profilePictureUrl || null);
         setBirthDate(data.birthDate || "");
         setAge(calculateAge(data.birthDate));
+        setEmail(data.email || "");
+        setGender(data.gender || "");
         setMeasurementSystem(data.measurementSystem || "metric");
         setHeight(data.height?.toString() || "");
         setWeight(data.weight?.toString() || "");
+
+        setIsPrivate(data.isPrivate || false);
+        setShowAge(data.showAge ?? true);
+        setShowWeight(data.showWeight ?? true);
+        setShowHeight(data.showHeight ?? true);
+        setShowGender(data.showGender ?? true);
       }
     } catch (error) {
       Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorLoad"));
@@ -69,9 +114,116 @@ export const useProfile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [targetUid]);
+
+  useEffect(() => {
+    if (!targetUid || !currentUserId) return;
+
+    const followersRef = collection(db, "users", targetUid, "followers");
+    const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
+      let accepted = 0;
+      let pending = 0;
+      snapshot.forEach((doc) => {
+        if (doc.data().status === "accepted") accepted++;
+        if (doc.data().status === "pending") pending++;
+      });
+      setFollowersCount(accepted);
+      if (isOwnProfile) setPendingRequestsCount(pending);
+    });
+
+    const followingRef = collection(db, "users", targetUid, "following");
+    const unsubscribeFollowingCount = onSnapshot(followingRef, (snapshot) => {
+      let accepted = 0;
+      snapshot.forEach((doc) => {
+        if (doc.data().status === "accepted") accepted++;
+      });
+      setFollowingCount(accepted);
+    });
+
+    let unsubscribeFollowingStatus = () => {};
+    let unsubscribeIncomingRequest = () => {};
+
+    if (!isOwnProfile) {
+      const myFollowingRef = doc(
+        db,
+        "users",
+        currentUserId,
+        "following",
+        targetUid,
+      );
+      unsubscribeFollowingStatus = onSnapshot(myFollowingRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const status = docSnap.data().status;
+          setFollowStatus(status === "accepted" ? "following" : "pending");
+        } else {
+          setFollowStatus("none");
+        }
+      });
+
+      const incomingRef = doc(
+        db,
+        "users",
+        currentUserId,
+        "followers",
+        targetUid,
+      );
+      unsubscribeIncomingRequest = onSnapshot(incomingRef, (docSnap) => {
+        if (docSnap.exists() && docSnap.data().status === "pending") {
+          setHasPendingRequestFromThem(true);
+        } else {
+          setHasPendingRequestFromThem(false);
+        }
+      });
+    }
+
+    return () => {
+      unsubscribeFollowers();
+      unsubscribeFollowingCount();
+      unsubscribeFollowingStatus();
+      unsubscribeIncomingRequest();
+    };
+  }, [targetUid, currentUserId, isOwnProfile]);
+
+  const getSocialList = async (
+    type: "followers" | "following" | "requests",
+  ): Promise<SocialUser[]> => {
+    if (!targetUid) return [];
+    try {
+      const queryType = type === "requests" ? "followers" : type;
+      const listRef = collection(db, "users", targetUid, queryType);
+      const snapshot = await getDocs(listRef);
+
+      const userPromises = snapshot.docs.map(async (socialDoc) => {
+        const status = socialDoc.data().status;
+
+        if (type === "followers" && status !== "accepted") return null;
+        if (type === "requests" && status !== "pending") return null;
+        if (type === "following" && status !== "accepted") return null;
+
+        const userDocRef = doc(db, "users", socialDoc.id);
+        const userSnap = await getDoc(userDocRef);
+
+        if (userSnap.exists()) {
+          return {
+            id: userSnap.id,
+            username: userSnap.data().username,
+            profilePictureUrl: userSnap.data().profilePictureUrl,
+            status: status,
+          } as SocialUser;
+        }
+        return null;
+      });
+
+      const users = await Promise.all(userPromises);
+      return users.filter((u) => u !== null) as SocialUser[];
+    } catch (error) {
+      console.log(`Error obteniendo ${type}:`, error);
+      return [];
+    }
+  };
 
   const pickImage = async () => {
+    if (!isOwnProfile) return;
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -84,30 +236,30 @@ export const useProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!auth.currentUser) return;
+    if (!currentUserId || !isOwnProfile) return;
     setIsSaving(true);
 
     try {
       let profileUrl = profilePic;
-
       if (newProfilePic) {
         const response = await fetch(newProfilePic);
         const blob = await response.blob();
-        const storageRef = ref(
-          storage,
-          `profile_pictures/${auth.currentUser.uid}`,
-        );
+        const storageRef = ref(storage, `profile_pictures/${currentUserId}`);
         await uploadBytes(storageRef, blob);
         profileUrl = await getDownloadURL(storageRef);
       }
 
-      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userRef = doc(db, "users", currentUserId);
       await updateDoc(userRef, {
         username: username.trim(),
         profilePictureUrl: profileUrl,
         measurementSystem,
         height: parseFloat(height.replace(",", ".")),
         weight: parseFloat(weight.replace(",", ".")),
+        showAge,
+        showWeight,
+        showHeight,
+        showGender,
       });
 
       setProfilePic(profileUrl);
@@ -127,6 +279,94 @@ export const useProfile = () => {
     setIsEditing(false);
   };
 
+  const togglePrivacy = async (value: boolean) => {
+    setIsPrivate(value);
+    if (!currentUserId || !isOwnProfile) return;
+    try {
+      const userRef = doc(db, "users", currentUserId);
+      await updateDoc(userRef, { isPrivate: value });
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar la privacidad");
+      setIsPrivate(!value);
+    }
+  };
+
+  const toggleFollow = async () => {
+    if (!currentUserId || !targetUid || isOwnProfile) return;
+
+    try {
+      const myFollowingRef = doc(
+        db,
+        "users",
+        currentUserId,
+        "following",
+        targetUid,
+      );
+      const theirFollowerRef = doc(
+        db,
+        "users",
+        targetUid,
+        "followers",
+        currentUserId,
+      );
+
+      if (followStatus === "following" || followStatus === "pending") {
+        await deleteDoc(myFollowingRef);
+        await deleteDoc(theirFollowerRef);
+        setFollowStatus("none");
+      } else {
+        const finalStatus = isPrivate ? "pending" : "accepted";
+        await setDoc(myFollowingRef, {
+          status: finalStatus,
+          createdAt: new Date(),
+        });
+        await setDoc(theirFollowerRef, {
+          status: finalStatus,
+          createdAt: new Date(),
+        });
+        setFollowStatus(finalStatus === "accepted" ? "following" : "pending");
+      }
+    } catch (error) {
+      console.log("Error al intentar seguir/dejar de seguir:", error);
+      Alert.alert("Error", "No se pudo completar la acción. Intenta de nuevo.");
+    }
+  };
+
+  const handleFollowRequest = async (
+    userIdToHandle: string,
+    accept: boolean,
+  ) => {
+    if (!currentUserId) return;
+    try {
+      const myFollowerRef = doc(
+        db,
+        "users",
+        currentUserId,
+        "followers",
+        userIdToHandle,
+      );
+      const theirFollowingRef = doc(
+        db,
+        "users",
+        userIdToHandle,
+        "following",
+        currentUserId,
+      );
+
+      if (accept) {
+        await updateDoc(myFollowerRef, { status: "accepted" });
+        await updateDoc(theirFollowingRef, { status: "accepted" });
+        setHasPendingRequestFromThem(false);
+      } else {
+        await deleteDoc(myFollowerRef);
+        await deleteDoc(theirFollowingRef);
+        setHasPendingRequestFromThem(false);
+      }
+    } catch (e) {
+      Alert.alert("Error", "Ocurrió un problema procesando la solicitud.");
+    }
+  };
+
   return {
     isLoading,
     isSaving,
@@ -136,14 +376,36 @@ export const useProfile = () => {
     setUsername,
     profilePic: newProfilePic || profilePic,
     age,
+    email,
+    gender,
     measurementSystem,
     setMeasurementSystem,
     height,
     setHeight,
     weight,
     setWeight,
+    isPrivate,
+    togglePrivacy,
+    showAge,
+    setShowAge,
+    showWeight,
+    setShowWeight,
+    showHeight,
+    setShowHeight,
+    showGender,
+    setShowGender,
     pickImage,
     handleSave,
     handleCancel,
+    isOwnProfile,
+    targetUid,
+    followStatus,
+    toggleFollow,
+    followersCount,
+    followingCount,
+    pendingRequestsCount,
+    getSocialList,
+    handleFollowRequest,
+    hasPendingRequestFromThem,
   };
 };

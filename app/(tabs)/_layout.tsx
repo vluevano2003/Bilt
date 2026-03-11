@@ -32,13 +32,13 @@ export default function TabsLayout() {
         }}
       />
 
-      {/*Historial de Rutinas (Archivo: history.tsx)*/}
+      {/*Social (Archivo: social.tsx)*/}
       <Tabs.Screen
-        name="history"
+        name="social"
         options={{
-          title: t("tabs.history"),
+          title: t("tabs.social"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="clock-circle" size={24} color={color} />
+            <AntDesign name="team" size={24} color={color} />
           ),
         }}
       />

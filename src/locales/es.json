@@ -5,6 +5,13 @@
     "finish": "Finalizar",
     "or": "O"
   },
+  "tabs": {
+    "home": "Inicio",
+    "social": "Comunidad",
+    "routines": "Rutinas",
+    "history": "Historial",
+    "profile": "Perfil"
+  },
   "login": {
     "title": "BILT TRACKER",
     "subtitle": "Tu progreso, tu ritmo",
@@ -42,6 +49,57 @@
     "comingSoonMsg": "Estamos trabajando duro para traer el inicio de sesión con Google. ¡Vuelve pronto!",
     "continue": "Continuar con Google"
   },
+  "social": {
+    "feed": "Novedades",
+    "findFriends": "Buscar",
+    "searchPlaceholder": "Buscar usuarios...",
+    "follow": "Seguir",
+    "requested": "Pendiente",
+    "following": "Siguiendo",
+    "noResults": "No se encontraron usuarios.",
+    "searchInstructions": "Busca usuarios por su nombre para seguirlos.",
+    "requests": "Solicitudes",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "profileOf": "Perfil",
+    "years": "años",
+    "username": "Nombre de usuario",
+    "email": "Correo electrónico",
+    "gender": "Género",
+    "measurementSystem": "Sistema de medición",
+    "metric": "Métrico",
+    "imperial": "Imperial",
+    "height": "Estatura",
+    "weight": "Peso",
+    "saveChanges": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "editProfile": "Editar Perfil",
+    "settings": "Configuración",
+    "language": "Idioma",
+    "darkMode": "Modo Oscuro",
+    "logout": "Cerrar Sesión",
+    "posts": "Rutinas",
+    "followers": "Seguidores",
+    "following": "Siguiendo",
+    "friends": "amigos",
+    "privateAccount": "Cuenta Privada",
+    "privateMsg": "Sigue a este usuario para ver sus rutinas y progreso.",
+    "visibilityOptions": "Opciones de visibilidad",
+    "showAge": "Mostrar Edad",
+    "showGender": "Mostrar Género",
+    "showHeight": "Mostrar Estatura",
+    "showWeight": "Mostrar Peso",
+    "alerts": {
+      "error": "Error",
+      "success": "Éxito",
+      "errorLoad": "No se pudo cargar la información del perfil.",
+      "successSave": "Perfil actualizado correctamente.",
+      "errorSave": "No se pudieron guardar los cambios."
+    }
+  },
   "alerts": {
     "missingData": "Faltan datos",
     "completeMetrics": "Completa tus métricas para continuar.",
@@ -78,35 +136,5 @@
     "networkFailed": "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
     "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
     "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde."
-  },
-  "profile": {
-    "title": "Mi Perfil",
-    "years": "años",
-    "username": "Nombre de usuario",
-    "measurementSystem": "Sistema de medición",
-    "metric": "Métrico",
-    "imperial": "Imperial",
-    "height": "Estatura",
-    "weight": "Peso",
-    "saveChanges": "Guardar Cambios",
-    "cancel": "Cancelar",
-    "editProfile": "Editar Perfil",
-    "settings": "Configuración",
-    "language": "Idioma",
-    "darkMode": "Modo Oscuro",
-    "logout": "Cerrar Sesión",
-    "alerts": {
-      "error": "Error",
-      "success": "Éxito",
-      "errorLoad": "No se pudo cargar la información del perfil.",
-      "successSave": "Perfil actualizado correctamente.",
-      "errorSave": "No se pudieron guardar los cambios."
-    }
-  },
-  "tabs": {
-    "home": "Inicio",
-    "history": "Historial",
-    "routines": "Rutinas",
-    "profile": "Perfil"
   }
 }

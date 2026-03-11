@@ -5,24 +5,20 @@ import "../src/config/i18n";
 import { colors } from "../src/constants/theme";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 
-/**
- * RootLayoutNav es el componente que maneja la navegación principal de la aplicación
- * @returns
- */
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
 
-  // Redirige al usuario según su estado de autenticación y la ruta actual
   useEffect(() => {
     if (isLoading) return;
 
     const inTabsGroup = segments[0] === "(tabs)";
+    const inUserProfile = segments[0] === "userProfile";
 
-    if (!user && inTabsGroup) {
+    if (!user && (inTabsGroup || inUserProfile)) {
       router.replace("/");
-    } else if (user && !inTabsGroup) {
+    } else if (user && !inTabsGroup && !inUserProfile) {
       router.replace("/(tabs)/home");
     }
   }, [user, isLoading, segments]);
@@ -41,11 +37,13 @@ function RootLayoutNav() {
     );
   }
 
-  // Renderiza las pantallas de la aplicación dentro del Stack Navigator
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="userProfile" options={{ presentation: "card" }} />
+    </Stack>
+  );
 }
 
-// RootLayout es el componente raíz que envuelve toda la aplicación con el AuthProvider
 export default function RootLayout() {
   return (
     <AuthProvider>
