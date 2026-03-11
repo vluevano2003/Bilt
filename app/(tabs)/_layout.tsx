@@ -32,17 +32,6 @@ export default function TabsLayout() {
         }}
       />
 
-      {/*Social (Archivo: social.tsx)*/}
-      <Tabs.Screen
-        name="social"
-        options={{
-          title: t("tabs.social"),
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="team" size={24} color={color} />
-          ),
-        }}
-      />
-
       {/*Creador de Rutinas (Archivo: routines.tsx)*/}
       <Tabs.Screen
         name="routines"
@@ -50,6 +39,17 @@ export default function TabsLayout() {
           title: t("tabs.routines"),
           tabBarIcon: ({ color }) => (
             <AntDesign name="form" size={24} color={color} />
+          ),
+        }}
+      />
+
+      {/*Social (Archivo: social.tsx)*/}
+      <Tabs.Screen
+        name="social"
+        options={{
+          title: t("tabs.social"),
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="team" size={24} color={color} />
           ),
         }}
       />

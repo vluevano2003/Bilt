@@ -15,10 +15,11 @@ function RootLayoutNav() {
 
     const inTabsGroup = segments[0] === "(tabs)";
     const inUserProfile = segments[0] === "userProfile";
+    const inActiveWorkout = segments[0] === "activeWorkout";
 
-    if (!user && (inTabsGroup || inUserProfile)) {
+    if (!user && (inTabsGroup || inUserProfile || inActiveWorkout)) {
       router.replace("/");
-    } else if (user && !inTabsGroup && !inUserProfile) {
+    } else if (user && !inTabsGroup && !inUserProfile && !inActiveWorkout) {
       router.replace("/(tabs)/home");
     }
   }, [user, isLoading, segments]);
@@ -40,6 +41,10 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="userProfile" options={{ presentation: "card" }} />
+      <Stack.Screen
+        name="activeWorkout"
+        options={{ presentation: "fullScreenModal" }}
+      />
     </Stack>
   );
 }
