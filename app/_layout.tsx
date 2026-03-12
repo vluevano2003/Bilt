@@ -1,8 +1,11 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { colors } from "../src/constants/theme";
+import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 
 function RootLayoutNav() {
@@ -51,8 +54,13 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <ActiveWorkoutProvider>
+          <RootLayoutNav />
+          <MiniWorkoutPlayer />
+        </ActiveWorkoutProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

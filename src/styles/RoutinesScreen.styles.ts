@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop:
-      Platform.OS === "android" ? (StatusBar.currentHeight || 24) + 15 : 50,
+      Platform.OS === "android" ? (StatusBar.currentHeight || 24) + 1 : 50,
     paddingBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

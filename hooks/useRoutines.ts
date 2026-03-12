@@ -29,8 +29,7 @@ export interface ExerciseSet {
 
 export interface ExerciseType {
   id: string;
-  name: string;
-  targetMuscle: string;
+  muscleGroup: "chest" | "back" | "legs" | "shoulders" | "arms" | "core";
   equipment: "free_weight" | "machine" | "bodyweight" | "cable";
 }
 
