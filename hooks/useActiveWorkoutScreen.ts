@@ -39,7 +39,7 @@ export const useActiveWorkoutScreen = () => {
   const handleMinimize = () => router.back();
 
   /**
-   * Compara la rutina activa con la original ignorando el estado de "completed" en los sets para determinar si hubo modificaciones significativas que justifiquen actualizar la plantilla. Si solo se marcaron sets como completados sin cambiar pesos o repeticiones, no se considerará una modificación que requiera actualizar la plantilla.
+   * Compara la rutina activa con la original ignorando el estado de "completed" en los sets para determinar si se han hecho modificaciones significativas que podrían querer guardarse en la plantilla. Si no hay rutina activa o original, asume que no hay modificaciones.
    */
   const checkModifications = () => {
     if (!activeRoutine || !originalRoutine) return false;
@@ -57,8 +57,7 @@ export const useActiveWorkoutScreen = () => {
   };
 
   /**
-   * Calcula el volumen total (peso x repeticiones) y el conteo de sets completados, luego muestra el resumen. Se llama al finalizar el workout, y si hubo modificaciones significativas en la rutina, se le da al usuario la opción de actualizar la plantilla con los cambios realizados durante el workout o mantenerla sin cambios.
-   * @returns
+   * Calcula el volumen total y el número de sets completados, luego muestra el resumen. Se llama después de finalizar el entrenamiento, y también si el usuario decide no actualizar la plantilla a pesar de haber hecho modificaciones
    */
   const calculateAndShowSummary = () => {
     if (!activeRoutine) return;
@@ -96,7 +95,9 @@ export const useActiveWorkoutScreen = () => {
           style: "default",
           onPress: async () => {
             const hasModifications = checkModifications();
-            if (hasModifications) {
+            const isReadonly = !!activeRoutine?.originalCreatorId;
+
+            if (hasModifications && !isReadonly) {
               Alert.alert(
                 t("activeWorkout.updateTemplateTitle"),
                 t("activeWorkout.updateTemplateMsg"),

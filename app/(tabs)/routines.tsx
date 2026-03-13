@@ -1,6 +1,6 @@
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -37,10 +38,10 @@ export default function RoutinesScreen() {
   const { startWorkout, activeRoutine } = useActiveWorkout();
   const editor = useRoutineEditor(saveRoutine);
 
-  /**
-   * Maneja la eliminación de una rutina con confirmación
-   * @param routineId
-   */
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [selectedReadonlyRoutine, setSelectedReadonlyRoutine] =
+    useState<any>(null);
+
   const handleDelete = (routineId: string) => {
     Alert.alert(
       t("routines.deleteConfirmTitle"),
@@ -53,6 +54,29 @@ export default function RoutinesScreen() {
           onPress: () => {
             deleteRoutine(routineId);
             editor.closeRoutineModal();
+            setDetailsModalVisible(false);
+          },
+        },
+      ],
+    );
+  };
+
+  const handleUnsaveRoutine = (routineId: string) => {
+    Alert.alert(
+      t("routines.unsaveConfirmTitle"),
+      t("routines.unsaveConfirmMsg"),
+      [
+        { text: t("routines.cancel"), style: "cancel" },
+        {
+          text: t("routines.removeFromProfile"),
+          style: "destructive",
+          onPress: async () => {
+            await deleteRoutine(routineId);
+            setDetailsModalVisible(false);
+            Alert.alert(
+              t("profile.alerts.success"),
+              t("routines.successRemoved"),
+            );
           },
         },
       ],
@@ -68,9 +92,7 @@ export default function RoutinesScreen() {
   }
 
   /**
-   * Renderiza cada ejercicio dentro de la rutina con capacidad de arrastrar para reordenar, eliminar y agregar series
-   * @param param0
-   * @returns
+   * Renderiza cada ejercicio dentro del editor de rutina, permitiendo arrastrar para reordenar, eliminar ejercicios y sets, y añadir nuevos sets
    */
   const renderDraggableExercise = ({
     item: routineEx,
@@ -188,11 +210,6 @@ export default function RoutinesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>{t("routines.title")}</Text>
-      </View>
-
-      {/* Lista de Rutinas */}
       <FlatList
         data={routines}
         keyExtractor={(item) => item.id}
@@ -206,13 +223,53 @@ export default function RoutinesScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.routineCard}
-            onPress={() => editor.openRoutineModal(item)}
+            onPress={() => {
+              if (item.originalCreatorId) {
+                setSelectedReadonlyRoutine(item);
+                setDetailsModalVisible(true);
+              } else {
+                editor.openRoutineModal(item);
+              }
+            }}
           >
             <View style={styles.routineInfo}>
               <Text style={styles.routineName}>{item.name}</Text>
               <Text style={styles.routineDetails}>
                 {item.exercises?.length || 0} {t("routines.exercises")}
               </Text>
+
+              {item.originalCreatorId && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginTop: 5,
+                    backgroundColor: "rgba(34, 197, 94, 0.1)",
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 4,
+                    alignSelf: "flex-start",
+                  }}
+                >
+                  <FontAwesome
+                    name="bookmark"
+                    size={12}
+                    color={colors.primary}
+                    style={{ marginRight: 4 }}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: colors.primary,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {t("routines.fromCreator", {
+                      creator: item.originalCreatorName,
+                    })}
+                  </Text>
+                </View>
+              )}
             </View>
             <TouchableOpacity
               style={styles.playButton}
@@ -243,7 +300,7 @@ export default function RoutinesScreen() {
         <AntDesign name="plus" size={28} color="#FFF" />
       </TouchableOpacity>
 
-      {/*Modal de creación/edición*/}
+      {/*Modal de edición para rutinas propias)*/}
       <Modal
         visible={editor.modalVisible}
         animationType="slide"
@@ -306,10 +363,7 @@ export default function RoutinesScreen() {
                           marginBottom: 15,
                         }}
                       >
-                        {t(
-                          "routines.noExercises",
-                          "No hay ejercicios agregados.",
-                        )}
+                        {t("routines.noExercises")}
                       </Text>
                     )}
                   </View>
@@ -381,7 +435,106 @@ export default function RoutinesScreen() {
         </GestureHandlerRootView>
       </Modal>
 
-      {/*Componente Modularizado de Selección*/}
+      {/*Modal de detalles de rutina (solo lectura)*/}
+      <Modal
+        visible={detailsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {selectedReadonlyRoutine?.name}
+              </Text>
+              <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={[styles.label, { marginBottom: 10 }]}>
+                {t("routines.exercises")}:
+              </Text>
+              {selectedReadonlyRoutine?.exercises?.map(
+                (exercise: any, index: number) => {
+                  const exerciseName =
+                    exercise.exerciseDetails?.id
+                      ?.replace(/_/g, " ")
+                      .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+                    "Ejercicio";
+                  return (
+                    <View
+                      key={index}
+                      style={{ marginBottom: 15, paddingLeft: 10 }}
+                    >
+                      <Text
+                        style={{
+                          color: colors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          marginBottom: 5,
+                        }}
+                      >
+                        • {exerciseName}
+                      </Text>
+                      {exercise.sets?.map((set: any, setIdx: number) => (
+                        <Text
+                          key={setIdx}
+                          style={{
+                            color: colors.textSecondary,
+                            marginLeft: 15,
+                            fontSize: 14,
+                          }}
+                        >
+                          Set {setIdx + 1}: {set.reps} reps
+                        </Text>
+                      ))}
+                    </View>
+                  );
+                },
+              )}
+              {(!selectedReadonlyRoutine?.exercises ||
+                selectedReadonlyRoutine.exercises.length === 0) && (
+                <Text style={{ color: colors.textSecondary }}>
+                  No hay ejercicios en esta rutina.
+                </Text>
+              )}
+
+              {/* Botón para DEJAR DE GUARDAR */}
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  {
+                    marginTop: 30,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  },
+                ]}
+                onPress={() => handleUnsaveRoutine(selectedReadonlyRoutine?.id)}
+              >
+                <FontAwesome
+                  name="bookmark"
+                  size={18}
+                  color={colors.textPrimary}
+                  style={{ marginRight: 10 }}
+                />
+                <Text
+                  style={[
+                    styles.actionButtonText,
+                    { color: colors.textPrimary },
+                  ]}
+                >
+                  {t("routines.removeFromProfile")}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <ExerciseSelectorModal
         visible={editor.exerciseModalVisible}
         onClose={() => editor.setExerciseModalVisible(false)}

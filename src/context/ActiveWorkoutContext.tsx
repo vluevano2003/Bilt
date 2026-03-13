@@ -1,4 +1,5 @@
 import { Audio } from "expo-av";
+import { addDoc, collection } from "firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Vibration } from "react-native";
 import {
@@ -7,11 +8,8 @@ import {
   RoutineExercise,
   WeightUnit,
 } from "../../hooks/useRoutines";
+import { auth, db } from "../config/firebase";
 
-/**
- * Maneja el estado del entrenamiento activo, incluyendo la rutina actual, el tiempo transcurrido, el estado de pausa, y la lógica de descanso entre series.
- * Proporciona funciones para iniciar, pausar, reanudar, cancelar y finalizar el entrenamiento, así como para actualizar los detalles de los sets y manejar el temporizador de descanso.
- */
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
   originalRoutine: Routine | null;
@@ -23,7 +21,7 @@ interface ActiveWorkoutContextProps {
   resumeWorkout: () => void;
   pauseWorkout: () => void;
   cancelWorkout: () => void;
-  finishWorkout: () => void;
+  finishWorkout: () => Promise<void>;
   handleSetChange: (
     exId: string,
     setId: string,
@@ -79,7 +77,54 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
   };
 
-  const finishWorkout = () => cancelWorkout();
+  /**
+   * Guarda el entrenamiento en el historial de Firestore solo con las series que se hayan marcado como completadas
+   */
+  const finishWorkout = async () => {
+    if (!activeRoutine || !auth.currentUser) {
+      cancelWorkout();
+      return;
+    }
+
+    try {
+      const completedExercises = activeRoutine.exercises
+        .map((ex) => {
+          return {
+            ...ex,
+            sets: ex.sets.filter((set) => set.completed),
+          };
+        })
+        .filter((ex) => ex.sets.length > 0);
+
+      if (completedExercises.length === 0) {
+        console.log("No hay series completadas. No se guardará el historial.");
+        cancelWorkout();
+        return;
+      }
+
+      const workoutLog = {
+        routineId: activeRoutine.id,
+        routineName: activeRoutine.name,
+        durationSeconds: elapsedSeconds,
+        completedAt: Date.now(),
+        exercises: completedExercises,
+      };
+
+      const historyRef = collection(
+        db,
+        "users",
+        auth.currentUser.uid,
+        "history",
+      );
+      await addDoc(historyRef, workoutLog);
+
+      console.log("¡Entrenamiento guardado en el historial con éxito!");
+    } catch (error) {
+      console.error("Error al guardar el entrenamiento:", error);
+    } finally {
+      cancelWorkout();
+    }
+  };
 
   const resumeWorkout = () => setIsPaused(false);
   const pauseWorkout = () => setIsPaused(true);
@@ -89,7 +134,7 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: newExercises });
   };
 
-  //Cronómetro general
+  // Cronómetro general
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (activeRoutine && !isPaused) {
@@ -100,7 +145,7 @@ export const ActiveWorkoutProvider = ({
     return () => clearInterval(interval);
   }, [activeRoutine, isPaused]);
 
-  //Sonido de fin de descanso
+  // Sonido de fin de descanso
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate(500);
@@ -116,7 +161,7 @@ export const ActiveWorkoutProvider = ({
     }
   };
 
-  //Cronómetro de descanso
+  // Cronómetro de descanso
   useEffect(() => {
     let restInterval: ReturnType<typeof setInterval>;
     if (

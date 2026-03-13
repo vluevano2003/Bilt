@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 import { SocialUser, useProfile } from "../../hooks/useProfile";
+import { useUserActivity } from "../../hooks/useUserActivity";
 import { CustomInput } from "../../src/components/CustomInput";
 import { PrimaryButton } from "../../src/components/PrimaryButton";
 import { SecondaryButton } from "../../src/components/SecondaryButton";
@@ -66,9 +67,6 @@ export default function ProfileScreen() {
   } = useProfile();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<"routines" | "history">(
-    "routines",
-  );
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const [socialModalVisible, setSocialModalVisible] = useState(false);
@@ -78,6 +76,13 @@ export default function ProfileScreen() {
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
 
+  const { userHistory, isLoadingActivity } = useUserActivity(
+    auth.currentUser?.uid,
+  );
+
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -85,7 +90,42 @@ export default function ProfileScreen() {
       console.log(error);
     }
   };
+
   const toggleLanguage = (lang: string) => i18n.changeLanguage(lang);
+
+  const openDetails = (item: any) => {
+    setSelectedItem(item);
+    setDetailsModalVisible(true);
+  };
+
+  /**
+   * Convierte el peso del set al sistema de medición actual para calcular el volumen total de la sesión
+   */
+  const getConvertedWeight = (itemWeight: number, unit: string) => {
+    const w = Number(itemWeight) || 0;
+    if (measurementSystem === "metric" && unit === "lbs") return w * 0.453592;
+    if (measurementSystem === "imperial" && unit === "kg") return w * 2.20462;
+    return w;
+  };
+
+  const calculateTotalVolume = (session: any) => {
+    if (!session?.exercises) return 0;
+    let total = 0;
+    session.exercises.forEach((ex: any) => {
+      ex.sets?.forEach((set: any) => {
+        if (set.completed) {
+          const w = getConvertedWeight(set.weight, set.weightUnit);
+          total += w * (Number(set.reps) || 0);
+        }
+      });
+    });
+    return Math.round(total);
+  };
+
+  const formatDuration = (seconds: number) => {
+    const s = Number(seconds) || 0;
+    return Math.ceil(s / 60);
+  };
 
   if (isLoading) {
     return (
@@ -99,10 +139,16 @@ export default function ProfileScreen() {
     const data = [];
     if (showAge && age) data.push(`${age} ${t("profile.years")}`);
     if (showGender && gender) data.push(gender);
-    if (showHeight && height)
+
+    if (showHeight && height) {
+      let displayHeight = Number(height);
       data.push(`${height} ${measurementSystem === "metric" ? "cm" : "in"}`);
-    if (showWeight && weight)
+    }
+
+    if (showWeight && weight) {
       data.push(`${weight} ${measurementSystem === "metric" ? "kg" : "lbs"}`);
+    }
+
     return data.join(" • ");
   };
 
@@ -202,6 +248,7 @@ export default function ProfileScreen() {
               left: 20,
               flexDirection: "row",
               alignItems: "center",
+              zIndex: 10,
             }}
             onPress={() => openSocialModal("requests")}
           >
@@ -226,7 +273,7 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
-          <View style={styles.centeredProfileInfo}>
+          <View style={[styles.centeredProfileInfo, { marginTop: 0 }]}>
             <View style={styles.avatarContainer}>
               {profilePic ? (
                 <Image
@@ -283,45 +330,57 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={styles.segmentContainer}>
-            <TouchableOpacity
+          {/*HISTORIAL DE ENTRENAMIENTO*/}
+          <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
+            <Text
               style={[
-                styles.segmentButton,
-                activeTab === "routines" && styles.segmentButtonActive,
+                styles.label,
+                { fontSize: 16, marginBottom: 15, marginLeft: 0 },
               ]}
-              onPress={() => setActiveTab("routines")}
             >
-              <Feather
-                name="grid"
-                size={24}
-                color={
-                  activeTab === "routines"
-                    ? colors.primary
-                    : colors.textSecondary
-                }
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.segmentButton,
-                activeTab === "history" && styles.segmentButtonActive,
-              ]}
-              onPress={() => setActiveTab("history")}
-            >
-              <AntDesign
-                name="calendar"
-                size={24}
-                color={
-                  activeTab === "history"
-                    ? colors.primary
-                    : colors.textSecondary
-                }
-              />
-            </TouchableOpacity>
-          </View>
+              {t("profile.workoutHistory")}
+            </Text>
+            {isLoadingActivity ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : userHistory.length > 0 ? (
+              userHistory.map((session) => {
+                const durationMins = formatDuration(session.durationSeconds);
+                const totalVolume = calculateTotalVolume(session);
+                const volumeUnit =
+                  measurementSystem === "metric" ? "kg" : "lbs";
 
-          {activeTab === "routines" && (
-            <View>
+                return (
+                  <TouchableOpacity
+                    key={session.id}
+                    style={[
+                      styles.routineCard,
+                      { flexDirection: "column", alignItems: "flex-start" },
+                    ]}
+                    onPress={() => openDetails(session)}
+                  >
+                    <Text style={styles.routineName}>
+                      {session.routineName}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        marginTop: 5,
+                      }}
+                    >
+                      <Text style={styles.routineDetails}>
+                        <Feather name="clock" size={12} /> {durationMins} min
+                      </Text>
+                      <Text style={styles.routineDetails}>
+                        <Feather name="activity" size={12} /> {totalVolume}{" "}
+                        {volumeUnit}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            ) : (
               <Text
                 style={{
                   color: colors.textSecondary,
@@ -329,23 +388,10 @@ export default function ProfileScreen() {
                   marginTop: 20,
                 }}
               >
-                Las rutinas aparecerán aquí.
+                {t("profile.noHistory")}
               </Text>
-            </View>
-          )}
-          {activeTab === "history" && (
-            <View>
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  textAlign: "center",
-                  marginTop: 20,
-                }}
-              >
-                El historial aparecerá aquí.
-              </Text>
-            </View>
-          )}
+            )}
+          </View>
         </View>
       </ScrollView>
 
@@ -477,11 +523,17 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.halfInput}>
                   <Text style={styles.label}>{t("profile.email")}</Text>
-                  <CustomInput
-                    value={email}
-                    editable={false}
-                    style={styles.readOnlyInput}
-                  />
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ width: "100%" }}
+                  >
+                    <CustomInput
+                      value={email}
+                      editable={false}
+                      style={styles.readOnlyInput}
+                    />
+                  </ScrollView>
                 </View>
               </View>
 
@@ -690,6 +742,101 @@ export default function ProfileScreen() {
                 {t("social.noResults")}
               </Text>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL DE DETALLES DEL HISTORIAL */}
+      <Modal
+        visible={detailsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{selectedItem?.routineName}</Text>
+              <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  marginBottom: 20,
+                  padding: 10,
+                  backgroundColor: colors.surface,
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
+                  <Feather name="clock" size={16} />{" "}
+                  {formatDuration(selectedItem?.durationSeconds)} min
+                </Text>
+                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
+                  <Feather name="activity" size={16} />{" "}
+                  {calculateTotalVolume(selectedItem)}{" "}
+                  {measurementSystem === "metric" ? "kg" : "lbs"}
+                </Text>
+              </View>
+
+              <Text style={[styles.label, { marginBottom: 10 }]}>
+                {t("routines.exercises")}:
+              </Text>
+              {selectedItem?.exercises?.map((exercise: any, index: number) => {
+                const exerciseName =
+                  exercise.exerciseDetails?.id
+                    ?.replace(/_/g, " ")
+                    .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+                  "Ejercicio";
+
+                return (
+                  <View
+                    key={index}
+                    style={{ marginBottom: 15, paddingLeft: 10 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        marginBottom: 5,
+                      }}
+                    >
+                      • {exerciseName}
+                    </Text>
+                    {exercise.sets?.map((set: any, setIdx: number) => {
+                      const convertedWeight = Math.round(
+                        getConvertedWeight(set.weight, set.weightUnit),
+                      );
+                      const displayUnit =
+                        set.weightUnit === "bars"
+                          ? "bars"
+                          : measurementSystem === "metric"
+                            ? "kg"
+                            : "lbs";
+
+                      return (
+                        <Text
+                          key={setIdx}
+                          style={{
+                            color: colors.textSecondary,
+                            marginLeft: 15,
+                            fontSize: 14,
+                          }}
+                        >
+                          Set {setIdx + 1}: {set.reps} reps x {convertedWeight}{" "}
+                          {displayUnit}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </ScrollView>
           </View>
         </View>
       </Modal>

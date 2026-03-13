@@ -45,6 +45,9 @@ export interface Routine {
   name: string;
   exercises: RoutineExercise[];
   createdAt: number;
+  originalCreatorId?: string;
+  originalCreatorName?: string;
+  originalRoutineId?: string;
 }
 
 export const useRoutines = () => {

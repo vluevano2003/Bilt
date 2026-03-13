@@ -98,7 +98,10 @@
       "errorLoad": "No se pudo cargar la información del perfil.",
       "successSave": "Perfil actualizado correctamente.",
       "errorSave": "No se pudieron guardar los cambios."
-    }
+    },
+    "workoutHistory": "Historial de Entrenamientos",
+    "noHistory": "El historial está vacío.",
+    "noPublicRoutines": "No hay rutinas públicas."
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -159,7 +162,17 @@
     "addSelected": "Añadir Seleccionados ({{count}})",
     "sets": "Series",
     "remove": "Quitar",
-    "noExercises": "No hay ejercicios en esta rutina aún."
+    "noExercises": "No hay ejercicios en esta rutina aún.",
+    "saveToProfile": "Guardar Rutina",
+    "removeFromProfile": "Dejar de guardar",
+    "successSaved": "¡Rutina guardada en tu perfil!",
+    "successRemoved": "Rutina eliminada de tu perfil.",
+    "readonlyTitle": "Rutina Guardada",
+    "readonlyMsg": "Esta rutina fue creada por @{{creator}} y no puede ser modificada.\n\n¡Aún así, puedes darle a Play para entrenar con ella!",
+    "understood": "Entendido",
+    "fromCreator": "De: @{{creator}}",
+    "unsaveConfirmTitle": "Eliminar de mi perfil",
+    "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?"
   },
   "activeWorkout": {
     "finish": "Finalizar",

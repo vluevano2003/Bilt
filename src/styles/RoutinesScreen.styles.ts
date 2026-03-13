@@ -124,4 +124,19 @@ export const styles = StyleSheet.create({
     marginTop: 25,
     gap: 15,
   },
+  actionButton: {
+    backgroundColor: colors.surface,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    width: "100%",
+    alignItems: "center",
+  },
+  actionButtonText: {
+    color: colors.textPrimary,
+    fontWeight: "bold",
+    fontSize: 15,
+  },
 });

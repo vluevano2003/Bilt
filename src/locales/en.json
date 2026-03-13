@@ -98,7 +98,10 @@
       "errorLoad": "Could not load profile information.",
       "successSave": "Profile updated successfully.",
       "errorSave": "Could not save changes."
-    }
+    },
+    "workoutHistory": "Workout History",
+    "noHistory": "The history is empty.",
+    "noPublicRoutines": "No public routines."
   },
   "alerts": {
     "missingData": "Missing data",
@@ -159,7 +162,17 @@
     "addSelected": "Add Selected ({{count}})",
     "sets": "Sets",
     "remove": "Remove",
-    "noExercises": "No exercises in this routine yet."
+    "noExercises": "No exercises in this routine yet.",
+    "saveToProfile": "Save Routine to Profile",
+    "removeFromProfile": "Remove from Profile",
+    "successSaved": "Routine saved to your profile!",
+    "successRemoved": "Routine removed from your profile.",
+    "readonlyTitle": "Saved Routine",
+    "readonlyMsg": "This routine was created by @{{creator}} and cannot be modified.\n\nHowever, you can still hit Play to train with it!",
+    "understood": "Understood",
+    "fromCreator": "From: @{{creator}}",
+    "unsaveConfirmTitle": "Remove from my profile",
+    "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?"
   },
   "activeWorkout": {
     "finish": "Finish",

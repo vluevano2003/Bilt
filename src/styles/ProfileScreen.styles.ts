@@ -230,4 +230,28 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  routineCard: {
+    backgroundColor: colors.surface,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  routineInfo: {
+    flex: 1,
+  },
+  routineName: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  routineDetails: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
 });

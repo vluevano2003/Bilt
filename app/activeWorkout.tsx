@@ -67,11 +67,9 @@ export default function ActiveWorkoutScreen() {
     );
   }
 
-  /**
-   * Renderiza cada ejercicio como un elemento draggable, mostrando sus sets y permitiendo editar peso, reps, marcar como completado, etc.
-   * @param param0
-   * @returns
-   */
+  // Comprueba si esta rutina es de otro usuario (read only) o es la propia del usuario (editable)
+  const isReadonly = !!activeRoutine.originalCreatorId;
+
   const renderDraggableExercise = ({
     item: exercise,
     drag,
@@ -102,13 +100,15 @@ export default function ActiveWorkoutScreen() {
             <Text style={[styles.exerciseName, { flex: 1, marginBottom: 0 }]}>
               {index + 1}. {t(`exercises.${exercise.exerciseDetails.id}`)}
             </Text>
-            <TouchableOpacity
-              onLongPress={drag}
-              delayLongPress={150}
-              style={{ padding: 5 }}
-            >
-              <Feather name="menu" size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
+            {!isReadonly && (
+              <TouchableOpacity
+                onLongPress={drag}
+                delayLongPress={150}
+                style={{ padding: 5 }}
+              >
+                <Feather name="menu" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.tableHeader}>
@@ -143,7 +143,7 @@ export default function ActiveWorkoutScreen() {
                   alignItems: "center",
                 }}
               >
-                {!set.completed && (
+                {!set.completed && !isReadonly && (
                   <TouchableOpacity
                     onPress={() => removeSetFromExercise(exercise.id, set.id)}
                     style={{ marginRight: 6 }}
@@ -224,13 +224,15 @@ export default function ActiveWorkoutScreen() {
             </View>
           ))}
 
-          <TouchableOpacity
-            style={styles.addSetButton}
-            onPress={() => addSetToExercise(exercise.id)}
-          >
-            <Feather name="plus" size={16} color={colors.primary} />
-            <Text style={styles.addSetText}>{t("activeWorkout.addSet")}</Text>
-          </TouchableOpacity>
+          {!isReadonly && (
+            <TouchableOpacity
+              style={styles.addSetButton}
+              onPress={() => addSetToExercise(exercise.id)}
+            >
+              <Feather name="plus" size={16} color={colors.primary} />
+              <Text style={styles.addSetText}>{t("activeWorkout.addSet")}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScaleDecorator>
     );
@@ -254,7 +256,6 @@ export default function ActiveWorkoutScreen() {
         {t("activeWorkout.workoutOf", { name: activeRoutine.name })}
       </Text>
 
-      {/*Banner de tiempo de descanso, mostrando el tiempo restante y controles para ajustar o saltar el descanso*/}
       {isResting && restTimeRemaining !== null && (
         <View style={styles.restBanner}>
           <View style={{ flex: 1 }}>
@@ -290,7 +291,6 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
-      {/*Lista de ejercicios, cada uno con sus sets, permitiendo arrastrar para reordenar, editar peso/reps, marcar sets como completados, etc.*/}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -322,7 +322,6 @@ export default function ActiveWorkoutScreen() {
         />
       </KeyboardAvoidingView>
 
-      {/*Modal de resumen al finalizar el workout, mostrando duración, volumen total, sets completados, etc.*/}
       <Modal visible={showSummary} animationType="slide" transparent={true}>
         <View style={styles.summaryOverlay}>
           <View style={styles.summaryContent}>
