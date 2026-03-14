@@ -19,7 +19,7 @@ import { useRoutines } from "../hooks/useRoutines";
 import { useUserActivity } from "../hooks/useUserActivity";
 import { auth, db } from "../src/config/firebase";
 import { colors } from "../src/constants/theme";
-import { styles } from "../src/styles/ProfileScreen.styles";
+import { styles } from "../src/styles/Profile.styles";
 
 export default function UserProfileScreen() {
   const { t } = useTranslation();
@@ -415,7 +415,7 @@ export default function UserProfileScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* PESTAÑA DE RUTINAS */}
+              {/*Rutinas*/}
               {activeTab === "routines" && (
                 <View style={{ paddingHorizontal: 20 }}>
                   {isLoadingActivity ? (
@@ -470,7 +470,7 @@ export default function UserProfileScreen() {
                 </View>
               )}
 
-              {/* PESTAÑA DE HISTORIAL */}
+              {/*Historial*/}
               {activeTab === "history" && (
                 <View style={{ paddingHorizontal: 20 }}>
                   {isLoadingActivity ? (
@@ -537,7 +537,7 @@ export default function UserProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* MODALES SOCIALES (omito el código repetido para ahorrar espacio, mantenlo igual) */}
+      {/*Seguidos y seguidores*/}
       <Modal
         visible={socialModalVisible}
         animationType="slide"
@@ -584,7 +584,7 @@ export default function UserProfileScreen() {
         </View>
       </Modal>
 
-      {/* MODAL DE DETALLES */}
+      {/*Detalles*/}
       <Modal
         visible={detailsModalVisible}
         animationType="slide"
@@ -604,7 +604,7 @@ export default function UserProfileScreen() {
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              {/* VISTA DE RUTINA */}
+              {/*Vista de rutina*/}
               {detailsType === "routine" && (
                 <View>
                   <Text style={[styles.label, { marginBottom: 10 }]}>
@@ -632,7 +632,6 @@ export default function UserProfileScreen() {
                           >
                             • {exerciseName}
                           </Text>
-                          {/* AÑADIDO: Repeticiones en el modal */}
                           {exercise.sets?.map((set: any, setIdx: number) => (
                             <Text
                               key={setIdx}
@@ -699,7 +698,7 @@ export default function UserProfileScreen() {
                 </View>
               )}
 
-              {/* VISTA DE HISTORIAL */}
+              {/*Vista de historial*/}
               {detailsType === "history" && (
                 <View>
                   <View

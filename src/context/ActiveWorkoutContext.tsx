@@ -10,6 +10,9 @@ import {
 } from "../../hooks/useRoutines";
 import { auth, db } from "../config/firebase";
 
+/**
+ * Contexto para manejar el estado del entrenamiento activo, incluyendo la rutina en curso, el tiempo transcurrido, el estado de pausa, el temporizador de descanso y las funciones para manipular estos estados
+ */
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
   originalRoutine: Routine | null;
@@ -28,7 +31,7 @@ interface ActiveWorkoutContextProps {
     field: "weight" | "reps",
     val: string,
   ) => void;
-  toggleUnit: (exId: string, setId: string) => void;
+  changeExerciseUnit: (exId: string, newUnit: WeightUnit) => void;
   addSetToExercise: (exId: string) => void;
   removeSetFromExercise: (exId: string, setId: string) => void;
   toggleSetCompletion: (
@@ -40,6 +43,7 @@ interface ActiveWorkoutContextProps {
   stopRestTimer: () => void;
   reorderActiveExercises: (newExercises: RoutineExercise[]) => void;
   setIsPaused: (val: boolean) => void;
+  updateExerciseRestTime: (exId: string, newTime: number) => void;
 }
 
 export const ActiveWorkoutContext =
@@ -77,9 +81,6 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
   };
 
-  /**
-   * Guarda el entrenamiento en el historial de Firestore solo con las series que se hayan marcado como completadas
-   */
   const finishWorkout = async () => {
     if (!activeRoutine || !auth.currentUser) {
       cancelWorkout();
@@ -134,7 +135,6 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: newExercises });
   };
 
-  // Cronómetro general
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (activeRoutine && !isPaused) {
@@ -145,7 +145,6 @@ export const ActiveWorkoutProvider = ({
     return () => clearInterval(interval);
   }, [activeRoutine, isPaused]);
 
-  // Sonido de fin de descanso
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate(500);
@@ -161,7 +160,6 @@ export const ActiveWorkoutProvider = ({
     }
   };
 
-  // Cronómetro de descanso
   useEffect(() => {
     let restInterval: ReturnType<typeof setInterval>;
     if (
@@ -201,18 +199,11 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const toggleUnit = (exerciseId: string, setId: string) => {
+  const changeExerciseUnit = (exerciseId: string, newUnit: WeightUnit) => {
     if (!activeRoutine) return;
-    const units: WeightUnit[] = ["kg", "lbs", "bars", "plates", "bodyweight"];
     const updatedExercises = activeRoutine.exercises.map((ex) => {
       if (ex.id === exerciseId) {
-        const updatedSets = ex.sets.map((s) => {
-          if (s.id === setId) {
-            const nextIndex = (units.indexOf(s.weightUnit) + 1) % units.length;
-            return { ...s, weightUnit: units[nextIndex] };
-          }
-          return s;
-        });
+        const updatedSets = ex.sets.map((s) => ({ ...s, weightUnit: newUnit }));
         return { ...ex, sets: updatedSets };
       }
       return ex;
@@ -290,6 +281,13 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
   };
+  const updateExerciseRestTime = (exId: string, newTime: number) => {
+    if (!activeRoutine) return;
+    const updatedExercises = activeRoutine.exercises.map((ex) =>
+      ex.id === exId ? { ...ex, restTimeSeconds: newTime } : ex,
+    );
+    setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
+  };
 
   return (
     <ActiveWorkoutContext.Provider
@@ -306,7 +304,7 @@ export const ActiveWorkoutProvider = ({
         cancelWorkout,
         finishWorkout,
         handleSetChange,
-        toggleUnit,
+        changeExerciseUnit,
         addSetToExercise,
         removeSetFromExercise,
         toggleSetCompletion,
@@ -314,6 +312,7 @@ export const ActiveWorkoutProvider = ({
         stopRestTimer,
         reorderActiveExercises,
         setIsPaused,
+        updateExerciseRestTime,
       }}
     >
       {children}

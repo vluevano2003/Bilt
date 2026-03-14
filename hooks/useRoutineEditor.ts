@@ -9,6 +9,9 @@ import {
   RoutineExercise,
 } from "./useRoutines";
 
+/**
+ * Hook para manejar la lógica de creación y edición de rutinas, incluyendo la gestión de ejercicios, sets y filtros de búsqueda. Permite abrir un modal para crear o editar una rutina, agregar o eliminar ejercicios, reordenar ejercicios, y seleccionar ejercicios desde una base de datos con filtros de búsqueda y músculo. Se encarga de mantener el estado local de la rutina en edición y proporciona funciones para guardar los cambios a través de una función pasada como argumento
+ */
 export const useRoutineEditor = (
   saveRoutineFn: (
     id: string | null,

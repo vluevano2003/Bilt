@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { ExerciseType } from "../../hooks/useRoutines";
 import { colors } from "../constants/theme";
-import { styles } from "../styles/RoutinesScreen.styles";
+import { styles } from "../styles/Routines.styles";
 import { PrimaryButton } from "./PrimaryButton";
 
 interface Props {

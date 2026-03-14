@@ -99,7 +99,7 @@ export default function SocialScreen() {
 
   return (
     <View style={styles.container}>
-      {/* TABS SUPERIORES */}
+      {/*Botones de navegación*/}
       <View style={styles.topTabs}>
         <TouchableOpacity onPress={() => setActiveTab("feed")}>
           <Text
@@ -123,7 +123,7 @@ export default function SocialScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* CONTENIDO DE BÚSQUEDA */}
+      {/*Contenido de búsqueda*/}
       {activeTab === "search" ? (
         <View style={styles.content}>
           <View style={styles.searchBar}>
@@ -147,7 +147,7 @@ export default function SocialScreen() {
             )}
           </View>
 
-          {/* ESTADO DE RESULTADOS */}
+          {/*Resultados de búsqueda*/}
           {isSearching ? (
             <ActivityIndicator
               size="large"

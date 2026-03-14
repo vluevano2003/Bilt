@@ -3,6 +3,7 @@
     "back": "Atrás",
     "next": "Siguiente",
     "finish": "Finalizar",
+    "cancel": "Cancelar",
     "or": "O"
   },
   "tabs": {
@@ -56,7 +57,8 @@
     "follow": "Seguir",
     "requested": "Pendiente",
     "following": "Siguiendo",
-    "noResults": "No se encontraron usuarios.",
+    "noResults": "No se encontraron resultados.",
+    "noNotifications": "No hay notificaciones.",
     "searchInstructions": "Busca usuarios por su nombre para seguirlos.",
     "requests": "Solicitudes",
     "accept": "Aceptar",
@@ -172,7 +174,8 @@
     "understood": "Entendido",
     "fromCreator": "De: @{{creator}}",
     "unsaveConfirmTitle": "Eliminar de mi perfil",
-    "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?"
+    "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?",
+    "savedRoutines": "Rutinas Guardadas"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -212,7 +215,8 @@
     "totalVolume": "Volumen Total",
     "completedSets": "Series Completadas",
     "duration": "Duración",
-    "closeSummary": "Cerrar"
+    "closeSummary": "Cerrar",
+    "logWorkout": "Registrar Rutina"
   },
   "muscles": {
     "chest": "Pecho",
@@ -317,5 +321,28 @@
     "ab_wheel_rollout": "Rueda Abdominal",
     "bicycle_crunch": "Crunches en Bicicleta",
     "cable_crunch": "Crunch en Polea"
+  },
+  "unitSelection": {
+    "title": "Seleccionar Unidad",
+    "kg": "Kilogramos (kg)",
+    "kg_desc": "Registra el volumen total levantado en kilogramos.",
+    "lbs": "Libras (lbs)",
+    "lbs_desc": "Registra el volumen total levantado en libras.",
+    "bodyweight": "Peso Corporal",
+    "bodyweight_desc": "Para ejercicios con tu peso. Registra peso solo si usas lastre extra.",
+    "bars": "Barras / Bloques",
+    "bars_desc": "Para niveles o bloques en máquinas de poleas. No suma al volumen total.",
+    "plates": "Discos",
+    "plates_desc": "Registra la cantidad de discos usados por lado. No suma al volumen total."
+  },
+  "home": {
+    "title": "¡Mutación en progreso!",
+    "subtitle": "Bienvenido a tu panel principal.",
+    "weeklySummary": "Resumen de Actividad",
+    "workouts": "Entrenos",
+    "volume": "Volumen ({{unit}})",
+    "startEmpty": "+ Iniciar Entreno Vacío",
+    "workoutInProgress": "Entrenamiento en curso",
+    "goToWorkout": "Ir al Entrenamiento Activo"
   }
 }

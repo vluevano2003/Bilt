@@ -1,5 +1,5 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +23,12 @@ import { PrimaryButton } from "../../src/components/PrimaryButton";
 import { SecondaryButton } from "../../src/components/SecondaryButton";
 import { auth } from "../../src/config/firebase";
 import { colors } from "../../src/constants/theme";
-import { styles } from "../../src/styles/ProfileScreen.styles";
+import { styles } from "../../src/styles/Profile.styles";
+import {
+  calculateSessionVolume,
+  formatDuration,
+  getConvertedWeight,
+} from "../../src/utils/workoutCalculations";
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -41,7 +46,6 @@ export default function ProfileScreen() {
     email,
     gender,
     measurementSystem,
-    setMeasurementSystem,
     height,
     setHeight,
     weight,
@@ -61,9 +65,8 @@ export default function ProfileScreen() {
     setShowGender,
     followersCount,
     followingCount,
-    pendingRequestsCount,
     getSocialList,
-    handleFollowRequest,
+    changeMeasurementSystem,
   } = useProfile();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -71,7 +74,7 @@ export default function ProfileScreen() {
 
   const [socialModalVisible, setSocialModalVisible] = useState(false);
   const [socialModalType, setSocialModalType] = useState<
-    "followers" | "following" | "requests"
+    "followers" | "following"
   >("followers");
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
@@ -98,42 +101,14 @@ export default function ProfileScreen() {
     setDetailsModalVisible(true);
   };
 
-  /**
-   * Convierte el peso del set al sistema de medición actual para calcular el volumen total de la sesión
-   */
-  const getConvertedWeight = (itemWeight: number, unit: string) => {
-    const w = Number(itemWeight) || 0;
-    if (measurementSystem === "metric" && unit === "lbs") return w * 0.453592;
-    if (measurementSystem === "imperial" && unit === "kg") return w * 2.20462;
-    return w;
+  const openSocialModal = async (type: "followers" | "following") => {
+    setSocialModalType(type);
+    setSocialModalVisible(true);
+    setLoadingSocial(true);
+    const users = await getSocialList(type);
+    setSocialList(users);
+    setLoadingSocial(false);
   };
-
-  const calculateTotalVolume = (session: any) => {
-    if (!session?.exercises) return 0;
-    let total = 0;
-    session.exercises.forEach((ex: any) => {
-      ex.sets?.forEach((set: any) => {
-        if (set.completed) {
-          const w = getConvertedWeight(set.weight, set.weightUnit);
-          total += w * (Number(set.reps) || 0);
-        }
-      });
-    });
-    return Math.round(total);
-  };
-
-  const formatDuration = (seconds: number) => {
-    const s = Number(seconds) || 0;
-    return Math.ceil(s / 60);
-  };
-
-  if (isLoading) {
-    return (
-      <View style={[styles.container, { justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
 
   const getPublicDataString = () => {
     const data = [];
@@ -141,7 +116,6 @@ export default function ProfileScreen() {
     if (showGender && gender) data.push(gender);
 
     if (showHeight && height) {
-      let displayHeight = Number(height);
       data.push(`${height} ${measurementSystem === "metric" ? "cm" : "in"}`);
     }
 
@@ -150,17 +124,6 @@ export default function ProfileScreen() {
     }
 
     return data.join(" • ");
-  };
-
-  const openSocialModal = async (
-    type: "followers" | "following" | "requests",
-  ) => {
-    setSocialModalType(type);
-    setSocialModalVisible(true);
-    setLoadingSocial(true);
-    const users = await getSocialList(type);
-    setSocialList(users);
-    setLoadingSocial(false);
   };
 
   const renderSocialItem = ({ item }: { item: SocialUser }) => (
@@ -188,92 +151,45 @@ export default function ProfileScreen() {
           @{item.username}
         </Text>
       </TouchableOpacity>
-
-      {socialModalType === "requests" ? (
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: colors.primary,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              handleFollowRequest(item.id, true);
-              setSocialList((prev) => prev.filter((u) => u.id !== item.id));
-            }}
-          >
-            <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: 12 }}>
-              {t("social.accept")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              backgroundColor: colors.surface,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 5,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-            onPress={() => {
-              handleFollowRequest(item.id, false);
-              setSocialList((prev) => prev.filter((u) => u.id !== item.id));
-            }}
-          >
-            <Text
-              style={{
-                color: colors.textPrimary,
-                fontWeight: "bold",
-                fontSize: 12,
-              }}
-            >
-              X
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <Feather name="chevron-right" size={20} color={colors.textSecondary} />
-      )}
+      <Feather name="chevron-right" size={20} color={colors.textSecondary} />
     </View>
   );
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={[styles.headerContainer, { justifyContent: "flex-end" }]}>
-        {isPrivate && pendingRequestsCount > 0 && (
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              left: 20,
-              flexDirection: "row",
-              alignItems: "center",
-              zIndex: 10,
-            }}
-            onPress={() => openSocialModal("requests")}
-          >
+      <Tabs.Screen
+        options={{
+          headerRight: () => (
             <View
               style={{
-                backgroundColor: "#EF4444",
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                marginRight: 5,
+                flexDirection: "row",
+                alignItems: "center",
+                paddingRight: 20,
               }}
-            />
-            <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
-              {pendingRequestsCount} {t("social.requests")}
-            </Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity onPress={() => setSettingsVisible(true)}>
-          <AntDesign name="setting" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
+            >
+              <TouchableOpacity onPress={() => setSettingsVisible(true)}>
+                <AntDesign
+                  name="setting"
+                  size={24}
+                  color={colors.textPrimary}
+                />
+              </TouchableOpacity>
+            </View>
+          ),
+        }}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
-          <View style={[styles.centeredProfileInfo, { marginTop: 0 }]}>
+          <View style={[styles.centeredProfileInfo, { marginTop: 20 }]}>
             <View style={styles.avatarContainer}>
               {profilePic ? (
                 <Image
@@ -330,7 +246,7 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/*HISTORIAL DE ENTRENAMIENTO*/}
+          {/*Historial de entrenamiento*/}
           <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
             <Text
               style={[
@@ -345,7 +261,10 @@ export default function ProfileScreen() {
             ) : userHistory.length > 0 ? (
               userHistory.map((session) => {
                 const durationMins = formatDuration(session.durationSeconds);
-                const totalVolume = calculateTotalVolume(session);
+                const totalVolume = calculateSessionVolume(
+                  session,
+                  measurementSystem,
+                );
                 const volumeUnit =
                   measurementSystem === "metric" ? "kg" : "lbs";
 
@@ -395,7 +314,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/*MODAL EDICIÓN*/}
+      {/*Edición*/}
       <Modal
         visible={isEditing}
         animationType="slide"
@@ -455,7 +374,7 @@ export default function ProfileScreen() {
                     measurementSystem === "metric" &&
                       styles.formSegmentButtonActive,
                   ]}
-                  onPress={() => setMeasurementSystem("metric")}
+                  onPress={() => changeMeasurementSystem("metric")}
                 >
                   <Text
                     style={[
@@ -467,13 +386,14 @@ export default function ProfileScreen() {
                     {t("profile.metric")}
                   </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   style={[
                     styles.formSegmentButton,
                     measurementSystem === "imperial" &&
                       styles.formSegmentButtonActive,
                   ]}
-                  onPress={() => setMeasurementSystem("imperial")}
+                  onPress={() => changeMeasurementSystem("imperial")}
                 >
                   <Text
                     style={[
@@ -600,7 +520,7 @@ export default function ProfileScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/*MODAL AJUSTES*/}
+      {/*Ajustes*/}
       <Modal
         visible={settingsVisible}
         animationType="slide"
@@ -697,7 +617,7 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/*MODAL LISTA SOCIAL*/}
+      {/*Lista de seguidores y seguidos*/}
       <Modal
         visible={socialModalVisible}
         animationType="slide"
@@ -710,9 +630,7 @@ export default function ProfileScreen() {
               <Text style={styles.modalTitle}>
                 {socialModalType === "followers"
                   ? t("profile.followers")
-                  : socialModalType === "following"
-                    ? t("profile.following")
-                    : t("social.requests")}
+                  : t("profile.following")}
               </Text>
               <TouchableOpacity onPress={() => setSocialModalVisible(false)}>
                 <AntDesign name="close" size={24} color={colors.textPrimary} />
@@ -746,7 +664,7 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/* MODAL DE DETALLES DEL HISTORIAL */}
+      {/*Historial*/}
       <Modal
         visible={detailsModalVisible}
         animationType="slide"
@@ -778,7 +696,7 @@ export default function ProfileScreen() {
                 </Text>
                 <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
                   <Feather name="activity" size={16} />{" "}
-                  {calculateTotalVolume(selectedItem)}{" "}
+                  {calculateSessionVolume(selectedItem, measurementSystem)}{" "}
                   {measurementSystem === "metric" ? "kg" : "lbs"}
                 </Text>
               </View>
@@ -810,7 +728,11 @@ export default function ProfileScreen() {
                     </Text>
                     {exercise.sets?.map((set: any, setIdx: number) => {
                       const convertedWeight = Math.round(
-                        getConvertedWeight(set.weight, set.weightUnit),
+                        getConvertedWeight(
+                          set.weight,
+                          set.weightUnit,
+                          measurementSystem,
+                        ),
                       );
                       const displayUnit =
                         set.weightUnit === "bars"

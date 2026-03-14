@@ -50,6 +50,10 @@ export interface Routine {
   originalRoutineId?: string;
 }
 
+/**
+ * Hook personalizado para gestionar las rutinas del usuario en tiempo real
+ * @returns
+ */
 export const useRoutines = () => {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +90,6 @@ export const useRoutines = () => {
     setIsSaving(true);
     try {
       if (routineId) {
-        // Actualizar rutina existente
         const routineRef = doc(
           db,
           "users",
@@ -96,13 +99,8 @@ export const useRoutines = () => {
         );
         await updateDoc(routineRef, { name, exercises });
       } else {
-        // Crear nueva rutina
         const routinesRef = collection(db, "users", currentUserId, "routines");
-        await addDoc(routinesRef, {
-          name,
-          exercises,
-          createdAt: Date.now(),
-        });
+        await addDoc(routinesRef, { name, exercises, createdAt: Date.now() });
       }
     } catch (error) {
       console.log("Error saving routine:", error);
@@ -122,11 +120,6 @@ export const useRoutines = () => {
       throw error;
     }
   };
-  return {
-    routines,
-    isLoading,
-    isSaving,
-    saveRoutine,
-    deleteRoutine,
-  };
+
+  return { routines, isLoading, isSaving, saveRoutine, deleteRoutine };
 };

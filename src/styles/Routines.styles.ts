@@ -2,10 +2,7 @@ import { Platform, StatusBar, StyleSheet } from "react-native";
 import { colors } from "../constants/theme";
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -17,15 +14,26 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: colors.textPrimary,
+  headerTitle: { fontSize: 24, fontWeight: "bold", color: colors.textPrimary },
+  tabsContainer: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
   },
-  listContainer: {
-    padding: 20,
-    paddingBottom: 100,
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
   },
+  activeTab: { borderBottomColor: colors.primary },
+  tabText: { color: colors.textSecondary, fontSize: 15, fontWeight: "600" },
+  activeTabText: { color: colors.primary },
+
+  listContainer: { padding: 20, paddingBottom: 100 },
+
   routineCard: {
     backgroundColor: colors.surface,
     borderRadius: 12,
@@ -33,32 +41,30 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 6,
   },
-  routineInfo: {
-    flex: 1,
-  },
-  routineName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  routineDetails: {
+  routineName: { fontSize: 18, fontWeight: "bold", color: colors.textPrimary },
+  exercisePreview: {
     fontSize: 14,
     color: colors.textSecondary,
+    marginBottom: 15,
+    lineHeight: 20,
   },
-  playButton: {
+  startRoutineButton: {
     backgroundColor: colors.primary,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
+    borderRadius: 8,
+    paddingVertical: 12,
     alignItems: "center",
-    marginLeft: 15,
+    justifyContent: "center",
+    width: "100%",
   },
+  startRoutineText: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
+
   fab: {
     position: "absolute",
     bottom: 30,
@@ -75,11 +81,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
-  emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 50,
-  },
+  emptyState: { alignItems: "center", justifyContent: "center", marginTop: 50 },
   emptyText: {
     color: colors.textSecondary,
     fontSize: 16,
@@ -87,6 +89,7 @@ export const styles = StyleSheet.create({
     marginTop: 15,
     paddingHorizontal: 30,
   },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -106,11 +109,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  modalTitle: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    fontWeight: "bold",
-  },
+  modalTitle: { color: colors.textPrimary, fontSize: 20, fontWeight: "bold" },
   label: {
     color: colors.textSecondary,
     fontSize: 13,
@@ -124,6 +123,7 @@ export const styles = StyleSheet.create({
     marginTop: 25,
     gap: 15,
   },
+
   actionButton: {
     backgroundColor: colors.surface,
     paddingVertical: 10,

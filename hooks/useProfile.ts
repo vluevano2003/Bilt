@@ -22,6 +22,9 @@ export interface SocialUser {
   status?: "pending" | "accepted";
 }
 
+/**
+ * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores
+ */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
@@ -367,6 +370,40 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Cambia el sistema de medición y convierte los valores de peso y altura al nuevo sistema
+   * @param newSystem
+   * @returns
+   */
+  const changeMeasurementSystem = (newSystem: "metric" | "imperial") => {
+    if (newSystem === measurementSystem) return;
+
+    const currentWeight = parseFloat(weight.replace(",", "."));
+    const currentHeight = parseFloat(height.replace(",", "."));
+
+    let newWeight = weight;
+    let newHeight = height;
+
+    if (newSystem === "imperial") {
+      if (!isNaN(currentWeight))
+        newWeight = parseFloat((currentWeight * 2.20462).toFixed(1)).toString();
+      if (!isNaN(currentHeight))
+        newHeight = parseFloat(
+          (currentHeight * 0.393701).toFixed(1),
+        ).toString();
+    } else {
+      if (!isNaN(currentWeight))
+        newWeight = parseFloat(
+          (currentWeight * 0.453592).toFixed(1),
+        ).toString();
+      if (!isNaN(currentHeight))
+        newHeight = parseFloat((currentHeight * 2.54).toFixed(1)).toString();
+    }
+    setWeight(newWeight);
+    setHeight(newHeight);
+    setMeasurementSystem(newSystem);
+  };
+
   return {
     isLoading,
     isSaving,
@@ -407,5 +444,6 @@ export const useProfile = (profileUid?: string) => {
     getSocialList,
     handleFollowRequest,
     hasPendingRequestFromThem,
+    changeMeasurementSystem,
   };
 };

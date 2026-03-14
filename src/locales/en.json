@@ -3,6 +3,7 @@
     "back": "Back",
     "next": "Next",
     "finish": "Finish",
+    "cancel": "Cancel",
     "or": "OR"
   },
   "tabs": {
@@ -57,6 +58,7 @@
     "requested": "Requested",
     "following": "Following",
     "noResults": "No users found.",
+    "noNotifications": "No notifications.",
     "searchInstructions": "Search users by their username to follow them.",
     "requests": "Requests",
     "accept": "Accept",
@@ -172,7 +174,8 @@
     "understood": "Understood",
     "fromCreator": "From: @{{creator}}",
     "unsaveConfirmTitle": "Remove from my profile",
-    "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?"
+    "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?",
+    "savedRoutines": "Saved Routines"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -212,7 +215,8 @@
     "totalVolume": "Total Volume",
     "completedSets": "Completed Sets",
     "duration": "Duration",
-    "closeSummary": "Close"
+    "closeSummary": "Close",
+    "logWorkout": "Log Workout"
   },
   "muscles": {
     "chest": "Chest",
@@ -317,5 +321,28 @@
     "ab_wheel_rollout": "Ab Wheel Rollout",
     "bicycle_crunch": "Bicycle Crunches",
     "cable_crunch": "Cable Crunch"
+  },
+  "unitSelection": {
+    "title": "Select Unit",
+    "kg": "Kilograms (kg)",
+    "kg_desc": "Tracks total volume lifted in kilograms.",
+    "lbs": "Pounds (lbs)",
+    "lbs_desc": "Tracks total volume lifted in pounds.",
+    "bodyweight": "Bodyweight",
+    "bodyweight_desc": "For bodyweight exercises. Log weight only if using extra load.",
+    "bars": "Bars / Pins",
+    "bars_desc": "Records weight stack levels or pins on machines. Does not add to volume.",
+    "plates": "Plates",
+    "plates_desc": "Records the number of plates per side. Does not add to total volume."
+  },
+  "home": {
+    "title": "Mutation in progress!",
+    "subtitle": "Welcome to your main dashboard.",
+    "weeklySummary": "Activity Summary",
+    "workouts": "Workouts",
+    "volume": "Volume ({{unit}})",
+    "startEmpty": "+ Start Empty Workout",
+    "workoutInProgress": "Workout in progress",
+    "goToWorkout": "Go to Active Workout"
   }
 }

@@ -28,7 +28,7 @@ import { PrimaryButton } from "../../src/components/PrimaryButton";
 import { SecondaryButton } from "../../src/components/SecondaryButton";
 import { colors } from "../../src/constants/theme";
 import { useActiveWorkout } from "../../src/context/ActiveWorkoutContext";
-import { styles } from "../../src/styles/RoutinesScreen.styles";
+import { styles } from "../../src/styles/Routines.styles";
 
 export default function RoutinesScreen() {
   const { t } = useTranslation();
@@ -37,10 +37,10 @@ export default function RoutinesScreen() {
     useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
   const editor = useRoutineEditor(saveRoutine);
-
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedReadonlyRoutine, setSelectedReadonlyRoutine] =
     useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"own" | "saved">("own");
 
   const handleDelete = (routineId: string) => {
     Alert.alert(
@@ -91,8 +91,13 @@ export default function RoutinesScreen() {
     );
   }
 
+  const displayedRoutines =
+    activeTab === "own"
+      ? routines.filter((r) => !r.originalCreatorId)
+      : routines.filter((r) => r.originalCreatorId);
+
   /**
-   * Renderiza cada ejercicio dentro del editor de rutina, permitiendo arrastrar para reordenar, eliminar ejercicios y sets, y añadir nuevos sets
+   * Renderiza cada ejercicio dentro del editor de rutina, permitiendo arrastrar para reordenar, eliminar el ejercicio o agregar/quitar sets. Se muestra el nombre del ejercicio y su grupo muscular. Si el ejercicio está activo (siendo arrastrado), se resalta visualmente.
    */
   const renderDraggableExercise = ({
     item: routineEx,
@@ -210,8 +215,37 @@ export default function RoutinesScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "own" && styles.activeTab]}
+          onPress={() => setActiveTab("own")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "own" && styles.activeTabText,
+            ]}
+          >
+            {t("routines.title")}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "saved" && styles.activeTab]}
+          onPress={() => setActiveTab("saved")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "saved" && styles.activeTabText,
+            ]}
+          >
+            {t("routines.savedRoutines", "Guardadas")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
-        data={routines}
+        data={displayedRoutines}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
@@ -220,77 +254,101 @@ export default function RoutinesScreen() {
             <Text style={styles.emptyText}>{t("routines.emptyMessage")}</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.routineCard}
-            onPress={() => {
-              if (item.originalCreatorId) {
-                setSelectedReadonlyRoutine(item);
-                setDetailsModalVisible(true);
-              } else {
-                editor.openRoutineModal(item);
-              }
-            }}
-          >
-            <View style={styles.routineInfo}>
-              <Text style={styles.routineName}>{item.name}</Text>
-              <Text style={styles.routineDetails}>
-                {item.exercises?.length || 0} {t("routines.exercises")}
-              </Text>
+        renderItem={({ item }) => {
+          const exercisesPreview =
+            item.exercises
+              ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
+              .join(", ") || t("routines.noExercises", "Sin ejercicios");
 
-              {item.originalCreatorId && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 5,
-                    backgroundColor: "rgba(34, 197, 94, 0.1)",
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 4,
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <FontAwesome
-                    name="bookmark"
-                    size={12}
-                    color={colors.primary}
-                    style={{ marginRight: 4 }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 11,
-                      color: colors.primary,
-                      fontWeight: "bold",
+          return (
+            <View style={styles.routineCard}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (item.originalCreatorId) {
+                    setSelectedReadonlyRoutine(item);
+                    setDetailsModalVisible(true);
+                  } else {
+                    editor.openRoutineModal(item);
+                  }
+                }}
+              >
+                <View style={styles.cardHeader}>
+                  <Text style={styles.routineName}>{item.name}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (item.originalCreatorId) {
+                        setSelectedReadonlyRoutine(item);
+                        setDetailsModalVisible(true);
+                      } else {
+                        editor.openRoutineModal(item);
+                      }
                     }}
                   >
-                    {t("routines.fromCreator", {
-                      creator: item.originalCreatorName,
-                    })}
-                  </Text>
+                    <Feather
+                      name="more-horizontal"
+                      size={20}
+                      color={colors.textSecondary}
+                    />
+                  </TouchableOpacity>
                 </View>
-              )}
+
+                {item.originalCreatorId && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <FontAwesome
+                      name="bookmark"
+                      size={12}
+                      color={colors.primary}
+                      style={{ marginRight: 4 }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        color: colors.primary,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {t("routines.fromCreator", {
+                        creator: item.originalCreatorName,
+                      })}
+                    </Text>
+                  </View>
+                )}
+
+                <Text style={styles.exercisePreview} numberOfLines={2}>
+                  {exercisesPreview}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.startRoutineButton}
+                onPress={() => {
+                  if (activeRoutine && activeRoutine.id === item.id) {
+                    router.push("/activeWorkout");
+                  } else if (activeRoutine) {
+                    Alert.alert(
+                      t("activeWorkout.workoutInProgressTitle"),
+                      t("activeWorkout.workoutInProgressMsg"),
+                    );
+                  } else {
+                    startWorkout(item);
+                    router.push("/activeWorkout");
+                  }
+                }}
+              >
+                <Text style={styles.startRoutineText}>
+                  {t("routines.startWorkout")}
+                </Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.playButton}
-              onPress={() => {
-                if (activeRoutine && activeRoutine.id === item.id) {
-                  router.push("/activeWorkout");
-                } else if (activeRoutine) {
-                  Alert.alert(
-                    t("activeWorkout.workoutInProgressTitle"),
-                    t("activeWorkout.workoutInProgressMsg"),
-                  );
-                } else {
-                  startWorkout(item);
-                  router.push("/activeWorkout");
-                }
-              }}
-            >
-              <Feather name="play" size={20} color="#FFF" />
-            </TouchableOpacity>
-          </TouchableOpacity>
-        )}
+          );
+        }}
       />
 
       <TouchableOpacity
@@ -300,7 +358,7 @@ export default function RoutinesScreen() {
         <AntDesign name="plus" size={28} color="#FFF" />
       </TouchableOpacity>
 
-      {/*Modal de edición para rutinas propias)*/}
+      {/* Modal de edición */}
       <Modal
         visible={editor.modalVisible}
         animationType="slide"
@@ -435,7 +493,7 @@ export default function RoutinesScreen() {
         </GestureHandlerRootView>
       </Modal>
 
-      {/*Modal de detalles de rutina (solo lectura)*/}
+      {/* Modal Detalles solo lectura */}
       <Modal
         visible={detailsModalVisible}
         animationType="slide"
@@ -501,7 +559,6 @@ export default function RoutinesScreen() {
                 </Text>
               )}
 
-              {/* Botón para DEJAR DE GUARDAR */}
               <TouchableOpacity
                 style={[
                   styles.actionButton,
