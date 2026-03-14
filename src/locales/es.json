@@ -62,7 +62,17 @@
     "searchInstructions": "Busca usuarios por su nombre para seguirlos.",
     "requests": "Solicitudes",
     "accept": "Aceptar",
-    "reject": "Rechazar"
+    "reject": "Rechazar",
+    "time": {
+      "justNow": "Justo ahora",
+      "minsAgo": "Hace {{count}} min",
+      "hoursAgo": "Hace {{count}} h",
+      "daysAgo": "Hace {{count}} d"
+    },
+    "completedWorkout": "Completó un entrenamiento",
+    "createdRoutine": "Creó una nueva rutina",
+    "emptyFeed": "Sigue a otros usuarios para ver su actividad aquí.",
+    "defaultWorkout": "Entrenamiento"
   },
   "profile": {
     "title": "Mi Perfil",
@@ -247,7 +257,6 @@
     "pushups": "Flexiones",
     "dips_chest": "Fondos de Pecho",
     "pullover_dumbbell": "Pullover con Mancuerna",
-
     "pullups": "Dominadas",
     "chinups": "Dominadas Supinas",
     "lat_pulldown_wide": "Jalón al Pecho Agarre Abierto",
@@ -263,7 +272,6 @@
     "hyperextensions": "Hiperextensiones lumbares",
     "shrugs_barbell": "Encogimientos de Hombros con Barra",
     "shrugs_dumbbell": "Encogimientos de Hombros con Mancuernas",
-
     "squat_barbell": "Sentadilla Libre con Barra",
     "squat_dumbbell": "Sentadilla Copa (Mancuerna)",
     "front_squat_barbell": "Sentadilla Frontal",
@@ -281,7 +289,6 @@
     "hip_thrust_machine": "Hip Thrust en Máquina",
     "calf_raise_standing": "Elevación de Gemelos de Pie",
     "calf_raise_seated": "Elevación de Gemelos Sentado",
-
     "overhead_press_barbell": "Press Militar con Barra",
     "overhead_press_dumbbell": "Press de Hombros con Mancuernas",
     "shoulder_press_machine": "Press de Hombros en Máquina",
@@ -294,7 +301,6 @@
     "reverse_pec_deck": "Pájaros en Máquina (Posterior)",
     "upright_row_barbell": "Remo al Mentón con Barra",
     "upright_row_cable": "Remo al Mentón en Polea",
-
     "bicep_curl_barbell": "Curl de Bíceps con Barra",
     "bicep_curl_dumbbell": "Curl de Bíceps con Mancuernas",
     "hammer_curl_dumbbell": "Curl Martillo con Mancuernas",
@@ -303,7 +309,6 @@
     "preacher_curl_machine": "Curl Predicador en Máquina",
     "bicep_curl_cable": "Curl de Bíceps en Polea",
     "concentration_curl_dumbbell": "Curl Concentrado con Mancuerna",
-
     "tricep_pushdown_cable": "Extensión de Tríceps en Polea",
     "overhead_tricep_extension_dumbbell": "Extensión de Tríceps por encima de la cabeza (Mancuerna)",
     "overhead_tricep_extension_cable": "Extensión de Tríceps por encima de la cabeza (Polea)",
@@ -312,7 +317,6 @@
     "close_grip_bench_press": "Press de Banca Agarre Estrecho",
     "tricep_kickback_dumbbell": "Patada de Tríceps con Mancuerna",
     "tricep_kickback_cable": "Patada de Tríceps en Polea",
-
     "crunch": "Crunch Abdominal",
     "plank": "Plancha Isométrica",
     "russian_twist": "Giro Ruso",

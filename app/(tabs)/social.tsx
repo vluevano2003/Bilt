@@ -7,21 +7,40 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  ScrollView,
-  StyleSheet,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { FeedItem, useSocialFeed } from "../../hooks/useSocialFeed";
 import { auth, db } from "../../src/config/firebase";
 import { colors } from "../../src/constants/theme";
+import { styles } from "../../src/styles/SocialScreen.styles";
 
 interface SearchResult {
   id: string;
   username: string;
   profilePictureUrl?: string;
 }
+
+const getTimeAgo = (timestamp: number, t: any) => {
+  const diffInSeconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (diffInSeconds < 60) return t("social.time.justNow");
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60)
+    return t("social.time.minsAgo", { count: diffInMinutes });
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24)
+    return t("social.time.hoursAgo", { count: diffInHours });
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) return t("social.time.daysAgo", { count: diffInDays });
+
+  return new Date(timestamp).toLocaleDateString();
+};
 
 export default function SocialScreen() {
   const { t } = useTranslation();
@@ -31,6 +50,7 @@ export default function SocialScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const { feed, loadingFeed, refreshing, onRefresh } = useSocialFeed();
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -97,9 +117,71 @@ export default function SocialScreen() {
     </TouchableOpacity>
   );
 
+  const renderFeedItem = ({ item }: { item: FeedItem }) => {
+    const isWorkout = item.type === "history";
+    return (
+      <View style={styles.feedCard}>
+        <View style={styles.feedHeader}>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/userProfile",
+                params: { id: item.userId },
+              })
+            }
+          >
+            {item.userAvatar ? (
+              <Image
+                source={{ uri: item.userAvatar }}
+                style={styles.feedAvatar}
+              />
+            ) : (
+              <View style={styles.feedAvatarPlaceholder}>
+                <AntDesign name="user" size={20} color={colors.textSecondary} />
+              </View>
+            )}
+          </TouchableOpacity>
+          <View style={styles.feedHeaderText}>
+            <Text style={styles.feedUsername}>@{item.username}</Text>
+            <Text style={styles.feedAction}>
+              {isWorkout
+                ? t("social.completedWorkout")
+                : t("social.createdRoutine")}
+            </Text>
+          </View>
+          <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
+        </View>
+
+        <View style={styles.feedContent}>
+          <Text style={styles.feedTitle}>
+            {item.title || t("social.defaultWorkout")}
+          </Text>
+          <View style={styles.feedStats}>
+            {isWorkout ? (
+              <>
+                <Text style={styles.feedStatText}>
+                  <Feather name="clock" size={12} />{" "}
+                  {Math.ceil((item.details.duration || 0) / 60)} min
+                </Text>
+                <Text style={styles.feedStatText}>
+                  <Feather name="activity" size={12} /> {item.details.volume} kg
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.feedStatText}>
+                <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
+                {t("routines.exercises", "ejercicios")}
+              </Text>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/*Botones de navegación*/}
+      {/* Botones de navegación */}
       <View style={styles.topTabs}>
         <TouchableOpacity onPress={() => setActiveTab("feed")}>
           <Text
@@ -123,130 +205,87 @@ export default function SocialScreen() {
         </TouchableOpacity>
       </View>
 
-      {/*Contenido de búsqueda*/}
-      {activeTab === "search" ? (
-        <View style={styles.content}>
-          <View style={styles.searchBar}>
-            <Feather name="search" size={20} color={colors.textSecondary} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t("social.searchPlaceholder")}
-              placeholderTextColor={colors.textSecondary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoCapitalize="none"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Feather
-                  name="x-circle"
-                  size={16}
-                  color={colors.textSecondary}
-                />
-              </TouchableOpacity>
+      {/* Contenido principal */}
+      <View style={styles.content}>
+        {activeTab === "search" ? (
+          <View style={{ flex: 1 }}>
+            <View style={styles.searchBar}>
+              <Feather name="search" size={20} color={colors.textSecondary} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t("social.searchPlaceholder")}
+                placeholderTextColor={colors.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCapitalize="none"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <Feather
+                    name="x-circle"
+                    size={16}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {isSearching ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.primary}
+                style={{ marginTop: 20 }}
+              />
+            ) : searchResults.length > 0 ? (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id}
+                renderItem={renderUserItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            ) : searchQuery.length >= 2 ? (
+              <Text style={styles.placeholderText}>
+                {t("social.noResults")}
+              </Text>
+            ) : (
+              <Text style={styles.placeholderText}>
+                {t("social.searchInstructions")}
+              </Text>
             )}
           </View>
-
-          {/*Resultados de búsqueda*/}
-          {isSearching ? (
-            <ActivityIndicator
-              size="large"
-              color={colors.primary}
-              style={{ marginTop: 20 }}
-            />
-          ) : searchResults.length > 0 ? (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id}
-              renderItem={renderUserItem}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
-          ) : searchQuery.length >= 2 ? (
-            <Text style={styles.placeholderText}>{t("social.noResults")}</Text>
-          ) : (
-            <Text style={styles.placeholderText}>
-              {t("social.searchInstructions")}
-            </Text>
-          )}
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.placeholderText}>
-            Aquí verás las rutinas que completen tus amigos.
-          </Text>
-        </ScrollView>
-      )}
+        ) : (
+          <View style={{ flex: 1 }}>
+            {loadingFeed ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.primary}
+                style={{ marginTop: 40 }}
+              />
+            ) : feed.length > 0 ? (
+              <FlatList
+                data={feed}
+                keyExtractor={(item) => item.id}
+                renderItem={renderFeedItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={colors.primary}
+                    colors={[colors.primary]}
+                  />
+                }
+              />
+            ) : (
+              <Text style={styles.placeholderText}>
+                {t("social.emptyFeed")}
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topTabs: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  tabText: { fontSize: 16, color: colors.textSecondary, fontWeight: "600" },
-  tabTextActive: {
-    color: colors.primary,
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-    paddingBottom: 5,
-  },
-  content: { padding: 20, flex: 1 },
-  searchBar: {
-    flexDirection: "row",
-    backgroundColor: colors.surface,
-    padding: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-    color: colors.textPrimary,
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  placeholderText: {
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: 40,
-  },
-  userCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  userAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  userAvatarPlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  usernameText: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

@@ -442,7 +442,7 @@ export default function UserProfileScreen() {
                           <TouchableOpacity
                             style={{
                               padding: 10,
-                              backgroundColor: "rgba(34, 197, 94, 0.1)",
+                              backgroundColor: colors.background,
                               borderRadius: 10,
                             }}
                             onPress={() => handleToggleSaveRoutine(routine)}

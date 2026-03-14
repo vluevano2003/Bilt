@@ -62,7 +62,17 @@
     "searchInstructions": "Search users by their username to follow them.",
     "requests": "Requests",
     "accept": "Accept",
-    "reject": "Reject"
+    "reject": "Reject",
+    "time": {
+      "justNow": "Just now",
+      "minsAgo": "{{count}}min ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "completedWorkout": "Completed a workout",
+    "createdRoutine": "Created a new routine",
+    "emptyFeed": "Follow other users to see their activity here.",
+    "defaultWorkout": "Workout"
   },
   "profile": {
     "title": "My Profile",
@@ -247,7 +257,6 @@
     "pushups": "Push-ups",
     "dips_chest": "Chest Dips",
     "pullover_dumbbell": "Dumbbell Pullover",
-
     "pullups": "Pull-ups",
     "chinups": "Chin-ups",
     "lat_pulldown_wide": "Wide Grip Lat Pulldown",
@@ -263,7 +272,6 @@
     "hyperextensions": "Back Extensions",
     "shrugs_barbell": "Barbell Shrugs",
     "shrugs_dumbbell": "Dumbbell Shrugs",
-
     "squat_barbell": "Barbell Squat",
     "squat_dumbbell": "Goblet Squat (Dumbbell)",
     "front_squat_barbell": "Front Squat",
@@ -281,7 +289,6 @@
     "hip_thrust_machine": "Machine Hip Thrust",
     "calf_raise_standing": "Standing Calf Raise",
     "calf_raise_seated": "Seated Calf Raise",
-
     "overhead_press_barbell": "Barbell Overhead Press",
     "overhead_press_dumbbell": "Dumbbell Overhead Press",
     "shoulder_press_machine": "Machine Shoulder Press",
@@ -294,7 +301,6 @@
     "reverse_pec_deck": "Reverse Pec Deck",
     "upright_row_barbell": "Barbell Upright Row",
     "upright_row_cable": "Cable Upright Row",
-
     "bicep_curl_barbell": "Barbell Bicep Curl",
     "bicep_curl_dumbbell": "Dumbbell Bicep Curl",
     "hammer_curl_dumbbell": "Dumbbell Hammer Curl",
@@ -303,7 +309,6 @@
     "preacher_curl_machine": "Machine Preacher Curl",
     "bicep_curl_cable": "Cable Bicep Curl",
     "concentration_curl_dumbbell": "Dumbbell Concentration Curl",
-
     "tricep_pushdown_cable": "Cable Triceps Pushdown",
     "overhead_tricep_extension_dumbbell": "Dumbbell Overhead Triceps Extension",
     "overhead_tricep_extension_cable": "Cable Overhead Triceps Extension",
@@ -312,7 +317,6 @@
     "close_grip_bench_press": "Close-Grip Bench Press",
     "tricep_kickback_dumbbell": "Dumbbell Triceps Kickback",
     "tricep_kickback_cable": "Cable Triceps Kickback",
-
     "crunch": "Crunches",
     "plank": "Plank",
     "russian_twist": "Russian Twist",
