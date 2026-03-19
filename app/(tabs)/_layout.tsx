@@ -1,5 +1,6 @@
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { colors } from "../../src/constants/theme";
 
@@ -21,29 +22,18 @@ export default function TabsLayout() {
         headerTitleStyle: { color: colors.textPrimary, fontWeight: "900" },
       }}
     >
-      {/*Pantalla Principal (Archivo: home.tsx)*/}
+      {/* 1. Pantalla Central: Entrenar (Fusiona Home y Rutinas) */}
       <Tabs.Screen
         name="home"
         options={{
-          title: t("tabs.home"),
+          title: t("tabs.workout", "Entrenar"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="home" size={24} color={color} />
+            <FontAwesome5 name="dumbbell" size={20} color={color} />
           ),
         }}
       />
 
-      {/*Creador de Rutinas (Archivo: routines.tsx)*/}
-      <Tabs.Screen
-        name="routines"
-        options={{
-          title: t("tabs.routines"),
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="form" size={24} color={color} />
-          ),
-        }}
-      />
-
-      {/*Social (Archivo: social.tsx)*/}
+      {/* 2. Social */}
       <Tabs.Screen
         name="social"
         options={{
@@ -54,7 +44,7 @@ export default function TabsLayout() {
         }}
       />
 
-      {/*Perfil de Usuario (Archivo: profile.tsx)*/}
+      {/* 3. Perfil de Usuario */}
       <Tabs.Screen
         name="profile"
         options={{

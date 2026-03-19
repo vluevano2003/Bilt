@@ -7,9 +7,8 @@
     "or": "OR"
   },
   "tabs": {
-    "home": "Home",
+    "workout": "Workout",
     "social": "Community",
-    "routines": "Routines",
     "history": "History",
     "profile": "Profile"
   },
@@ -342,10 +341,12 @@
     "plates_desc": "Records the number of plates per side. Does not add to total volume."
   },
   "home": {
-    "title": "Mutation in progress!",
-    "subtitle": "Welcome to your main dashboard.",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "thisWeek": "This week",
     "weeklySummary": "Activity Summary",
-    "workouts": "Workouts",
+    "workouts": "Total Workouts",
     "volume": "Volume ({{unit}})",
     "startEmpty": "+ Start Empty Workout",
     "workoutInProgress": "Workout in progress",

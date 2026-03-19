@@ -7,9 +7,8 @@
     "or": "O"
   },
   "tabs": {
-    "home": "Inicio",
+    "workout": "Workout",
     "social": "Comunidad",
-    "routines": "Rutinas",
     "history": "Historial",
     "profile": "Perfil"
   },
@@ -342,10 +341,12 @@
     "plates_desc": "Registra la cantidad de discos usados por lado. No suma al volumen total."
   },
   "home": {
-    "title": "¡Mutación en progreso!",
-    "subtitle": "Bienvenido a tu panel principal.",
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches",
+    "thisWeek": "Esta semana",
     "weeklySummary": "Resumen de Actividad",
-    "workouts": "Entrenos",
+    "workouts": "Entrenos totales",
     "volume": "Volumen ({{unit}})",
     "startEmpty": "+ Iniciar Entreno Vacío",
     "workoutInProgress": "Entrenamiento en curso",

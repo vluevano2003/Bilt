@@ -23,7 +23,8 @@ export interface SocialUser {
 }
 
 /**
- * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores
+ * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores.
+ * Se ha modificado para usar onSnapshot y así reflejar cambios en tiempo real (ej. nombre de usuario).
  */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
@@ -84,39 +85,42 @@ export const useProfile = (profileUid?: string) => {
     return "";
   };
 
-  const fetchUserData = async () => {
-    if (!targetUid) return;
-    try {
-      const docRef = doc(db, "users", targetUid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setUsername(data.username || "");
-        setProfilePic(data.profilePictureUrl || null);
-        setBirthDate(data.birthDate || "");
-        setAge(calculateAge(data.birthDate));
-        setEmail(data.email || "");
-        setGender(data.gender || "");
-        setMeasurementSystem(data.measurementSystem || "metric");
-        setHeight(data.height?.toString() || "");
-        setWeight(data.weight?.toString() || "");
-
-        setIsPrivate(data.isPrivate || false);
-        setShowAge(data.showAge ?? true);
-        setShowWeight(data.showWeight ?? true);
-        setShowHeight(data.showHeight ?? true);
-        setShowGender(data.showGender ?? true);
-      }
-    } catch (error) {
-      Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorLoad"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchUserData();
+    if (!targetUid) return;
+
+    const docRef = doc(db, "users", targetUid);
+
+    const unsubscribeProfile = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setUsername(data.username || "");
+          setProfilePic(data.profilePictureUrl || null);
+          setBirthDate(data.birthDate || "");
+          setAge(calculateAge(data.birthDate));
+          setEmail(data.email || "");
+          setGender(data.gender || "");
+          setMeasurementSystem(data.measurementSystem || "metric");
+          setHeight(data.height?.toString() || "");
+          setWeight(data.weight?.toString() || "");
+
+          setIsPrivate(data.isPrivate || false);
+          setShowAge(data.showAge ?? true);
+          setShowWeight(data.showWeight ?? true);
+          setShowHeight(data.showHeight ?? true);
+          setShowGender(data.showGender ?? true);
+        }
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Error al obtener perfil en tiempo real:", error);
+        Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorLoad"));
+        setIsLoading(false);
+      },
+    );
+
+    return () => unsubscribeProfile();
   }, [targetUid]);
 
   useEffect(() => {
@@ -278,7 +282,6 @@ export const useProfile = (profileUid?: string) => {
 
   const handleCancel = () => {
     setNewProfilePic(null);
-    fetchUserData();
     setIsEditing(false);
   };
 
