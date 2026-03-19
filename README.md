@@ -1,50 +1,52 @@
-# Welcome to your Expo app 👋
+# BILT TRACKER
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-1B1F23?style=for-the-badge&logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
-## Get started
+**BILT TRACKER** es una aplicación móvil integral para la gestión de entrenamientos en el gimnasio ("Tu progreso, tu ritmo"). Construida con **React Native** y **Expo Router**, ofrece una experiencia fluida, seguimiento en tiempo real y características sociales para conectar con otros atletas.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 📦 Características Principales
 
-2. Start the app
+El sistema está diseñado para gestionar el ciclo completo de entrenamiento y la interacción social del usuario:
 
-   ```bash
-   npx expo start
-   ```
+- **Internacionalización (i18n):** Soporte multiidioma dinámico (Español e Inglés) integrado en toda la interfaz gráfica, rutinas y menús.
+- **Tema Dinámico y Persistente:** Soporte completo para **Modo Claro y Oscuro** gestionado a través de Context API y guardado localmente para recordar la preferencia del usuario al reabrir la app.
+- **Autenticación Segura:** Sistema de Login y Registro gestionado con Firebase Auth (Soporte para Email/Contraseña y preparado para Google Sign-In).
+- **Seguimiento de Entrenamientos (Active Workout):** \* Reproductor de rutinas activo en segundo plano (Mini Player).
+  - Registro de sets, repeticiones y peso.
+  - Temporizador de descanso flotante e inteligente.
+  - Cálculo automático de volumen total (kg/lbs) y duración del entrenamiento.
+- **Gestión de Rutinas y Packs:**
+  - Creación y edición de rutinas personalizadas.
+  - Funcionalidad _Drag & Drop_ para reordenar ejercicios en tiempo real.
+  - Agrupación de rutinas en "Packs Semanales".
+  - Posibilidad de guardar rutinas de otros creadores en tu perfil local.
+- **Red Social Fit:**
+  - **Feed Global:** Visualiza la actividad reciente (rutinas creadas y entrenamientos completados) de las personas a las que sigues.
+  - **Búsqueda de Usuarios:** Encuentra a tus amigos a través del motor de búsqueda integrado.
+  - **Privacidad:** Cuentas públicas o privadas con sistema de solicitudes de seguimiento.
+- **Perfil de Usuario:** \* Estadísticas semanales dinámicas.
+  - Configuración de sistema de medidas (Métrico / Imperial).
+  - Gestión de visibilidad de datos personales (peso, altura, edad).
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠️ Tecnologías Utilizadas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Framework:** React Native con Expo.
+- **Lenguaje:** TypeScript.
+- **Enrutamiento:** Expo Router (File-based routing nativo con Tabs y Stacks).
+- **Backend / BaaS:** Firebase (Authentication & Cloud Firestore).
+- **Gestión de Estado:** React Context API (AuthContext, ThemeContext, ActiveWorkoutContext).
+- **Persistencia Local:** `@react-native-async-storage/async-storage`.
+- **Internacionalización:** `react-i18next` / `i18next`.
+- **Componentes UI & Animaciones:**
+  - `react-native-draggable-flatlist` (Listas interactivas y reordenables).
+  - `react-native-gesture-handler` (Manejo de gestos fluidos).
+  - `@react-native-community/datetimepicker` (Selector de fechas nativo).
+  - `@expo/vector-icons` (AntDesign, Feather, FontAwesome).
+- **Estilos:** StyleSheet nativo optimizado para inyección dinámica de temas (Dark/Light).
