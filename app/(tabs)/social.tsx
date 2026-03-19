@@ -15,8 +15,8 @@ import {
 } from "react-native";
 import { FeedItem, useSocialFeed } from "../../hooks/useSocialFeed";
 import { auth, db } from "../../src/config/firebase";
-import { colors } from "../../src/constants/theme";
-import { styles } from "../../src/styles/SocialScreen.styles";
+import { useTheme } from "../../src/context/ThemeContext";
+import { getStyles } from "../../src/styles/SocialScreen.styles";
 
 interface SearchResult {
   id: string;
@@ -45,6 +45,9 @@ const getTimeAgo = (timestamp: number, t: any) => {
 export default function SocialScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   const [activeTab, setActiveTab] = useState<"feed" | "search">("feed");
 
   const [searchQuery, setSearchQuery] = useState("");

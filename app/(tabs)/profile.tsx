@@ -1,4 +1,5 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Tabs, useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import React, { useState } from "react";
@@ -22,8 +23,8 @@ import { CustomInput } from "../../src/components/CustomInput";
 import { PrimaryButton } from "../../src/components/PrimaryButton";
 import { SecondaryButton } from "../../src/components/SecondaryButton";
 import { auth } from "../../src/config/firebase";
-import { colors } from "../../src/constants/theme";
-import { styles } from "../../src/styles/Profile.styles";
+import { useTheme } from "../../src/context/ThemeContext";
+import { getStyles } from "../../src/styles/Profile.styles";
 import {
   calculateSessionVolume,
   formatDuration,
@@ -33,6 +34,8 @@ import {
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { colors, isDarkMode, toggleTheme } = useTheme();
+  const styles = getStyles(colors);
 
   const {
     isLoading,
@@ -70,7 +73,6 @@ export default function ProfileScreen() {
   } = useProfile();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const [socialModalVisible, setSocialModalVisible] = useState(false);
   const [socialModalType, setSocialModalType] = useState<
@@ -85,6 +87,7 @@ export default function ProfileScreen() {
 
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [historyLimit, setHistoryLimit] = useState(10);
 
   const handleLogout = async () => {
     try {
@@ -94,7 +97,14 @@ export default function ProfileScreen() {
     }
   };
 
-  const toggleLanguage = (lang: string) => i18n.changeLanguage(lang);
+  const toggleLanguage = async (lang: string) => {
+    i18n.changeLanguage(lang);
+    try {
+      await AsyncStorage.setItem("appLanguage", lang);
+    } catch (error) {
+      console.log("Error saving language", error);
+    }
+  };
 
   const openDetails = (item: any) => {
     setSelectedItem(item);
@@ -114,15 +124,12 @@ export default function ProfileScreen() {
     const data = [];
     if (showAge && age) data.push(`${age} ${t("profile.years")}`);
     if (showGender && gender) data.push(gender);
-
     if (showHeight && height) {
       data.push(`${height} ${measurementSystem === "metric" ? "cm" : "in"}`);
     }
-
     if (showWeight && weight) {
       data.push(`${weight} ${measurementSystem === "metric" ? "kg" : "lbs"}`);
     }
-
     return data.join(" • ");
   };
 
@@ -259,46 +266,68 @@ export default function ProfileScreen() {
             {isLoadingActivity ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : userHistory.length > 0 ? (
-              userHistory.map((session) => {
-                const durationMins = formatDuration(session.durationSeconds);
-                const totalVolume = calculateSessionVolume(
-                  session,
-                  measurementSystem,
-                );
-                const volumeUnit =
-                  measurementSystem === "metric" ? "kg" : "lbs";
+              <>
+                {userHistory.slice(0, historyLimit).map((session) => {
+                  const durationMins = formatDuration(session.durationSeconds);
+                  const totalVolume = calculateSessionVolume(
+                    session,
+                    measurementSystem,
+                  );
+                  const volumeUnit =
+                    measurementSystem === "metric" ? "kg" : "lbs";
 
-                return (
-                  <TouchableOpacity
-                    key={session.id}
-                    style={[
-                      styles.routineCard,
-                      { flexDirection: "column", alignItems: "flex-start" },
-                    ]}
-                    onPress={() => openDetails(session)}
-                  >
-                    <Text style={styles.routineName}>
-                      {session.routineName}
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        marginTop: 5,
-                      }}
+                  return (
+                    <TouchableOpacity
+                      key={session.id}
+                      style={[
+                        styles.routineCard,
+                        { flexDirection: "column", alignItems: "flex-start" },
+                      ]}
+                      onPress={() => openDetails(session)}
                     >
-                      <Text style={styles.routineDetails}>
-                        <Feather name="clock" size={12} /> {durationMins} min
+                      <Text style={styles.routineName}>
+                        {session.routineName}
                       </Text>
-                      <Text style={styles.routineDetails}>
-                        <Feather name="activity" size={12} /> {totalVolume}{" "}
-                        {volumeUnit}
-                      </Text>
-                    </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          width: "100%",
+                          marginTop: 5,
+                        }}
+                      >
+                        <Text style={styles.routineDetails}>
+                          <Feather name="clock" size={12} /> {durationMins} min
+                        </Text>
+                        <Text style={styles.routineDetails}>
+                          <Feather name="activity" size={12} /> {totalVolume}{" "}
+                          {volumeUnit}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+
+                {userHistory.length > historyLimit && (
+                  <TouchableOpacity
+                    style={{
+                      paddingVertical: 12,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: colors.surface,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                      marginBottom: 20,
+                    }}
+                    onPress={() => setHistoryLimit((prev) => prev + 10)}
+                  >
+                    <Text style={{ color: colors.primary, fontWeight: "bold" }}>
+                      {t("profile.loadMore", "Cargar más entrenamientos")}
+                    </Text>
                   </TouchableOpacity>
-                );
-              })
+                )}
+              </>
             ) : (
               <Text
                 style={{
@@ -596,7 +625,7 @@ export default function ProfileScreen() {
               <Text style={styles.settingLabel}>{t("profile.darkMode")}</Text>
               <Switch
                 value={isDarkMode}
-                onValueChange={setIsDarkMode}
+                onValueChange={toggleTheme}
                 trackColor={{ false: colors.border, true: colors.primary }}
                 thumbColor={"#FFF"}
               />

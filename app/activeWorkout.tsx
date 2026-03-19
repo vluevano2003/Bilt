@@ -17,14 +17,13 @@ import DraggableFlatList, {
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import { RoutineExercise } from "../hooks/useRoutines";
-import { colors } from "../src/constants/theme";
-import { styles } from "../src/styles/ActiveWorkout.styles";
+import { useTheme } from "../src/context/ThemeContext";
+import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
-/**
- * Pantalla principal para registrar el workout activo. Permite editar sets, pesos, repeticiones, marcar como completados, ajustar tiempos de descanso por ejercicio, reordenar ejercicios y finalizar el workout mostrando un resumen
- * @returns
- */
 export default function ActiveWorkoutScreen() {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   const {
     t,
     router,

@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { SocialUser } from "../../hooks/useProfile";
 import { auth } from "../config/firebase";
-import { colors } from "../constants/theme";
+import { useTheme } from "../context/ThemeContext";
 
 interface Props {
   visible: boolean;
@@ -33,6 +33,8 @@ export function NotificationModal({
 }: Props) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const renderItem = ({ item }: { item: SocialUser }) => (
     <View style={styles.socialListItem}>
@@ -115,78 +117,79 @@ export function NotificationModal({
   );
 }
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    padding: 30,
-    paddingBottom: 50,
-    height: "70%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  modalTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "bold" },
-  socialListItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  socialListAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 15,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  socialListAvatarPlaceholder: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 15,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  socialListUsername: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  acceptButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 5,
-  },
-  acceptText: { color: "#FFF", fontWeight: "bold", fontSize: 12 },
-  rejectButton: {
-    backgroundColor: colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  rejectText: { color: colors.textPrimary, fontWeight: "bold", fontSize: 12 },
-  emptyText: {
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: 40,
-  },
-});
+const getStyles = (colors: any) =>
+  StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      justifyContent: "flex-end",
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 25,
+      borderTopRightRadius: 25,
+      padding: 30,
+      paddingBottom: 50,
+      height: "70%",
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    modalTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "bold" },
+    socialListItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    socialListAvatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      marginRight: 15,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    socialListAvatarPlaceholder: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      marginRight: 15,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    socialListUsername: {
+      flex: 1,
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    acceptButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 5,
+    },
+    acceptText: { color: "#FFF", fontWeight: "bold", fontSize: 12 },
+    rejectButton: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    rejectText: { color: colors.textPrimary, fontWeight: "bold", fontSize: 12 },
+    emptyText: {
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginTop: 40,
+    },
+  });

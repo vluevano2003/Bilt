@@ -3,30 +3,25 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SocialUser } from "../../hooks/useProfile";
 import { auth } from "../config/firebase";
-import { colors } from "../constants/theme";
-import { styles } from "../styles/Profile.styles";
+import { useTheme } from "../context/ThemeContext";
+import { getStyles } from "../styles/Profile.styles";
 import {
-    calculateTotalVolume,
-    formatDuration,
-    getConvertedWeight,
+  calculateTotalVolume,
+  formatDuration,
+  getConvertedWeight,
 } from "../utils/profileHelpers";
 
-/**
- * Modal para mostrar listas de seguidores o seguidos en el perfil de usuario
- * @param param0
- * @returns
- */
 export const SocialListModal = ({
   visible,
   type,
@@ -36,6 +31,8 @@ export const SocialListModal = ({
 }: any) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const renderItem = ({ item }: { item: SocialUser }) => (
     <TouchableOpacity
@@ -110,11 +107,6 @@ export const SocialListModal = ({
   );
 };
 
-/**
- * Modal para mostrar detalles de un Pack Semanal, incluyendo las rutinas que contiene y la opción de guardarlo o removerlo del perfil
- * @param param0
- * @returns
- */
 export const PackDetailsModal = ({
   visible,
   pack,
@@ -125,6 +117,9 @@ export const PackDetailsModal = ({
   onClose,
 }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   if (!pack) return null;
 
   return (
@@ -253,11 +248,6 @@ export const PackDetailsModal = ({
   );
 };
 
-/**
- * Modal para mostrar detalles de una rutina guardada o de un entrenamiento histórico, incluyendo ejercicios, sets, y la opción de guardar o remover la rutina del perfil (solo para rutinas guardadas)
- * @param param0
- * @returns
- */
 export const ItemDetailsModal = ({
   visible,
   type,
@@ -268,6 +258,9 @@ export const ItemDetailsModal = ({
   onClose,
 }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   if (!item) return null;
 
   return (

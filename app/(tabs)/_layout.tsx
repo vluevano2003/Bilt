@@ -2,10 +2,11 @@ import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { colors } from "../../src/constants/theme";
+import { useTheme } from "../../src/context/ThemeContext";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   return (
     <Tabs

@@ -1,4 +1,4 @@
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -16,11 +16,14 @@ import { CustomInput } from "../src/components/CustomInput";
 import { GoogleSignInButton } from "../src/components/GoogleSignInButton";
 import { PrimaryButton } from "../src/components/PrimaryButton";
 import { SecondaryButton } from "../src/components/SecondaryButton";
-import { colors } from "../src/constants/theme";
-import { styles } from "../src/styles/Login.styles";
+import { useTheme } from "../src/context/ThemeContext";
+import { getStyles } from "../src/styles/Login.styles";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
+  const { colors, isDarkMode, toggleTheme } = useTheme();
+  const styles = getStyles(colors);
+
   const {
     currentView,
     setCurrentView,
@@ -59,6 +62,27 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "padding"}
       style={styles.container}
     >
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          top: Platform.OS === "ios" ? 50 : 40,
+          right: 20,
+          zIndex: 100,
+          padding: 10,
+          backgroundColor: colors.surface,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+        onPress={() => toggleTheme()}
+      >
+        <Feather
+          name={isDarkMode ? "sun" : "moon"}
+          size={24}
+          color={colors.textPrimary}
+        />
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -67,7 +91,11 @@ export default function LoginScreen() {
       >
         <View style={styles.formContainer}>
           <Image
-            source={require("../assets/images/logo_white_nobg.png")}
+            source={
+              isDarkMode
+                ? require("../assets/images/logo_white_nobg.png")
+                : require("../assets/images/logo_black_nobg.png")
+            }
             style={styles.logo}
             resizeMode="contain"
           />
@@ -246,7 +274,7 @@ export default function LoginScreen() {
                         display={Platform.OS === "ios" ? "spinner" : "default"}
                         onChange={onChangeDate}
                         maximumDate={new Date()}
-                        themeVariant="dark"
+                        themeVariant={isDarkMode ? "dark" : "light"}
                       />
                       {Platform.OS === "ios" && (
                         <PrimaryButton

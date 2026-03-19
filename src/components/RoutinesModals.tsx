@@ -2,30 +2,25 @@ import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import DraggableFlatList, {
-    RenderItemParams,
-    ScaleDecorator,
+  RenderItemParams,
+  ScaleDecorator,
 } from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { colors } from "../constants/theme";
-import { styles } from "../styles/Routines.styles";
+import { useTheme } from "../context/ThemeContext";
+import { getStyles } from "../styles/Routines.styles";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
 
-/**
- * Modal para crear un nuevo pack semanal. Permite ingresar nombre, descripción y seleccionar hasta 6 rutinas propias para incluir en el pack
- * @param param0
- * @returns
- */
 export const CreatePackModal = ({
   visible,
   onClose,
@@ -40,6 +35,9 @@ export const CreatePackModal = ({
   isSavingPack,
 }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   return (
     <Modal
       visible={visible}
@@ -182,9 +180,6 @@ export const CreatePackModal = ({
   );
 };
 
-/**
- * Modal para mostrar los detalles de un pack semanal, incluyendo su descripción y las rutinas que contiene. Desde este modal también se puede iniciar un workout con alguna de las rutinas o eliminar el pack si es propio o removerlo del perfil si es ajeno
- */
 export const PackDetailsModal = ({
   visible,
   onClose,
@@ -194,6 +189,9 @@ export const PackDetailsModal = ({
   startWorkoutAndClose,
 }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   if (!pack) return null;
   return (
     <Modal
@@ -293,11 +291,6 @@ export const PackDetailsModal = ({
   );
 };
 
-/**
- * Modal para mostrar los detalles de una rutina ajena a modo de vista previa. Desde este modal se puede remover la rutina del perfil si es ajena o eliminarla si es propia
- * @param param0
- * @returns
- */
 export const ReadonlyRoutineModal = ({
   visible,
   onClose,
@@ -305,6 +298,9 @@ export const ReadonlyRoutineModal = ({
   handleUnsave,
 }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   if (!routine) return null;
   return (
     <Modal
@@ -395,13 +391,10 @@ export const ReadonlyRoutineModal = ({
   );
 };
 
-/**
- * Modal para editar una rutina propia. Permite modificar el nombre, agregar/quitar ejercicios y sets, reordenar los ejercicios por drag and drop, eliminar la rutina o guardarla con los cambios realizados
- * @param param0
- * @returns
- */
 export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const renderDraggableExercise = ({
     item: routineEx,

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { colors } from "../constants/theme";
+import { useTheme } from "../context/ThemeContext";
 
 interface ButtonProps {
   title: string;
@@ -20,29 +20,35 @@ export const SecondaryButton = ({
   onPress,
   style,
   disabled,
-}: ButtonProps) => (
-  <TouchableOpacity
-    style={[styles.buttonSecondary, style, disabled && { opacity: 0.6 }]}
-    onPress={onPress}
-    disabled={disabled}
-  >
-    <Text style={styles.buttonTextSecondary}>{title}</Text>
-  </TouchableOpacity>
-);
+}: ButtonProps) => {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-const styles = StyleSheet.create({
-  buttonSecondary: {
-    backgroundColor: "transparent",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  buttonTextSecondary: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
+  return (
+    <TouchableOpacity
+      style={[styles.buttonSecondary, style, disabled && { opacity: 0.6 }]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={styles.buttonTextSecondary}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const getStyles = (colors: any) =>
+  StyleSheet.create({
+    buttonSecondary: {
+      backgroundColor: "transparent",
+      padding: 15,
+      borderRadius: 10,
+      alignItems: "center",
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    buttonTextSecondary: {
+      color: colors.primary,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+  });

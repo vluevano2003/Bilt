@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { colors } from "../constants/theme";
+import { useTheme } from "../context/ThemeContext";
 
 interface ButtonProps {
   title: string;
@@ -23,31 +23,37 @@ export const PrimaryButton = ({
   style,
   disabled,
   loading,
-}: ButtonProps) => (
-  <TouchableOpacity
-    style={[styles.buttonPrimary, style, disabled && { opacity: 0.6 }]}
-    onPress={onPress}
-    disabled={disabled || loading}
-  >
-    {loading ? (
-      <ActivityIndicator color={colors.textPrimary} />
-    ) : (
-      <Text style={styles.buttonTextPrimary}>{title}</Text>
-    )}
-  </TouchableOpacity>
-);
+}: ButtonProps) => {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-const styles = StyleSheet.create({
-  buttonPrimary: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonTextPrimary: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
+  return (
+    <TouchableOpacity
+      style={[styles.buttonPrimary, style, disabled && { opacity: 0.6 }]}
+      onPress={onPress}
+      disabled={disabled || loading}
+    >
+      {loading ? (
+        <ActivityIndicator color={colors.textPrimary} />
+      ) : (
+        <Text style={styles.buttonTextPrimary}>{title}</Text>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+const getStyles = (colors: any) =>
+  StyleSheet.create({
+    buttonPrimary: {
+      backgroundColor: colors.primary,
+      padding: 15,
+      borderRadius: 10,
+      alignItems: "center",
+      marginTop: 10,
+    },
+    buttonTextPrimary: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+  });

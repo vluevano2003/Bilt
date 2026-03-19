@@ -26,15 +26,19 @@ import {
   RoutineEditorModal,
 } from "../../src/components/RoutinesModals";
 import { auth } from "../../src/config/firebase";
-import { colors } from "../../src/constants/theme";
 import { useActiveWorkout } from "../../src/context/ActiveWorkoutContext";
-import { homeStyles } from "../../src/styles/Home.styles";
-import { styles as routineStyles } from "../../src/styles/Routines.styles";
+import { useTheme } from "../../src/context/ThemeContext";
+import { getHomeStyles } from "../../src/styles/Home.styles";
+import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { colors } = useTheme();
+
+  const homeStyles = getHomeStyles(colors);
+  const routineStyles = getRoutineStyles(colors);
 
   const {
     isPrivate,
@@ -86,10 +90,6 @@ export default function HomeScreen() {
     setLoadingRequests(false);
   };
 
-  /**
-   * Maneja el inicio de un entrenamiento. Si ya hay una rutina activa, muestra una alerta
-   * @param routine
-   */
   const handleStartWorkout = (routine: any) => {
     if (activeRoutine && activeRoutine.id === routine.id) {
       router.push("/activeWorkout");
@@ -104,10 +104,6 @@ export default function HomeScreen() {
     }
   };
 
-  /**
-   * Devuelve un saludo basado en la hora del día
-   * @returns
-   */
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return t("home.morning", "Buenos días");
@@ -115,10 +111,6 @@ export default function HomeScreen() {
     return t("home.evening", "Buenas noches");
   };
 
-  /**
-   * Calcula los días de la semana en los que el usuario ha entrenado, basándose en su historial de actividad
-   * @returns
-   */
   const getTrainingDaysThisWeek = () => {
     const now = new Date();
     const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;

@@ -19,8 +19,8 @@ import {
   PackDetailsModal,
   SocialListModal,
 } from "../src/components/ProfileModals";
-import { colors } from "../src/constants/theme";
-import { styles } from "../src/styles/Profile.styles";
+import { useTheme } from "../src/context/ThemeContext";
+import { getStyles } from "../src/styles/Profile.styles";
 import {
   calculateTotalVolume,
   formatDuration,
@@ -33,6 +33,9 @@ export default function UserProfileScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const profileId = params.id as string | undefined;
+
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const profile = useProfile(profileId);
   const { userRoutines, userHistory, userPacks, isLoadingActivity } =
@@ -57,6 +60,7 @@ export default function UserProfileScreen() {
 
   const [packDetailsVisible, setPackDetailsVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
+  const [historyLimit, setHistoryLimit] = useState(10);
 
   if (profile.isLoading) {
     return (
@@ -75,10 +79,6 @@ export default function UserProfileScreen() {
   );
   const displayedUserPacks = userPacks.filter((p) => !p.originalCreatorId);
 
-  /**
-   * Construye una cadena de texto con la información pública del perfil, basada en las preferencias de visibilidad del usuario
-   * @returns
-   */
   const getPublicDataString = () => {
     const data = [];
     if (profile.showAge && profile.age)
@@ -125,7 +125,6 @@ export default function UserProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
-          {/* PROFILE HEADER BLOCK */}
           <View style={styles.centeredProfileInfo}>
             <View style={styles.avatarContainer}>
               {profile.profilePic ? (
@@ -258,7 +257,6 @@ export default function UserProfileScreen() {
             </View>
           </View>
 
-          {/* CONTENT BLOCK */}
           {!showContent ? (
             <View style={{ alignItems: "center", marginTop: 40 }}>
               <Feather name="lock" size={50} color={colors.textSecondary} />
@@ -278,7 +276,6 @@ export default function UserProfileScreen() {
             </View>
           ) : (
             <>
-              {/* TABS */}
               <View style={styles.segmentContainer}>
                 <TouchableOpacity
                   style={[
@@ -333,7 +330,6 @@ export default function UserProfileScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* LISTS */}
               <View style={{ paddingHorizontal: 20 }}>
                 {isLoadingActivity ? (
                   <ActivityIndicator size="small" color={colors.primary} />
@@ -428,47 +424,71 @@ export default function UserProfileScreen() {
                     </Text>
                   )
                 ) : userHistory.length > 0 ? (
-                  userHistory.map((session) => (
-                    <TouchableOpacity
-                      key={session.id}
-                      style={[
-                        styles.routineCard,
-                        { flexDirection: "column", alignItems: "flex-start" },
-                      ]}
-                      onPress={() => {
-                        setSelectedItem(session);
-                        setDetailsType("history");
-                        setDetailsModalVisible(true);
-                      }}
-                    >
-                      <Text style={styles.routineName}>
-                        {session.routineName}
-                      </Text>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          width: "100%",
-                          marginTop: 5,
+                  <>
+                    {userHistory.slice(0, historyLimit).map((session) => (
+                      <TouchableOpacity
+                        key={session.id}
+                        style={[
+                          styles.routineCard,
+                          { flexDirection: "column", alignItems: "flex-start" },
+                        ]}
+                        onPress={() => {
+                          setSelectedItem(session);
+                          setDetailsType("history");
+                          setDetailsModalVisible(true);
                         }}
                       >
-                        <Text style={styles.routineDetails}>
-                          <Feather name="clock" size={12} />{" "}
-                          {formatDuration(session.durationSeconds)} min
+                        <Text style={styles.routineName}>
+                          {session.routineName}
                         </Text>
-                        <Text style={styles.routineDetails}>
-                          <Feather name="activity" size={12} />{" "}
-                          {calculateTotalVolume(
-                            session,
-                            profile.measurementSystem,
-                          )}{" "}
-                          {profile.measurementSystem === "metric"
-                            ? "kg"
-                            : "lbs"}
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            width: "100%",
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text style={styles.routineDetails}>
+                            <Feather name="clock" size={12} />{" "}
+                            {formatDuration(session.durationSeconds)} min
+                          </Text>
+                          <Text style={styles.routineDetails}>
+                            <Feather name="activity" size={12} />{" "}
+                            {calculateTotalVolume(
+                              session,
+                              profile.measurementSystem,
+                            )}{" "}
+                            {profile.measurementSystem === "metric"
+                              ? "kg"
+                              : "lbs"}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+
+                    {userHistory.length > historyLimit && (
+                      <TouchableOpacity
+                        style={{
+                          paddingVertical: 12,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: colors.surface,
+                          borderRadius: 10,
+                          borderWidth: 1,
+                          borderColor: colors.border,
+                          marginBottom: 20,
+                        }}
+                        onPress={() => setHistoryLimit((prev) => prev + 10)}
+                      >
+                        <Text
+                          style={{ color: colors.primary, fontWeight: "bold" }}
+                        >
+                          {t("profile.loadMore", "Cargar más entrenamientos")}
                         </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))
+                      </TouchableOpacity>
+                    )}
+                  </>
                 ) : (
                   <Text
                     style={{
@@ -486,7 +506,6 @@ export default function UserProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* MODALS */}
       <SocialListModal
         visible={socialModalVisible}
         type={socialModalType}

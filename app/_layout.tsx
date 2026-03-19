@@ -4,14 +4,15 @@ import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
-import { colors } from "../src/constants/theme";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const { colors } = useTheme();
 
   useEffect(() => {
     if (isLoading) return;
@@ -55,12 +56,14 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <ActiveWorkoutProvider>
-          <RootLayoutNav />
-          <MiniWorkoutPlayer />
-        </ActiveWorkoutProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ActiveWorkoutProvider>
+            <RootLayoutNav />
+            <MiniWorkoutPlayer />
+          </ActiveWorkoutProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

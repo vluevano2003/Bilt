@@ -11,8 +11,8 @@ import {
   View,
 } from "react-native";
 import { ExerciseType } from "../../hooks/useRoutines";
-import { colors } from "../constants/theme";
-import { styles } from "../styles/Routines.styles";
+import { useTheme } from "../context/ThemeContext";
+import { getStyles } from "../styles/Routines.styles";
 import { PrimaryButton } from "./PrimaryButton";
 
 interface Props {
@@ -29,9 +29,6 @@ interface Props {
   onConfirm: () => void;
 }
 
-/**
- * Modal para seleccionar ejercicios al crear o editar una rutina. Permite buscar por nombre, filtrar por grupo muscular y seleccionar múltiples ejercicios antes de confirmar la selección
- */
 export const ExerciseSelectorModal = ({
   visible,
   onClose,
@@ -46,6 +43,8 @@ export const ExerciseSelectorModal = ({
   onConfirm,
 }: Props) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
