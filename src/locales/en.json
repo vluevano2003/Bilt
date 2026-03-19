@@ -113,7 +113,7 @@
     },
     "workoutHistory": "Workout History",
     "noHistory": "The history is empty.",
-    "noPublicRoutines": "No public routines."
+    "noPublicRoutines": "This user doesn't have any public routines yet."
   },
   "alerts": {
     "missingData": "Missing data",
@@ -185,7 +185,9 @@
     "fromCreator": "From: @{{creator}}",
     "unsaveConfirmTitle": "Remove from my profile",
     "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?",
-    "savedRoutines": "Saved Routines"
+    "savedRoutines": "Saved Routines",
+    "cannotDeleteInPack": "You cannot delete this routine because it belongs to a Weekly Pack. Remove it from the pack first.",
+    "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -348,5 +350,22 @@
     "startEmpty": "+ Start Empty Workout",
     "workoutInProgress": "Workout in progress",
     "goToWorkout": "Go to Active Workout"
+  },
+  "weeklyPacks": {
+    "tabPacks": "Packs",
+    "emptyMessage": "You don't have any weekly packs yet. Group your routines!",
+    "createNew": "Create Weekly Pack",
+    "packName": "Pack Name",
+    "packNamePlaceholder": "E.g. Hypertrophy Week",
+    "description": "Description",
+    "descriptionPlaceholder": "E.g. 5-day routine to build mass...",
+    "selectRoutines": "Select up to 6 routines",
+    "maxRoutinesAlert": "You can only add a maximum of 6 routines per pack.",
+    "routinesSelected": "{{count}}/6 selected",
+    "savePack": "Save Pack",
+    "noRoutinesAvailable": "Create some routines first to build a pack.",
+    "routinesIncluded": "Routines in this Pack:",
+    "savePackToProfile": "Save Pack to Profile",
+    "noPublicPacks": "This user doesn't have any Weekly Packs yet."
   }
 }

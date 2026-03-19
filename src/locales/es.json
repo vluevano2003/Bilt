@@ -113,7 +113,7 @@
     },
     "workoutHistory": "Historial de Entrenamientos",
     "noHistory": "El historial está vacío.",
-    "noPublicRoutines": "No hay rutinas públicas."
+    "noPublicRoutines": "Este usuario aún no tiene rutinas públicas."
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -185,7 +185,9 @@
     "fromCreator": "De: @{{creator}}",
     "unsaveConfirmTitle": "Eliminar de mi perfil",
     "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?",
-    "savedRoutines": "Rutinas Guardadas"
+    "savedRoutines": "Rutinas Guardadas",
+    "cannotDeleteInPack": "No puedes eliminar esta rutina porque pertenece a un Pack Semanal. Quítala del pack primero.",
+    "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -348,5 +350,22 @@
     "startEmpty": "+ Iniciar Entreno Vacío",
     "workoutInProgress": "Entrenamiento en curso",
     "goToWorkout": "Ir al Entrenamiento Activo"
+  },
+  "weeklyPacks": {
+    "tabPacks": "Packs",
+    "emptyMessage": "Aún no tienes packs semanales. ¡Agrupa tus rutinas!",
+    "createNew": "Crear Pack Semanal",
+    "packName": "Nombre del Pack",
+    "packNamePlaceholder": "Ej. Semana de Hipertrofia",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ej. Rutina de 5 días para ganar masa...",
+    "selectRoutines": "Selecciona hasta 6 rutinas",
+    "maxRoutinesAlert": "Solo puedes añadir un máximo de 6 rutinas por pack.",
+    "routinesSelected": "{{count}}/6 seleccionadas",
+    "savePack": "Guardar Pack",
+    "noRoutinesAvailable": "Crea algunas rutinas primero para armar un pack.",
+    "routinesIncluded": "Rutinas en este Pack:",
+    "savePackToProfile": "Guardar Pack en mi Perfil",
+    "noPublicPacks": "Este usuario aún no tiene Packs Semanales."
   }
 }

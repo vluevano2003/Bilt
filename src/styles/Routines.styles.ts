@@ -15,22 +15,33 @@ export const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   headerTitle: { fontSize: 24, fontWeight: "bold", color: colors.textPrimary },
+
+  // --- AJUSTES EN TABS ---
   tabsContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.background,
+    justifyContent: "space-between", // Distribuye el espacio equitativamente
   },
   tab: {
-    flex: 1,
+    flex: 1, // Hace que todos midan lo mismo
     alignItems: "center",
+    justifyContent: "center", // Centra el texto verticalmente
     paddingVertical: 16,
+    paddingHorizontal: 5, // Evita que el texto toque los bordes
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
   activeTab: { borderBottomColor: colors.primary },
-  tabText: { color: colors.textSecondary, fontSize: 15, fontWeight: "600" },
+  tabText: {
+    color: colors.textSecondary,
+    fontSize: 14, // Reducido un punto para asegurar que quepa
+    fontWeight: "600",
+    textAlign: "center", // Asegura centrado
+  },
   activeTabText: { color: colors.primary },
+  // -------------------------
 
   listContainer: { padding: 20, paddingBottom: 100 },
 

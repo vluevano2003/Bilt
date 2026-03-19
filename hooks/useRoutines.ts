@@ -1,11 +1,14 @@
 import {
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { auth, db } from "../src/config/firebase";
@@ -51,7 +54,7 @@ export interface Routine {
 }
 
 /**
- * Hook personalizado para gestionar las rutinas del usuario en tiempo real
+ * Hook personalizado para manejar las rutinas del usuario, incluyendo creación, edición, eliminación y escucha en tiempo real
  * @returns
  */
 export const useRoutines = () => {
@@ -72,7 +75,6 @@ export const useRoutines = () => {
       snapshot.forEach((doc) => {
         routinesData.push({ id: doc.id, ...doc.data() } as Routine);
       });
-      // Ordenar por fecha de creación
       routinesData.sort((a, b) => b.createdAt - a.createdAt);
       setRoutines(routinesData);
       setIsLoading(false);
@@ -110,11 +112,28 @@ export const useRoutines = () => {
     }
   };
 
+  /**
+   * Elimina una rutina y todas sus copias guardadas por otros usuarios
+   * @param routineId
+   * @returns
+   */
   const deleteRoutine = async (routineId: string) => {
     if (!currentUserId) return;
     try {
       const routineRef = doc(db, "users", currentUserId, "routines", routineId);
       await deleteDoc(routineRef);
+
+      const savedQuery = query(
+        collectionGroup(db, "routines"),
+        where("originalRoutineId", "==", routineId),
+      );
+
+      const savedSnapshot = await getDocs(savedQuery);
+
+      const deletePromises = savedSnapshot.docs.map((docSnap) =>
+        deleteDoc(docSnap.ref),
+      );
+      await Promise.all(deletePromises);
     } catch (error) {
       console.log("Error deleting routine:", error);
       throw error;
