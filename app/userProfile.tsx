@@ -1,10 +1,12 @@
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Alert,
   Image,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -28,6 +30,10 @@ import {
   getConvertedProfileWeight,
 } from "../src/utils/profileHelpers";
 
+/**
+ * Pantalla de perfil de usuario, muestra la información del perfil, sus rutinas, packs y actividad reciente. Permite seguir al usuario, ver su lista de seguidores/siguiendo, y guardar rutinas/packs en el perfil propio
+ * @returns
+ */
 export default function UserProfileScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
@@ -61,6 +67,18 @@ export default function UserProfileScreen() {
   const [packDetailsVisible, setPackDetailsVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   if (profile.isLoading) {
     return (
@@ -115,6 +133,25 @@ export default function UserProfileScreen() {
     setLoadingSocial(false);
   };
 
+  const handleToggleFollow = () => {
+    if (profile.isPrivate && profile.followStatus === "following") {
+      Alert.alert(
+        t("social.unfollowPrivateTitle"),
+        t("social.unfollowPrivateMsg"),
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("social.unfollowConfirm"),
+            style: "destructive",
+            onPress: () => profile.toggleFollow(),
+          },
+        ],
+      );
+    } else {
+      profile.toggleFollow();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={[styles.headerContainer, { justifyContent: "flex-start" }]}>
@@ -123,7 +160,17 @@ export default function UserProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.formContainer}>
           <View style={styles.centeredProfileInfo}>
             <View style={styles.avatarContainer}>
@@ -233,7 +280,7 @@ export default function UserProfileScreen() {
                           : colors.primary,
                     },
                   ]}
-                  onPress={profile.toggleFollow}
+                  onPress={handleToggleFollow}
                 >
                   <Text
                     style={[

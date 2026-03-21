@@ -1,19 +1,9 @@
 import * as ImagePicker from "expo-image-picker";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { auth, db, storage } from "../src/config/firebase";
+import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 
 export interface SocialUser {
   id: string;
@@ -23,11 +13,48 @@ export interface SocialUser {
 }
 
 /**
- * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores.
- * Se ha modificado para usar onSnapshot y así reflejar cambios en tiempo real (ej. nombre de usuario).
+ * Función para enviar notificaciones push usando Expo Push API
+ * @param expoPushToken
+ * @param title
+ * @param body
+ */
+async function sendPushNotification(
+  expoPushToken: string,
+  title: string,
+  body: string,
+) {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: title,
+    body: body,
+    data: { someData: "goes here" },
+  };
+
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+}
+
+/**
+ * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores
+ * @param profileUid
+ * @returns
  */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const currentUserId = user?.id;
+  const targetUid = profileUid || currentUserId;
+  const isOwnProfile = targetUid === currentUserId;
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,10 +88,6 @@ export const useProfile = (profileUid?: string) => {
   const [followingCount, setFollowingCount] = useState(0);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
-  const currentUserId = auth.currentUser?.uid;
-  const targetUid = profileUid || currentUserId;
-  const isOwnProfile = targetUid === currentUserId;
-
   const calculateAge = (dateString: string) => {
     if (!dateString) return "";
     const parts = dateString.split("/");
@@ -88,146 +111,122 @@ export const useProfile = (profileUid?: string) => {
   useEffect(() => {
     if (!targetUid) return;
 
-    const docRef = doc(db, "users", targetUid);
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", targetUid)
+        .single();
 
-    const unsubscribeProfile = onSnapshot(
-      docRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setUsername(data.username || "");
-          setProfilePic(data.profilePictureUrl || null);
-          setBirthDate(data.birthDate || "");
-          setAge(calculateAge(data.birthDate));
-          setEmail(data.email || "");
-          setGender(data.gender || "");
-          setMeasurementSystem(data.measurementSystem || "metric");
-          setHeight(data.height?.toString() || "");
-          setWeight(data.weight?.toString() || "");
+      if (data) {
+        setUsername(data.username || "");
+        setProfilePic(data.profile_picture_url || null);
+        setBirthDate(data.birth_date || "");
+        setAge(calculateAge(data.birth_date));
+        setEmail(data.email || "");
+        setGender(data.gender || "");
+        setMeasurementSystem(data.measurement_system || "metric");
+        setHeight(data.height?.toString() || "");
+        setWeight(data.weight?.toString() || "");
+        setIsPrivate(data.is_private || false);
+        setShowAge(data.show_age ?? true);
+        setShowWeight(data.show_weight ?? true);
+        setShowHeight(data.show_height ?? true);
+        setShowGender(data.show_gender ?? true);
+      }
+      setIsLoading(false);
+    };
 
-          setIsPrivate(data.isPrivate || false);
-          setShowAge(data.showAge ?? true);
-          setShowWeight(data.showWeight ?? true);
-          setShowHeight(data.showHeight ?? true);
-          setShowGender(data.showGender ?? true);
-        }
-        setIsLoading(false);
-      },
-      (error) => {
-        console.error("Error al obtener perfil en tiempo real:", error);
-        Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorLoad"));
-        setIsLoading(false);
-      },
-    );
+    fetchProfile();
 
-    return () => unsubscribeProfile();
+    const channel = supabase
+      .channel(`public:users:id=eq.${targetUid}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "users",
+          filter: `id=eq.${targetUid}`,
+        },
+        () => fetchProfile(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [targetUid]);
 
   useEffect(() => {
     if (!targetUid || !currentUserId) return;
 
-    const followersRef = collection(db, "users", targetUid, "followers");
-    const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
-      let accepted = 0;
-      let pending = 0;
-      snapshot.forEach((doc) => {
-        if (doc.data().status === "accepted") accepted++;
-        if (doc.data().status === "pending") pending++;
-      });
-      setFollowersCount(accepted);
-      if (isOwnProfile) setPendingRequestsCount(pending);
-    });
+    const fetchSocialStats = async () => {
+      const { count: fCount } = await supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", targetUid)
+        .eq("status", "accepted");
+      setFollowersCount(fCount || 0);
 
-    const followingRef = collection(db, "users", targetUid, "following");
-    const unsubscribeFollowingCount = onSnapshot(followingRef, (snapshot) => {
-      let accepted = 0;
-      snapshot.forEach((doc) => {
-        if (doc.data().status === "accepted") accepted++;
-      });
-      setFollowingCount(accepted);
-    });
+      const { count: followingC } = await supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("follower_id", targetUid)
+        .eq("status", "accepted");
+      setFollowingCount(followingC || 0);
 
-    let unsubscribeFollowingStatus = () => {};
-    let unsubscribeIncomingRequest = () => {};
+      if (isOwnProfile) {
+        const { count: pCount } = await supabase
+          .from("follows")
+          .select("*", { count: "exact", head: true })
+          .eq("following_id", targetUid)
+          .eq("status", "pending");
+        setPendingRequestsCount(pCount || 0);
+      } else {
+        const { data: myFollow } = await supabase
+          .from("follows")
+          .select("status")
+          .eq("follower_id", currentUserId)
+          .eq("following_id", targetUid)
+          .single();
 
-    if (!isOwnProfile) {
-      const myFollowingRef = doc(
-        db,
-        "users",
-        currentUserId,
-        "following",
-        targetUid,
-      );
-      unsubscribeFollowingStatus = onSnapshot(myFollowingRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const status = docSnap.data().status;
-          setFollowStatus(status === "accepted" ? "following" : "pending");
-        } else {
-          setFollowStatus("none");
-        }
-      });
+        setFollowStatus(
+          myFollow
+            ? myFollow.status === "accepted"
+              ? "following"
+              : "pending"
+            : "none",
+        );
 
-      const incomingRef = doc(
-        db,
-        "users",
-        currentUserId,
-        "followers",
-        targetUid,
-      );
-      unsubscribeIncomingRequest = onSnapshot(incomingRef, (docSnap) => {
-        if (docSnap.exists() && docSnap.data().status === "pending") {
-          setHasPendingRequestFromThem(true);
-        } else {
-          setHasPendingRequestFromThem(false);
-        }
-      });
-    }
+        const { data: theirRequest } = await supabase
+          .from("follows")
+          .select("status")
+          .eq("follower_id", targetUid)
+          .eq("following_id", currentUserId)
+          .single();
+
+        setHasPendingRequestFromThem(theirRequest?.status === "pending");
+      }
+    };
+
+    fetchSocialStats();
+
+    const followsChannel = supabase
+      .channel(`follows-changes-${targetUid}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows" },
+        () => {
+          fetchSocialStats();
+        },
+      )
+      .subscribe();
 
     return () => {
-      unsubscribeFollowers();
-      unsubscribeFollowingCount();
-      unsubscribeFollowingStatus();
-      unsubscribeIncomingRequest();
+      supabase.removeChannel(followsChannel);
     };
   }, [targetUid, currentUserId, isOwnProfile]);
-
-  const getSocialList = async (
-    type: "followers" | "following" | "requests",
-  ): Promise<SocialUser[]> => {
-    if (!targetUid) return [];
-    try {
-      const queryType = type === "requests" ? "followers" : type;
-      const listRef = collection(db, "users", targetUid, queryType);
-      const snapshot = await getDocs(listRef);
-
-      const userPromises = snapshot.docs.map(async (socialDoc) => {
-        const status = socialDoc.data().status;
-
-        if (type === "followers" && status !== "accepted") return null;
-        if (type === "requests" && status !== "pending") return null;
-        if (type === "following" && status !== "accepted") return null;
-
-        const userDocRef = doc(db, "users", socialDoc.id);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists()) {
-          return {
-            id: userSnap.id,
-            username: userSnap.data().username,
-            profilePictureUrl: userSnap.data().profilePictureUrl,
-            status: status,
-          } as SocialUser;
-        }
-        return null;
-      });
-
-      const users = await Promise.all(userPromises);
-      return users.filter((u) => u !== null) as SocialUser[];
-    } catch (error) {
-      console.log(`Error obteniendo ${type}:`, error);
-      return [];
-    }
-  };
 
   const pickImage = async () => {
     if (!isOwnProfile) return;
@@ -248,26 +247,42 @@ export const useProfile = (profileUid?: string) => {
 
     try {
       let profileUrl = profilePic;
+
       if (newProfilePic) {
         const response = await fetch(newProfilePic);
         const blob = await response.blob();
-        const storageRef = ref(storage, `profile_pictures/${currentUserId}`);
-        await uploadBytes(storageRef, blob);
-        profileUrl = await getDownloadURL(storageRef);
+        const arrayBuffer = await new Response(blob).arrayBuffer();
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("profile_pictures")
+          .upload(`${currentUserId}/${Date.now()}.jpg`, arrayBuffer, {
+            upsert: true,
+          });
+
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from("profile_pictures")
+            .getPublicUrl(uploadData.path);
+          profileUrl = publicUrlData.publicUrl;
+        }
       }
 
-      const userRef = doc(db, "users", currentUserId);
-      await updateDoc(userRef, {
-        username: username.trim(),
-        profilePictureUrl: profileUrl,
-        measurementSystem,
-        height: parseFloat(height.replace(",", ".")),
-        weight: parseFloat(weight.replace(",", ".")),
-        showAge,
-        showWeight,
-        showHeight,
-        showGender,
-      });
+      const { error } = await supabase
+        .from("users")
+        .update({
+          username: username.trim(),
+          profile_picture_url: profileUrl,
+          measurement_system: measurementSystem,
+          height: parseFloat(height.replace(",", ".")),
+          weight: parseFloat(weight.replace(",", ".")),
+          show_age: showAge,
+          show_weight: showWeight,
+          show_height: showHeight,
+          show_gender: showGender,
+        })
+        .eq("id", currentUserId);
+
+      if (error) throw error;
 
       setProfilePic(profileUrl);
       setNewProfilePic(null);
@@ -289,95 +304,175 @@ export const useProfile = (profileUid?: string) => {
     setIsPrivate(value);
     if (!currentUserId || !isOwnProfile) return;
     try {
-      const userRef = doc(db, "users", currentUserId);
-      await updateDoc(userRef, { isPrivate: value });
+      await supabase
+        .from("users")
+        .update({ is_private: value })
+        .eq("id", currentUserId);
     } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar la privacidad");
       setIsPrivate(!value);
     }
   };
 
+  /**
+   * Función para seguir o dejar de seguir a un usuario, manejando tanto el caso de perfiles públicos como privados, y enviando notificaciones push cuando corresponda
+   * @returns
+   */
   const toggleFollow = async () => {
     if (!currentUserId || !targetUid || isOwnProfile) return;
 
     try {
-      const myFollowingRef = doc(
-        db,
-        "users",
-        currentUserId,
-        "following",
-        targetUid,
-      );
-      const theirFollowerRef = doc(
-        db,
-        "users",
-        targetUid,
-        "followers",
-        currentUserId,
-      );
-
       if (followStatus === "following" || followStatus === "pending") {
-        await deleteDoc(myFollowingRef);
-        await deleteDoc(theirFollowerRef);
+        await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", currentUserId)
+          .eq("following_id", targetUid);
         setFollowStatus("none");
       } else {
         const finalStatus = isPrivate ? "pending" : "accepted";
-        await setDoc(myFollowingRef, {
-          status: finalStatus,
-          createdAt: new Date(),
-        });
-        await setDoc(theirFollowerRef, {
-          status: finalStatus,
-          createdAt: new Date(),
-        });
+
+        await supabase.from("follows").insert([
+          {
+            follower_id: currentUserId,
+            following_id: targetUid,
+            status: finalStatus,
+          },
+        ]);
         setFollowStatus(finalStatus === "accepted" ? "following" : "pending");
+
+        const { data: myUser } = await supabase
+          .from("users")
+          .select("username")
+          .eq("id", currentUserId)
+          .single();
+        const myName = myUser?.username || "Alguien";
+
+        const { data: targetUser } = await supabase
+          .from("users")
+          .select("push_token")
+          .eq("id", targetUid)
+          .single();
+
+        if (targetUser?.push_token) {
+          const title =
+            finalStatus === "pending" ? "Nueva solicitud" : "Nuevo seguidor";
+          const body =
+            finalStatus === "pending"
+              ? `@${myName} te ha enviado una solicitud de seguimiento.`
+              : `@${myName} ha comenzado a seguirte.`;
+
+          await sendPushNotification(targetUser.push_token, title, body);
+        }
       }
     } catch (error) {
-      console.log("Error al intentar seguir/dejar de seguir:", error);
-      Alert.alert("Error", "No se pudo completar la acción. Intenta de nuevo.");
+      Alert.alert("Error", "No se pudo completar la acción.");
     }
   };
 
+  const getSocialList = async (
+    type: "followers" | "following" | "requests",
+  ): Promise<SocialUser[]> => {
+    if (!targetUid) return [];
+    try {
+      let query = supabase
+        .from("follows")
+        .select("status, follower_id, following_id");
+
+      if (type === "followers") {
+        query = query.eq("following_id", targetUid).eq("status", "accepted");
+      } else if (type === "following") {
+        query = query.eq("follower_id", targetUid).eq("status", "accepted");
+      } else if (type === "requests") {
+        query = query.eq("following_id", targetUid).eq("status", "pending");
+      }
+
+      const { data: followsData, error: followsError } = await query;
+      if (followsError) throw followsError;
+      if (!followsData || followsData.length === 0) return [];
+
+      const userIds = followsData.map((f: any) =>
+        type === "following" ? f.following_id : f.follower_id,
+      );
+
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("id, username, profile_picture_url")
+        .in("id", userIds);
+
+      if (usersError) throw usersError;
+
+      return usersData.map((u: any) => ({
+        id: u.id,
+        username: u.username,
+        profilePictureUrl: u.profile_picture_url,
+        status: followsData.find(
+          (f: any) =>
+            (type === "following" ? f.following_id : f.follower_id) === u.id,
+        )?.status,
+      })) as SocialUser[];
+    } catch (error) {
+      console.log(`Error obteniendo ${type}:`, error);
+      return [];
+    }
+  };
+
+  /**
+   * Función para aceptar o rechazar solicitudes de seguimiento pendientes, actualizando el estado en la base de datos y enviando notificaciones push cuando corresponda
+   * @param userIdToHandle
+   * @param accept
+   * @returns
+   */
   const handleFollowRequest = async (
     userIdToHandle: string,
     accept: boolean,
   ) => {
     if (!currentUserId) return;
-    try {
-      const myFollowerRef = doc(
-        db,
-        "users",
-        currentUserId,
-        "followers",
-        userIdToHandle,
-      );
-      const theirFollowingRef = doc(
-        db,
-        "users",
-        userIdToHandle,
-        "following",
-        currentUserId,
-      );
 
+    setPendingRequestsCount((prev) => Math.max(0, prev - 1));
+
+    try {
       if (accept) {
-        await updateDoc(myFollowerRef, { status: "accepted" });
-        await updateDoc(theirFollowingRef, { status: "accepted" });
+        await supabase
+          .from("follows")
+          .update({ status: "accepted" })
+          .eq("follower_id", userIdToHandle)
+          .eq("following_id", currentUserId);
         setHasPendingRequestFromThem(false);
+
+        const { data: myUser } = await supabase
+          .from("users")
+          .select("username")
+          .eq("id", currentUserId)
+          .single();
+        const myName = myUser?.username || "Alguien";
+
+        const { data: followerUser } = await supabase
+          .from("users")
+          .select("push_token")
+          .eq("id", userIdToHandle)
+          .single();
+
+        if (followerUser?.push_token) {
+          await sendPushNotification(
+            followerUser.push_token,
+            "Solicitud aceptada",
+            `@${myName} ha aceptado tu solicitud de seguimiento.`,
+          );
+        }
       } else {
-        await deleteDoc(myFollowerRef);
-        await deleteDoc(theirFollowingRef);
+        await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", userIdToHandle)
+          .eq("following_id", currentUserId);
         setHasPendingRequestFromThem(false);
       }
     } catch (e) {
+      setPendingRequestsCount((prev) => prev + 1);
       Alert.alert("Error", "Ocurrió un problema procesando la solicitud.");
     }
   };
 
-  /**
-   * Cambia el sistema de medición y convierte los valores de peso y altura al nuevo sistema
-   * @param newSystem
-   * @returns
-   */
   const changeMeasurementSystem = (newSystem: "metric" | "imperial") => {
     if (newSystem === measurementSystem) return;
 
@@ -444,9 +539,9 @@ export const useProfile = (profileUid?: string) => {
     followersCount,
     followingCount,
     pendingRequestsCount,
+    hasPendingRequestFromThem,
     getSocialList,
     handleFollowRequest,
-    hasPendingRequestFromThem,
     changeMeasurementSystem,
   };
 };

@@ -56,6 +56,9 @@
     "follow": "Follow",
     "requested": "Requested",
     "following": "Following",
+    "unfollowPrivateTitle": "Unfollow Private Account?",
+    "unfollowPrivateMsg": "If you change your mind, you will have to send a new follow request to see their routines again.",
+    "unfollowConfirm": "Unfollow",
     "noResults": "No users found.",
     "noNotifications": "No notifications.",
     "searchInstructions": "Search users by their username to follow them.",
@@ -227,7 +230,12 @@
     "completedSets": "Completed Sets",
     "duration": "Duration",
     "closeSummary": "Close",
-    "logWorkout": "Log Workout"
+    "logWorkout": "Log Workout",
+    "goodJob": "Great job!",
+    "workoutCompleted": "Workout completed",
+    "musclesWorked": "Muscles worked",
+    "noSetsValid": "You haven't completed any valid sets.",
+    "previous": "PREV"
   },
   "muscles": {
     "chest": "Chest",

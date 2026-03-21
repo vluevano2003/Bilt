@@ -1,14 +1,14 @@
 import { Audio } from "expo-av";
-import { addDoc, collection } from "firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Vibration } from "react-native";
+import { Alert, Vibration } from "react-native";
 import {
   ExerciseSet,
   Routine,
   RoutineExercise,
   WeightUnit,
 } from "../../hooks/useRoutines";
-import { auth, db } from "../config/firebase";
+import { supabase } from "../config/supabase";
+import { useAuth } from "./AuthContext";
 
 /**
  * Contexto para manejar el estado del entrenamiento activo, incluyendo la rutina en curso, el tiempo transcurrido, el estado de pausa, el temporizador de descanso y las funciones para manipular estos estados
@@ -49,11 +49,17 @@ interface ActiveWorkoutContextProps {
 export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
+/**
+ * Proveedor del contexto de entrenamiento activo que maneja toda la lógica relacionada con el estado del entrenamiento en curso, incluyendo el manejo del tiempo, la manipulación de ejercicios y sets, y la interacción con Supabase para guardar el historial de entrenamientos
+ * @param param0
+ * @returns
+ */
 export const ActiveWorkoutProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
+  const { user } = useAuth();
   const [activeRoutine, setActiveRoutine] = useState<Routine | null>(null);
   const [originalRoutine, setOriginalRoutine] = useState<Routine | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -82,7 +88,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   const finishWorkout = async () => {
-    if (!activeRoutine || !auth.currentUser) {
+    if (!activeRoutine || !user?.id) {
       cancelWorkout();
       return;
     }
@@ -103,25 +109,27 @@ export const ActiveWorkoutProvider = ({
         return;
       }
 
-      const workoutLog = {
-        routineId: activeRoutine.id,
-        routineName: activeRoutine.name,
-        durationSeconds: elapsedSeconds,
-        completedAt: Date.now(),
-        exercises: completedExercises,
-      };
+      const { error } = await supabase.from("history").insert([
+        {
+          user_id: user.id,
+          routine_id: activeRoutine.id,
+          routine_name: activeRoutine.name,
+          duration_seconds: elapsedSeconds,
+          exercises: completedExercises,
+        },
+      ]);
 
-      const historyRef = collection(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "history",
+      if (error) {
+        console.error("Supabase Error Guardando History:", error);
+        Alert.alert("Error guardando entrenamiento", error.message);
+        throw error;
+      }
+
+      console.log(
+        "¡Entrenamiento guardado en el historial de Supabase con éxito!",
       );
-      await addDoc(historyRef, workoutLog);
-
-      console.log("¡Entrenamiento guardado en el historial con éxito!");
     } catch (error) {
-      console.error("Error al guardar el entrenamiento:", error);
+      console.error("Error general al guardar el entrenamiento:", error);
     } finally {
       cancelWorkout();
     }
@@ -281,6 +289,7 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
   };
+
   const updateExerciseRestTime = (exId: string, newTime: number) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) =>

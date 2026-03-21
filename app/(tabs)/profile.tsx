@@ -1,8 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Tabs, useRouter } from "expo-router";
-import { signOut } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -11,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  RefreshControl,
   ScrollView,
   Switch,
   Text,
@@ -22,7 +22,8 @@ import { useUserActivity } from "../../hooks/useUserActivity";
 import { CustomInput } from "../../src/components/CustomInput";
 import { PrimaryButton } from "../../src/components/PrimaryButton";
 import { SecondaryButton } from "../../src/components/SecondaryButton";
-import { auth } from "../../src/config/firebase";
+import { supabase } from "../../src/config/supabase";
+import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getStyles } from "../../src/styles/Profile.styles";
 import {
@@ -31,11 +32,16 @@ import {
   getConvertedWeight,
 } from "../../src/utils/workoutCalculations";
 
+/**
+ * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, seguidores y seguidos. Permite editar el perfil, cambiar configuraciones y cerrar sesión
+ * @returns
+ */
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
 
   const {
     isLoading,
@@ -73,7 +79,6 @@ export default function ProfileScreen() {
   } = useProfile();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
-
   const [socialModalVisible, setSocialModalVisible] = useState(false);
   const [socialModalType, setSocialModalType] = useState<
     "followers" | "following"
@@ -81,17 +86,28 @@ export default function ProfileScreen() {
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
 
-  const { userHistory, isLoadingActivity } = useUserActivity(
-    auth.currentUser?.uid,
-  );
+  const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
 
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await supabase.auth.signOut();
     } catch (error) {
       console.log(error);
     }
@@ -139,7 +155,7 @@ export default function ProfileScreen() {
         style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
         onPress={() => {
           setSocialModalVisible(false);
-          if (item.id !== auth.currentUser?.uid) {
+          if (item.id !== user?.id) {
             router.push({ pathname: "/userProfile", params: { id: item.id } });
           }
         }}
@@ -194,7 +210,17 @@ export default function ProfileScreen() {
         }}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.formContainer}>
           <View style={[styles.centeredProfileInfo, { marginTop: 20 }]}>
             <View style={styles.avatarContainer}>

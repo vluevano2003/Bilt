@@ -1,17 +1,6 @@
-import {
-  addDoc,
-  collection,
-  collectionGroup,
-  deleteDoc,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { auth, db } from "../src/config/firebase";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 
 export type SetType =
   | "warmup"
@@ -54,7 +43,9 @@ export interface Routine {
 }
 
 /**
- * Hook personalizado para manejar las rutinas del usuario, incluyendo creación, edición, eliminación y escucha en tiempo real
+ * Hook personalizado para gestionar las rutinas de entrenamiento del usuario
+ * Proporciona funcionalidades para obtener, crear, actualizar y eliminar rutinas,
+ * así como para manejar el estado de carga y guardado
  * @returns
  */
 export const useRoutines = () => {
@@ -62,26 +53,58 @@ export const useRoutines = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const currentUserId = auth.currentUser?.uid;
+  const { user } = useAuth();
+  const currentUserId = user?.id;
 
-  useEffect(() => {
+  const fetchRoutines = useCallback(async () => {
     if (!currentUserId) return;
 
-    const routinesRef = collection(db, "users", currentUserId, "routines");
-    const q = query(routinesRef);
+    const { data, error } = await supabase
+      .from("routines")
+      .select("*")
+      .eq("user_id", currentUserId)
+      .order("created_at", { ascending: false });
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const routinesData: Routine[] = [];
-      snapshot.forEach((doc) => {
-        routinesData.push({ id: doc.id, ...doc.data() } as Routine);
-      });
-      routinesData.sort((a, b) => b.createdAt - a.createdAt);
-      setRoutines(routinesData);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+    if (error) {
+      console.error("Error fetching routines:", error);
+    } else if (data) {
+      const formattedRoutines: Routine[] = data.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        exercises: doc.exercises,
+        createdAt: new Date(doc.created_at).getTime(),
+        originalCreatorId: doc.original_creator_id,
+        originalCreatorName: doc.original_creator_name,
+        originalRoutineId: doc.original_routine_id,
+      }));
+      setRoutines(formattedRoutines);
+    }
+    setIsLoading(false);
   }, [currentUserId]);
+
+  useEffect(() => {
+    fetchRoutines();
+
+    const channel = supabase
+      .channel("custom-routines-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "routines",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        () => {
+          fetchRoutines();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId, fetchRoutines]);
 
   const saveRoutine = async (
     routineId: string | null,
@@ -92,51 +115,53 @@ export const useRoutines = () => {
     setIsSaving(true);
     try {
       if (routineId) {
-        const routineRef = doc(
-          db,
-          "users",
-          currentUserId,
-          "routines",
-          routineId,
-        );
-        await updateDoc(routineRef, { name, exercises });
+        const { error } = await supabase
+          .from("routines")
+          .update({ name, exercises })
+          .eq("id", routineId)
+          .eq("user_id", currentUserId);
+        if (error) throw error;
       } else {
-        const routinesRef = collection(db, "users", currentUserId, "routines");
-        await addDoc(routinesRef, { name, exercises, createdAt: Date.now() });
+        const { error } = await supabase
+          .from("routines")
+          .insert([{ user_id: currentUserId, name, exercises }]);
+        if (error) throw error;
       }
+
+      await fetchRoutines();
     } catch (error) {
-      console.log("Error saving routine:", error);
+      console.error("Error saving routine:", error);
       throw error;
     } finally {
       setIsSaving(false);
     }
   };
 
-  /**
-   * Elimina una rutina y todas sus copias guardadas por otros usuarios
-   * @param routineId
-   * @returns
-   */
   const deleteRoutine = async (routineId: string) => {
-    if (!currentUserId) return;
+    if (!currentUserId || !routineId) return;
+    setIsSaving(true);
+
+    setRoutines((prev) => prev.filter((r) => r.id !== routineId));
+
     try {
-      const routineRef = doc(db, "users", currentUserId, "routines", routineId);
-      await deleteDoc(routineRef);
+      const { error } = await supabase
+        .from("routines")
+        .delete()
+        .eq("id", routineId)
+        .eq("user_id", currentUserId);
 
-      const savedQuery = query(
-        collectionGroup(db, "routines"),
-        where("originalRoutineId", "==", routineId),
-      );
+      if (error) throw error;
 
-      const savedSnapshot = await getDocs(savedQuery);
-
-      const deletePromises = savedSnapshot.docs.map((docSnap) =>
-        deleteDoc(docSnap.ref),
-      );
-      await Promise.all(deletePromises);
+      await supabase
+        .from("routines")
+        .delete()
+        .eq("original_routine_id", routineId);
     } catch (error) {
-      console.log("Error deleting routine:", error);
+      console.error("Error deleting routine:", error);
+      fetchRoutines();
       throw error;
+    } finally {
+      setIsSaving(false);
     }
   };
 

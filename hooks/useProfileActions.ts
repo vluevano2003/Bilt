@@ -1,13 +1,13 @@
-import { addDoc, collection } from "firebase/firestore";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { auth, db } from "../src/config/firebase";
+import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 import { useRoutines } from "./useRoutines";
 import { useWeeklyPacks, WeeklyPack } from "./useWeeklyPacks";
 
 /**
- * Custom hook para manejar las acciones de guardar/guardar rutinas y packs en el perfil de un usuario
+ * Custom hook para manejar las acciones de guardar y eliminar rutinas y packs en el perfil de un usuario
  * @param profileId
  * @param username
  * @param userRoutines
@@ -19,6 +19,7 @@ export const useProfileActions = (
   userRoutines: any[],
 ) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { routines: myRoutines, deleteRoutine } = useRoutines();
   const { packs: myPacks, saveWeeklyPack, deletePack } = useWeeklyPacks();
   const [isSavingFullPack, setIsSavingFullPack] = useState(false);
@@ -36,7 +37,7 @@ export const useProfileActions = (
   };
 
   /**
-   * Maneja la lógica para guardar o eliminar una rutina del perfil del usuario. Si la rutina ya está guardada, se eliminará. Si no, se guardará. Si la rutina está vinculada a un pack guardado, se mostrará una alerta para confirmar la eliminación del pack completo
+   * Maneja la lógica para guardar o eliminar una rutina individual en el perfil del usuario, verificando si está asociada a algún pack guardado
    * @param routineToToggle
    * @param onComplete
    * @returns
@@ -84,24 +85,21 @@ export const useProfileActions = (
         Alert.alert(t("profile.alerts.error"), t("errors.unexpected"));
       }
     } else {
-      const currentUserId = auth.currentUser?.uid;
-      if (!currentUserId) return;
+      if (!user?.id) return;
 
       try {
-        const myRoutinesRef = collection(
-          db,
-          "users",
-          currentUserId,
-          "routines",
-        );
-        await addDoc(myRoutinesRef, {
-          name: routineToToggle.name,
-          exercises: routineToToggle.exercises,
-          createdAt: Date.now(),
-          originalCreatorId: profileId,
-          originalCreatorName: username,
-          originalRoutineId: routineToToggle.id,
-        });
+        const { error } = await supabase.from("routines").insert([
+          {
+            user_id: user.id,
+            name: routineToToggle.name,
+            exercises: routineToToggle.exercises,
+            original_creator_id: profileId,
+            original_creator_name: username,
+            original_routine_id: routineToToggle.id,
+          },
+        ]);
+
+        if (error) throw error;
 
         Alert.alert(t("profile.alerts.success"), t("routines.successSaved"));
         if (onComplete) onComplete();
@@ -112,7 +110,7 @@ export const useProfileActions = (
   };
 
   /**
-   * Similar a handleToggleSaveRoutine, pero para packs semanales. Si el pack ya está guardado, se eliminará junto con sus rutinas vinculadas. Si no está guardado, se guardará junto con las rutinas vinculadas (creando copias locales de cada rutina)
+   * Maneja la lógica para guardar o eliminar un pack completo en el perfil del usuario, incluyendo las rutinas asociadas
    * @param selectedPack
    * @param onComplete
    * @returns
@@ -121,7 +119,7 @@ export const useProfileActions = (
     selectedPack: WeeklyPack | null,
     onComplete?: () => void,
   ) => {
-    if (!selectedPack || !auth.currentUser) return;
+    if (!selectedPack || !user?.id) return;
 
     const savedPackId = getSavedPackId(selectedPack.id);
 
@@ -159,23 +157,25 @@ export const useProfileActions = (
           let localId = getSavedRoutineId(routine.id);
 
           if (!localId) {
-            const myRoutinesRef = collection(
-              db,
-              "users",
-              auth.currentUser.uid,
-              "routines",
-            );
-            const newRoutineDoc = await addDoc(myRoutinesRef, {
-              name: routine.name,
-              exercises: routine.exercises,
-              createdAt: Date.now(),
-              originalCreatorId: profileId,
-              originalCreatorName: username,
-              originalRoutineId: routine.id,
-            });
-            localId = newRoutineDoc.id;
+            const { data: newRoutine, error } = await supabase
+              .from("routines")
+              .insert([
+                {
+                  user_id: user.id,
+                  name: routine.name,
+                  exercises: routine.exercises || [],
+                  original_creator_id: profileId,
+                  original_creator_name: username,
+                  original_routine_id: routine.id,
+                },
+              ])
+              .select()
+              .single();
+
+            if (error) throw error;
+            localId = newRoutine.id;
           }
-          newLocalRoutineIds.push(localId);
+          if (localId) newLocalRoutineIds.push(localId);
         }
 
         await saveWeeklyPack(

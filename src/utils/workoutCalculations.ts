@@ -4,11 +4,20 @@
 export const getConvertedWeight = (
   itemWeight: number | string,
   unit: string,
-  measurementSystem: string,
+  system: "metric" | "imperial" | string,
+  userWeight: number | string = 0,
 ) => {
-  const w = Number(itemWeight) || 0;
-  if (measurementSystem === "metric" && unit === "lbs") return w * 0.453592;
-  if (measurementSystem === "imperial" && unit === "kg") return w * 2.20462;
+  if (unit === "bars" || unit === "plates") return 0;
+
+  let w = Number(itemWeight) || 0;
+  const uW = Number(userWeight) || 0;
+
+  if (unit === "bodyweight") {
+    w += uW;
+  } else {
+    if (system === "metric" && unit === "lbs") w = w * 0.453592;
+    if (system === "imperial" && unit === "kg") w = w * 2.20462;
+  }
   return w;
 };
 
@@ -42,23 +51,26 @@ export const calculateTotalVolume = (
  */
 export const calculateSessionVolume = (
   session: any,
-  measurementSystem: string,
+  system: "metric" | "imperial" | string,
+  userWeight: number | string = 0,
 ) => {
+  let totalVolume = 0;
   if (!session?.exercises) return 0;
-  let total = 0;
+
   session.exercises.forEach((ex: any) => {
     ex.sets?.forEach((set: any) => {
       if (set.completed) {
         const w = getConvertedWeight(
           set.weight,
           set.weightUnit,
-          measurementSystem,
+          system,
+          userWeight,
         );
-        total += w * (Number(set.reps) || 0);
+        totalVolume += w * (set.reps || 0);
       }
     });
   });
-  return Math.round(total);
+  return Math.round(totalVolume);
 };
 
 /**
@@ -67,6 +79,6 @@ export const calculateSessionVolume = (
  * @returns
  */
 export const formatDuration = (seconds: number) => {
-  const s = Number(seconds) || 0;
-  return Math.ceil(s / 60);
+  if (!seconds) return 0;
+  return Math.ceil(seconds / 60);
 };

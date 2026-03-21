@@ -1,16 +1,6 @@
-import {
-  addDoc,
-  collection,
-  collectionGroup,
-  deleteDoc,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { auth, db } from "../src/config/firebase";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 
 export interface WeeklyPack {
   id: string;
@@ -26,7 +16,7 @@ export interface WeeklyPack {
 }
 
 /**
- * Hook personalizado para manejar los packs semanales de un usuario, incluyendo escucha en tiempo real, creación y eliminación en cascada
+ * Hook para gestionar los Weekly Packs del usuario actual, incluyendo la sincronización en tiempo real con Supabase
  * @returns
  */
 export const useWeeklyPacks = () => {
@@ -34,29 +24,61 @@ export const useWeeklyPacks = () => {
   const [isLoadingPacks, setIsLoadingPacks] = useState(true);
   const [isSavingPack, setIsSavingPack] = useState(false);
 
-  const currentUserId = auth.currentUser?.uid;
+  const { user } = useAuth();
+  const currentUserId = user?.id;
 
-  useEffect(() => {
+  const fetchPacks = useCallback(async () => {
     if (!currentUserId) return;
 
-    const packsRef = collection(db, "users", currentUserId, "weekly_packs");
-    const q = query(packsRef);
+    const { data, error } = await supabase
+      .from("weekly_packs")
+      .select("*")
+      .eq("user_id", currentUserId)
+      .order("created_at", { ascending: false });
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const packsData: WeeklyPack[] = [];
-      snapshot.forEach((doc) => {
-        packsData.push({ id: doc.id, ...doc.data() } as WeeklyPack);
-      });
-      packsData.sort((a, b) => b.createdAt - a.createdAt);
-      setPacks(packsData);
-      setIsLoadingPacks(false);
-    });
-
-    return () => unsubscribe();
+    if (error) {
+      console.error("Error fetching packs:", error);
+    } else if (data) {
+      const formattedPacks: WeeklyPack[] = data.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        description: doc.description,
+        creatorId: doc.user_id,
+        routineIds: doc.routine_ids || [],
+        createdAt: new Date(doc.created_at).getTime(),
+        originalCreatorId: doc.original_creator_id,
+        originalCreatorName: doc.original_creator_name,
+        originalPackId: doc.original_pack_id,
+      }));
+      setPacks(formattedPacks);
+    }
+    setIsLoadingPacks(false);
   }, [currentUserId]);
 
+  useEffect(() => {
+    fetchPacks();
+
+    const channel = supabase
+      .channel("custom-weekly-packs-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "weekly_packs",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        () => fetchPacks(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId, fetchPacks]);
+
   /**
-   * Función para guardar un nuevo pack semanal o actualizar uno existente, con soporte para packs originales y copias
+   * Guarda un nuevo Weekly Pack en Supabase. Si se proporciona originalCreatorId, originalCreatorName y originalPackId, se considerará una copia de un pack existente
    * @param name
    * @param description
    * @param routineIds
@@ -76,17 +98,20 @@ export const useWeeklyPacks = () => {
     if (!currentUserId || !name.trim() || routineIds.length === 0) return;
     setIsSavingPack(true);
     try {
-      const packsRef = collection(db, "users", currentUserId, "weekly_packs");
-      await addDoc(packsRef, {
-        name,
-        description,
-        creatorId: currentUserId,
-        routineIds,
-        createdAt: Date.now(),
-        originalCreatorId: originalCreatorId || null,
-        originalCreatorName: originalCreatorName || null,
-        originalPackId: originalPackId || null,
-      });
+      const { error } = await supabase.from("weekly_packs").insert([
+        {
+          user_id: currentUserId,
+          name,
+          description,
+          routine_ids: routineIds,
+          original_creator_id: originalCreatorId || null,
+          original_creator_name: originalCreatorName || null,
+          original_pack_id: originalPackId || null,
+        },
+      ]);
+      if (error) throw error;
+
+      await fetchPacks();
     } catch (error) {
       console.error("Error guardando el pack:", error);
       throw error;
@@ -96,30 +121,35 @@ export const useWeeklyPacks = () => {
   };
 
   /**
-   * Función para eliminar un pack semanal, eliminando también todas las copias que otros usuarios hayan guardado de ese pack
+   * Elimina un Weekly Pack de Supabase. Si el pack eliminado es un original (no tiene originalPackId), también eliminará todas las copias que tengan originalPackId igual al id del pack eliminado
    * @param packId
    * @returns
    */
   const deletePack = async (packId: string) => {
-    if (!currentUserId) return;
+    if (!currentUserId || !packId) return;
+    setIsSavingPack(true);
+
+    setPacks((prev) => prev.filter((p) => p.id !== packId));
+
     try {
-      const packRef = doc(db, "users", currentUserId, "weekly_packs", packId);
-      await deleteDoc(packRef);
+      const { error } = await supabase
+        .from("weekly_packs")
+        .delete()
+        .eq("id", packId)
+        .eq("user_id", currentUserId);
 
-      const savedQuery = query(
-        collectionGroup(db, "weekly_packs"),
-        where("originalPackId", "==", packId),
-      );
+      if (error) throw error;
 
-      const savedSnapshot = await getDocs(savedQuery);
-
-      const deletePromises = savedSnapshot.docs.map((docSnap) =>
-        deleteDoc(docSnap.ref),
-      );
-      await Promise.all(deletePromises);
+      await supabase
+        .from("weekly_packs")
+        .delete()
+        .eq("original_pack_id", packId);
     } catch (error) {
       console.error("Error eliminando el pack:", error);
+      fetchPacks();
       throw error;
+    } finally {
+      setIsSavingPack(false);
     }
   };
 

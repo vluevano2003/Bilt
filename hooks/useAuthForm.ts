@@ -1,20 +1,14 @@
 import * as ImagePicker from "expo-image-picker";
-import {
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Platform } from "react-native";
-import { auth, db, storage } from "../src/config/firebase";
-import {
-  getFriendlyErrorMessage,
-  isValidEmail,
-} from "../src/utils/authHelpers";
+import { supabase } from "../src/config/supabase";
+import { isValidEmail } from "../src/utils/authHelpers";
 
+/**
+ * Hook personalizado para manejar la lógica de autenticación (registro, login, recuperación de contraseña) y el estado del formulario
+ * @returns
+ */
 export const useAuthForm = () => {
   const { t } = useTranslation();
 
@@ -23,20 +17,17 @@ export const useAuthForm = () => {
   >("login");
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("");
-
   const [measurementSystem, setMeasurementSystem] = useState<
     "metric" | "imperial"
   >("metric");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
-
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -78,51 +69,58 @@ export const useAuthForm = () => {
     if (isNaN(parsedHeight) || isNaN(parsedWeight))
       return Alert.alert(t("alerts.error"), t("alerts.mustBeNumbers"));
 
-    if (measurementSystem === "metric") {
-      if (parsedHeight < 50 || parsedHeight > 250)
-        return Alert.alert(t("alerts.error"), t("alerts.unusualHeightCm"));
-      if (parsedWeight < 20 || parsedWeight > 400)
-        return Alert.alert(t("alerts.error"), t("alerts.unusualWeightKg"));
-    } else {
-      if (parsedHeight < 20 || parsedHeight > 100)
-        return Alert.alert(t("alerts.error"), t("alerts.unusualHeightIn"));
-      if (parsedWeight < 40 || parsedWeight > 900)
-        return Alert.alert(t("alerts.error"), t("alerts.unusualWeightLbs"));
-    }
-
     setIsLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password,
-      );
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("No se pudo crear el usuario");
+
       let profileUrl = null;
 
       if (profilePic) {
         const response = await fetch(profilePic);
         const blob = await response.blob();
-        const storageRef = ref(
-          storage,
-          `profile_pictures/${userCredential.user.uid}`,
-        );
-        await uploadBytes(storageRef, blob);
-        profileUrl = await getDownloadURL(storageRef);
+
+        const arrayBuffer = await new Response(blob).arrayBuffer();
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("profile_pictures")
+          .upload(`${authData.user.id}/${Date.now()}.jpg`, arrayBuffer, {
+            contentType: "image/jpeg",
+          });
+
+        if (uploadError) console.log("Error subiendo foto:", uploadError);
+
+        if (uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from("profile_pictures")
+            .getPublicUrl(uploadData.path);
+          profileUrl = publicUrlData.publicUrl;
+        }
       }
 
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        username: username.trim(),
-        profilePictureUrl: profileUrl,
-        birthDate,
-        gender,
-        height: parsedHeight,
-        weight: parsedWeight,
-        email: email.trim(),
-        measurementSystem,
-        createdAt: new Date(),
-      });
+      const { error: dbError } = await supabase.from("users").insert([
+        {
+          id: authData.user.id,
+          username: username.trim(),
+          profile_picture_url: profileUrl,
+          birth_date: birthDate,
+          gender: gender,
+          height: parsedHeight,
+          weight: parsedWeight,
+          email: email.trim(),
+          measurement_system: measurementSystem,
+        },
+      ]);
+
+      if (dbError) throw dbError;
     } catch (error: any) {
-      Alert.alert(t("alerts.error"), getFriendlyErrorMessage(error.code));
+      Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -141,9 +139,14 @@ export const useAuthForm = () => {
 
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
+      if (error) throw error;
     } catch (error: any) {
-      Alert.alert(t("alerts.error"), getFriendlyErrorMessage(error.code));
+      Alert.alert(t("alerts.error"), error.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -156,12 +159,13 @@ export const useAuthForm = () => {
 
     setIsLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email.trim());
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+      if (error) throw error;
       Alert.alert(t("alerts.sent"), t("alerts.checkSpam"));
       setCurrentView("login");
       setPassword("");
     } catch (error: any) {
-      Alert.alert(t("alerts.error"), getFriendlyErrorMessage(error.code));
+      Alert.alert(t("alerts.error"), error.message);
     } finally {
       setIsLoading(false);
     }

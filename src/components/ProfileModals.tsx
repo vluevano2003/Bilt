@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SocialUser } from "../../hooks/useProfile";
-import { auth } from "../config/firebase";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Profile.styles";
 import {
@@ -22,6 +22,11 @@ import {
   getConvertedWeight,
 } from "../utils/profileHelpers";
 
+/**
+ * Modal para mostrar la lista de seguidores o seguidos de un usuario
+ * @param param0
+ * @returns
+ */
 export const SocialListModal = ({
   visible,
   type,
@@ -33,14 +38,16 @@ export const SocialListModal = ({
   const router = useRouter();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
 
   const renderItem = ({ item }: { item: SocialUser }) => (
     <TouchableOpacity
       style={styles.socialListItem}
       onPress={() => {
         onClose();
-        if (item.id !== auth.currentUser?.uid)
+        if (item.id !== user?.id) {
           router.push({ pathname: "/userProfile", params: { id: item.id } });
+        }
       }}
     >
       {item.profilePictureUrl ? (
@@ -107,6 +114,11 @@ export const SocialListModal = ({
   );
 };
 
+/**
+ * Modal para mostrar los detalles de un Weekly Pack, incluyendo las rutinas que contiene y la opción de guardarlo o removerlo del perfil
+ * @param param0
+ * @returns
+ */
 export const PackDetailsModal = ({
   visible,
   pack,
@@ -248,6 +260,11 @@ export const PackDetailsModal = ({
   );
 };
 
+/**
+ * Modal para mostrar los detalles de una rutina guardada o de una rutina del historial, incluyendo sus ejercicios y sets, y en el caso de las rutinas guardadas, la opción de removerla del perfil
+ * @param param0
+ * @returns
+ */
 export const ItemDetailsModal = ({
   visible,
   type,

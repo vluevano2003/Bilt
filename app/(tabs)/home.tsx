@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import { SocialUser, useProfile } from "../../hooks/useProfile";
+import { usePushNotifications } from "../../hooks/usePushNotifications";
 import { useRoutineEditor } from "../../hooks/useRoutineEditor";
 import { useRoutines } from "../../hooks/useRoutines";
 import { useRoutinesActions } from "../../hooks/useRoutinesActions";
@@ -25,17 +26,23 @@ import {
   ReadonlyRoutineModal,
   RoutineEditorModal,
 } from "../../src/components/RoutinesModals";
-import { auth } from "../../src/config/firebase";
 import { useActiveWorkout } from "../../src/context/ActiveWorkoutContext";
+import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
+/**
+ * Pantalla principal del app, muestra un resumen de la actividad semanal del usuario y sus rutinas
+ * @returns
+ */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
   const { colors } = useTheme();
+  const { user } = useAuth();
+  usePushNotifications(user?.id);
 
   const homeStyles = getHomeStyles(colors);
   const routineStyles = getRoutineStyles(colors);
@@ -48,9 +55,8 @@ export default function HomeScreen() {
     username,
   } = useProfile();
 
-  const { userHistory, isLoadingActivity } = useUserActivity(
-    auth.currentUser?.uid,
-  );
+  const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
+
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [requestsList, setRequestsList] = useState<SocialUser[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
@@ -61,6 +67,7 @@ export default function HomeScreen() {
   const editor = useRoutineEditor(saveRoutine);
   const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack } =
     useWeeklyPacks();
+
   const actions = useRoutinesActions(
     packs,
     deleteRoutine,
@@ -82,6 +89,9 @@ export default function HomeScreen() {
 
   const totalWorkouts = userHistory?.length || 0;
 
+  /**
+   * Abre el modal de notificaciones y carga las solicitudes pendientes si el perfil es privado
+   */
   const openNotifications = async () => {
     setNotificationsVisible(true);
     setLoadingRequests(true);
@@ -121,23 +131,12 @@ export default function HomeScreen() {
     const trainedDays = new Set();
 
     userHistory?.forEach((session: any) => {
-      const rawTime =
-        session.createdAt ||
-        session.endTime ||
-        session.timestamp ||
-        session.date;
       let sessionDate = new Date();
 
-      if (rawTime) {
-        if (typeof rawTime === "number") {
-          sessionDate = new Date(rawTime);
-        } else if (typeof rawTime.toDate === "function") {
-          sessionDate = rawTime.toDate();
-        } else if (rawTime.seconds) {
-          sessionDate = new Date(rawTime.seconds * 1000);
-        } else {
-          sessionDate = new Date(rawTime);
-        }
+      if (session.completedAt) {
+        sessionDate = new Date(session.completedAt);
+      } else if (session.createdAt) {
+        sessionDate = new Date(session.createdAt);
       }
 
       if (!isNaN(sessionDate.getTime()) && sessionDate >= startOfWeek) {
@@ -160,8 +159,18 @@ export default function HomeScreen() {
 
   const displayedRoutines =
     activeTab === "own"
-      ? routines.filter((r) => !r.originalCreatorId)
-      : routines.filter((r) => r.originalCreatorId);
+      ? routines.filter(
+          (r) =>
+            r.originalCreatorId === null ||
+            r.originalCreatorId === undefined ||
+            r.originalCreatorId === "",
+        )
+      : routines.filter(
+          (r) =>
+            r.originalCreatorId !== null &&
+            r.originalCreatorId !== undefined &&
+            r.originalCreatorId !== "",
+        );
 
   const DashboardHeader = () => {
     const greeting = getGreeting();

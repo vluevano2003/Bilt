@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SocialUser } from "../../hooks/useProfile";
-import { auth } from "../config/firebase";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
 interface Props {
@@ -24,6 +24,11 @@ interface Props {
   onHandleRequest: (id: string, accept: boolean) => void;
 }
 
+/**
+ * Modal para mostrar las solicitudes de amistad o seguimiento. Permite aceptar o rechazar cada solicitud
+ * @param param0
+ * @returns
+ */
 export function NotificationModal({
   visible,
   onClose,
@@ -35,6 +40,7 @@ export function NotificationModal({
   const router = useRouter();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
 
   const renderItem = ({ item }: { item: SocialUser }) => (
     <View style={styles.socialListItem}>
@@ -42,7 +48,7 @@ export function NotificationModal({
         style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
         onPress={() => {
           onClose();
-          if (item.id !== auth.currentUser?.uid) {
+          if (item.id !== user?.id) {
             router.push({ pathname: "/userProfile", params: { id: item.id } });
           }
         }}

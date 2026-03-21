@@ -1,14 +1,7 @@
-import {
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    limit,
-    orderBy,
-    query,
-} from "firebase/firestore";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { auth, db } from "../src/config/firebase";
+import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 
 export interface FeedItem {
   id: string;
@@ -26,108 +19,132 @@ export interface FeedItem {
 }
 
 /**
- * Custom hook para manejar el feed social de la aplicación. Este hook se encarga de:
- * 1. Obtener la lista de usuarios que el usuario actual sigue.
- * 2. Para cada usuario seguido, obtener sus entrenamientos completados (historial) y rutinas creadas.
- * 3. Combinar y ordenar estos items por fecha para mostrar un feed cronológico.
- * 4. Proporcionar estados de carga y refresco para mejorar la experiencia del usuario.
+ * Hook para obtener el feed social del usuario, incluyendo rutinas creadas y entrenamientos completados por los usuarios que sigue
+ * @returns
  */
 export const useSocialFeed = () => {
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuth();
 
   const fetchFeed = useCallback(async () => {
-    const currentUserId = auth.currentUser?.uid;
-    if (!currentUserId) return;
+    if (!user?.id) return;
 
     try {
-      const followingRef = collection(db, "users", currentUserId, "following");
-      const followingSnap = await getDocs(followingRef);
-      const followedIds: string[] = [];
+      const { data: followingData } = await supabase
+        .from("follows")
+        .select("following_id")
+        .eq("follower_id", user.id)
+        .eq("status", "accepted");
 
-      followingSnap.forEach((doc) => {
-        if (doc.data().status === "accepted") {
-          followedIds.push(doc.id);
-        }
-      });
-
-      if (followedIds.length === 0) {
+      if (!followingData || followingData.length === 0) {
         setFeed([]);
         return;
       }
 
+      const followedIds = followingData.map((f) => f.following_id);
+
+      const { data: usersData } = await supabase
+        .from("users")
+        .select("id, username, profile_picture_url, measurement_system, weight")
+        .in("id", followedIds);
+
+      const userMap: Record<string, any> = {};
+      if (usersData) {
+        usersData.forEach((u) => {
+          userMap[u.id] = u;
+        });
+      }
+
       let allItems: FeedItem[] = [];
 
-      for (const targetId of followedIds) {
-        const userDoc = await getDoc(doc(db, "users", targetId));
-        if (!userDoc.exists()) continue;
+      const { data: historyData } = await supabase
+        .from("history")
+        .select("*")
+        .in("user_id", followedIds)
+        .order("completed_at", { ascending: false })
+        .limit(100);
 
-        const userData = userDoc.data();
+      if (historyData) {
+        historyData.forEach((d) => {
+          const userSys = userMap[d.user_id]?.measurement_system || "metric";
+          const userW = Number(userMap[d.user_id]?.weight) || 0;
 
-        const historyQ = query(
-          collection(db, "users", targetId, "history"),
-          orderBy("completedAt", "desc"),
-          limit(3),
-        );
-        const historySnap = await getDocs(historyQ);
-
-        historySnap.forEach((docItem) => {
-          const data = docItem.data();
           let totalVolume = 0;
-          data.exercises?.forEach((ex: any) => {
+          d.exercises?.forEach((ex: any) => {
             ex.sets?.forEach((set: any) => {
-              if (set.completed)
-                totalVolume += (set.weight || 0) * (set.reps || 0);
+              if (set.completed) {
+                let w = Number(set.weight) || 0;
+                if (set.weightUnit === "bars" || set.weightUnit === "plates") {
+                  w = 0;
+                } else if (set.weightUnit === "bodyweight") {
+                  w += userW;
+                } else {
+                  if (userSys === "metric" && set.weightUnit === "lbs")
+                    w *= 0.453592;
+                  if (userSys === "imperial" && set.weightUnit === "kg")
+                    w *= 2.20462;
+                }
+                totalVolume += w * (set.reps || 0);
+              }
             });
           });
 
           allItems.push({
-            id: `hist_${docItem.id}`,
+            id: `hist_${d.id}`,
             type: "history",
-            userId: targetId,
-            username: userData.username,
-            userAvatar: userData.profilePictureUrl,
-            timestamp: data.completedAt,
-            title: data.routineName || "",
+            userId: d.user_id,
+            username: userMap[d.user_id]?.username || "Usuario",
+            userAvatar: userMap[d.user_id]?.profile_picture_url,
+            timestamp: new Date(d.completed_at).getTime(),
+            title: d.routine_name || "",
             details: {
-              duration: data.durationSeconds,
+              duration: d.duration_seconds,
               volume: Math.round(totalVolume),
             },
           });
         });
+      }
 
-        const routinesQ = query(
-          collection(db, "users", targetId, "routines"),
-          orderBy("createdAt", "desc"),
-          limit(3),
-        );
-        const routinesSnap = await getDocs(routinesQ);
+      const { data: routinesData } = await supabase
+        .from("routines")
+        .select("*")
+        .in("user_id", followedIds)
+        .order("created_at", { ascending: false })
+        .limit(100);
 
-        routinesSnap.forEach((docItem) => {
-          const data = docItem.data();
-          if (!data.originalCreatorId || data.originalCreatorId === targetId) {
+      if (routinesData) {
+        routinesData.forEach((d) => {
+          if (!d.original_creator_id || d.original_creator_id === d.user_id) {
             allItems.push({
-              id: `rout_${docItem.id}`,
+              id: `rout_${d.id}`,
               type: "routine",
-              userId: targetId,
-              username: userData.username,
-              userAvatar: userData.profilePictureUrl,
-              timestamp: data.createdAt,
-              title: data.name,
+              userId: d.user_id,
+              username: userMap[d.user_id]?.username || "Usuario",
+              userAvatar: userMap[d.user_id]?.profile_picture_url,
+              timestamp: new Date(d.created_at).getTime(),
+              title: d.name,
               details: {
-                exerciseCount: data.exercises?.length || 0,
+                exerciseCount: d.exercises?.length || 0,
               },
             });
           }
         });
       }
+
       allItems.sort((a, b) => b.timestamp - a.timestamp);
       setFeed(allItems);
     } catch (error) {
       console.error("Error fetching feed:", error);
     }
-  }, []);
+  }, [user?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchFeed();
+    }, [fetchFeed]),
+  );
 
   useEffect(() => {
     setLoadingFeed(true);

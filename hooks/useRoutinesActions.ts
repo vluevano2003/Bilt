@@ -4,7 +4,7 @@ import { Alert } from "react-native";
 import { WeeklyPack } from "./useWeeklyPacks";
 
 /**
- * Hook para manejar las acciones relacionadas con rutinas y packs semanales
+ * Hook para manejar acciones relacionadas con rutinas y packs, como eliminar, desguardar y crear packs
  * @param packs
  * @param deleteRoutine
  * @param deletePack
@@ -14,7 +14,7 @@ import { WeeklyPack } from "./useWeeklyPacks";
  */
 export const useRoutinesActions = (
   packs: WeeklyPack[],
-  deleteRoutine: (id: string) => void,
+  deleteRoutine: (id: string) => Promise<void>,
   deletePack: (id: string) => Promise<void>,
   saveWeeklyPack: (name: string, desc: string, ids: string[]) => Promise<void>,
   closeEditorModal: () => void,
@@ -34,23 +34,33 @@ export const useRoutinesActions = (
     if (isRoutineInPack) {
       Alert.alert(
         t("alerts.error", "Atención"),
-        t("routines.cannotDeleteInPack"),
+        t(
+          "routines.cannotDeleteInPack",
+          "No puedes eliminar una rutina que está en un pack.",
+        ),
       );
       return;
     }
 
     Alert.alert(
-      t("routines.deleteConfirmTitle"),
-      t("routines.deleteConfirmMsg"),
+      t("routines.deleteConfirmTitle", "Eliminar Rutina"),
+      t("routines.deleteConfirmMsg", "¿Seguro que deseas eliminarla?"),
       [
-        { text: t("routines.cancel"), style: "cancel" },
+        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
         {
-          text: t("routines.yesDelete"),
+          text: t("routines.yesDelete", "Sí, eliminar"),
           style: "destructive",
-          onPress: () => {
-            deleteRoutine(routineId);
-            closeEditorModal();
-            onSuccess();
+          onPress: async () => {
+            try {
+              await deleteRoutine(routineId);
+              closeEditorModal();
+              onSuccess();
+            } catch (error: any) {
+              Alert.alert(
+                "Error",
+                error.message || "No se pudo eliminar la rutina.",
+              );
+            }
           },
         },
       ],
@@ -58,7 +68,7 @@ export const useRoutinesActions = (
   };
 
   /**
-   * Maneja la acción de "desguardar" una rutina, verificando si está vinculada a un pack semanal creado por el usuario
+   * Maneja el proceso de desguardar una rutina, verificando si está en un pack y mostrando alertas de confirmación
    * @param routineId
    * @param onSuccess
    * @returns
@@ -70,23 +80,27 @@ export const useRoutinesActions = (
 
     if (linkedPack) {
       Alert.alert(
-        t("routines.unsaveConfirmTitle"),
+        t("routines.unsaveConfirmTitle", "Desguardar"),
         t("routines.unsavePackWarning", { packName: linkedPack.name }),
         [
-          { text: t("routines.cancel"), style: "cancel" },
+          { text: t("routines.cancel", "Cancelar"), style: "cancel" },
           {
-            text: t("routines.removeFromProfile"),
+            text: t("routines.removeFromProfile", "Remover"),
             style: "destructive",
             onPress: async () => {
-              await deletePack(linkedPack.id);
-              for (const rId of linkedPack.routineIds) {
-                await deleteRoutine(rId);
+              try {
+                await deletePack(linkedPack.id);
+                for (const rId of linkedPack.routineIds) {
+                  await deleteRoutine(rId);
+                }
+                onSuccess();
+                Alert.alert(
+                  t("profile.alerts.success", "Éxito"),
+                  t("routines.successRemoved", "Removido de tu perfil."),
+                );
+              } catch (error: any) {
+                Alert.alert("Error", error.message || "Fallo al desguardar.");
               }
-              onSuccess();
-              Alert.alert(
-                t("profile.alerts.success"),
-                t("routines.successRemoved"),
-              );
             },
           },
         ],
@@ -95,26 +109,35 @@ export const useRoutinesActions = (
     }
 
     Alert.alert(
-      t("routines.unsaveConfirmTitle"),
-      t("routines.unsaveConfirmMsg"),
+      t("routines.unsaveConfirmTitle", "Desguardar"),
+      t("routines.unsaveConfirmMsg", "¿Seguro?"),
       [
-        { text: t("routines.cancel"), style: "cancel" },
+        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
         {
-          text: t("routines.removeFromProfile"),
+          text: t("routines.removeFromProfile", "Remover"),
           style: "destructive",
           onPress: async () => {
-            await deleteRoutine(routineId);
-            onSuccess();
-            Alert.alert(
-              t("profile.alerts.success"),
-              t("routines.successRemoved"),
-            );
+            try {
+              await deleteRoutine(routineId);
+              onSuccess();
+              Alert.alert(
+                t("profile.alerts.success", "Éxito"),
+                t("routines.successRemoved", "Removido de tu perfil."),
+              );
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Fallo al desguardar.");
+            }
           },
         },
       ],
     );
   };
 
+  /**
+   * Agrega o remueve una rutina de la selección para crear un pack, limitando a 6 rutinas y mostrando alertas si se excede el límite
+   * @param id
+   * @returns
+   */
   const toggleRoutineSelection = (id: string) => {
     if (selectedRoutineIds.includes(id)) {
       setSelectedRoutineIds((prev) => prev.filter((rId) => rId !== id));
@@ -146,19 +169,27 @@ export const useRoutinesActions = (
         "¿Estás seguro de que deseas eliminar este pack?",
       ),
       [
-        { text: t("routines.cancel"), style: "cancel" },
+        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
         {
-          text: t("routines.yesDelete"),
+          text: t("routines.yesDelete", "Sí, eliminar"),
           style: "destructive",
           onPress: async () => {
-            const packToDelete = packs.find((p) => p.id === packId);
-            await deletePack(packId);
-            if (packToDelete?.originalCreatorId) {
-              for (const rId of packToDelete.routineIds) {
-                await deleteRoutine(rId);
+            try {
+              const packToDelete = packs.find((p) => p.id === packId);
+              await deletePack(packId);
+
+              if (packToDelete?.originalCreatorId) {
+                for (const rId of packToDelete.routineIds) {
+                  await deleteRoutine(rId);
+                }
               }
+              onSuccess();
+            } catch (error: any) {
+              Alert.alert(
+                "Error",
+                error.message || "No se pudo eliminar el pack.",
+              );
             }
-            onSuccess();
           },
         },
       ],

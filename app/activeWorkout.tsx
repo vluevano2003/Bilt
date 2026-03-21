@@ -1,10 +1,12 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
   SafeAreaView,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,12 +19,18 @@ import DraggableFlatList, {
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import { RoutineExercise } from "../hooks/useRoutines";
+import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
+/**
+ * Pantalla principal para registrar un entrenamiento activo. Permite al usuario ingresar pesos, repeticiones, marcar series como completadas, ajustar tiempos de descanso y ver estadísticas en tiempo real. Al finalizar, muestra un resumen detallado del entrenamiento
+ * @returns
+ */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
 
   const {
     t,
@@ -33,6 +41,7 @@ export default function ActiveWorkoutScreen() {
     isResting,
     showSummary,
     stats,
+    muscleDistribution,
     handleSetChange,
     measurementSystem,
     addSetToExercise,
@@ -49,6 +58,8 @@ export default function ActiveWorkoutScreen() {
     handleCancelWorkout,
     updateExerciseRestTime,
     changeExerciseUnit,
+    getPreviousSet,
+    isSavingHistory,
   } = useActiveWorkoutScreen();
 
   const [restEditExId, setRestEditExId] = useState<string | null>(null);
@@ -99,6 +110,11 @@ export default function ActiveWorkoutScreen() {
     setUnitModalExId(null);
   };
 
+  /**
+   * Renderiza cada ejercicio como un componente draggable. Permite reordenar los ejercicios manteniendo la funcionalidad de ingresar datos, marcar series y editar tiempos de descanso. Al hacer long press en el header del ejercicio, se activa el modo drag (si no es readonly).
+   * @param param0
+   * @returns
+   */
   const renderDraggableExercise = ({
     item: exercise,
     drag,
@@ -113,7 +129,6 @@ export default function ActiveWorkoutScreen() {
         <View
           style={[styles.exerciseCard, isActive && styles.exerciseCardActive]}
         >
-          {/*Header Draggable*/}
           <TouchableOpacity
             style={styles.exerciseHeader}
             onLongPress={!isReadonly ? drag : undefined}
@@ -125,7 +140,6 @@ export default function ActiveWorkoutScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/*Temporizador de descanso por ejercicio*/}
           <TouchableOpacity
             style={styles.exerciseRestIndicator}
             onPress={() =>
@@ -134,16 +148,18 @@ export default function ActiveWorkoutScreen() {
           >
             <Feather name="clock" size={14} color={colors.primary} />
             <Text style={styles.exerciseRestText}>
-              Rest Timer: {formatRestTime(exercise.restTimeSeconds || 90)}
+              {t("activeWorkout.restTimer", "Rest Timer")}:{" "}
+              {formatRestTime(exercise.restTimeSeconds || 90)}
             </Text>
           </TouchableOpacity>
 
-          {/* Cabecera de la Tabla */}
           <View style={styles.tableHeader}>
             <Text style={styles.colSetHeader}>
               {t("activeWorkout.set", "SET")}
             </Text>
-            <Text style={styles.colPrevHeader}>ANTERIOR</Text>
+            <Text style={styles.colPrevHeader}>
+              {t("activeWorkout.previous", "ANTERIOR").toUpperCase()}
+            </Text>
 
             <TouchableOpacity
               style={styles.colInputHeader}
@@ -162,13 +178,11 @@ export default function ActiveWorkoutScreen() {
             </View>
           </View>
 
-          {/*Filas de series*/}
           {exercise.sets.map((set, setIndex) => (
             <View
               key={set.id}
               style={[styles.setRow, set.completed && styles.setRowCompleted]}
             >
-              {/*Número de serie*/}
               <View style={styles.colSet}>
                 {!set.completed && !isReadonly && (
                   <TouchableOpacity
@@ -181,12 +195,12 @@ export default function ActiveWorkoutScreen() {
                 <Text style={styles.setText}>{setIndex + 1}</Text>
               </View>
 
-              {/*Anterior*/}
               <View style={styles.colPrev}>
-                <Text style={styles.prevText}>-</Text>
+                <Text style={styles.prevText}>
+                  {getPreviousSet(exercise.exerciseDetails.id, setIndex)}
+                </Text>
               </View>
 
-              {/*Peso*/}
               <View style={styles.colInput}>
                 <TextInput
                   style={[styles.input, set.completed && styles.inputDisabled]}
@@ -202,7 +216,6 @@ export default function ActiveWorkoutScreen() {
                 />
               </View>
 
-              {/*Repeticiones*/}
               <View style={styles.colInput}>
                 <TextInput
                   style={[styles.input, set.completed && styles.inputDisabled]}
@@ -218,7 +231,6 @@ export default function ActiveWorkoutScreen() {
                 />
               </View>
 
-              {/*Botón de completado*/}
               <View style={styles.colCheck}>
                 <TouchableOpacity
                   style={[
@@ -245,7 +257,6 @@ export default function ActiveWorkoutScreen() {
             </View>
           ))}
 
-          {/*Botón añadir serie*/}
           {!isReadonly && (
             <TouchableOpacity
               style={styles.addSetButton}
@@ -258,7 +269,7 @@ export default function ActiveWorkoutScreen() {
                 style={{ marginRight: 5 }}
               />
               <Text style={styles.addSetText}>
-                {t("activeWorkout.addSet", "Add Set")}
+                {t("activeWorkout.addSet", "Añadir Serie")}
               </Text>
             </TouchableOpacity>
           )}
@@ -340,7 +351,6 @@ export default function ActiveWorkoutScreen() {
         />
       </KeyboardAvoidingView>
 
-      {/*Barra de descanso flotante*/}
       {isResting && restTimeRemaining !== null && (
         <View style={styles.floatingRestBanner}>
           <TouchableOpacity
@@ -372,14 +382,12 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
-      {/* Modal para cambiar unidades de medida */}
       <Modal visible={!!unitModalExId} animationType="fade" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>
               {t("unitSelection.title", "Seleccionar Unidad")}
             </Text>
-
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("kg")}
@@ -391,7 +399,6 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.kg_desc")}
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("lbs")}
@@ -403,7 +410,6 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.lbs_desc")}
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("bodyweight")}
@@ -415,7 +421,6 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.bodyweight_desc")}
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("bars")}
@@ -427,7 +432,6 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.bars_desc")}
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[styles.unitOptionBtn, { borderBottomWidth: 0 }]}
               onPress={() => handleUnitSelect("plates")}
@@ -439,7 +443,6 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.plates_desc")}
               </Text>
             </TouchableOpacity>
-
             <View style={[styles.editRestButtonsRow, { marginTop: 20 }]}>
               <TouchableOpacity
                 style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
@@ -459,7 +462,6 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*Modal para editar tiempo de descanso*/}
       <Modal visible={!!restEditExId} animationType="fade" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
@@ -518,62 +520,226 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*Resumen*/}
-      <Modal visible={showSummary} animationType="slide" transparent={true}>
-        <View style={styles.summaryOverlay}>
-          <View style={styles.summaryContent}>
-            <Feather
-              name="award"
-              size={50}
-              color={colors.primary}
-              style={{ alignSelf: "center", marginBottom: 15 }}
-            />
-            <Text style={styles.summaryTitle}>
-              {t("activeWorkout.summaryTitle")}
-            </Text>
-
-            <View style={styles.summaryRow}>
-              <Feather name="clock" size={20} color={colors.textSecondary} />
-              <Text style={styles.summaryLabel}>
-                {t("activeWorkout.duration")}
-              </Text>
-              <Text style={styles.summaryValue}>
-                {formatTime(elapsedSeconds)}
-              </Text>
-            </View>
-
-            <View style={styles.summaryRow}>
-              <Feather name="activity" size={20} color={colors.textSecondary} />
-              <Text style={styles.summaryLabel}>
-                {t("activeWorkout.totalVolume")}
-              </Text>
-              <Text style={styles.summaryValue}>
-                {stats.volume.toLocaleString()} {volumeUnitText}
-              </Text>
-            </View>
-
-            <View style={styles.summaryRow}>
-              <Feather
-                name="check-circle"
-                size={20}
-                color={colors.textSecondary}
-              />
-              <Text style={styles.summaryLabel}>
-                {t("activeWorkout.completedSets")}
-              </Text>
-              <Text style={styles.summaryValue}>{stats.sets}</Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.summaryCloseButton}
-              onPress={handleCloseSummary}
+      {/*MODAL DE RESUMEN*/}
+      <Modal visible={showSummary} animationType="slide" transparent={false}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+            <View
+              style={{ alignItems: "center", marginTop: 40, marginBottom: 30 }}
             >
-              <Text style={styles.summaryCloseText}>
-                {t("activeWorkout.closeSummary")}
+              <Text
+                style={{
+                  color: colors.textPrimary,
+                  fontSize: 32,
+                  fontWeight: "900",
+                }}
+              >
+                {t("activeWorkout.goodJob", "¡Buen trabajo!")}
+              </Text>
+              <Text
+                style={{
+                  color: colors.textSecondary,
+                  fontSize: 16,
+                  marginTop: 5,
+                }}
+              >
+                {t(
+                  "activeWorkout.workoutCompleted",
+                  "Entrenamiento completado",
+                )}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                backgroundColor: colors.surface,
+                marginHorizontal: 20,
+                borderRadius: 24,
+                padding: 25,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 30,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.border,
+                  paddingBottom: 25,
+                }}
+              >
+                <View style={{ alignItems: "center" }}>
+                  <Text
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 14,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {t("activeWorkout.duration", "Duración")}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      marginTop: 5,
+                    }}
+                  >
+                    {formatTime(elapsedSeconds)}
+                  </Text>
+                </View>
+                <View style={{ alignItems: "center" }}>
+                  <Text
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 14,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {t("activeWorkout.totalVolume", "Volumen")}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      marginTop: 5,
+                    }}
+                  >
+                    {stats.volume.toLocaleString()}{" "}
+                    <Text style={{ fontSize: 14 }}>{volumeUnitText}</Text>
+                  </Text>
+                </View>
+                <View style={{ alignItems: "center" }}>
+                  <Text
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 14,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {t("activeWorkout.completedSets", "Series")}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      marginTop: 5,
+                    }}
+                  >
+                    {stats.sets}
+                  </Text>
+                </View>
+              </View>
+
+              <Text
+                style={{
+                  color: colors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 15,
+                }}
+              >
+                {t("activeWorkout.musclesWorked", "Músculos trabajados")}
+              </Text>
+
+              {muscleDistribution.length > 0 ? (
+                muscleDistribution.map((muscle) => (
+                  <View key={muscle.name} style={{ marginBottom: 15 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 6,
+                      }}
+                    >
+                      <Text style={{ color: colors.textPrimary, fontSize: 14 }}>
+                        {t(`muscles.${muscle.name}`)}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {Math.round(muscle.percentage)}%
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        height: 8,
+                        backgroundColor: colors.background,
+                        borderRadius: 4,
+                        overflow: "hidden",
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                      }}
+                    >
+                      <View
+                        style={{
+                          height: "100%",
+                          width: `${muscle.percentage}%`,
+                          backgroundColor: colors.primary,
+                          borderRadius: 4,
+                        }}
+                      />
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    textAlign: "center",
+                    fontStyle: "italic",
+                    marginTop: 10,
+                  }}
+                >
+                  {t(
+                    "activeWorkout.noSetsValid",
+                    "No completaste ninguna serie válida.",
+                  )}
+                </Text>
+              )}
+            </View>
+          </ScrollView>
+
+          <View
+            style={{
+              position: "absolute",
+              bottom: Platform.OS === "ios" ? 40 : 20,
+              left: 20,
+              right: 20,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                borderRadius: 14,
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+              onPress={handleCloseSummary}
+              disabled={isSavingHistory}
+            >
+              {isSavingHistory && (
+                <ActivityIndicator color="#FFF" style={{ marginRight: 10 }} />
+              )}
+              <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>
+                {isSavingHistory
+                  ? "Guardando..."
+                  : t("common.finish", "Terminar")}
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );

@@ -10,7 +10,9 @@ import {
 } from "./useRoutines";
 
 /**
- * Hook para manejar la lógica de creación y edición de rutinas, incluyendo la gestión de ejercicios, sets y filtros de búsqueda. Permite abrir un modal para crear o editar una rutina, agregar o eliminar ejercicios, reordenar ejercicios, y seleccionar ejercicios desde una base de datos con filtros de búsqueda y músculo. Se encarga de mantener el estado local de la rutina en edición y proporciona funciones para guardar los cambios a través de una función pasada como argumento
+ * Hook personalizado para manejar la lógica de edición de rutinas, incluyendo la gestión de ejercicios, sets y el proceso de guardado
+ * @param saveRoutineFn
+ * @returns
  */
 export const useRoutineEditor = (
   saveRoutineFn: (
@@ -36,7 +38,7 @@ export const useRoutineEditor = (
   >([]);
 
   /**
-   * Abre el modal para crear o editar una rutina. Si se pasa una rutina, se carga para edición; si no, se prepara para creación
+   * Abre el modal de edición de rutina. Si se proporciona una rutina, carga sus datos para edición; de lo contrario, prepara el modal para crear una nueva rutina
    * @param routine
    */
   const openRoutineModal = (routine?: Routine) => {
@@ -112,7 +114,7 @@ export const useRoutineEditor = (
   };
 
   /**
-   * Abre el modal para seleccionar ejercicios. Resetea los filtros y selecciones temporales para una nueva selección limpia
+   * Abre el modal de selección de ejercicios, reseteando los filtros y selecciones temporales para permitir al usuario elegir nuevos ejercicios para la rutina
    */
   const openExerciseSelector = () => {
     setSearchQuery("");

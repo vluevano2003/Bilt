@@ -1,10 +1,10 @@
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { db } from "../src/config/firebase";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "../src/config/supabase";
 import { WeeklyPack } from "./useWeeklyPacks";
 
 /**
- * Hook personalizado para escuchar en tiempo real las rutinas, historial y packs de un usuario
+ * Custom hook para gestionar la actividad del usuario: rutinas, historial y packs
  * @param userId
  * @returns
  */
@@ -14,67 +14,115 @@ export const useUserActivity = (userId?: string) => {
   const [userPacks, setUserPacks] = useState<WeeklyPack[]>([]);
   const [isLoadingActivity, setIsLoadingActivity] = useState(true);
 
-  useEffect(() => {
-    if (!userId) {
-      setIsLoadingActivity(false);
-      return;
+  const fetchActivity = useCallback(async () => {
+    if (!userId) return;
+
+    const { data: routinesData } = await supabase
+      .from("routines")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (routinesData) {
+      setUserRoutines(
+        routinesData.map((d) => ({
+          id: d.id,
+          ...d,
+          createdAt: new Date(d.created_at).getTime(),
+        })),
+      );
     }
 
+    const { data: historyData } = await supabase
+      .from("history")
+      .select("*")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: false });
+
+    if (historyData) {
+      setUserHistory(
+        historyData.map((d) => ({
+          id: d.id,
+          routineName: d.routine_name,
+          durationSeconds: d.duration_seconds,
+          exercises: d.exercises,
+          completedAt: new Date(d.completed_at).getTime(),
+        })),
+      );
+    }
+
+    const { data: packsData } = await supabase
+      .from("weekly_packs")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (packsData) {
+      setUserPacks(
+        packsData.map((d) => ({
+          id: d.id,
+          name: d.name,
+          description: d.description,
+          routineIds: d.routine_ids,
+          createdAt: new Date(d.created_at).getTime(),
+        })) as WeeklyPack[],
+      );
+    }
+
+    setIsLoadingActivity(false);
+  }, [userId]);
+
+  /**
+   * Refetch de la actividad cada vez que la pantalla gana foco, para asegurar datos actualizados
+   */
+  useFocusEffect(
+    useCallback(() => {
+      fetchActivity();
+    }, [fetchActivity]),
+  );
+
+  useEffect(() => {
+    if (!userId) return;
     setIsLoadingActivity(true);
+    fetchActivity();
 
-    const routinesQuery = query(collection(db, "users", userId, "routines"));
-    const unsubscribeRoutines = onSnapshot(
-      routinesQuery,
-      (snapshot) => {
-        const routinesData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUserRoutines(routinesData);
-      },
-      (error) => console.error("Error escuchando rutinas del usuario:", error),
-    );
-
-    const historyQuery = query(
-      collection(db, "users", userId, "history"),
-      orderBy("completedAt", "desc"),
-    );
-    const unsubscribeHistory = onSnapshot(
-      historyQuery,
-      (snapshot) => {
-        const historyData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUserHistory(historyData);
-        setIsLoadingActivity(false);
-      },
-      (error) => {
-        console.error("Error escuchando historial del usuario:", error);
-        setIsLoadingActivity(false);
-      },
-    );
-
-    const packsQuery = query(collection(db, "users", userId, "weekly_packs"));
-    const unsubscribePacks = onSnapshot(
-      packsQuery,
-      (snapshot) => {
-        const packsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as WeeklyPack[];
-        packsData.sort((a, b) => b.createdAt - a.createdAt);
-        setUserPacks(packsData);
-      },
-      (error) => console.error("Error escuchando packs del usuario:", error),
-    );
+    const channel = supabase
+      .channel(`user-activity-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "routines",
+          filter: `user_id=eq.${userId}`,
+        },
+        fetchActivity,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "history",
+          filter: `user_id=eq.${userId}`,
+        },
+        fetchActivity,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "weekly_packs",
+          filter: `user_id=eq.${userId}`,
+        },
+        fetchActivity,
+      )
+      .subscribe();
 
     return () => {
-      unsubscribeRoutines();
-      unsubscribeHistory();
-      unsubscribePacks();
+      supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, fetchActivity]);
 
   return { userRoutines, userHistory, userPacks, isLoadingActivity };
 };

@@ -56,6 +56,9 @@
     "follow": "Seguir",
     "requested": "Pendiente",
     "following": "Siguiendo",
+    "unfollowPrivateTitle": "¿Dejar de seguir cuenta privada?",
+    "unfollowPrivateMsg": "Si cambias de opinión, tendrás que enviar una nueva solicitud para ver sus rutinas.",
+    "unfollowConfirm": "Dejar de seguir",
     "noResults": "No se encontraron resultados.",
     "noNotifications": "No hay notificaciones.",
     "searchInstructions": "Busca usuarios por su nombre para seguirlos.",
@@ -227,7 +230,12 @@
     "completedSets": "Series Completadas",
     "duration": "Duración",
     "closeSummary": "Cerrar",
-    "logWorkout": "Registrar Rutina"
+    "logWorkout": "Registrar Rutina",
+    "goodJob": "¡Buen trabajo!",
+    "workoutCompleted": "Entrenamiento completado",
+    "musclesWorked": "Músculos trabajados",
+    "noSetsValid": "No completaste ninguna serie válida.",
+    "previous": "ANTERIOR"
   },
   "muscles": {
     "chest": "Pecho",

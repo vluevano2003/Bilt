@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vluevano2003.bilttracker"
     },
     "android": {
+      "package": "com.vluevano2003.bilttracker",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/logo_white_nobg.png"
@@ -43,6 +45,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0adb8bcf-108f-4396-951d-7cab3e105379"
+      }
+    },
+    "owner": "vluevano_2003"
   }
 }
