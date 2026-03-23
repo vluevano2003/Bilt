@@ -16,6 +16,11 @@ import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import { RoutineExercise } from "../hooks/useRoutines";
@@ -23,10 +28,6 @@ import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
-/**
- * Pantalla principal para registrar un entrenamiento activo. Permite al usuario ingresar pesos, repeticiones, marcar series como completadas, ajustar tiempos de descanso y ver estadísticas en tiempo real. Al finalizar, muestra un resumen detallado del entrenamiento
- * @returns
- */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -111,7 +112,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   /**
-   * Renderiza cada ejercicio como un componente draggable. Permite reordenar los ejercicios manteniendo la funcionalidad de ingresar datos, marcar series y editar tiempos de descanso. Al hacer long press en el header del ejercicio, se activa el modo drag (si no es readonly).
+   * Renderiza cada ejercicio como un componente draggable, mostrando sus series, pesos, repeticiones y opciones de edición. Permite reordenar ejercicios mediante arrastrar y soltar
    * @param param0
    * @returns
    */
@@ -523,7 +524,7 @@ export default function ActiveWorkoutScreen() {
       {/*MODAL DE RESUMEN*/}
       <Modal visible={showSummary} animationType="slide" transparent={false}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 160 }}>
             <View
               style={{ alignItems: "center", marginTop: 40, marginBottom: 30 }}
             >
@@ -709,6 +710,7 @@ export default function ActiveWorkoutScreen() {
             </View>
           </ScrollView>
 
+          {/* Anuncio y Botón Flotante "Hecho" */}
           <View
             style={{
               position: "absolute",
@@ -717,6 +719,16 @@ export default function ActiveWorkoutScreen() {
               right: 20,
             }}
           >
+            <View style={{ alignItems: "center", marginBottom: 15 }}>
+              <BannerAd
+                unitId={TestIds.BANNER}
+                size={BannerAdSize.BANNER}
+                requestOptions={{
+                  requestNonPersonalizedAdsOnly: true,
+                }}
+              />
+            </View>
+
             <TouchableOpacity
               style={{
                 backgroundColor: colors.primary,

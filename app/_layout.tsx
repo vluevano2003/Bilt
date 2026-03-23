@@ -2,6 +2,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import mobileAds from "react-native-google-mobile-ads";
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
@@ -54,6 +55,17 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then((adapterStatuses) => {
+        console.log("¡AdMob Inicializado correctamente!");
+      })
+      .catch((error) => {
+        console.error("Error inicializando AdMob:", error);
+      });
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>

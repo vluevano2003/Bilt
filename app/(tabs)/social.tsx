@@ -12,6 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
+
 import { FeedItem, useSocialFeed } from "../../hooks/useSocialFeed";
 import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
@@ -24,12 +30,6 @@ interface SearchResult {
   profilePictureUrl?: string;
 }
 
-/**
- * Función auxiliar para mostrar el tiempo transcurrido desde una fecha dada en formato legible (ej: "Hace 5 min", "Hace 2 h", etc.)
- * @param timestamp
- * @param t
- * @returns
- */
 const getTimeAgo = (timestamp: number, t: any) => {
   const diffInSeconds = Math.floor((Date.now() - timestamp) / 1000);
   if (diffInSeconds < 60) return t("social.time.justNow", "Justo ahora");
@@ -60,10 +60,6 @@ const getTimeAgo = (timestamp: number, t: any) => {
 
 const ITEMS_PER_PAGE = 15;
 
-/**
- * Pantalla principal de la sección social, donde se muestra el feed de actividades de amigos y se pueden buscar otros usuarios
- * @returns
- */
 export default function SocialScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -84,17 +80,13 @@ export default function SocialScreen() {
       if (searchQuery.trim().length >= 2) {
         searchUsers(searchQuery.trim());
       } else {
-        setSearchResults([]);
+        searchResults.length > 0 && setSearchResults([]);
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  /**
-   * Función para buscar usuarios por su nombre de usuario, utilizando una consulta "ilike" para permitir coincidencias parciales e insensibles a mayúsculas. Se limita a 10 resultados para evitar sobrecargar la interfaz
-   * @param text
-   */
   const searchUsers = async (text: string) => {
     setIsSearching(true);
     try {
@@ -155,32 +147,20 @@ export default function SocialScreen() {
     </TouchableOpacity>
   );
 
-  const renderFeedItem = ({ item }: { item: FeedItem }) => {
+  const renderFeedItem = ({
+    item,
+    index,
+  }: {
+    item: FeedItem;
+    index: number;
+  }) => {
     const isWorkout = item.type === "history";
+    const showAd = (index + 1) % 5 === 0;
+
     return (
-      <View style={styles.feedCard}>
-        <View style={styles.feedHeader}>
-          <TouchableOpacity
-            onPress={() =>
-              router.push({
-                pathname: "/userProfile",
-                params: { id: item.userId },
-              })
-            }
-          >
-            {item.userAvatar ? (
-              <Image
-                source={{ uri: item.userAvatar }}
-                style={styles.feedAvatar}
-              />
-            ) : (
-              <View style={styles.feedAvatarPlaceholder}>
-                <AntDesign name="user" size={20} color={colors.textSecondary} />
-              </View>
-            )}
-          </TouchableOpacity>
-          <View style={styles.feedHeaderText}>
-            {/* AQUÍ HACEMOS QUE EL NOMBRE TAMBIÉN SEA CLIQUEABLE */}
+      <>
+        <View style={styles.feedCard}>
+          <View style={styles.feedHeader}>
             <TouchableOpacity
               onPress={() =>
                 router.push({
@@ -189,41 +169,89 @@ export default function SocialScreen() {
                 })
               }
             >
-              <Text style={styles.feedUsername}>@{item.username}</Text>
+              {item.userAvatar ? (
+                <Image
+                  source={{ uri: item.userAvatar }}
+                  style={styles.feedAvatar}
+                />
+              ) : (
+                <View style={styles.feedAvatarPlaceholder}>
+                  <AntDesign
+                    name="user"
+                    size={20}
+                    color={colors.textSecondary}
+                  />
+                </View>
+              )}
             </TouchableOpacity>
-            <Text style={styles.feedAction}>
-              {isWorkout
-                ? t("social.completedWorkout")
-                : t("social.createdRoutine")}
-            </Text>
+            <View style={styles.feedHeaderText}>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/userProfile",
+                    params: { id: item.userId },
+                  })
+                }
+              >
+                <Text style={styles.feedUsername}>@{item.username}</Text>
+              </TouchableOpacity>
+              <Text style={styles.feedAction}>
+                {isWorkout
+                  ? t("social.completedWorkout")
+                  : t("social.createdRoutine")}
+              </Text>
+            </View>
+            <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
           </View>
-          <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
+
+          <View style={styles.feedContent}>
+            <Text style={styles.feedTitle}>
+              {item.title || t("social.defaultWorkout")}
+            </Text>
+            <View style={styles.feedStats}>
+              {isWorkout ? (
+                <>
+                  <Text style={styles.feedStatText}>
+                    <Feather name="clock" size={12} />{" "}
+                    {Math.ceil((item.details.duration || 0) / 60)} min
+                  </Text>
+                  <Text style={styles.feedStatText}>
+                    <Feather name="activity" size={12} /> {item.details.volume}{" "}
+                    kg
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.feedStatText}>
+                  <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
+                  {t("routines.exercises", "ejercicios")}
+                </Text>
+              )}
+            </View>
+          </View>
         </View>
 
-        <View style={styles.feedContent}>
-          <Text style={styles.feedTitle}>
-            {item.title || t("social.defaultWorkout")}
-          </Text>
-          <View style={styles.feedStats}>
-            {isWorkout ? (
-              <>
-                <Text style={styles.feedStatText}>
-                  <Feather name="clock" size={12} />{" "}
-                  {Math.ceil((item.details.duration || 0) / 60)} min
-                </Text>
-                <Text style={styles.feedStatText}>
-                  <Feather name="activity" size={12} /> {item.details.volume} kg
-                </Text>
-              </>
-            ) : (
-              <Text style={styles.feedStatText}>
-                <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
-                {t("routines.exercises", "ejercicios")}
-              </Text>
-            )}
+        {/* --- ANUNCIO INTERCALADO --- */}
+        {showAd && (
+          <View style={{ alignItems: "center", marginVertical: 10 }}>
+            <Text
+              style={{
+                fontSize: 10,
+                color: colors.textSecondary,
+                marginBottom: 5,
+              }}
+            >
+              Publicidad
+            </Text>
+            <BannerAd
+              unitId={TestIds.BANNER}
+              size={BannerAdSize.MEDIUM_RECTANGLE}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
           </View>
-        </View>
-      </View>
+        )}
+      </>
     );
   };
 
