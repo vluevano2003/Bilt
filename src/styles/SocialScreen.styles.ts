@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 
-// MUY IMPORTANTE: Debe ser una función que reciba 'colors'
 export const getStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },

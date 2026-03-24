@@ -123,7 +123,8 @@
     },
     "workoutHistory": "Historial de Entrenamientos",
     "noHistory": "El historial está vacío.",
-    "noPublicRoutines": "Este usuario aún no tiene rutinas públicas."
+    "noPublicRoutines": "Este usuario aún no tiene rutinas públicas.",
+    "loadMore": "Cargar más"
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -197,7 +198,8 @@
     "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?",
     "savedRoutines": "Rutinas Guardadas",
     "cannotDeleteInPack": "No puedes eliminar esta rutina porque pertenece a un Pack Semanal. Quítala del pack primero.",
-    "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?"
+    "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?",
+    "animationComingSoon": "Animación próximamente"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -341,7 +343,16 @@
     "leg_raises_hanging": "Elevación de Piernas Colgado",
     "ab_wheel_rollout": "Rueda Abdominal",
     "bicycle_crunch": "Crunches en Bicicleta",
-    "cable_crunch": "Crunch en Polea"
+    "cable_crunch": "Crunch en Polea",
+    "hip_abductor_machine": "Abductores en Máquina",
+    "hip_adductor_machine": "Aductores en Máquina",
+    "glute_kickback_machine": "Patada de Glúteo en Máquina",
+    "smith_machine_squat": "Sentadilla en Máquina Smith",
+    "smith_machine_bench_press": "Press de Banca en Máquina Smith",
+    "smith_machine_incline_press": "Press Inclinado en Máquina Smith",
+    "smith_machine_overhead_press": "Press Militar en Máquina Smith",
+    "good_mornings": "Buenos Días con Barra",
+    "sumo_deadlift": "Peso Muerto Sumo"
   },
   "unitSelection": {
     "title": "Seleccionar Unidad",
@@ -659,7 +670,7 @@
       "description": "Sentado o de pie. Sostén una mancuerna con ambas manos tras la cabeza. Extiende los codos hacia arriba sintiendo el estiramiento en la bajada."
     },
     "overhead_tricep_extension_cable": {
-      "submuscles": "Tríceps braquial (cabeza larga)",
+      "submuscles": "Triceps braquial (cabeza larga)",
       "description": "Polea baja o media con cuerda. Dale la espalda a la máquina y extiende la cuerda por encima de tu cabeza hacia adelante."
     },
     "skullcrusher_barbell": {
@@ -713,6 +724,42 @@
     "cable_crunch": {
       "submuscles": "Recto abdominal",
       "description": "De rodillas frente a una polea alta con cuerda. Jala la cuerda tras tu cuello y haz una contracción abdominal hundiendo el pecho hacia la pelvis."
+    },
+    "hip_abductor_machine": {
+      "submuscles": "Glúteo medio, Glúteo menor",
+      "description": "Siéntate en la máquina. Abre las piernas empujando los cojines hacia afuera contrayendo los glúteos."
+    },
+    "hip_adductor_machine": {
+      "submuscles": "Aductores, Parte interna del muslo",
+      "description": "Siéntate en la máquina. Cierra las piernas juntando los cojines para trabajar la parte interna del muslo."
+    },
+    "glute_kickback_machine": {
+      "submuscles": "Glúteo mayor, Isquiotibiales",
+      "description": "Apóyate en la máquina y empuja la plataforma hacia atrás y arriba con una pierna, contrayendo el glúteo en la parte más alta."
+    },
+    "smith_machine_squat": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales",
+      "description": "Coloca la barra de la máquina Smith sobre tus hombros. Baja controladamente la cadera y empuja hacia arriba. La máquina estabiliza el peso."
+    },
+    "smith_machine_bench_press": {
+      "submuscles": "Pectoral mayor, Tríceps, Deltoides anterior",
+      "description": "Acuéstate en el banco bajo la máquina Smith. Baja la barra al pecho y empuja hacia arriba de forma guiada."
+    },
+    "smith_machine_incline_press": {
+      "submuscles": "Pectoral superior, Tríceps, Deltoides anterior",
+      "description": "Usa un banco inclinado bajo la máquina Smith. Baja la barra a la parte alta del pecho y empuja."
+    },
+    "smith_machine_overhead_press": {
+      "submuscles": "Deltoides anterior, Deltoides lateral, Tríceps",
+      "description": "Sentado o de pie bajo la máquina Smith, empuja la barra desde la altura de tus hombros hasta extender los brazos arriba."
+    },
+    "good_mornings": {
+      "submuscles": "Isquiotibiales, Erector espinal, Glúteos",
+      "description": "Con una barra en la espalda, flexiona la cadera hacia atrás manteniendo las piernas semi-rectas hasta que tu torso esté casi paralelo al suelo."
+    },
+    "sumo_deadlift": {
+      "submuscles": "Glúteos, Cuádriceps, Isquiotibiales, Espalda baja",
+      "description": "Abre las piernas más allá de los hombros con las puntas hacia afuera. Agarra la barra por el centro y levántala usando la fuerza de las piernas y glúteos."
     }
   }
 }

@@ -124,6 +124,41 @@ export const getStyles = (colors: any) =>
       paddingBottom: Platform.OS === "ios" ? 60 : 70,
       maxHeight: "92%",
     },
+
+    modalOverlayCentered: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.7)",
+      justifyContent: "center",
+      paddingHorizontal: 20,
+    },
+    modalContentCentered: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 25,
+      maxHeight: "85%",
+      width: "100%",
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexShrink: 1,
+    },
+
+    modalOverlayBottomSheet: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.7)",
+      justifyContent: "flex-end",
+      margin: 0,
+      padding: 0,
+    },
+    modalContentBottomSheet: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 25,
+      borderTopRightRadius: 25,
+      padding: 25,
+      width: "100%",
+      maxHeight: "92%",
+      flexShrink: 1,
+    },
+
     modalHeader: {
       flexDirection: "row",
       justifyContent: "space-between",

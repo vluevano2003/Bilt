@@ -6,11 +6,10 @@ export const getHomeStyles = (colors: any) =>
       flex: 1,
       backgroundColor: colors.background,
     },
-    // Añadí paddingBottom para que el final de la lista no quede escondido
     content: {
       padding: 20,
       paddingTop: 40,
-      paddingBottom: 100, // Espacio para el MiniPlayer y el botón flotante
+      paddingBottom: 100,
     },
     title: {
       fontSize: 28,

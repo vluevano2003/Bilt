@@ -35,7 +35,7 @@ import {
 } from "../../src/utils/workoutCalculations";
 
 /**
- * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, y opciones para editar el perfil, cambiar configuraciones y ver seguidores/seguidos
+ * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos y opciones de configuración
  * @returns
  */
 export default function ProfileScreen() {
@@ -361,6 +361,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
+      {/* Editar Perfil */}
       <Modal
         visible={isEditing}
         animationType="slide"
@@ -368,11 +369,16 @@ export default function ProfileScreen() {
         onRequestClose={handleCancel}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
         >
-          <View style={styles.modalContent}>
-            <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContent,
+                { paddingBottom: Math.max(40, insets.bottom + 20) },
+              ]}
+            >
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
                   {t("profile.editProfile")}
@@ -385,179 +391,191 @@ export default function ProfileScreen() {
                   />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={[styles.avatarContainer, { alignSelf: "center" }]}
-                onPress={pickImage}
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 60 }}
               >
-                {profilePic ? (
-                  <Image
-                    source={{ uri: profilePic }}
-                    style={styles.avatarImage}
-                  />
-                ) : (
-                  <View style={styles.avatarPlaceholder}>
-                    <AntDesign
-                      name="user"
-                      size={40}
-                      color={colors.textSecondary}
+                <TouchableOpacity
+                  style={[styles.avatarContainer, { alignSelf: "center" }]}
+                  onPress={pickImage}
+                >
+                  {profilePic ? (
+                    <Image
+                      source={{ uri: profilePic }}
+                      style={styles.avatarImage}
+                    />
+                  ) : (
+                    <View style={styles.avatarPlaceholder}>
+                      <AntDesign
+                        name="user"
+                        size={40}
+                        color={colors.textSecondary}
+                      />
+                    </View>
+                  )}
+                  <View style={styles.editBadge}>
+                    <AntDesign name="camera" size={14} color="#FFF" />
+                  </View>
+                </TouchableOpacity>
+                <Text style={styles.label}>{t("profile.username")}</Text>
+                <CustomInput value={username} onChangeText={setUsername} />
+                <Text style={styles.label}>
+                  {t("profile.measurementSystem")}
+                </Text>
+                <View style={styles.formSegmentContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.formSegmentButton,
+                      measurementSystem === "metric" &&
+                        styles.formSegmentButtonActive,
+                    ]}
+                    onPress={() => changeMeasurementSystem("metric")}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        measurementSystem === "metric" &&
+                          styles.segmentTextActive,
+                      ]}
+                    >
+                      {t("profile.metric")}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.formSegmentButton,
+                      measurementSystem === "imperial" &&
+                        styles.formSegmentButtonActive,
+                    ]}
+                    onPress={() => changeMeasurementSystem("imperial")}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        measurementSystem === "imperial" &&
+                          styles.segmentTextActive,
+                      ]}
+                    >
+                      {t("profile.imperial")}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.rowInputs}>
+                  <View style={styles.halfInput}>
+                    <Text style={styles.label}>
+                      {t("profile.height")} (
+                      {measurementSystem === "metric" ? "cm" : "in"})
+                    </Text>
+                    <CustomInput
+                      value={height}
+                      onChangeText={setHeight}
+                      keyboardType="numeric"
                     />
                   </View>
-                )}
-                <View style={styles.editBadge}>
-                  <AntDesign name="camera" size={14} color="#FFF" />
-                </View>
-              </TouchableOpacity>
-              <Text style={styles.label}>{t("profile.username")}</Text>
-              <CustomInput value={username} onChangeText={setUsername} />
-              <Text style={styles.label}>{t("profile.measurementSystem")}</Text>
-              <View style={styles.formSegmentContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    measurementSystem === "metric" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("metric")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      measurementSystem === "metric" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.metric")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    measurementSystem === "imperial" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("imperial")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      measurementSystem === "imperial" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.imperial")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.rowInputs}>
-                <View style={styles.halfInput}>
-                  <Text style={styles.label}>
-                    {t("profile.height")} (
-                    {measurementSystem === "metric" ? "cm" : "in"})
-                  </Text>
-                  <CustomInput
-                    value={height}
-                    onChangeText={setHeight}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <View style={styles.halfInput}>
-                  <Text style={styles.label}>
-                    {t("profile.weight")} (
-                    {measurementSystem === "metric" ? "kg" : "lbs"})
-                  </Text>
-                  <CustomInput
-                    value={weight}
-                    onChangeText={setWeight}
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
-              <View style={styles.rowInputs}>
-                <View style={styles.halfInput}>
-                  <Text style={styles.label}>{t("profile.gender")}</Text>
-                  <CustomInput
-                    value={gender}
-                    editable={false}
-                    style={styles.readOnlyInput}
-                  />
-                </View>
-                <View style={styles.halfInput}>
-                  <Text style={styles.label}>{t("profile.email")}</Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={{ width: "100%" }}
-                  >
+                  <View style={styles.halfInput}>
+                    <Text style={styles.label}>
+                      {t("profile.weight")} (
+                      {measurementSystem === "metric" ? "kg" : "lbs"})
+                    </Text>
                     <CustomInput
-                      value={email}
+                      value={weight}
+                      onChangeText={setWeight}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+                <View style={styles.rowInputs}>
+                  <View style={styles.halfInput}>
+                    <Text style={styles.label}>{t("profile.gender")}</Text>
+                    <CustomInput
+                      value={gender}
                       editable={false}
                       style={styles.readOnlyInput}
                     />
-                  </ScrollView>
+                  </View>
+                  <View style={styles.halfInput}>
+                    <Text style={styles.label}>{t("profile.email")}</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={{ width: "100%" }}
+                    >
+                      <CustomInput
+                        value={email}
+                        editable={false}
+                        style={styles.readOnlyInput}
+                      />
+                    </ScrollView>
+                  </View>
                 </View>
-              </View>
-              <Text style={[styles.label, { marginTop: 15, marginBottom: 10 }]}>
-                {t("profile.visibilityOptions")}
-              </Text>
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>{t("profile.showAge")}</Text>
-                <Switch
-                  value={showAge}
-                  onValueChange={setShowAge}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor={"#FFF"}
-                />
-              </View>
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>
-                  {t("profile.showGender")}
+                <Text
+                  style={[styles.label, { marginTop: 15, marginBottom: 10 }]}
+                >
+                  {t("profile.visibilityOptions")}
                 </Text>
-                <Switch
-                  value={showGender}
-                  onValueChange={setShowGender}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor={"#FFF"}
-                />
-              </View>
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>
-                  {t("profile.showHeight")}
-                </Text>
-                <Switch
-                  value={showHeight}
-                  onValueChange={setShowHeight}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor={"#FFF"}
-                />
-              </View>
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>
-                  {t("profile.showWeight")}
-                </Text>
-                <Switch
-                  value={showWeight}
-                  onValueChange={setShowWeight}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor={"#FFF"}
-                />
-              </View>
-              <View style={{ marginTop: 25, gap: 10 }}>
-                <PrimaryButton
-                  title={t("profile.saveChanges")}
-                  onPress={handleSave}
-                  loading={isSaving}
-                />
-                <SecondaryButton
-                  title={t("profile.cancel")}
-                  onPress={handleCancel}
-                  disabled={isSaving}
-                />
-              </View>
-            </ScrollView>
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>
+                    {t("profile.showAge")}
+                  </Text>
+                  <Switch
+                    value={showAge}
+                    onValueChange={setShowAge}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={"#FFF"}
+                  />
+                </View>
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>
+                    {t("profile.showGender")}
+                  </Text>
+                  <Switch
+                    value={showGender}
+                    onValueChange={setShowGender}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={"#FFF"}
+                  />
+                </View>
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>
+                    {t("profile.showHeight")}
+                  </Text>
+                  <Switch
+                    value={showHeight}
+                    onValueChange={setShowHeight}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={"#FFF"}
+                  />
+                </View>
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>
+                    {t("profile.showWeight")}
+                  </Text>
+                  <Switch
+                    value={showWeight}
+                    onValueChange={setShowWeight}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={"#FFF"}
+                  />
+                </View>
+                <View style={{ marginTop: 25, gap: 10 }}>
+                  <PrimaryButton
+                    title={t("profile.saveChanges")}
+                    onPress={handleSave}
+                    loading={isSaving}
+                  />
+                  <SecondaryButton
+                    title={t("profile.cancel")}
+                    onPress={handleCancel}
+                    disabled={isSaving}
+                  />
+                </View>
+              </ScrollView>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* Configuración */}
       <Modal
         visible={settingsVisible}
         animationType="slide"
@@ -565,7 +583,12 @@ export default function ProfileScreen() {
         onRequestClose={() => setSettingsVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View
+            style={[
+              styles.modalContent,
+              { paddingBottom: Math.max(40, insets.bottom + 20) },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t("profile.settings")}</Text>
               <TouchableOpacity onPress={() => setSettingsVisible(false)}>
@@ -661,7 +684,15 @@ export default function ProfileScreen() {
         onRequestClose={() => setSocialModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { height: "70%" }]}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                height: "70%",
+                paddingBottom: Math.max(40, insets.bottom + 20),
+              },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
                 {socialModalType === "followers"
@@ -707,14 +738,22 @@ export default function ProfileScreen() {
         onRequestClose={() => setDetailsModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View
+            style={[
+              styles.modalContent,
+              { paddingBottom: Math.max(40, insets.bottom + 20) },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{selectedItem?.routineName}</Text>
               <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
                 <AntDesign name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 50 }}
+            >
               <View
                 style={{
                   flexDirection: "row",
