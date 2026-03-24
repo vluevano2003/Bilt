@@ -21,6 +21,7 @@ import {
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import { ExerciseType, RoutineExercise } from "../hooks/useRoutines";
@@ -29,10 +30,17 @@ import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
+/**
+ * Pantalla principal para registrar un entrenamiento activo. Permite:
+- Ver y editar ejercicios y series en tiempo real
+- Controlar tiempos de descanso con ajustes rápidos
+ * @returns 
+ */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const {
     t,
@@ -67,7 +75,6 @@ export default function ActiveWorkoutScreen() {
   const [restEditExId, setRestEditExId] = useState<string | null>(null);
   const [tempRest, setTempRest] = useState(90);
   const [unitModalExId, setUnitModalExId] = useState<string | null>(null);
-
   const [detailsExercise, setDetailsExercise] = useState<ExerciseType | null>(
     null,
   );
@@ -103,16 +110,12 @@ export default function ActiveWorkoutScreen() {
   };
 
   const saveRestTime = () => {
-    if (restEditExId) {
-      updateExerciseRestTime(restEditExId, tempRest);
-    }
+    if (restEditExId) updateExerciseRestTime(restEditExId, tempRest);
     setRestEditExId(null);
   };
 
   const handleUnitSelect = (unit: any) => {
-    if (unitModalExId) {
-      changeExerciseUnit(unitModalExId, unit);
-    }
+    if (unitModalExId) changeExerciseUnit(unitModalExId, unit);
     setUnitModalExId(null);
   };
 
@@ -124,7 +127,6 @@ export default function ActiveWorkoutScreen() {
     const unitText = exercise.sets[0]
       ? t(`activeWorkout.units.${exercise.sets[0].weightUnit}`)
       : "KG";
-
     return (
       <ScaleDecorator>
         <View
@@ -163,14 +165,12 @@ export default function ActiveWorkoutScreen() {
             <Text style={styles.colPrevHeader}>
               {t("activeWorkout.previous", "ANTERIOR").toUpperCase()}
             </Text>
-
             <TouchableOpacity
               style={styles.colInputHeader}
               onPress={() => setUnitModalExId(exercise.id)}
             >
               <Text style={styles.tableHeaderText}>{unitText}</Text>
             </TouchableOpacity>
-
             <View style={styles.colInputHeader}>
               <Text style={styles.tableHeaderText}>
                 {t("activeWorkout.reps", "REPS")}
@@ -197,13 +197,11 @@ export default function ActiveWorkoutScreen() {
                 )}
                 <Text style={styles.setText}>{setIndex + 1}</Text>
               </View>
-
               <View style={styles.colPrev}>
                 <Text style={styles.prevText}>
                   {getPreviousSet(exercise.exerciseDetails.id, setIndex)}
                 </Text>
               </View>
-
               <View style={styles.colInput}>
                 <TextInput
                   style={[styles.input, set.completed && styles.inputDisabled]}
@@ -218,7 +216,6 @@ export default function ActiveWorkoutScreen() {
                   selectTextOnFocus
                 />
               </View>
-
               <View style={styles.colInput}>
                 <TextInput
                   style={[styles.input, set.completed && styles.inputDisabled]}
@@ -233,7 +230,6 @@ export default function ActiveWorkoutScreen() {
                   selectTextOnFocus
                 />
               </View>
-
               <View style={styles.colCheck}>
                 <TouchableOpacity
                   style={[
@@ -290,7 +286,6 @@ export default function ActiveWorkoutScreen() {
             {t("activeWorkout.logWorkout")}
           </Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.finishBtn}
           onPress={handleFinishWorkout}
@@ -336,7 +331,9 @@ export default function ActiveWorkoutScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
             padding: 15,
-            paddingBottom: isResting ? 120 : 100,
+            paddingBottom: isResting
+              ? 120 + insets.bottom
+              : 100 + insets.bottom,
           }}
           showsVerticalScrollIndicator={false}
           renderItem={renderDraggableExercise}
@@ -355,25 +352,27 @@ export default function ActiveWorkoutScreen() {
       </KeyboardAvoidingView>
 
       {isResting && restTimeRemaining !== null && (
-        <View style={styles.floatingRestBanner}>
+        <View
+          style={[
+            styles.floatingRestBanner,
+            { paddingBottom: Math.max(50, insets.bottom + 20) },
+          ]}
+        >
           <TouchableOpacity
             style={styles.floatingRestAdjustBtn}
             onPress={() => adjustRestTime(-15)}
           >
             <Text style={styles.floatingRestAdjustText}>-15</Text>
           </TouchableOpacity>
-
           <Text style={styles.floatingRestTime}>
             {formatRestTime(restTimeRemaining)}
           </Text>
-
           <TouchableOpacity
             style={styles.floatingRestAdjustBtn}
             onPress={() => adjustRestTime(15)}
           >
             <Text style={styles.floatingRestAdjustText}>+15</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.floatingRestSkipBtn}
             onPress={stopRestTimer}
@@ -385,147 +384,11 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
-      <Modal visible={!!unitModalExId} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.editRestModalContent}>
-            <Text style={styles.editRestTitle}>
-              {t("unitSelection.title", "Seleccionar Unidad")}
-            </Text>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("kg")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.kg", "Kilogramos (kg)")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.kg_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("lbs")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.lbs", "Libras (lbs)")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.lbs_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bodyweight")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bodyweight", "Peso Corporal")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bodyweight_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bars")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bars", "Barras / Bloques")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bars_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.unitOptionBtn, { borderBottomWidth: 0 }]}
-              onPress={() => handleUnitSelect("plates")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.plates", "Discos")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.plates_desc")}
-              </Text>
-            </TouchableOpacity>
-            <View style={[styles.editRestButtonsRow, { marginTop: 20 }]}>
-              <TouchableOpacity
-                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
-                onPress={() => setUnitModalExId(null)}
-              >
-                <Text
-                  style={[
-                    styles.editRestBtnText,
-                    { color: colors.textPrimary },
-                  ]}
-                >
-                  {t("common.cancel", "Cancelar")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={!!restEditExId} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.editRestModalContent}>
-            <Text style={styles.editRestTitle}>
-              {t("activeWorkout.restTimer", "Tiempo de Descanso")}
-            </Text>
-
-            <View style={styles.editRestControls}>
-              <TouchableOpacity
-                style={styles.floatingRestAdjustBtn}
-                onPress={() => setTempRest((prev) => Math.max(0, prev - 15))}
-              >
-                <Text style={styles.floatingRestAdjustText}>-15</Text>
-              </TouchableOpacity>
-
-              <Text style={styles.editRestTimeDisplay}>
-                {formatRestTime(tempRest)}
-              </Text>
-
-              <TouchableOpacity
-                style={styles.floatingRestAdjustBtn}
-                onPress={() => setTempRest((prev) => prev + 15)}
-              >
-                <Text style={styles.floatingRestAdjustText}>+15</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.editRestButtonsRow}>
-              <TouchableOpacity
-                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
-                onPress={() => setRestEditExId(null)}
-              >
-                <Text
-                  style={[
-                    styles.editRestBtnText,
-                    { color: colors.textPrimary },
-                  ]}
-                >
-                  {t("common.cancel", "Cancelar")}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.editRestBtn,
-                  { backgroundColor: colors.primary, borderWidth: 0 },
-                ]}
-                onPress={saveRestTime}
-              >
-                <Text style={styles.editRestBtnText}>
-                  {t("routines.save", "Guardar")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
       <Modal visible={showSummary} animationType="slide" transparent={false}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 160 }}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 160 + insets.bottom }}
+          >
             <View
               style={{ alignItems: "center", marginTop: 40, marginBottom: 30 }}
             >
@@ -648,7 +511,6 @@ export default function ActiveWorkoutScreen() {
               >
                 {t("activeWorkout.musclesWorked", "Músculos trabajados")}
               </Text>
-
               {muscleDistribution.length > 0 ? (
                 muscleDistribution.map((muscle) => (
                   <View key={muscle.name} style={{ marginBottom: 15 }}>
@@ -714,7 +576,7 @@ export default function ActiveWorkoutScreen() {
           <View
             style={{
               position: "absolute",
-              bottom: Platform.OS === "ios" ? 40 : 35,
+              bottom: Math.max(35, insets.bottom + 15),
               left: 20,
               right: 20,
             }}
@@ -723,12 +585,9 @@ export default function ActiveWorkoutScreen() {
               <BannerAd
                 unitId={TestIds.BANNER}
                 size={BannerAdSize.BANNER}
-                requestOptions={{
-                  requestNonPersonalizedAdsOnly: true,
-                }}
+                requestOptions={{ requestNonPersonalizedAdsOnly: true }}
               />
             </View>
-
             <TouchableOpacity
               style={{
                 backgroundColor: colors.primary,

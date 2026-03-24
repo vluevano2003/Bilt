@@ -55,7 +55,8 @@
           "icon": "./assets/images/logo_white_nobg.png",
           "color": "#ea580c"
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -17,6 +17,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { useUserActivity } from "../../hooks/useUserActivity";
 import { CustomInput } from "../../src/components/CustomInput";
@@ -33,7 +35,7 @@ import {
 } from "../../src/utils/workoutCalculations";
 
 /**
- * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, seguidores y seguidos. Permite editar el perfil, cambiar configuraciones y cerrar sesión
+ * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, y opciones para editar el perfil, cambiar configuraciones y ver seguidores/seguidos
  * @returns
  */
 export default function ProfileScreen() {
@@ -42,6 +44,7 @@ export default function ProfileScreen() {
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const {
     isLoading,
@@ -55,6 +58,7 @@ export default function ProfileScreen() {
     email,
     gender,
     measurementSystem,
+    setMeasurementSystem,
     height,
     setHeight,
     weight,
@@ -91,18 +95,12 @@ export default function ProfileScreen() {
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
-
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setRefreshing(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setRefreshing(false);
   }, []);
 
   const handleLogout = async () => {
@@ -140,12 +138,10 @@ export default function ProfileScreen() {
     const data = [];
     if (showAge && age) data.push(`${age} ${t("profile.years")}`);
     if (showGender && gender) data.push(gender);
-    if (showHeight && height) {
+    if (showHeight && height)
       data.push(`${height} ${measurementSystem === "metric" ? "cm" : "in"}`);
-    }
-    if (showWeight && weight) {
+    if (showWeight && weight)
       data.push(`${weight} ${measurementSystem === "metric" ? "kg" : "lbs"}`);
-    }
     return data.join(" • ");
   };
 
@@ -211,7 +207,10 @@ export default function ProfileScreen() {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -239,9 +238,7 @@ export default function ProfileScreen() {
                 </View>
               )}
             </View>
-
             <Text style={styles.usernameText}>@{username}</Text>
-
             <View style={styles.socialStatsRow}>
               <TouchableOpacity
                 style={styles.socialStatBox}
@@ -262,11 +259,9 @@ export default function ProfileScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.publicDataContainer}>
               <Text style={styles.publicDataText}>{getPublicDataString()}</Text>
             </View>
-
             <View style={{ width: "100%", marginTop: 10 }}>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -279,7 +274,6 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/*Historial de entrenamiento*/}
           <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
             <Text
               style={[
@@ -301,7 +295,6 @@ export default function ProfileScreen() {
                   );
                   const volumeUnit =
                     measurementSystem === "metric" ? "kg" : "lbs";
-
                   return (
                     <TouchableOpacity
                       key={session.id}
@@ -333,7 +326,6 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
                   );
                 })}
-
                 {userHistory.length > historyLimit && (
                   <TouchableOpacity
                     style={{
@@ -369,7 +361,6 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/*Edición*/}
       <Modal
         visible={isEditing}
         animationType="slide"
@@ -394,7 +385,6 @@ export default function ProfileScreen() {
                   />
                 </TouchableOpacity>
               </View>
-
               <TouchableOpacity
                 style={[styles.avatarContainer, { alignSelf: "center" }]}
                 onPress={pickImage}
@@ -417,10 +407,8 @@ export default function ProfileScreen() {
                   <AntDesign name="camera" size={14} color="#FFF" />
                 </View>
               </TouchableOpacity>
-
               <Text style={styles.label}>{t("profile.username")}</Text>
               <CustomInput value={username} onChangeText={setUsername} />
-
               <Text style={styles.label}>{t("profile.measurementSystem")}</Text>
               <View style={styles.formSegmentContainer}>
                 <TouchableOpacity
@@ -441,7 +429,6 @@ export default function ProfileScreen() {
                     {t("profile.metric")}
                   </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   style={[
                     styles.formSegmentButton,
@@ -461,7 +448,6 @@ export default function ProfileScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-
               <View style={styles.rowInputs}>
                 <View style={styles.halfInput}>
                   <Text style={styles.label}>
@@ -486,7 +472,6 @@ export default function ProfileScreen() {
                   />
                 </View>
               </View>
-
               <View style={styles.rowInputs}>
                 <View style={styles.halfInput}>
                   <Text style={styles.label}>{t("profile.gender")}</Text>
@@ -511,7 +496,6 @@ export default function ProfileScreen() {
                   </ScrollView>
                 </View>
               </View>
-
               <Text style={[styles.label, { marginTop: 15, marginBottom: 10 }]}>
                 {t("profile.visibilityOptions")}
               </Text>
@@ -557,7 +541,6 @@ export default function ProfileScreen() {
                   thumbColor={"#FFF"}
                 />
               </View>
-
               <View style={{ marginTop: 25, gap: 10 }}>
                 <PrimaryButton
                   title={t("profile.saveChanges")}
@@ -575,7 +558,6 @@ export default function ProfileScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/*Ajustes*/}
       <Modal
         visible={settingsVisible}
         animationType="slide"
@@ -672,7 +654,6 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/*Lista de seguidores y seguidos*/}
       <Modal
         visible={socialModalVisible}
         animationType="slide"
@@ -719,7 +700,6 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/*Historial*/}
       <Modal
         visible={detailsModalVisible}
         animationType="slide"
@@ -755,7 +735,6 @@ export default function ProfileScreen() {
                   {measurementSystem === "metric" ? "kg" : "lbs"}
                 </Text>
               </View>
-
               <Text style={[styles.label, { marginBottom: 10 }]}>
                 {t("routines.exercises")}:
               </Text>
@@ -765,7 +744,6 @@ export default function ProfileScreen() {
                     ?.replace(/_/g, " ")
                     .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
                   "Ejercicio";
-
                 return (
                   <View
                     key={index}
@@ -795,7 +773,6 @@ export default function ProfileScreen() {
                           : measurementSystem === "metric"
                             ? "kg"
                             : "lbs";
-
                       return (
                         <Text
                           key={setIdx}

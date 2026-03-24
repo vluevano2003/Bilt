@@ -2,12 +2,13 @@ import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../src/context/ThemeContext";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -16,8 +17,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: Platform.OS === "ios" ? 85 : 65,
-          paddingBottom: Platform.OS === "ios" ? 30 : 10,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 10,
         },
         tabBarActiveTintColor: colors.primary,
@@ -26,7 +27,6 @@ export default function TabsLayout() {
         headerTitleStyle: { color: colors.textPrimary, fontWeight: "900" },
       }}
     >
-      {/*Home*/}
       <Tabs.Screen
         name="home"
         options={{
@@ -36,8 +36,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-
-      {/*Social*/}
       <Tabs.Screen
         name="social"
         options={{
@@ -47,8 +45,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-
-      {/*Perfil*/}
       <Tabs.Screen
         name="profile"
         options={{

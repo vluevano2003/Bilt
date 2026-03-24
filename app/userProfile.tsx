@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { SocialUser, useProfile } from "../hooks/useProfile";
 import { useProfileActions } from "../hooks/useProfileActions";
 import { useUserActivity } from "../hooks/useUserActivity";
@@ -31,7 +33,7 @@ import {
 } from "../src/utils/profileHelpers";
 
 /**
- * Pantalla de perfil de usuario, muestra la información del perfil, sus rutinas, packs y actividad reciente. Permite seguir al usuario, ver su lista de seguidores/siguiendo, y guardar rutinas/packs en el perfil propio
+ * Pantalla de perfil de usuario que muestra la información del perfil, estadísticas sociales, rutinas, packs semanales y historial de entrenamientos. Permite seguir/desseguir al usuario, aceptar/rechazar solicitudes de seguimiento, y ver detalles de rutinas y packs
  * @returns
  */
 export default function UserProfileScreen() {
@@ -39,6 +41,7 @@ export default function UserProfileScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const profileId = params.id as string | undefined;
+  const insets = useSafeAreaInsets();
 
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -71,13 +74,8 @@ export default function UserProfileScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setRefreshing(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setRefreshing(false);
   }, []);
 
   if (profile.isLoading) {
@@ -103,21 +101,13 @@ export default function UserProfileScreen() {
       data.push(`${profile.age} ${t("profile.years")}`);
     if (profile.showGender && profile.gender) data.push(profile.gender);
     if (profile.showHeight && profile.height) {
-      const finalH = getConvertedProfileHeight(
-        profile.height,
-        profile.measurementSystem,
-      );
       data.push(
-        `${finalH} ${profile.measurementSystem === "metric" ? "cm" : "in"}`,
+        `${getConvertedProfileHeight(profile.height, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "cm" : "in"}`,
       );
     }
     if (profile.showWeight && profile.weight) {
-      const finalW = getConvertedProfileWeight(
-        profile.weight,
-        profile.measurementSystem,
-      );
       data.push(
-        `${finalW} ${profile.measurementSystem === "metric" ? "kg" : "lbs"}`,
+        `${getConvertedProfileWeight(profile.weight, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "kg" : "lbs"}`,
       );
     }
     return data.join(" • ");
@@ -161,7 +151,10 @@ export default function UserProfileScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -513,7 +506,6 @@ export default function UserProfileScreen() {
                         </View>
                       </TouchableOpacity>
                     ))}
-
                     {userHistory.length > historyLimit && (
                       <TouchableOpacity
                         style={{

@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 
 function RootLayoutNav() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, hasProfile } = useAuth();
   const router = useRouter();
   const segments = useSegments();
   const { colors } = useTheme();
@@ -21,13 +21,16 @@ function RootLayoutNav() {
     const inTabsGroup = segments[0] === "(tabs)";
     const inUserProfile = segments[0] === "userProfile";
     const inActiveWorkout = segments[0] === "activeWorkout";
+    const isProtectedScreen = inTabsGroup || inUserProfile || inActiveWorkout;
 
-    if (!user && (inTabsGroup || inUserProfile || inActiveWorkout)) {
+    if (!user && isProtectedScreen) {
       router.replace("/");
-    } else if (user && !inTabsGroup && !inUserProfile && !inActiveWorkout) {
+    } else if (user && !hasProfile && isProtectedScreen) {
+      router.replace("/");
+    } else if (user && hasProfile && !isProtectedScreen) {
       router.replace("/(tabs)/home");
     }
-  }, [user, isLoading, segments]);
+  }, [user, isLoading, hasProfile, segments]);
 
   if (isLoading) {
     return (

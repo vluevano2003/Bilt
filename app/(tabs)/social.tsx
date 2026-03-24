@@ -17,6 +17,7 @@ import {
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FeedItem, useSocialFeed } from "../../hooks/useSocialFeed";
 import { supabase } from "../../src/config/supabase";
@@ -30,42 +31,49 @@ interface SearchResult {
   profilePictureUrl?: string;
 }
 
+/**
+ * Función auxiliar para mostrar el tiempo transcurrido desde una actividad de forma legible
+ * @param timestamp
+ * @param t
+ * @returns
+ */
 const getTimeAgo = (timestamp: number, t: any) => {
   const diffInSeconds = Math.floor((Date.now() - timestamp) / 1000);
   if (diffInSeconds < 60) return t("social.time.justNow", "Justo ahora");
-
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60)
     return t("social.time.minsAgo", {
       count: diffInMinutes,
       defaultValue: `Hace ${diffInMinutes} min`,
     });
-
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24)
     return t("social.time.hoursAgo", {
       count: diffInHours,
       defaultValue: `Hace ${diffInHours} h`,
     });
-
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7)
     return t("social.time.daysAgo", {
       count: diffInDays,
       defaultValue: `Hace ${diffInDays} d`,
     });
-
   return new Date(timestamp).toLocaleDateString();
 };
 
 const ITEMS_PER_PAGE = 15;
 
+/**
+ * Pantalla principal de la sección social, con feed de actividades y búsqueda de usuarios
+ * @returns
+ */
 export default function SocialScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [activeTab, setActiveTab] = useState<"feed" | "search">("feed");
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,13 +85,9 @@ export default function SocialScreen() {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        searchUsers(searchQuery.trim());
-      } else {
-        searchResults.length > 0 && setSearchResults([]);
-      }
+      if (searchQuery.trim().length >= 2) searchUsers(searchQuery.trim());
+      else searchResults.length > 0 && setSearchResults([]);
     }, 500);
-
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
@@ -95,23 +99,18 @@ export default function SocialScreen() {
         .select("id, username, profile_picture_url")
         .ilike("username", `%${text}%`)
         .limit(10);
-
       if (error) throw error;
-
       const results: SearchResult[] = [];
-
       if (data) {
         data.forEach((doc) => {
-          if (doc.id !== user?.id) {
+          if (doc.id !== user?.id)
             results.push({
               id: doc.id,
               username: doc.username,
               profilePictureUrl: doc.profile_picture_url,
             });
-          }
         });
       }
-
       setSearchResults(results);
     } catch (error) {
       console.log("Error buscando usuarios:", error);
@@ -203,7 +202,6 @@ export default function SocialScreen() {
             </View>
             <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
           </View>
-
           <View style={styles.feedContent}>
             <Text style={styles.feedTitle}>
               {item.title || t("social.defaultWorkout")}
@@ -230,7 +228,6 @@ export default function SocialScreen() {
           </View>
         </View>
 
-        {/* --- ANUNCIO INTERCALADO --- */}
         {showAd && (
           <View style={{ alignItems: "center", marginVertical: 10 }}>
             <Text
@@ -245,9 +242,7 @@ export default function SocialScreen() {
             <BannerAd
               unitId={TestIds.BANNER}
               size={BannerAdSize.MEDIUM_RECTANGLE}
-              requestOptions={{
-                requestNonPersonalizedAdsOnly: true,
-              }}
+              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
             />
           </View>
         )}
@@ -279,7 +274,6 @@ export default function SocialScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-
       <View style={styles.content}>
         {activeTab === "search" ? (
           <View style={{ flex: 1 }}>
@@ -303,7 +297,6 @@ export default function SocialScreen() {
                 </TouchableOpacity>
               )}
             </View>
-
             {isSearching ? (
               <ActivityIndicator
                 size="large"
@@ -316,7 +309,7 @@ export default function SocialScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderUserItem}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 }}
+                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
               />
             ) : searchQuery.length >= 2 ? (
               <Text style={styles.placeholderText}>
@@ -342,7 +335,7 @@ export default function SocialScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderFeedItem}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 }}
+                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}

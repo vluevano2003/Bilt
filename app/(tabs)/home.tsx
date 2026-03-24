@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
@@ -32,6 +33,10 @@ import { useTheme } from "../../src/context/ThemeContext";
 import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
+/**
+ * Pantalla principal que muestra un resumen semanal, las rutinas del usuario y los packs semanales. Permite iniciar entrenamientos, gestionar rutinas y ver notificaciones de solicitudes de seguimiento
+ * @returns
+ */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -39,6 +44,7 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const { user } = useAuth();
   usePushNotifications(user?.id);
+  const insets = useSafeAreaInsets();
 
   const homeStyles = getHomeStyles(colors);
   const routineStyles = getRoutineStyles(colors);
@@ -50,7 +56,6 @@ export default function HomeScreen() {
     handleFollowRequest,
     username,
   } = useProfile();
-
   const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
 
   const [notificationsVisible, setNotificationsVisible] = useState(false);
@@ -66,9 +71,7 @@ export default function HomeScreen() {
     deleteRoutine,
   } = useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
-
   const editor = useRoutineEditor(saveRoutine, exercisesDb);
-
   const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack } =
     useWeeklyPacks();
 
@@ -130,15 +133,10 @@ export default function HomeScreen() {
     startOfWeek.setHours(0, 0, 0, 0);
 
     const trainedDays = new Set();
-
     userHistory?.forEach((session: any) => {
       let sessionDate = new Date();
-
-      if (session.completedAt) {
-        sessionDate = new Date(session.completedAt);
-      } else if (session.createdAt) {
-        sessionDate = new Date(session.createdAt);
-      }
+      if (session.completedAt) sessionDate = new Date(session.completedAt);
+      else if (session.createdAt) sessionDate = new Date(session.createdAt);
 
       if (!isNaN(sessionDate.getTime()) && sessionDate >= startOfWeek) {
         const sessionDay =
@@ -146,7 +144,6 @@ export default function HomeScreen() {
         trainedDays.add(sessionDay);
       }
     });
-
     return trainedDays;
   };
 
@@ -160,18 +157,8 @@ export default function HomeScreen() {
 
   const displayedRoutines =
     activeTab === "own"
-      ? routines.filter(
-          (r) =>
-            r.originalCreatorId === null ||
-            r.originalCreatorId === undefined ||
-            r.originalCreatorId === "",
-        )
-      : routines.filter(
-          (r) =>
-            r.originalCreatorId !== null &&
-            r.originalCreatorId !== undefined &&
-            r.originalCreatorId !== "",
-        );
+      ? routines.filter((r) => !r.originalCreatorId)
+      : routines.filter((r) => !!r.originalCreatorId);
 
   const DashboardHeader = () => {
     const greeting = getGreeting();
@@ -222,7 +209,6 @@ export default function HomeScreen() {
             />
             <Text style={homeStyles.cardTitle}>{t("home.weeklySummary")}</Text>
           </View>
-
           <View style={homeStyles.statsRow}>
             <View
               style={[
@@ -242,9 +228,7 @@ export default function HomeScreen() {
                 {t("home.workouts")}
               </Text>
             </View>
-
             <View style={homeStyles.divider} />
-
             <View
               style={[
                 homeStyles.statBox,
@@ -404,7 +388,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={[
             routineStyles.listContainer,
-            { paddingHorizontal: 20 },
+            { paddingHorizontal: 20, paddingBottom: 100 + insets.bottom },
           ]}
           ListEmptyComponent={
             <View style={routineStyles.emptyState}>
@@ -499,7 +483,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={[
             routineStyles.listContainer,
-            { paddingHorizontal: 20 },
+            { paddingHorizontal: 20, paddingBottom: 100 + insets.bottom },
           ]}
           ListEmptyComponent={
             <View style={routineStyles.emptyState}>
@@ -523,12 +507,10 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => {
-                    if (item.originalCreatorId) {
-                      setSelectedReadonlyRoutine(item);
-                      setDetailsModalVisible(true);
-                    } else {
-                      editor.openRoutineModal(item);
-                    }
+                    item.originalCreatorId
+                      ? (setSelectedReadonlyRoutine(item),
+                        setDetailsModalVisible(true))
+                      : editor.openRoutineModal(item);
                   }}
                 >
                   <View style={routineStyles.cardHeader}>
@@ -586,7 +568,10 @@ export default function HomeScreen() {
 
       {!activeRoutine && (
         <TouchableOpacity
-          style={[routineStyles.fab, { bottom: 30 }]}
+          style={[
+            routineStyles.fab,
+            { bottom: Math.max(30, insets.bottom + 15) },
+          ]}
           onPress={() =>
             activeTab === "packs"
               ? actions.setPackModalVisible(true)

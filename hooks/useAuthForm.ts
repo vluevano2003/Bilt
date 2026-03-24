@@ -3,14 +3,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Platform } from "react-native";
 import { supabase } from "../src/config/supabase";
+import { useAuth } from "../src/context/AuthContext";
 import { isValidEmail } from "../src/utils/authHelpers";
 
 /**
- * Hook personalizado para manejar la lógica de autenticación (registro, login, recuperación de contraseña) y el estado del formulario
+ * Hook personalizado para manejar la lógica de los formularios de autenticación (login, registro y recuperación de contraseña)
+ * Centraliza el estado y las funciones relacionadas con la autenticación, validación de datos y manejo de errores
  * @returns
  */
 export const useAuthForm = () => {
   const { t } = useTranslation();
+  const { checkProfileStatus } = useAuth();
 
   const [currentView, setCurrentView] = useState<
     "login" | "register" | "forgotPassword"
@@ -71,25 +74,37 @@ export const useAuthForm = () => {
 
     setIsLoading(true);
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password,
-      });
+      let userId = "";
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("No se pudo crear el usuario");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      let profileUrl = null;
+      if (session?.user) {
+        userId = session.user.id;
+      } else {
+        const { data: authData, error: authError } = await supabase.auth.signUp(
+          {
+            email: email.trim(),
+            password: password,
+          },
+        );
 
-      if (profilePic) {
+        if (authError) throw authError;
+        if (!authData.user) throw new Error("No se pudo crear el usuario");
+        userId = authData.user.id;
+      }
+
+      let profileUrl = profilePic;
+
+      if (profilePic && !profilePic.startsWith("http")) {
         const response = await fetch(profilePic);
         const blob = await response.blob();
-
         const arrayBuffer = await new Response(blob).arrayBuffer();
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("profile_pictures")
-          .upload(`${authData.user.id}/${Date.now()}.jpg`, arrayBuffer, {
+          .upload(`${userId}/${Date.now()}.jpg`, arrayBuffer, {
             contentType: "image/jpeg",
           });
 
@@ -105,7 +120,7 @@ export const useAuthForm = () => {
 
       const { error: dbError } = await supabase.from("users").insert([
         {
-          id: authData.user.id,
+          id: userId,
           username: username.trim(),
           profile_picture_url: profileUrl,
           birth_date: birthDate,
@@ -118,6 +133,8 @@ export const useAuthForm = () => {
       ]);
 
       if (dbError) throw dbError;
+
+      await checkProfileStatus(userId);
     } catch (error: any) {
       Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
     } finally {
@@ -136,7 +153,6 @@ export const useAuthForm = () => {
         t("alerts.invalidEmailTitle"),
         t("alerts.invalidEmailFormat"),
       );
-
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -156,7 +172,6 @@ export const useAuthForm = () => {
       return Alert.alert(t("alerts.missingEmail"), t("alerts.writeEmail"));
     if (!isValidEmail(email))
       return Alert.alert(t("alerts.wrongFormatTitle"), t("alerts.includeAt"));
-
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
@@ -209,6 +224,7 @@ export const useAuthForm = () => {
     username,
     setUsername,
     profilePic,
+    setProfilePic,
     birthDate,
     gender,
     setGender,

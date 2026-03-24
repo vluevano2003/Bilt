@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useAuthForm } from "../hooks/useAuthForm";
 import { CustomInput } from "../src/components/CustomInput";
 import { GoogleSignInButton } from "../src/components/GoogleSignInButton";
@@ -19,10 +21,16 @@ import { SecondaryButton } from "../src/components/SecondaryButton";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Login.styles";
 
+/**
+ * Pantalla de autenticación que maneja el login, registro y recuperación de contraseña
+ * Utiliza el hook useAuthForm para centralizar la lógica de autenticación y el contexto de tema para estilos dinámicos
+ * @returns
+ */
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   const {
     currentView,
@@ -37,6 +45,7 @@ export default function LoginScreen() {
     username,
     setUsername,
     profilePic,
+    setProfilePic,
     birthDate,
     gender,
     setGender,
@@ -56,6 +65,26 @@ export default function LoginScreen() {
     handleForgotPassword,
     nextStep,
   } = useAuthForm();
+
+  /**
+   * Función que maneja el registro de usuarios que inician sesión con Google pero no tienen un perfil completo en la base de datos
+   * Completa la información faltante en la tabla "users" de Supabase y luego verifica el estado del perfil para redirigir al usuario al Home si todo está correcto
+   * @param userData
+   */
+  const handleGoogleRegister = (userData: {
+    email: string;
+    name: string;
+    photo: string;
+  }) => {
+    setEmail(userData.email);
+    setUsername(
+      userData.name ? userData.name.replace(/\s+/g, "").toLowerCase() : "",
+    );
+    if (userData.photo) setProfilePic(userData.photo);
+
+    setCurrentView("register");
+    setStep(2);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -84,7 +113,10 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
@@ -101,7 +133,6 @@ export default function LoginScreen() {
           />
           <Text style={styles.title}>{t("login.title")}</Text>
 
-          {/* VISTA DE INICIO DE SESIÓN */}
           {currentView === "login" && (
             <>
               <Text style={styles.subtitle}>{t("login.subtitle")}</Text>
@@ -131,7 +162,7 @@ export default function LoginScreen() {
                 onPress={handleLogin}
                 loading={isLoading}
               />
-              <GoogleSignInButton />
+              <GoogleSignInButton onRegisterRequired={handleGoogleRegister} />
               <TouchableOpacity
                 style={styles.toggleButton}
                 onPress={() => {
@@ -144,7 +175,6 @@ export default function LoginScreen() {
             </>
           )}
 
-          {/* VISTA DE RECUPERAR CONTRASEÑA */}
           {currentView === "forgotPassword" && (
             <>
               <Text style={styles.subtitle}>{t("login.forgotSubtitle")}</Text>
@@ -170,13 +200,11 @@ export default function LoginScreen() {
             </>
           )}
 
-          {/* VISTA DE REGISTRO */}
           {currentView === "register" && (
             <>
               <Text style={styles.subtitle}>
                 {t("register.step", { step })}
               </Text>
-
               {step === 1 && (
                 <View>
                   <CustomInput
@@ -193,10 +221,11 @@ export default function LoginScreen() {
                     secureTextEntry
                   />
                   <PrimaryButton title={t("common.next")} onPress={nextStep} />
-                  <GoogleSignInButton />
+                  <GoogleSignInButton
+                    onRegisterRequired={handleGoogleRegister}
+                  />
                 </View>
               )}
-
               {step === 2 && (
                 <View>
                   <TouchableOpacity
@@ -245,7 +274,6 @@ export default function LoginScreen() {
                   </View>
                 </View>
               )}
-
               {step === 3 && (
                 <View>
                   <Text style={styles.label}>
@@ -340,7 +368,6 @@ export default function LoginScreen() {
                   </View>
                 </View>
               )}
-
               {step === 4 && (
                 <View>
                   <Text
@@ -428,7 +455,6 @@ export default function LoginScreen() {
                   </View>
                 </View>
               )}
-
               <TouchableOpacity
                 style={styles.toggleButton}
                 onPress={() => setCurrentView("login")}
