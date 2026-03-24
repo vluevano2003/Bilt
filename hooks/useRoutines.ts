@@ -21,8 +21,16 @@ export interface ExerciseSet {
 
 export interface ExerciseType {
   id: string;
-  muscleGroup: "chest" | "back" | "legs" | "shoulders" | "arms" | "core";
-  equipment: "free_weight" | "machine" | "bodyweight" | "cable";
+  muscleGroup:
+    | "chest"
+    | "back"
+    | "legs"
+    | "shoulders"
+    | "arms"
+    | "core"
+    | string;
+  equipment: "free_weight" | "machine" | "bodyweight" | "cable" | string;
+  imageUrl?: string;
 }
 
 export interface RoutineExercise {
@@ -43,18 +51,45 @@ export interface Routine {
 }
 
 /**
- * Hook personalizado para gestionar las rutinas de entrenamiento del usuario
- * Proporciona funcionalidades para obtener, crear, actualizar y eliminar rutinas,
- * así como para manejar el estado de carga y guardado
+ * Hook personalizado para gestionar rutinas de entrenamiento. Proporciona funcionalidades para cargar, crear, editar y eliminar rutinas, así como para mantener un estado local de las rutinas y ejercicios disponibles en la base de datos.
  * @returns
  */
 export const useRoutines = () => {
   const [routines, setRoutines] = useState<Routine[]>([]);
+  const [exercisesDb, setExercisesDb] = useState<ExerciseType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const { user } = useAuth();
   const currentUserId = user?.id;
+
+  /**
+   * Cargar ejercicios desde la base de datos al iniciar el hook. Esto se hace una sola vez y se almacena en el estado `exercisesDb` para su uso posterior en la selección de ejercicios al crear o editar rutinas
+   */
+  const fetchExercisesFromDB = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("key, muscle_group, equipment, image_url");
+
+      if (error) {
+        console.error("Error cargando ejercicios de BD:", error);
+        return;
+      }
+
+      if (data) {
+        const formattedData: ExerciseType[] = data.map((item) => ({
+          id: item.key,
+          muscleGroup: item.muscle_group,
+          equipment: item.equipment,
+          imageUrl: item.image_url,
+        }));
+        setExercisesDb(formattedData);
+      }
+    } catch (err) {
+      console.error("Excepción cargando ejercicios:", err);
+    }
+  }, []);
 
   const fetchRoutines = useCallback(async () => {
     if (!currentUserId) return;
@@ -83,7 +118,13 @@ export const useRoutines = () => {
   }, [currentUserId]);
 
   useEffect(() => {
-    fetchRoutines();
+    const loadData = async () => {
+      setIsLoading(true);
+      await fetchExercisesFromDB();
+      await fetchRoutines();
+    };
+
+    loadData();
 
     const channel = supabase
       .channel("custom-routines-channel")
@@ -104,7 +145,7 @@ export const useRoutines = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentUserId, fetchRoutines]);
+  }, [currentUserId, fetchRoutines, fetchExercisesFromDB]);
 
   const saveRoutine = async (
     routineId: string | null,
@@ -165,5 +206,12 @@ export const useRoutines = () => {
     }
   };
 
-  return { routines, isLoading, isSaving, saveRoutine, deleteRoutine };
+  return {
+    routines,
+    exercisesDb,
+    isLoading,
+    isSaving,
+    saveRoutine,
+    deleteRoutine,
+  };
 };

@@ -39,6 +39,3 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
-
-# Llaves de Firebase
-google-services.json

@@ -45,7 +45,8 @@ export const getStyles = (colors: any) =>
     },
     activeTabText: { color: colors.primary },
 
-    listContainer: { padding: 20, paddingBottom: 100 },
+    // Añadido extra paddingBottom para que el FAB no tape el último item
+    listContainer: { padding: 20, paddingBottom: 120 },
 
     routineCard: {
       backgroundColor: colors.surface,
@@ -82,9 +83,10 @@ export const getStyles = (colors: any) =>
     },
     startRoutineText: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
 
+    // Elevamos el FAB para que no se corte con la barra de navegación o los bordes redondeados
     fab: {
       position: "absolute",
-      bottom: 30,
+      bottom: Platform.OS === "ios" ? 40 : 30, // Más arriba en iOS por la barra de inicio
       right: 20,
       backgroundColor: colors.primary,
       width: 60,
@@ -116,12 +118,13 @@ export const getStyles = (colors: any) =>
       backgroundColor: "rgba(0,0,0,0.6)",
       justifyContent: "flex-end",
     },
+    // Añadido padding bottom seguro para modales en iOS y Android
     modalContent: {
       backgroundColor: colors.background,
       borderTopLeftRadius: 25,
       borderTopRightRadius: 25,
       padding: 25,
-      paddingBottom: Platform.OS === "ios" ? 40 : 25,
+      paddingBottom: Platform.OS === "ios" ? 50 : 35, // Espacio seguro abajo
       maxHeight: "90%",
     },
     modalHeader: {

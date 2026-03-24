@@ -2,6 +2,7 @@ import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Platform } from "react-native";
 import { useTheme } from "../../src/context/ThemeContext";
 
 export default function TabsLayout() {
@@ -11,11 +12,13 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          paddingBottom: 5,
-          paddingTop: 5,
+          height: Platform.OS === "ios" ? 85 : 65,
+          paddingBottom: Platform.OS === "ios" ? 30 : 10,
+          paddingTop: 10,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
@@ -23,35 +26,35 @@ export default function TabsLayout() {
         headerTitleStyle: { color: colors.textPrimary, fontWeight: "900" },
       }}
     >
-      {/* 1. Pantalla Central: Entrenar (Fusiona Home y Rutinas) */}
+      {/*Home*/}
       <Tabs.Screen
         name="home"
         options={{
           title: t("tabs.workout", "Entrenar"),
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="dumbbell" size={20} color={color} />
+            <FontAwesome5 name="dumbbell" size={24} color={color} />
           ),
         }}
       />
 
-      {/* 2. Social */}
+      {/*Social*/}
       <Tabs.Screen
         name="social"
         options={{
           title: t("tabs.social"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="team" size={24} color={color} />
+            <AntDesign name="team" size={28} color={color} />
           ),
         }}
       />
 
-      {/* 3. Perfil de Usuario */}
+      {/*Perfil*/}
       <Tabs.Screen
         name="profile"
         options={{
           title: t("tabs.profile"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="user" size={24} color={color} />
+            <AntDesign name="user" size={28} color={color} />
           ),
         }}
       />

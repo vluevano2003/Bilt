@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { EXERCISE_DATABASE } from "../src/constants/exercises";
 import {
   ExerciseSet,
   ExerciseType,
@@ -10,8 +9,9 @@ import {
 } from "./useRoutines";
 
 /**
- * Hook personalizado para manejar la lógica de edición de rutinas, incluyendo la gestión de ejercicios, sets y el proceso de guardado
+ * Hook personalizado para manejar la lógica de edición de rutinas, incluyendo la gestión de ejercicios, sets y la interacción con el modal
  * @param saveRoutineFn
+ * @param exercisesDb
  * @returns
  */
 export const useRoutineEditor = (
@@ -20,6 +20,7 @@ export const useRoutineEditor = (
     name: string,
     exercises: RoutineExercise[],
   ) => Promise<void>,
+  exercisesDb: ExerciseType[],
 ) => {
   const { t } = useTranslation();
 
@@ -38,7 +39,7 @@ export const useRoutineEditor = (
   >([]);
 
   /**
-   * Abre el modal de edición de rutina. Si se proporciona una rutina, carga sus datos para edición; de lo contrario, prepara el modal para crear una nueva rutina
+   * Abre el modal de edición de rutina. Si se proporciona una rutina, se carga para edición; de lo contrario, se prepara para crear una nueva rutina
    * @param routine
    */
   const openRoutineModal = (routine?: Routine) => {
@@ -114,7 +115,7 @@ export const useRoutineEditor = (
   };
 
   /**
-   * Abre el modal de selección de ejercicios, reseteando los filtros y selecciones temporales para permitir al usuario elegir nuevos ejercicios para la rutina
+   * Abre el modal de selección de ejercicios, reseteando los filtros y selecciones temporales para una nueva búsqueda
    */
   const openExerciseSelector = () => {
     setSearchQuery("");
@@ -153,7 +154,7 @@ export const useRoutineEditor = (
   };
 
   const filteredExercises = useMemo(() => {
-    return EXERCISE_DATABASE.filter((ex) => {
+    return exercisesDb.filter((ex) => {
       const exerciseName = t(`exercises.${ex.id}`).toLowerCase();
       const matchesSearch = exerciseName.includes(searchQuery.toLowerCase());
       const matchesMuscle = selectedMuscle
@@ -161,12 +162,12 @@ export const useRoutineEditor = (
         : true;
       return matchesSearch && matchesMuscle;
     });
-  }, [searchQuery, selectedMuscle, t]);
+  }, [searchQuery, selectedMuscle, t, exercisesDb]);
 
   const uniqueMuscles = useMemo(() => {
-    const muscles = EXERCISE_DATABASE.map((ex) => ex.muscleGroup);
+    const muscles = exercisesDb.map((ex) => ex.muscleGroup);
     return [...new Set(muscles)];
-  }, []);
+  }, [exercisesDb]);
 
   return {
     modalVisible,

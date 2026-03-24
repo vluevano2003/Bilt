@@ -314,8 +314,7 @@ export const useProfile = (profileUid?: string) => {
   };
 
   /**
-   * Función para seguir o dejar de seguir a un usuario, manejando tanto el caso de perfiles públicos como privados, y enviando notificaciones push cuando corresponda
-   * @returns
+   * Función para seguir o dejar de seguir a un usuario.
    */
   const toggleFollow = async () => {
     if (!currentUserId || !targetUid || isOwnProfile) return;
@@ -329,7 +328,14 @@ export const useProfile = (profileUid?: string) => {
           .eq("following_id", targetUid);
         setFollowStatus("none");
       } else {
-        const finalStatus = isPrivate ? "pending" : "accepted";
+        const { data: targetData } = await supabase
+          .from("users")
+          .select("is_private, push_token")
+          .eq("id", targetUid)
+          .single();
+
+        const isReallyPrivate = targetData?.is_private || false;
+        const finalStatus = isReallyPrivate ? "pending" : "accepted";
 
         await supabase.from("follows").insert([
           {
@@ -347,25 +353,22 @@ export const useProfile = (profileUid?: string) => {
           .single();
         const myName = myUser?.username || "Alguien";
 
-        const { data: targetUser } = await supabase
-          .from("users")
-          .select("push_token")
-          .eq("id", targetUid)
-          .single();
-
-        if (targetUser?.push_token) {
+        if (targetData?.push_token) {
           const title =
-            finalStatus === "pending" ? "Nueva solicitud" : "Nuevo seguidor";
+            finalStatus === "pending"
+              ? t("social.notifications.newRequestTitle")
+              : t("social.notifications.newFollowerTitle");
+
           const body =
             finalStatus === "pending"
-              ? `@${myName} te ha enviado una solicitud de seguimiento.`
-              : `@${myName} ha comenzado a seguirte.`;
+              ? t("social.notifications.newRequestBody", { name: myName })
+              : t("social.notifications.newFollowerBody", { name: myName });
 
-          await sendPushNotification(targetUser.push_token, title, body);
+          await sendPushNotification(targetData.push_token, title, body);
         }
       }
     } catch (error) {
-      Alert.alert("Error", "No se pudo completar la acción.");
+      Alert.alert(t("profile.alerts.error"), "No se pudo completar la acción.");
     }
   };
 
@@ -416,12 +419,6 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
-  /**
-   * Función para aceptar o rechazar solicitudes de seguimiento pendientes, actualizando el estado en la base de datos y enviando notificaciones push cuando corresponda
-   * @param userIdToHandle
-   * @param accept
-   * @returns
-   */
   const handleFollowRequest = async (
     userIdToHandle: string,
     accept: boolean,
@@ -455,8 +452,8 @@ export const useProfile = (profileUid?: string) => {
         if (followerUser?.push_token) {
           await sendPushNotification(
             followerUser.push_token,
-            "Solicitud aceptada",
-            `@${myName} ha aceptado tu solicitud de seguimiento.`,
+            t("social.notifications.requestAcceptedTitle"),
+            t("social.notifications.requestAcceptedBody", { name: myName }),
           );
         }
       } else {
@@ -469,7 +466,10 @@ export const useProfile = (profileUid?: string) => {
       }
     } catch (e) {
       setPendingRequestsCount((prev) => prev + 1);
-      Alert.alert("Error", "Ocurrió un problema procesando la solicitud.");
+      Alert.alert(
+        t("profile.alerts.error"),
+        "Ocurrió un problema procesando la solicitud.",
+      );
     }
   };
 

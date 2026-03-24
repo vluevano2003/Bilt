@@ -316,7 +316,7 @@ export default function SocialScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderUserItem}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={{ paddingBottom: 100 }}
               />
             ) : searchQuery.length >= 2 ? (
               <Text style={styles.placeholderText}>
@@ -342,7 +342,7 @@ export default function SocialScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderFeedItem}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={{ paddingBottom: 100 }}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
@@ -365,7 +365,7 @@ export default function SocialScreen() {
                           borderColor: colors.border,
                           marginHorizontal: 20,
                           marginTop: 10,
-                          marginBottom: 20,
+                          marginBottom: 40,
                         }}
                         onPress={() => setPage((prev) => prev + 1)}
                       >

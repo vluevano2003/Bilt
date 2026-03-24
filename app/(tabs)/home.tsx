@@ -32,10 +32,6 @@ import { useTheme } from "../../src/context/ThemeContext";
 import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
-/**
- * Pantalla principal del app, muestra un resumen de la actividad semanal del usuario y sus rutinas
- * @returns
- */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -61,10 +57,18 @@ export default function HomeScreen() {
   const [requestsList, setRequestsList] = useState<SocialUser[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
-  const { routines, isLoading, isSaving, saveRoutine, deleteRoutine } =
-    useRoutines();
+  const {
+    routines,
+    exercisesDb,
+    isLoading,
+    isSaving,
+    saveRoutine,
+    deleteRoutine,
+  } = useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
-  const editor = useRoutineEditor(saveRoutine);
+
+  const editor = useRoutineEditor(saveRoutine, exercisesDb);
+
   const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack } =
     useWeeklyPacks();
 
@@ -89,9 +93,6 @@ export default function HomeScreen() {
 
   const totalWorkouts = userHistory?.length || 0;
 
-  /**
-   * Abre el modal de notificaciones y carga las solicitudes pendientes si el perfil es privado
-   */
   const openNotifications = async () => {
     setNotificationsVisible(true);
     setLoadingRequests(true);

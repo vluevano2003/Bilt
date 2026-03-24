@@ -23,7 +23,8 @@ import {
 } from "react-native-google-mobile-ads";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
-import { RoutineExercise } from "../hooks/useRoutines";
+import { ExerciseType, RoutineExercise } from "../hooks/useRoutines";
+import { ExerciseDetailsModal } from "../src/components/RoutinesModals";
 import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
@@ -66,6 +67,10 @@ export default function ActiveWorkoutScreen() {
   const [restEditExId, setRestEditExId] = useState<string | null>(null);
   const [tempRest, setTempRest] = useState(90);
   const [unitModalExId, setUnitModalExId] = useState<string | null>(null);
+
+  const [detailsExercise, setDetailsExercise] = useState<ExerciseType | null>(
+    null,
+  );
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
@@ -111,11 +116,6 @@ export default function ActiveWorkoutScreen() {
     setUnitModalExId(null);
   };
 
-  /**
-   * Renderiza cada ejercicio como un componente draggable, mostrando sus series, pesos, repeticiones y opciones de edición. Permite reordenar ejercicios mediante arrastrar y soltar
-   * @param param0
-   * @returns
-   */
   const renderDraggableExercise = ({
     item: exercise,
     drag,
@@ -133,11 +133,13 @@ export default function ActiveWorkoutScreen() {
           <TouchableOpacity
             style={styles.exerciseHeader}
             onLongPress={!isReadonly ? drag : undefined}
+            onPress={() => setDetailsExercise(exercise.exerciseDetails)}
             delayLongPress={200}
-            activeOpacity={isReadonly ? 1 : 0.7}
+            activeOpacity={0.7}
           >
             <Text style={styles.exerciseName}>
-              {t(`exercises.${exercise.exerciseDetails.id}`)}
+              {t(`exercises.${exercise.exerciseDetails.id}`)}{" "}
+              <Feather name="info" size={16} color={colors.textSecondary} />
             </Text>
           </TouchableOpacity>
 
@@ -521,7 +523,6 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*MODAL DE RESUMEN*/}
       <Modal visible={showSummary} animationType="slide" transparent={false}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 160 }}>
@@ -710,11 +711,10 @@ export default function ActiveWorkoutScreen() {
             </View>
           </ScrollView>
 
-          {/* Anuncio y Botón Flotante "Hecho" */}
           <View
             style={{
               position: "absolute",
-              bottom: Platform.OS === "ios" ? 40 : 20,
+              bottom: Platform.OS === "ios" ? 40 : 35,
               left: 20,
               right: 20,
             }}
@@ -753,6 +753,12 @@ export default function ActiveWorkoutScreen() {
           </View>
         </SafeAreaView>
       </Modal>
+
+      <ExerciseDetailsModal
+        visible={!!detailsExercise}
+        onClose={() => setDetailsExercise(null)}
+        exercise={detailsExercise}
+      />
     </SafeAreaView>
   );
 }

@@ -14,9 +14,10 @@
     },
     "android": {
       "package": "com.vluevano2003.bilttracker",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
-        "foregroundImage": "./assets/images/logo_white_nobg.png"
+        "foregroundImage": "./assets/images/logo_adaptive.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -46,6 +47,13 @@
         {
           "androidAppId": "ca-app-pub-3940256099942544~3347511713",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo_white_nobg.png",
+          "color": "#ea580c"
         }
       ]
     ],

@@ -3,8 +3,8 @@ import { Platform, StatusBar, StyleSheet } from "react-native";
 export const getStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scrollContainer: { paddingBottom: 20 },
-    formContainer: { paddingBottom: 40 },
+    scrollContainer: { paddingBottom: 40 }, // Aumentado paddingBottom
+    formContainer: { paddingBottom: 60 }, // Aumentado paddingBottom general
 
     headerContainer: {
       flexDirection: "row",
@@ -130,7 +130,7 @@ export const getStyles = (colors: any) =>
       borderTopLeftRadius: 25,
       borderTopRightRadius: 25,
       padding: 30,
-      paddingBottom: 50,
+      paddingBottom: Platform.OS === "ios" ? 60 : 50, // <-- Aumenta el valor de Android a 50
       maxHeight: "90%",
     },
     modalHeader: {

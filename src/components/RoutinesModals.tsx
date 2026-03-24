@@ -1,7 +1,13 @@
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
-import React from "react";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+  FontAwesome5,
+} from "@expo/vector-icons";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -20,6 +26,176 @@ import { getStyles } from "../styles/Routines.styles";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
+
+/**
+ * Modal para mostrar detalles de un ejercicio específico, incluyendo su imagen (si está disponible), descripción e instrucciones. Se accede a este modal desde la vista de edición de rutina al tocar el nombre del ejercicio
+ * @param param0
+ * @returns
+ */
+export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
+  if (!exercise) return null;
+
+  const name = t(`exercises.${exercise.id}`);
+  const description = t(`exerciseDetails.${exercise.id}.description`, {
+    defaultValue: t(
+      "routines.noExercises",
+      "Descripción detallada próximamente...",
+    ),
+  });
+  const submuscles = t(`exerciseDetails.${exercise.id}.submuscles`, {
+    defaultValue: "Músculos secundarios no especificados.",
+  });
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View
+          style={[
+            styles.modalContent,
+            { maxHeight: "85%", paddingHorizontal: 25, paddingBottom: 40 },
+          ]}
+        >
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={2}>
+              {name}
+            </Text>
+            <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
+              <AntDesign name="close" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {exercise.imageUrl ? (
+              <Image
+                source={{ uri: exercise.imageUrl }}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 15,
+                  marginBottom: 25,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  backgroundColor: colors.surface,
+                  borderRadius: 15,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginBottom: 25,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <FontAwesome5
+                  name="image"
+                  size={40}
+                  color={colors.textSecondary}
+                />
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    marginTop: 10,
+                    fontSize: 12,
+                  }}
+                >
+                  Animación próximamente
+                </Text>
+              </View>
+            )}
+
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  color: colors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 10,
+                }}
+              >
+                {t("activeWorkout.musclesWorked", "Músculos trabajados")}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 10,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "rgba(234, 88, 12, 0.1)",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: colors.primary,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontWeight: "bold",
+                      fontSize: 12,
+                    }}
+                  >
+                    Sinérgicos
+                  </Text>
+                </View>
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    fontSize: 14,
+                    flexShrink: 1,
+                  }}
+                >
+                  {submuscles}
+                </Text>
+              </View>
+            </View>
+
+            <View>
+              <Text
+                style={{
+                  color: colors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 10,
+                }}
+              >
+                Instrucciones
+              </Text>
+              <Text
+                style={{
+                  color: colors.textSecondary,
+                  fontSize: 15,
+                  lineHeight: 24,
+                }}
+              >
+                {description}
+              </Text>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 export const CreatePackModal = ({
   visible,
@@ -140,7 +316,7 @@ export const CreatePackModal = ({
                           ? colors.primary
                           : colors.border,
                         backgroundColor: isSelected
-                          ? "rgba(34, 197, 94, 0.1)"
+                          ? "rgba(234, 88, 12, 0.1)"
                           : colors.surface,
                       }}
                     >
@@ -300,94 +476,109 @@ export const ReadonlyRoutineModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
   if (!routine) return null;
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{routine.name}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={[styles.label, { marginBottom: 10 }]}>
-              {t("routines.exercises")}:
-            </Text>
-            {routine.exercises?.map((exercise: any, index: number) => {
-              const exerciseName =
-                exercise.exerciseDetails?.id
-                  ?.replace(/_/g, " ")
-                  .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-                "Ejercicio";
-              return (
-                <View key={index} style={{ marginBottom: 15, paddingLeft: 10 }}>
-                  <Text
-                    style={{
-                      color: colors.textPrimary,
-                      fontSize: 16,
-                      fontWeight: "bold",
-                      marginBottom: 5,
-                    }}
+    <>
+      <Modal
+        visible={visible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{routine.name}</Text>
+              <TouchableOpacity onPress={onClose}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={[styles.label, { marginBottom: 10 }]}>
+                {t("routines.exercises")}:
+              </Text>
+              {routine.exercises?.map((exercise: any, index: number) => {
+                return (
+                  <View
+                    key={index}
+                    style={{ marginBottom: 15, paddingLeft: 10 }}
                   >
-                    • {exerciseName}
-                  </Text>
-                  {exercise.sets?.map((set: any, setIdx: number) => (
-                    <Text
-                      key={setIdx}
-                      style={{
-                        color: colors.textSecondary,
-                        marginLeft: 15,
-                        fontSize: 14,
-                      }}
+                    <TouchableOpacity
+                      onPress={() =>
+                        setDetailsExercise(exercise.exerciseDetails)
+                      }
                     >
-                      Set {setIdx + 1}: {set.reps} reps
-                    </Text>
-                  ))}
-                </View>
-              );
-            })}
-            {(!routine.exercises || routine.exercises.length === 0) && (
-              <Text style={{ color: colors.textSecondary }}>
-                No hay ejercicios en esta rutina.
-              </Text>
-            )}
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  marginTop: 30,
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                },
-              ]}
-              onPress={() => handleUnsave(routine.id)}
-            >
-              <FontAwesome
-                name="bookmark"
-                size={18}
-                color={colors.textPrimary}
-                style={{ marginRight: 10 }}
-              />
-              <Text
-                style={[styles.actionButtonText, { color: colors.textPrimary }]}
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          marginBottom: 5,
+                        }}
+                      >
+                        • {t(`exercises.${exercise.exerciseDetails?.id}`)}
+                      </Text>
+                    </TouchableOpacity>
+                    {exercise.sets?.map((set: any, setIdx: number) => (
+                      <Text
+                        key={setIdx}
+                        style={{
+                          color: colors.textSecondary,
+                          marginLeft: 15,
+                          fontSize: 14,
+                        }}
+                      >
+                        Set {setIdx + 1}: {set.reps} reps
+                      </Text>
+                    ))}
+                  </View>
+                );
+              })}
+              {(!routine.exercises || routine.exercises.length === 0) && (
+                <Text style={{ color: colors.textSecondary }}>
+                  No hay ejercicios en esta rutina.
+                </Text>
+              )}
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  {
+                    marginTop: 30,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  },
+                ]}
+                onPress={() => handleUnsave(routine.id)}
               >
-                {t("routines.removeFromProfile")}
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
+                <FontAwesome
+                  name="bookmark"
+                  size={18}
+                  color={colors.textPrimary}
+                  style={{ marginRight: 10 }}
+                />
+                <Text
+                  style={[
+                    styles.actionButtonText,
+                    { color: colors.textPrimary },
+                  ]}
+                >
+                  {t("routines.removeFromProfile")}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <ExerciseDetailsModal
+        visible={!!detailsExercise}
+        onClose={() => setDetailsExercise(null)}
+        exercise={detailsExercise}
+      />
+    </>
   );
 };
 
@@ -395,6 +586,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
   const renderDraggableExercise = ({
     item: routineEx,
@@ -425,16 +617,27 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
             }}
           >
             <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                onPress={() => setDetailsExercise(routineEx.exerciseDetails)}
+              >
+                <Text
+                  style={{
+                    color: colors.textPrimary,
+                    fontWeight: "bold",
+                    fontSize: 16,
+                  }}
+                >
+                  {index + 1}. {t(`exercises.${routineEx.exerciseDetails.id}`)}{" "}
+                  <Feather name="info" size={14} color={colors.textSecondary} />
+                </Text>
+              </TouchableOpacity>
               <Text
                 style={{
-                  color: colors.textPrimary,
-                  fontWeight: "bold",
-                  fontSize: 16,
+                  color: colors.textSecondary,
+                  fontSize: 13,
+                  marginTop: 4,
                 }}
               >
-                {index + 1}. {t(`exercises.${routineEx.exerciseDetails.id}`)}
-              </Text>
-              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
                 {t(`muscles.${routineEx.exerciseDetails.muscleGroup}`)}
               </Text>
             </View>
@@ -509,130 +712,143 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   };
 
   return (
-    <Modal
-      visible={editor.modalVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={editor.closeRoutineModal}
-    >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalOverlay}
-        >
-          <View style={[styles.modalContent, { height: "90%", padding: 0 }]}>
-            <View
-              style={[
-                styles.modalHeader,
-                { paddingHorizontal: 25, paddingTop: 25 },
-              ]}
-            >
-              <Text style={styles.modalTitle}>
-                {editor.editingRoutine
-                  ? t("routines.edit")
-                  : t("routines.createNew")}
-              </Text>
-              <TouchableOpacity onPress={editor.closeRoutineModal}>
-                <AntDesign name="close" size={24} color={colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-            <DraggableFlatList
-              data={editor.routineExercises}
-              onDragEnd={({ data }) => editor.reorderExercises(data)}
-              keyExtractor={(item) => item.id}
-              renderItem={renderDraggableExercise}
-              contentContainerStyle={{
-                paddingHorizontal: 25,
-                paddingBottom: 100,
-              }}
-              ListHeaderComponent={
-                <View style={{ marginBottom: 20 }}>
-                  <Text style={styles.label}>{t("routines.routineName")}</Text>
-                  <CustomInput
-                    value={editor.routineName}
-                    onChangeText={editor.setRoutineName}
-                    placeholder={t("routines.routineNamePlaceholder")}
+    <>
+      <Modal
+        visible={editor.modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={editor.closeRoutineModal}
+      >
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.modalOverlay}
+          >
+            <View style={[styles.modalContent, { height: "90%", padding: 0 }]}>
+              <View
+                style={[
+                  styles.modalHeader,
+                  { paddingHorizontal: 25, paddingTop: 25 },
+                ]}
+              >
+                <Text style={styles.modalTitle}>
+                  {editor.editingRoutine
+                    ? t("routines.edit")
+                    : t("routines.createNew")}
+                </Text>
+                <TouchableOpacity onPress={editor.closeRoutineModal}>
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={colors.textPrimary}
                   />
-                  <Text style={[styles.label, { marginTop: 20 }]}>
-                    {t("routines.exercises")}
-                  </Text>
-                  {editor.routineExercises.length === 0 && (
-                    <Text
-                      style={{
-                        color: colors.textSecondary,
-                        fontStyle: "italic",
-                        marginBottom: 15,
-                      }}
-                    >
-                      {t("routines.noExercises")}
+                </TouchableOpacity>
+              </View>
+              <DraggableFlatList
+                data={editor.routineExercises}
+                onDragEnd={({ data }) => editor.reorderExercises(data)}
+                keyExtractor={(item) => item.id}
+                renderItem={renderDraggableExercise}
+                contentContainerStyle={{
+                  paddingHorizontal: 25,
+                  paddingBottom: 100,
+                }}
+                ListHeaderComponent={
+                  <View style={{ marginBottom: 20 }}>
+                    <Text style={styles.label}>
+                      {t("routines.routineName")}
                     </Text>
-                  )}
-                </View>
-              }
-              ListFooterComponent={
-                <View>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      paddingVertical: 12,
-                      backgroundColor: "rgba(34, 197, 94, 0.1)",
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: colors.primary,
-                      borderStyle: "dashed",
-                      marginBottom: 20,
-                      marginTop: 10,
-                    }}
-                    onPress={editor.openExerciseSelector}
-                  >
-                    <Feather
-                      name="plus"
-                      size={20}
-                      color={colors.primary}
-                      style={{ marginRight: 8 }}
+                    <CustomInput
+                      value={editor.routineName}
+                      onChangeText={editor.setRoutineName}
+                      placeholder={t("routines.routineNamePlaceholder")}
                     />
-                    <Text
-                      style={{
-                        color: colors.primary,
-                        fontWeight: "bold",
-                        fontSize: 16,
-                      }}
-                    >
-                      {t("routines.addExercise")}
+                    <Text style={[styles.label, { marginTop: 20 }]}>
+                      {t("routines.exercises")}
                     </Text>
-                  </TouchableOpacity>
-                  <View style={styles.buttonsRow}>
-                    {editor.editingRoutine && (
-                      <View style={{ flex: 1, marginRight: 10 }}>
-                        <SecondaryButton
-                          title={t("routines.delete")}
-                          onPress={() =>
-                            handleDelete(editor.editingRoutine!.id)
+                    {editor.routineExercises.length === 0 && (
+                      <Text
+                        style={{
+                          color: colors.textSecondary,
+                          fontStyle: "italic",
+                          marginBottom: 15,
+                        }}
+                      >
+                        {t("routines.noExercises")}
+                      </Text>
+                    )}
+                  </View>
+                }
+                ListFooterComponent={
+                  <View>
+                    <TouchableOpacity
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        paddingVertical: 12,
+                        backgroundColor: "rgba(234, 88, 12, 0.1)",
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: colors.primary,
+                        borderStyle: "dashed",
+                        marginBottom: 20,
+                        marginTop: 10,
+                      }}
+                      onPress={editor.openExerciseSelector}
+                    >
+                      <Feather
+                        name="plus"
+                        size={20}
+                        color={colors.primary}
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontWeight: "bold",
+                          fontSize: 16,
+                        }}
+                      >
+                        {t("routines.addExercise")}
+                      </Text>
+                    </TouchableOpacity>
+                    <View style={styles.buttonsRow}>
+                      {editor.editingRoutine && (
+                        <View style={{ flex: 1, marginRight: 10 }}>
+                          <SecondaryButton
+                            title={t("routines.delete")}
+                            onPress={() =>
+                              handleDelete(editor.editingRoutine!.id)
+                            }
+                            style={{ borderColor: "#EF4444" }}
+                          />
+                        </View>
+                      )}
+                      <View style={{ flex: 2 }}>
+                        <PrimaryButton
+                          title={t("routines.save")}
+                          onPress={editor.handleSaveRoutine}
+                          loading={isSaving}
+                          disabled={
+                            !editor.routineName.trim() ||
+                            editor.routineExercises.length === 0
                           }
-                          style={{ borderColor: "#EF4444" }}
                         />
                       </View>
-                    )}
-                    <View style={{ flex: 2 }}>
-                      <PrimaryButton
-                        title={t("routines.save")}
-                        onPress={editor.handleSaveRoutine}
-                        loading={isSaving}
-                        disabled={
-                          !editor.routineName.trim() ||
-                          editor.routineExercises.length === 0
-                        }
-                      />
                     </View>
                   </View>
-                </View>
-              }
-            />
-          </View>
-        </KeyboardAvoidingView>
-      </GestureHandlerRootView>
-    </Modal>
+                }
+              />
+            </View>
+          </KeyboardAvoidingView>
+        </GestureHandlerRootView>
+      </Modal>
+      <ExerciseDetailsModal
+        visible={!!detailsExercise}
+        onClose={() => setDetailsExercise(null)}
+        exercise={detailsExercise}
+      />
+    </>
   );
 };
