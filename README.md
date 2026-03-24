@@ -5,8 +5,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![AdMob](https://img.shields.io/badge/AdMob-EA4335?style=for-the-badge&logo=googleadmob&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 
-**BILT TRACKER** es una aplicación móvil integral para la gestión de entrenamientos en el gimnasio. Construida con **React Native** y **Expo Router**, ofrece una experiencia fluida, seguimiento en tiempo real, características sociales para conectar con otros atletas y un sistema robusto de backend potenciado por Supabase.
+**BILT TRACKER** es una aplicación móvil integral para la gestión de entrenamientos en el gimnasio. Construida con **React Native** y **Expo Router**, ofrece una experiencia fluida, seguimiento en tiempo real, características sociales para conectar con otros atletas y un sistema robusto de backend totalmente dinámico potenciado por Supabase.
 
 ---
 
@@ -14,6 +15,11 @@
 
 El sistema está diseñado para gestionar el ciclo completo de entrenamiento y la interacción social del usuario:
 
+- **Autenticación Segura y Rápida:** - Sistema de Login y Registro gestionado con **Supabase Auth**.
+  - **Integración nativa con Google Sign-In**, que agiliza el registro extrayendo automáticamente el nombre, correo y foto de perfil del usuario.
+- **Base de Datos Dinámica de Ejercicios:** - Más de 80 ejercicios obtenidos en tiempo real desde la nube (Supabase).
+  - Soporte dinámico para previsualización de imágenes y animaciones (GIF/PNG).
+  - Instrucciones técnicas detalladas y desglose anatómico (músculos sinérgicos y principales) para cada ejercicio.
 - **Seguimiento de Entrenamientos (Active Workout):** - Reproductor de rutinas activo en segundo plano (Mini Player).
   - **Notificaciones Persistentes (Sticky):** Monitoreo del tiempo de descanso y ejercicio actual directamente desde la pantalla de bloqueo o centro de notificaciones.
   - Registro de sets, repeticiones y peso.
@@ -27,13 +33,14 @@ El sistema está diseñado para gestionar el ciclo completo de entrenamiento y l
 - **Red Social Fit:**
   - **Feed Global:** Visualiza la actividad reciente (rutinas creadas y entrenamientos completados) de las personas a las que sigues.
   - **Búsqueda de Usuarios:** Encuentra a tus amigos a través del motor de búsqueda integrado.
-  - **Privacidad:** Cuentas públicas o privadas con sistema de solicitudes de seguimiento.
+  - **Privacidad:** Cuentas públicas o privadas con sistema de solicitudes de seguimiento y notificaciones push.
+- **Interfaz Adaptativa (Edge-to-Edge):** - Optimización total para dispositivos modernos sin bordes.
+  - Cálculo dinámico de áreas seguras (Safe Areas) para evitar que el _notch_ o los botones de navegación nativos del sistema operativo interfieran con la experiencia de usuario.
 - **Monetización Estratégica:** Integración nativa con **Google AdMob** mostrando banners en las pantallas de resumen y anuncios tipo _Medium Rectangle_ intercalados orgánicamente en el Feed Social.
-- **Autenticación Segura:** Sistema de Login y Registro gestionado con **Supabase Auth** (Soporte para Email/Contraseña y preparado para Google Sign-In nativo).
-- **Internacionalización (i18n):** Soporte multiidioma dinámico (Español e Inglés) integrado en toda la interfaz gráfica, rutinas y menús.
+- **Internacionalización (i18n):** Soporte multiidioma dinámico (Español e Inglés) integrado en toda la interfaz gráfica, rutinas, bases de datos y menús.
 - **Tema Dinámico y Persistente:** Soporte completo para **Modo Claro y Oscuro** gestionado a través de Context API y guardado localmente para recordar la preferencia del usuario al reabrir la app.
 - **Perfil de Usuario:** - Estadísticas semanales dinámicas y mapa de actividad.
-  - Configuración de sistema de medidas (Métrico / Imperial).
+  - Configuración de sistema de medidas (Métrico / Imperial) con conversiones automáticas.
   - Gestión de visibilidad de datos personales (peso, altura, edad).
 
 ---
@@ -43,14 +50,16 @@ El sistema está diseñado para gestionar el ciclo completo de entrenamiento y l
 - **Framework:** React Native con Expo.
 - **Lenguaje:** TypeScript.
 - **Enrutamiento:** Expo Router (File-based routing nativo con Tabs y Stacks).
-- **Backend / BaaS:** Supabase (PostgreSQL, Authentication & Storage para avatares).
+- **Backend / BaaS:** Supabase (PostgreSQL, Authentication & Storage para avatares e imágenes).
 - **Compilación / DevOps:** EAS (Expo Application Services) para la generación de builds nativos (APK/AAB/IPA).
 - **Gestión de Estado:** React Context API (AuthContext, ThemeContext, ActiveWorkoutContext).
 - **Persistencia Local:** `@react-native-async-storage/async-storage`.
 - **Internacionalización:** `react-i18next` / `i18next`.
 - **Componentes UI, Funcionalidad & Animaciones:**
+  - `@react-native-google-signin/google-signin` (Autenticación nativa OAuth).
+  - `react-native-safe-area-context` (Adaptación de UI para pantallas Edge-to-Edge).
   - `react-native-google-mobile-ads` (Monetización).
-  - `expo-notifications` (Gestión de notificaciones push locales).
+  - `expo-notifications` (Gestión de notificaciones push locales y remotas).
   - `react-native-reanimated` & `react-native-gesture-handler` (Motor de animaciones y manejo de gestos fluidos a 60fps).
   - `react-native-draggable-flatlist` (Listas interactivas y reordenables).
   - `@react-native-community/datetimepicker` (Selector de fechas nativo).
