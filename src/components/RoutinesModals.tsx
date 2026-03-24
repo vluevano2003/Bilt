@@ -50,21 +50,12 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
   return (
     <Modal
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <View
-          style={[
-            styles.modalContent,
-            {
-              maxHeight: "85%",
-              paddingHorizontal: 25,
-              paddingBottom: Math.max(40, insets.bottom + 20),
-            },
-          ]}
-        >
+      <View style={styles.modalOverlayCentered}>
+        <View style={styles.modalContentCentered}>
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={2}>
               {name}
@@ -114,7 +105,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                     fontSize: 12,
                   }}
                 >
-                  Animación próximamente
+                  {t("routines.animationComingSoon", "Animación próximamente")}
                 </Text>
               </View>
             )}
@@ -225,142 +216,147 @@ export const CreatePackModal = ({
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.modalOverlay}
+        style={{ flex: 1 }}
       >
-        <View
-          style={[
-            styles.modalContent,
-            {
-              height: "85%",
-              padding: 25,
-              paddingBottom: Math.max(25, insets.bottom + 10),
-            },
-          ]}
-        >
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {t("weeklyPacks.createNew", "Crear Pack Semanal")}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={styles.label}>
-              {t("weeklyPacks.packName", "Nombre del Pack")}
-            </Text>
-            <CustomInput
-              value={packName}
-              onChangeText={setPackName}
-              placeholder={t(
-                "weeklyPacks.packNamePlaceholder",
-                "Ej. Semana de Hipertrofia",
-              )}
-            />
-            <Text style={[styles.label, { marginTop: 15 }]}>
-              {t("weeklyPacks.description", "Descripción")}
-            </Text>
-            <CustomInput
-              value={packDescription}
-              onChangeText={setPackDescription}
-              placeholder={t(
-                "weeklyPacks.descriptionPlaceholder",
-                "Ej. Rutina de 5 días...",
-              )}
-            />
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: 20,
-                marginBottom: 10,
-              }}
+        <View style={styles.modalOverlayBottomSheet}>
+          <View
+            style={[
+              styles.modalContentBottomSheet,
+              { paddingBottom: Math.max(25, insets.bottom + 10) },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {t("weeklyPacks.createNew", "Crear Pack Semanal")}
+              </Text>
+              <TouchableOpacity onPress={onClose}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 60 }}
             >
               <Text style={styles.label}>
-                {t("weeklyPacks.selectRoutines", "Selecciona hasta 6 rutinas")}
+                {t("weeklyPacks.packName", "Nombre del Pack")}
               </Text>
-              <Text
-                style={{
-                  color: colors.primary,
-                  fontWeight: "bold",
-                  fontSize: 12,
-                }}
-              >
-                {t("weeklyPacks.routinesSelected", {
-                  count: selectedRoutineIds.length,
-                })}
-              </Text>
-            </View>
-
-            {routines.filter((r: any) => !r.originalCreatorId).length === 0 ? (
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontStyle: "italic",
-                  marginTop: 10,
-                }}
-              >
-                {t(
-                  "weeklyPacks.noRoutinesAvailable",
-                  "Crea algunas rutinas primero para armar un pack.",
+              <CustomInput
+                value={packName}
+                onChangeText={setPackName}
+                placeholder={t(
+                  "weeklyPacks.packNamePlaceholder",
+                  "Ej. Semana de Hipertrofia",
                 )}
+              />
+              <Text style={[styles.label, { marginTop: 15 }]}>
+                {t("weeklyPacks.description", "Descripción")}
               </Text>
-            ) : (
-              routines
-                .filter((r: any) => !r.originalCreatorId)
-                .map((routine: any) => {
-                  const isSelected = selectedRoutineIds.includes(routine.id);
-                  return (
-                    <TouchableOpacity
-                      key={routine.id}
-                      onPress={() => toggleRoutineSelection(routine.id)}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        padding: 15,
-                        borderRadius: 10,
-                        marginBottom: 10,
-                        borderWidth: 1,
-                        borderColor: isSelected
-                          ? colors.primary
-                          : colors.border,
-                        backgroundColor: isSelected
-                          ? "rgba(234, 88, 12, 0.1)"
-                          : colors.surface,
-                      }}
-                    >
-                      <Feather
-                        name={isSelected ? "check-circle" : "circle"}
-                        size={20}
-                        color={
-                          isSelected ? colors.primary : colors.textSecondary
-                        }
-                        style={{ marginRight: 15 }}
-                      />
-                      <Text
+              <CustomInput
+                value={packDescription}
+                onChangeText={setPackDescription}
+                placeholder={t(
+                  "weeklyPacks.descriptionPlaceholder",
+                  "Ej. Rutina de 5 días...",
+                )}
+              />
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: 20,
+                  marginBottom: 10,
+                }}
+              >
+                <Text style={styles.label}>
+                  {t(
+                    "weeklyPacks.selectRoutines",
+                    "Selecciona hasta 6 rutinas",
+                  )}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontWeight: "bold",
+                    fontSize: 12,
+                  }}
+                >
+                  {t("weeklyPacks.routinesSelected", {
+                    count: selectedRoutineIds.length,
+                  })}
+                </Text>
+              </View>
+
+              {routines.filter((r: any) => !r.originalCreatorId).length ===
+              0 ? (
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    fontStyle: "italic",
+                    marginTop: 10,
+                  }}
+                >
+                  {t(
+                    "weeklyPacks.noRoutinesAvailable",
+                    "Crea algunas rutinas primero para armar un pack.",
+                  )}
+                </Text>
+              ) : (
+                routines
+                  .filter((r: any) => !r.originalCreatorId)
+                  .map((routine: any) => {
+                    const isSelected = selectedRoutineIds.includes(routine.id);
+                    return (
+                      <TouchableOpacity
+                        key={routine.id}
+                        onPress={() => toggleRoutineSelection(routine.id)}
                         style={{
-                          color: colors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: isSelected ? "bold" : "normal",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          padding: 15,
+                          borderRadius: 10,
+                          marginBottom: 10,
+                          borderWidth: 1,
+                          borderColor: isSelected
+                            ? colors.primary
+                            : colors.border,
+                          backgroundColor: isSelected
+                            ? "rgba(234, 88, 12, 0.1)"
+                            : colors.surface,
                         }}
                       >
-                        {routine.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })
-            )}
-            <View style={{ marginTop: 30, marginBottom: 50 }}>
-              <PrimaryButton
-                title={t("weeklyPacks.savePack", "Guardar Pack")}
-                onPress={handleCreatePack}
-                loading={isSavingPack}
-                disabled={!packName.trim() || selectedRoutineIds.length === 0}
-              />
-            </View>
-          </ScrollView>
+                        <Feather
+                          name={isSelected ? "check-circle" : "circle"}
+                          size={20}
+                          color={
+                            isSelected ? colors.primary : colors.textSecondary
+                          }
+                          style={{ marginRight: 15 }}
+                        />
+                        <Text
+                          style={{
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: isSelected ? "bold" : "normal",
+                          }}
+                        >
+                          {routine.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })
+              )}
+              <View style={{ marginTop: 30, marginBottom: 20 }}>
+                <PrimaryButton
+                  title={t("weeklyPacks.savePack", "Guardar Pack")}
+                  onPress={handleCreatePack}
+                  loading={isSavingPack}
+                  disabled={!packName.trim() || selectedRoutineIds.length === 0}
+                />
+              </View>
+            </ScrollView>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -388,14 +384,11 @@ export const PackDetailsModal = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
+      <View style={styles.modalOverlayBottomSheet}>
         <View
           style={[
-            styles.modalContent,
-            {
-              maxHeight: "85%",
-              paddingBottom: Math.max(40, insets.bottom + 20),
-            },
+            styles.modalContentBottomSheet,
+            { paddingBottom: Math.max(40, insets.bottom + 20) },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -406,7 +399,7 @@ export const PackDetailsModal = ({
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: 60 }}
           >
             {pack.description && (
               <Text
@@ -496,7 +489,7 @@ export const ReadonlyRoutineModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const insets = useSafeAreaInsets(); // <-- ADAPTATIVO
+  const insets = useSafeAreaInsets();
   const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
   if (!routine) return null;
@@ -508,10 +501,10 @@ export const ReadonlyRoutineModal = ({
         transparent={true}
         onRequestClose={onClose}
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlayBottomSheet}>
           <View
             style={[
-              styles.modalContent,
+              styles.modalContentBottomSheet,
               { paddingBottom: Math.max(40, insets.bottom + 20) },
             ]}
           >
@@ -521,7 +514,10 @@ export const ReadonlyRoutineModal = ({
                 <AntDesign name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 60 }}
+            >
               <Text style={[styles.label, { marginBottom: 10 }]}>
                 {t("routines.exercises")}:
               </Text>
@@ -749,124 +745,125 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={styles.modalOverlay}
+            style={{ flex: 1 }}
           >
-            <View style={[styles.modalContent, { height: "92%", padding: 0 }]}>
+            <View style={styles.modalOverlayBottomSheet}>
               <View
                 style={[
-                  styles.modalHeader,
-                  { paddingHorizontal: 25, paddingTop: 25 },
+                  styles.modalContentBottomSheet,
+                  { paddingBottom: Math.max(40, insets.bottom + 20) },
                 ]}
               >
-                <Text style={styles.modalTitle}>
-                  {editor.editingRoutine
-                    ? t("routines.edit")
-                    : t("routines.createNew")}
-                </Text>
-                <TouchableOpacity onPress={editor.closeRoutineModal}>
-                  <AntDesign
-                    name="close"
-                    size={24}
-                    color={colors.textPrimary}
-                  />
-                </TouchableOpacity>
-              </View>
-              <DraggableFlatList
-                data={editor.routineExercises}
-                onDragEnd={({ data }) => editor.reorderExercises(data)}
-                keyExtractor={(item) => item.id}
-                renderItem={renderDraggableExercise}
-                contentContainerStyle={{
-                  paddingHorizontal: 25,
-                  paddingBottom: Math.max(100, insets.bottom + 60), // <-- ADAPTATIVO
-                }}
-                ListHeaderComponent={
-                  <View style={{ marginBottom: 20 }}>
-                    <Text style={styles.label}>
-                      {t("routines.routineName")}
-                    </Text>
-                    <CustomInput
-                      value={editor.routineName}
-                      onChangeText={editor.setRoutineName}
-                      placeholder={t("routines.routineNamePlaceholder")}
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>
+                    {editor.editingRoutine
+                      ? t("routines.edit")
+                      : t("routines.createNew")}
+                  </Text>
+                  <TouchableOpacity onPress={editor.closeRoutineModal}>
+                    <AntDesign
+                      name="close"
+                      size={24}
+                      color={colors.textPrimary}
                     />
-                    <Text style={[styles.label, { marginTop: 20 }]}>
-                      {t("routines.exercises")}
-                    </Text>
-                    {editor.routineExercises.length === 0 && (
-                      <Text
-                        style={{
-                          color: colors.textSecondary,
-                          fontStyle: "italic",
-                          marginBottom: 15,
-                        }}
-                      >
-                        {t("routines.noExercises")}
+                  </TouchableOpacity>
+                </View>
+                <DraggableFlatList
+                  data={editor.routineExercises}
+                  onDragEnd={({ data }) => editor.reorderExercises(data)}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderDraggableExercise}
+                  contentContainerStyle={{
+                    paddingBottom: 60,
+                  }}
+                  ListHeaderComponent={
+                    <View style={{ marginBottom: 20 }}>
+                      <Text style={styles.label}>
+                        {t("routines.routineName")}
                       </Text>
-                    )}
-                  </View>
-                }
-                ListFooterComponent={
-                  <View>
-                    <TouchableOpacity
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        paddingVertical: 12,
-                        backgroundColor: "rgba(234, 88, 12, 0.1)",
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: colors.primary,
-                        borderStyle: "dashed",
-                        marginBottom: 20,
-                        marginTop: 10,
-                      }}
-                      onPress={editor.openExerciseSelector}
-                    >
-                      <Feather
-                        name="plus"
-                        size={20}
-                        color={colors.primary}
-                        style={{ marginRight: 8 }}
+                      <CustomInput
+                        value={editor.routineName}
+                        onChangeText={editor.setRoutineName}
+                        placeholder={t("routines.routineNamePlaceholder")}
                       />
-                      <Text
-                        style={{
-                          color: colors.primary,
-                          fontWeight: "bold",
-                          fontSize: 16,
-                        }}
-                      >
-                        {t("routines.addExercise")}
+                      <Text style={[styles.label, { marginTop: 20 }]}>
+                        {t("routines.exercises")}
                       </Text>
-                    </TouchableOpacity>
-                    <View style={styles.buttonsRow}>
-                      {editor.editingRoutine && (
-                        <View style={{ flex: 1, marginRight: 10 }}>
-                          <SecondaryButton
-                            title={t("routines.delete")}
-                            onPress={() =>
-                              handleDelete(editor.editingRoutine!.id)
+                      {editor.routineExercises.length === 0 && (
+                        <Text
+                          style={{
+                            color: colors.textSecondary,
+                            fontStyle: "italic",
+                            marginBottom: 15,
+                          }}
+                        >
+                          {t("routines.noExercises")}
+                        </Text>
+                      )}
+                    </View>
+                  }
+                  ListFooterComponent={
+                    <View>
+                      <TouchableOpacity
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingVertical: 12,
+                          backgroundColor: "rgba(234, 88, 12, 0.1)",
+                          borderRadius: 8,
+                          borderWidth: 1,
+                          borderColor: colors.primary,
+                          borderStyle: "dashed",
+                          marginBottom: 20,
+                          marginTop: 10,
+                        }}
+                        onPress={editor.openExerciseSelector}
+                      >
+                        <Feather
+                          name="plus"
+                          size={20}
+                          color={colors.primary}
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text
+                          style={{
+                            color: colors.primary,
+                            fontWeight: "bold",
+                            fontSize: 16,
+                          }}
+                        >
+                          {t("routines.addExercise")}
+                        </Text>
+                      </TouchableOpacity>
+                      <View style={styles.buttonsRow}>
+                        {editor.editingRoutine && (
+                          <View style={{ flex: 1, marginRight: 10 }}>
+                            <SecondaryButton
+                              title={t("routines.delete")}
+                              onPress={() =>
+                                handleDelete(editor.editingRoutine!.id)
+                              }
+                              style={{ borderColor: "#EF4444" }}
+                            />
+                          </View>
+                        )}
+                        <View style={{ flex: 2 }}>
+                          <PrimaryButton
+                            title={t("routines.save")}
+                            onPress={editor.handleSaveRoutine}
+                            loading={isSaving}
+                            disabled={
+                              !editor.routineName.trim() ||
+                              editor.routineExercises.length === 0
                             }
-                            style={{ borderColor: "#EF4444" }}
                           />
                         </View>
-                      )}
-                      <View style={{ flex: 2 }}>
-                        <PrimaryButton
-                          title={t("routines.save")}
-                          onPress={editor.handleSaveRoutine}
-                          loading={isSaving}
-                          disabled={
-                            !editor.routineName.trim() ||
-                            editor.routineExercises.length === 0
-                          }
-                        />
                       </View>
                     </View>
-                  </View>
-                }
-              />
+                  }
+                />
+              </View>
             </View>
           </KeyboardAvoidingView>
         </GestureHandlerRootView>

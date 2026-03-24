@@ -123,7 +123,8 @@
     },
     "workoutHistory": "Workout History",
     "noHistory": "The history is empty.",
-    "noPublicRoutines": "This user doesn't have any public routines yet."
+    "noPublicRoutines": "This user doesn't have any public routines yet.",
+    "loadMore": "Load more"
   },
   "alerts": {
     "missingData": "Missing data",
@@ -145,7 +146,7 @@
     "sent": "Sent!",
     "checkSpam": "Check your inbox or SPAM folder.",
     "incomplete": "Incomplete",
-    "enterEmailPassword": "Enter email and password.",
+    "enterEmailPassword": "Ingresa correo y contraseña.",
     "minChars": "Minimum 6 characters.",
     "missingNickname": "Missing your nickname.",
     "missingDateGender": "Missing date or gender.",
@@ -197,7 +198,8 @@
     "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?",
     "savedRoutines": "Saved Routines",
     "cannotDeleteInPack": "You cannot delete this routine because it belongs to a Weekly Pack. Remove it from the pack first.",
-    "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?"
+    "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?",
+    "animationComingSoon": "Animation coming soon"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -341,7 +343,16 @@
     "leg_raises_hanging": "Hanging Leg Raises",
     "ab_wheel_rollout": "Ab Wheel Rollout",
     "bicycle_crunch": "Bicycle Crunches",
-    "cable_crunch": "Cable Crunch"
+    "cable_crunch": "Cable Crunch",
+    "hip_abductor_machine": "Hip Abductor Machine",
+    "hip_adductor_machine": "Hip Adductor Machine",
+    "glute_kickback_machine": "Machine Glute Kickback",
+    "smith_machine_squat": "Smith Machine Squat",
+    "smith_machine_bench_press": "Smith Machine Bench Press",
+    "smith_machine_incline_press": "Smith Machine Incline Press",
+    "smith_machine_overhead_press": "Smith Machine Overhead Press",
+    "good_mornings": "Barbell Good Mornings",
+    "sumo_deadlift": "Sumo Deadlift"
   },
   "unitSelection": {
     "title": "Select Unit",
@@ -713,6 +724,42 @@
     "cable_crunch": {
       "submuscles": "Rectus Abdominis",
       "description": "Kneeling facing a high pulley with a rope. Pull the rope behind your neck and crunch your torso by rounding your back towards your pelvis."
+    },
+    "hip_abductor_machine": {
+      "submuscles": "Gluteus Medius, Gluteus Minimus",
+      "description": "Sit on the machine. Push the pads outward by opening your legs, squeezing your glutes."
+    },
+    "hip_adductor_machine": {
+      "submuscles": "Adductors, Inner Thigh",
+      "description": "Sit on the machine. Squeeze your legs together against the pads to target your inner thighs."
+    },
+    "glute_kickback_machine": {
+      "submuscles": "Gluteus Maximus, Hamstrings",
+      "description": "Stand or lean on the machine and push the footplate backward and upward, squeezing your glute at the top."
+    },
+    "smith_machine_squat": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "description": "Place the Smith machine bar on your shoulders. Squat down under control and press back up. The machine provides stabilization."
+    },
+    "smith_machine_bench_press": {
+      "submuscles": "Pectoralis Major, Triceps, Anterior Deltoid",
+      "description": "Lie on a bench under the Smith machine. Lower the bar to your chest and press up smoothly."
+    },
+    "smith_machine_incline_press": {
+      "submuscles": "Upper Pectoralis, Triceps, Anterior Deltoid",
+      "description": "Use an incline bench under the Smith machine. Lower the bar to your upper chest and press up."
+    },
+    "smith_machine_overhead_press": {
+      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps",
+      "description": "Seated or standing in the Smith machine, press the bar from shoulder level up until your arms are extended."
+    },
+    "good_mornings": {
+      "submuscles": "Hamstrings, Erector Spinae, Glutes",
+      "description": "With a barbell on your back, hinge at the hips keeping your legs mostly straight until your torso is nearly parallel to the floor."
+    },
+    "sumo_deadlift": {
+      "submuscles": "Glutes, Quadriceps, Hamstrings, Lower Back",
+      "description": "Take a wide stance with toes pointing out. Grip the bar in the middle and lift by driving through your legs and glutes."
     }
   }
 }
