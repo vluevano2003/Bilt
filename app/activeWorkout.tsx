@@ -30,12 +30,6 @@ import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
-/**
- * Pantalla principal para registrar un entrenamiento activo. Permite:
-- Ver y editar ejercicios y series en tiempo real
-- Controlar tiempos de descanso con ajustes rápidos
- * @returns 
- */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -165,12 +159,15 @@ export default function ActiveWorkoutScreen() {
             <Text style={styles.colPrevHeader}>
               {t("activeWorkout.previous", "ANTERIOR").toUpperCase()}
             </Text>
+
+            {/* ESTE ES EL BOTÓN QUE ABRE EL MODAL DE UNIDADES */}
             <TouchableOpacity
               style={styles.colInputHeader}
               onPress={() => setUnitModalExId(exercise.id)}
             >
               <Text style={styles.tableHeaderText}>{unitText}</Text>
             </TouchableOpacity>
+
             <View style={styles.colInputHeader}>
               <Text style={styles.tableHeaderText}>
                 {t("activeWorkout.reps", "REPS")}
@@ -384,6 +381,142 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
+      {/*MODAL PARA CAMBIAR UNIDADES*/}
+      <Modal visible={!!unitModalExId} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.editRestModalContent}>
+            <Text style={styles.editRestTitle}>
+              {t("unitSelection.title", "Seleccionar Unidad")}
+            </Text>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("kg")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.kg", "Kilogramos (kg)")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.kg_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("lbs")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.lbs", "Libras (lbs)")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.lbs_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("bodyweight")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.bodyweight", "Peso Corporal")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.bodyweight_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("bars")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.bars", "Barras / Bloques")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.bars_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.unitOptionBtn, { borderBottomWidth: 0 }]}
+              onPress={() => handleUnitSelect("plates")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.plates", "Discos")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.plates_desc")}
+              </Text>
+            </TouchableOpacity>
+            <View style={[styles.editRestButtonsRow, { marginTop: 20 }]}>
+              <TouchableOpacity
+                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
+                onPress={() => setUnitModalExId(null)}
+              >
+                <Text
+                  style={[
+                    styles.editRestBtnText,
+                    { color: colors.textPrimary },
+                  ]}
+                >
+                  {t("common.cancel", "Cancelar")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/*MODAL DE DESCANSO*/}
+      <Modal visible={!!restEditExId} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.editRestModalContent}>
+            <Text style={styles.editRestTitle}>
+              {t("activeWorkout.restTimer", "Tiempo de Descanso")}
+            </Text>
+            <View style={styles.editRestControls}>
+              <TouchableOpacity
+                style={styles.floatingRestAdjustBtn}
+                onPress={() => setTempRest((prev) => Math.max(0, prev - 15))}
+              >
+                <Text style={styles.floatingRestAdjustText}>-15</Text>
+              </TouchableOpacity>
+              <Text style={styles.editRestTimeDisplay}>
+                {formatRestTime(tempRest)}
+              </Text>
+              <TouchableOpacity
+                style={styles.floatingRestAdjustBtn}
+                onPress={() => setTempRest((prev) => prev + 15)}
+              >
+                <Text style={styles.floatingRestAdjustText}>+15</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.editRestButtonsRow}>
+              <TouchableOpacity
+                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
+                onPress={() => setRestEditExId(null)}
+              >
+                <Text
+                  style={[
+                    styles.editRestBtnText,
+                    { color: colors.textPrimary },
+                  ]}
+                >
+                  {t("common.cancel", "Cancelar")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.editRestBtn,
+                  { backgroundColor: colors.primary, borderWidth: 0 },
+                ]}
+                onPress={saveRestTime}
+              >
+                <Text style={styles.editRestBtnText}>
+                  {t("routines.save", "Guardar")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/*MODAL DE RESUMEN*/}
       <Modal visible={showSummary} animationType="slide" transparent={false}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <ScrollView

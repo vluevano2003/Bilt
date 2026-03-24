@@ -21,21 +21,18 @@ import DraggableFlatList, {
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Routines.styles";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
 
-/**
- * Modal para mostrar detalles de un ejercicio específico, incluyendo su imagen (si está disponible), descripción e instrucciones. Se accede a este modal desde la vista de edición de rutina al tocar el nombre del ejercicio
- * @param param0
- * @returns
- */
 export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   if (!exercise) return null;
 
@@ -61,7 +58,11 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
         <View
           style={[
             styles.modalContent,
-            { maxHeight: "85%", paddingHorizontal: 25, paddingBottom: 40 },
+            {
+              maxHeight: "85%",
+              paddingHorizontal: 25,
+              paddingBottom: Math.max(40, insets.bottom + 20),
+            },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -213,6 +214,7 @@ export const CreatePackModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal
@@ -222,10 +224,19 @@ export const CreatePackModal = ({
       onRequestClose={onClose}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.modalOverlay}
       >
-        <View style={[styles.modalContent, { height: "85%", padding: 25 }]}>
+        <View
+          style={[
+            styles.modalContent,
+            {
+              height: "85%",
+              padding: 25,
+              paddingBottom: Math.max(25, insets.bottom + 10),
+            },
+          ]}
+        >
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {t("weeklyPacks.createNew", "Crear Pack Semanal")}
@@ -367,6 +378,7 @@ export const PackDetailsModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   if (!pack) return null;
   return (
@@ -377,7 +389,15 @@ export const PackDetailsModal = ({
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { maxHeight: "85%" }]}>
+        <View
+          style={[
+            styles.modalContent,
+            {
+              maxHeight: "85%",
+              paddingBottom: Math.max(40, insets.bottom + 20),
+            },
+          ]}
+        >
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{pack.name}</Text>
             <TouchableOpacity onPress={onClose}>
@@ -476,6 +496,7 @@ export const ReadonlyRoutineModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets(); // <-- ADAPTATIVO
   const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
   if (!routine) return null;
@@ -488,7 +509,12 @@ export const ReadonlyRoutineModal = ({
         onRequestClose={onClose}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View
+            style={[
+              styles.modalContent,
+              { paddingBottom: Math.max(40, insets.bottom + 20) },
+            ]}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{routine.name}</Text>
               <TouchableOpacity onPress={onClose}>
@@ -586,6 +612,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
   const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
   const renderDraggableExercise = ({
@@ -721,10 +748,10 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
       >
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
             style={styles.modalOverlay}
           >
-            <View style={[styles.modalContent, { height: "90%", padding: 0 }]}>
+            <View style={[styles.modalContent, { height: "92%", padding: 0 }]}>
               <View
                 style={[
                   styles.modalHeader,
@@ -751,7 +778,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                 renderItem={renderDraggableExercise}
                 contentContainerStyle={{
                   paddingHorizontal: 25,
-                  paddingBottom: 100,
+                  paddingBottom: Math.max(100, insets.bottom + 60), // <-- ADAPTATIVO
                 }}
                 ListHeaderComponent={
                   <View style={{ marginBottom: 20 }}>
