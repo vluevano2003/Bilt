@@ -1,10 +1,11 @@
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   Image,
   RefreshControl,
   ScrollView,
@@ -31,11 +32,8 @@ import {
   getConvertedProfileHeight,
   getConvertedProfileWeight,
 } from "../src/utils/profileHelpers";
+import { shareProfile } from "../src/utils/shareHelpers";
 
-/**
- * Pantalla de perfil de usuario que muestra la información del perfil, estadísticas sociales, rutinas, packs semanales y historial de entrenamientos. Permite seguir/desseguir al usuario, aceptar/rechazar solicitudes de seguimiento, y ver detalles de rutinas y packs
- * @returns
- */
 export default function UserProfileScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
@@ -51,6 +49,32 @@ export default function UserProfileScreen() {
     useUserActivity(profileId);
   const actions = useProfileActions(profileId, profile.username, userRoutines);
 
+  useEffect(() => {
+    if (!profile.isLoading && profile.isOwnProfile) {
+      router.replace("/(tabs)/profile");
+    }
+  }, [profile.isLoading, profile.isOwnProfile]);
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleGoBack();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress,
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  const handleGoBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/home");
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<"routines" | "history" | "packs">(
     "routines",
   );
@@ -60,13 +84,11 @@ export default function UserProfileScreen() {
   >("followers");
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
-
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [detailsType, setDetailsType] = useState<"routine" | "history">(
     "routine",
   );
   const [selectedItem, setSelectedItem] = useState<any>(null);
-
   const [packDetailsVisible, setPackDetailsVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
@@ -74,11 +96,15 @@ export default function UserProfileScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setRefreshing(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    } catch (error) {
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
 
-  if (profile.isLoading) {
+  if (profile.isLoading || profile.isOwnProfile) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -100,16 +126,14 @@ export default function UserProfileScreen() {
     if (profile.showAge && profile.age)
       data.push(`${profile.age} ${t("profile.years")}`);
     if (profile.showGender && profile.gender) data.push(profile.gender);
-    if (profile.showHeight && profile.height) {
+    if (profile.showHeight && profile.height)
       data.push(
         `${getConvertedProfileHeight(profile.height, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "cm" : "in"}`,
       );
-    }
-    if (profile.showWeight && profile.weight) {
+    if (profile.showWeight && profile.weight)
       data.push(
         `${getConvertedProfileWeight(profile.weight, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "kg" : "lbs"}`,
       );
-    }
     return data.join(" • ");
   };
 
@@ -144,16 +168,24 @@ export default function UserProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.headerContainer, { justifyContent: "flex-start" }]}>
-        <TouchableOpacity onPress={() => router.back()} style={{ zIndex: 10 }}>
+      <View
+        style={[styles.headerContainer, { justifyContent: "space-between" }]}
+      >
+        <TouchableOpacity onPress={handleGoBack} style={{ zIndex: 10 }}>
           <Feather name="arrow-left" size={28} color={colors.textPrimary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => shareProfile(profileId || "", profile.username)}
+          style={{ zIndex: 10 }}
+        >
+          <Feather name="share" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom + 100 },
         ]}
         refreshControl={
           <RefreshControl
@@ -183,7 +215,6 @@ export default function UserProfileScreen() {
               )}
             </View>
             <Text style={styles.usernameText}>@{profile.username}</Text>
-
             <View style={styles.socialStatsRow}>
               <TouchableOpacity
                 style={styles.socialStatBox}
@@ -208,11 +239,9 @@ export default function UserProfileScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.publicDataContainer}>
               <Text style={styles.publicDataText}>{getPublicDataString()}</Text>
             </View>
-
             <View style={{ width: "100%", marginTop: 10 }}>
               {profile.hasPendingRequestFromThem ? (
                 <View
@@ -516,7 +545,7 @@ export default function UserProfileScreen() {
                           borderRadius: 10,
                           borderWidth: 1,
                           borderColor: colors.border,
-                          marginBottom: 20,
+                          marginBottom: 40,
                         }}
                         onPress={() => setHistoryLimit((prev) => prev + 10)}
                       >

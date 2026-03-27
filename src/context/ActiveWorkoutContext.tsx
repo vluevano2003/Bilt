@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert, Vibration } from "react-native";
@@ -10,9 +11,6 @@ import {
 import { supabase } from "../config/supabase";
 import { useAuth } from "./AuthContext";
 
-/**
- * Contexto para manejar el estado del entrenamiento activo, incluyendo la rutina en curso, el tiempo transcurrido, el estado de pausa, el temporizador de descanso y las funciones para manipular estos estados
- */
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
   originalRoutine: Routine | null;
@@ -49,17 +47,15 @@ interface ActiveWorkoutContextProps {
 export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
-/**
- * Proveedor del contexto de entrenamiento activo que maneja toda la lógica relacionada con el estado del entrenamiento en curso, incluyendo el manejo del tiempo, la manipulación de ejercicios y sets, y la interacción con Supabase para guardar el historial de entrenamientos
- * @param param0
- * @returns
- */
+const STORAGE_KEY = "active_workout_state";
+
 export const ActiveWorkoutProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   const { user } = useAuth();
+
   const [activeRoutine, setActiveRoutine] = useState<Routine | null>(null);
   const [originalRoutine, setOriginalRoutine] = useState<Routine | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -68,80 +64,84 @@ export const ActiveWorkoutProvider = ({
     null,
   );
   const [isResting, setIsResting] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const startWorkout = (routine: Routine) => {
-    setActiveRoutine(JSON.parse(JSON.stringify(routine)));
-    setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
-    setElapsedSeconds(0);
-    setIsPaused(false);
-    setIsResting(false);
-    setRestTimeRemaining(null);
-  };
+  useEffect(() => {
+    const loadSavedWorkout = async () => {
+      try {
+        const savedState = await AsyncStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          setActiveRoutine(parsedState.activeRoutine);
+          setOriginalRoutine(parsedState.originalRoutine);
+          setElapsedSeconds(parsedState.elapsedSeconds);
+          setIsPaused(parsedState.isPaused);
+          setRestTimeRemaining(parsedState.restTimeRemaining);
+          setIsResting(parsedState.isResting);
 
-  const cancelWorkout = () => {
-    setActiveRoutine(null);
-    setOriginalRoutine(null);
-    setElapsedSeconds(0);
-    setIsPaused(false);
-    setIsResting(false);
-    setRestTimeRemaining(null);
-  };
+          if (
+            parsedState.lastSavedTime &&
+            parsedState.isResting &&
+            parsedState.restTimeRemaining > 0
+          ) {
+            const secondsPassedSinceClosed = Math.floor(
+              (Date.now() - parsedState.lastSavedTime) / 1000,
+            );
+            const newRestTime =
+              parsedState.restTimeRemaining - secondsPassedSinceClosed;
+            if (newRestTime > 0) {
+              setRestTimeRemaining(newRestTime);
+            } else {
+              setRestTimeRemaining(0);
+              setIsResting(false);
+            }
+          }
 
-  const finishWorkout = async () => {
-    if (!activeRoutine || !user?.id) {
-      cancelWorkout();
-      return;
-    }
-
-    try {
-      const completedExercises = activeRoutine.exercises
-        .map((ex) => {
-          return {
-            ...ex,
-            sets: ex.sets.filter((set) => set.completed),
-          };
-        })
-        .filter((ex) => ex.sets.length > 0);
-
-      if (completedExercises.length === 0) {
-        console.log("No hay series completadas. No se guardará el historial.");
-        cancelWorkout();
-        return;
+          if (parsedState.lastSavedTime && !parsedState.isPaused) {
+            const secondsPassedSinceClosed = Math.floor(
+              (Date.now() - parsedState.lastSavedTime) / 1000,
+            );
+            setElapsedSeconds((prev) => prev + secondsPassedSinceClosed);
+          }
+        }
+      } catch (e) {
+        console.log("No se pudo cargar el entrenamiento guardado", e);
+      } finally {
+        setIsLoaded(true);
       }
+    };
+    loadSavedWorkout();
+  }, []);
 
-      const { error } = await supabase.from("history").insert([
-        {
-          user_id: user.id,
-          routine_id: activeRoutine.id,
-          routine_name: activeRoutine.name,
-          duration_seconds: elapsedSeconds,
-          exercises: completedExercises,
-        },
-      ]);
+  useEffect(() => {
+    if (!isLoaded) return;
 
-      if (error) {
-        console.error("Supabase Error Guardando History:", error);
-        Alert.alert("Error guardando entrenamiento", error.message);
-        throw error;
+    const saveWorkoutState = async () => {
+      if (activeRoutine) {
+        const stateToSave = {
+          activeRoutine,
+          originalRoutine,
+          elapsedSeconds,
+          isPaused,
+          restTimeRemaining,
+          isResting,
+          lastSavedTime: Date.now(),
+        };
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      } else {
+        await AsyncStorage.removeItem(STORAGE_KEY);
       }
+    };
 
-      console.log(
-        "¡Entrenamiento guardado en el historial de Supabase con éxito!",
-      );
-    } catch (error) {
-      console.error("Error general al guardar el entrenamiento:", error);
-    } finally {
-      cancelWorkout();
-    }
-  };
-
-  const resumeWorkout = () => setIsPaused(false);
-  const pauseWorkout = () => setIsPaused(true);
-
-  const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
-    if (!activeRoutine) return;
-    setActiveRoutine({ ...activeRoutine, exercises: newExercises });
-  };
+    saveWorkoutState();
+  }, [
+    activeRoutine,
+    elapsedSeconds,
+    isPaused,
+    restTimeRemaining,
+    isResting,
+    isLoaded,
+  ]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -186,6 +186,78 @@ export const ActiveWorkoutProvider = ({
     }
     return () => clearInterval(restInterval);
   }, [isResting, restTimeRemaining, isPaused]);
+
+  const startWorkout = (routine: Routine) => {
+    setActiveRoutine(JSON.parse(JSON.stringify(routine)));
+    setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
+    setElapsedSeconds(0);
+    setIsPaused(false);
+    setIsResting(false);
+    setRestTimeRemaining(null);
+  };
+
+  const cancelWorkout = async () => {
+    setActiveRoutine(null);
+    setOriginalRoutine(null);
+    setElapsedSeconds(0);
+    setIsPaused(false);
+    setIsResting(false);
+    setRestTimeRemaining(null);
+    await AsyncStorage.removeItem(STORAGE_KEY);
+  };
+
+  const finishWorkout = async () => {
+    if (!activeRoutine || !user?.id) {
+      cancelWorkout();
+      return;
+    }
+
+    try {
+      const completedExercises = activeRoutine.exercises
+        .map((ex) => {
+          return {
+            ...ex,
+            sets: ex.sets.filter((set) => set.completed),
+          };
+        })
+        .filter((ex) => ex.sets.length > 0);
+
+      if (completedExercises.length === 0) {
+        console.log("No hay series completadas. No se guardará el historial.");
+        cancelWorkout();
+        return;
+      }
+
+      const { error } = await supabase.from("history").insert([
+        {
+          user_id: user.id,
+          routine_id: activeRoutine.id,
+          routine_name: activeRoutine.name,
+          duration_seconds: elapsedSeconds,
+          exercises: completedExercises,
+        },
+      ]);
+
+      if (error) {
+        Alert.alert("Error guardando entrenamiento", error.message);
+        throw error;
+      }
+
+      console.log("¡Entrenamiento guardado con éxito!");
+    } catch (error) {
+      console.error("Error al guardar el entrenamiento:", error);
+    } finally {
+      cancelWorkout();
+    }
+  };
+
+  const resumeWorkout = () => setIsPaused(false);
+  const pauseWorkout = () => setIsPaused(true);
+
+  const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
+    if (!activeRoutine) return;
+    setActiveRoutine({ ...activeRoutine, exercises: newExercises });
+  };
 
   const handleSetChange = (
     exerciseId: string,

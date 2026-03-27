@@ -28,6 +28,7 @@ import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getStyles } from "../../src/styles/Profile.styles";
+import { shareProfile } from "../../src/utils/shareHelpers";
 import {
   calculateSessionVolume,
   formatDuration,
@@ -35,7 +36,7 @@ import {
 } from "../../src/utils/workoutCalculations";
 
 /**
- * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos y opciones de configuración
+ * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, seguidores y seguidos. Permite editar el perfil, cambiar configuraciones y compartir el perfil
  * @returns
  */
 export default function ProfileScreen() {
@@ -192,8 +193,14 @@ export default function ProfileScreen() {
                 flexDirection: "row",
                 alignItems: "center",
                 paddingRight: 20,
+                gap: 15,
               }}
             >
+              <TouchableOpacity
+                onPress={() => shareProfile(user?.id || "", username)}
+              >
+                <Feather name="share" size={22} color={colors.textPrimary} />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => setSettingsVisible(true)}>
                 <AntDesign
                   name="setting"

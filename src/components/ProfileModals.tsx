@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialUser } from "../../hooks/useProfile";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -39,6 +40,7 @@ export const SocialListModal = ({
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const renderItem = ({ item }: { item: SocialUser }) => (
     <TouchableOpacity
@@ -96,6 +98,9 @@ export const SocialListModal = ({
               keyExtractor={(item) => item.id}
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingBottom: Math.max(60, insets.bottom + 20),
+              }}
             />
           ) : (
             <Text
@@ -131,6 +136,7 @@ export const PackDetailsModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   if (!pack) return null;
 
@@ -156,7 +162,9 @@ export const PackDetailsModal = ({
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{
+              paddingBottom: Math.max(80, insets.bottom + 40),
+            }}
           >
             {pack.description ? (
               <Text
@@ -277,6 +285,7 @@ export const ItemDetailsModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
 
   if (!item) return null;
 
@@ -297,7 +306,12 @@ export const ItemDetailsModal = ({
               <AntDesign name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: Math.max(80, insets.bottom + 40),
+            }}
+          >
             {type === "history" && (
               <View
                 style={{

@@ -6,7 +6,11 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -27,16 +31,13 @@ import {
   ReadonlyRoutineModal,
   RoutineEditorModal,
 } from "../../src/components/RoutinesModals";
+import { supabase } from "../../src/config/supabase";
 import { useActiveWorkout } from "../../src/context/ActiveWorkoutContext";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
-/**
- * Pantalla principal que muestra un resumen semanal, las rutinas del usuario y los packs semanales. Permite iniciar entrenamientos, gestionar rutinas y ver notificaciones de solicitudes de seguimiento
- * @returns
- */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -61,6 +62,9 @@ export default function HomeScreen() {
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [requestsList, setRequestsList] = useState<SocialUser[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
   const {
     routines,
@@ -115,6 +119,38 @@ export default function HomeScreen() {
     } else {
       startWorkout(routine);
       router.push("/activeWorkout");
+    }
+  };
+
+  const handleSendFeedback = async () => {
+    if (!feedbackText.trim() || !user?.id) return;
+    setIsSendingFeedback(true);
+    try {
+      const { error } = await supabase
+        .from("feedback")
+        .insert([{ user_id: user.id, message: feedbackText.trim() }]);
+
+      if (error) throw error;
+
+      Alert.alert(
+        t("profile.alerts.success", "¡Gracias!"),
+        t(
+          "feedback.successMsg",
+          "Tu comentario ha sido enviado. ¡Lo revisaremos pronto!",
+        ),
+      );
+      setFeedbackModalVisible(false);
+      setFeedbackText("");
+    } catch (error) {
+      Alert.alert(
+        t("alerts.error", "Error"),
+        t(
+          "feedback.errorMsg",
+          "No se pudo enviar el comentario. Intenta de nuevo más tarde.",
+        ),
+      );
+    } finally {
+      setIsSendingFeedback(false);
     }
   };
 
@@ -189,7 +225,7 @@ export default function HomeScreen() {
               { fontSize: 26, color: colors.textPrimary },
             ]}
           >
-            {username || t("profile.profileOf", "Atleta")}!
+            {username || t("home.defaultName", "Atleta")}!
           </Text>
         </View>
 
@@ -346,37 +382,57 @@ export default function HomeScreen() {
           title: t("tabs.workout", "Entrenar"),
           headerTitle: t("tabs.workout", "Entrenar"),
           headerRight: () => (
-            <TouchableOpacity
+            <View
               style={{
-                paddingRight: 20,
-                justifyContent: "center",
+                flexDirection: "row",
                 alignItems: "center",
+                paddingRight: 20,
+                gap: 20,
               }}
-              onPress={openNotifications}
             >
-              <Feather name="bell" size={24} color={colors.textPrimary} />
-              {isPrivate && pendingRequestsCount > 0 && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -4,
-                    right: 14,
-                    backgroundColor: "#EF4444",
-                    minWidth: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    style={{ color: "#FFF", fontSize: 10, fontWeight: "bold" }}
+              <TouchableOpacity onPress={() => setFeedbackModalVisible(true)}>
+                <Feather
+                  name="message-square"
+                  size={24}
+                  color={colors.textPrimary}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={openNotifications}
+              >
+                <Feather name="bell" size={24} color={colors.textPrimary} />
+                {isPrivate && pendingRequestsCount > 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -4,
+                      right: -6,
+                      backgroundColor: "#EF4444",
+                      minWidth: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
-                    {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
+                    <Text
+                      style={{
+                        color: "#FFF",
+                        fontSize: 10,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -470,7 +526,8 @@ export default function HomeScreen() {
                     fontSize: 13,
                   }}
                 >
-                  {item.routineIds.length} {t("routines.exercises", "Rutinas")}
+                  {item.routineIds.length}{" "}
+                  {t("weeklyPacks.routinesCount", "Rutinas")}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -581,6 +638,113 @@ export default function HomeScreen() {
           <AntDesign name="plus" size={28} color="#FFF" />
         </TouchableOpacity>
       )}
+
+      <Modal
+        visible={feedbackModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFeedbackModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <View style={routineStyles.modalOverlayBottomSheet}>
+            <View
+              style={[
+                routineStyles.modalContentBottomSheet,
+                { paddingBottom: Math.max(25, insets.bottom + 10) },
+              ]}
+            >
+              <View style={routineStyles.modalHeader}>
+                <Text style={routineStyles.modalTitle}>
+                  {t("feedback.title", "Reportar / Sugerencias")}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setFeedbackModalVisible(false)}
+                >
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={colors.textPrimary}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={[routineStyles.label, { marginBottom: 15 }]}>
+                {t(
+                  "feedback.description",
+                  "¿Encontraste un error o tienes alguna idea para mejorar la app? ¡Te escuchamos!",
+                )}
+              </Text>
+
+              <View
+                style={{
+                  backgroundColor: colors.surface,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  padding: 15,
+                  marginBottom: 20,
+                }}
+              >
+                <TextInput
+                  style={{
+                    color: colors.textPrimary,
+                    minHeight: 120,
+                    textAlignVertical: "top",
+                    fontSize: 15,
+                  }}
+                  multiline
+                  placeholder={t(
+                    "feedback.placeholder",
+                    "Escribe tu comentario aquí...",
+                  )}
+                  placeholderTextColor={colors.textSecondary}
+                  value={feedbackText}
+                  onChangeText={setFeedbackText}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  routineStyles.actionButton,
+                  {
+                    backgroundColor: colors.primary,
+                    borderColor: colors.primary,
+                    opacity: !feedbackText.trim() ? 0.5 : 1,
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  },
+                ]}
+                disabled={!feedbackText.trim() || isSendingFeedback}
+                onPress={handleSendFeedback}
+              >
+                {isSendingFeedback ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <>
+                    <Feather
+                      name="send"
+                      size={18}
+                      color="#FFF"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text
+                      style={[
+                        routineStyles.actionButtonText,
+                        { color: "#FFF" },
+                      ]}
+                    >
+                      {t("feedback.send", "Enviar Comentario")}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       <NotificationModal
         visible={notificationsVisible}

@@ -199,7 +199,9 @@
     "savedRoutines": "Saved Routines",
     "cannotDeleteInPack": "You cannot delete this routine because it belongs to a Weekly Pack. Remove it from the pack first.",
     "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?",
-    "animationComingSoon": "Animation coming soon"
+    "animationComingSoon": "Animation coming soon",
+    "synergists": "Synergists",
+    "instructions": "Instructions"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -377,7 +379,8 @@
     "volume": "Volume ({{unit}})",
     "startEmpty": "+ Start Empty Workout",
     "workoutInProgress": "Workout in progress",
-    "goToWorkout": "Go to Active Workout"
+    "goToWorkout": "Go to Active Workout",
+    "defaultName": "Athlete"
   },
   "weeklyPacks": {
     "tabPacks": "Packs",
@@ -394,7 +397,8 @@
     "noRoutinesAvailable": "Create some routines first to build a pack.",
     "routinesIncluded": "Routines in this Pack:",
     "savePackToProfile": "Save Pack to Profile",
-    "noPublicPacks": "This user doesn't have any Weekly Packs yet."
+    "noPublicPacks": "This user doesn't have any Weekly Packs yet.",
+    "routinesCount": "Routines"
   },
   "exerciseDetails": {
     "bench_press_barbell": {
@@ -761,5 +765,18 @@
       "submuscles": "Glutes, Quadriceps, Hamstrings, Lower Back",
       "description": "Take a wide stance with toes pointing out. Grip the bar in the middle and lift by driving through your legs and glutes."
     }
+  },
+  "share": {
+    "profileMessage": "Check out @{{username}}'s profile on BILT TRACKER!\n\n{{url}}",
+    "routineMessage": "Take a look at the routine \"{{routineName}}\" on BILT TRACKER!\n\n{{url}}",
+    "packMessage": "Check out this Weekly Pack \"{{packName}}\" on BILT TRACKER!\n\n{{url}}"
+  },
+  "feedback": {
+    "title": "Report / Suggestions",
+    "description": "Found a bug or have an idea to improve the app? We are listening!",
+    "placeholder": "Write your feedback here...",
+    "send": "Send Feedback",
+    "successMsg": "Your feedback has been sent. We will review it soon!",
+    "errorMsg": "Could not send feedback. Please try again later."
   }
 }

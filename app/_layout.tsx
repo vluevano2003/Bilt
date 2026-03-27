@@ -1,5 +1,6 @@
+import * as Linking from "expo-linking";
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
@@ -15,22 +16,34 @@ function RootLayoutNav() {
   const segments = useSegments();
   const { colors } = useTheme();
 
+  const url = Linking.useURL();
+  const [hasHandledInitialLink, setHasHandledInitialLink] = useState(false);
+
   useEffect(() => {
     if (isLoading) return;
 
-    const inTabsGroup = segments[0] === "(tabs)";
-    const inUserProfile = segments[0] === "userProfile";
-    const inActiveWorkout = segments[0] === "activeWorkout";
+    const firstSegment = segments[0] as string | undefined;
+
+    const inTabsGroup = firstSegment === "(tabs)";
+    const inUserProfile = firstSegment === "userProfile";
+    const inActiveWorkout = firstSegment === "activeWorkout";
+
     const isProtectedScreen = inTabsGroup || inUserProfile || inActiveWorkout;
+
+    const inIndex = !firstSegment || firstSegment === "index";
 
     if (!user && isProtectedScreen) {
       router.replace("/");
     } else if (user && !hasProfile && isProtectedScreen) {
       router.replace("/");
-    } else if (user && hasProfile && !isProtectedScreen) {
+    } else if (user && hasProfile && inIndex) {
+      if (url && !hasHandledInitialLink) {
+        setHasHandledInitialLink(true);
+        return;
+      }
       router.replace("/(tabs)/home");
     }
-  }, [user, isLoading, hasProfile, segments]);
+  }, [user, isLoading, hasProfile, segments, url, hasHandledInitialLink]);
 
   if (isLoading) {
     return (
