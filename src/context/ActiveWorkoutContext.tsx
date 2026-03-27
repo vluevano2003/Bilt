@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import { Audio } from "expo-av";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert, Vibration } from "react-native";
@@ -209,6 +210,19 @@ export const ActiveWorkoutProvider = ({
   const finishWorkout = async () => {
     if (!activeRoutine || !user?.id) {
       cancelWorkout();
+      return;
+    }
+
+    /**
+     * Verificar conexión a internet antes de intentar guardar el entrenamiento
+     */
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      Alert.alert(
+        "Sin conexión",
+        "Tu entrenamiento está a salvo localmente, pero necesitas internet para guardarlo en tu historial. Conéctate a una red e intenta finalizarlo de nuevo.",
+      );
+      setIsPaused(true);
       return;
     }
 

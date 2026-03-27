@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import { Session, User } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../config/supabase";
@@ -34,6 +35,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const idToCheck = userId || user?.id;
     if (!idToCheck) {
       setHasProfile(false);
+      return;
+    }
+
+    /**
+     * Verifica la conexión a internet antes de intentar consultar el perfil del usuario en Supabase.
+     * Si no hay conexión, asume que el perfil existe para evitar bloquear la experiencia del usuario.
+     */
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      setHasProfile(true);
       return;
     }
 

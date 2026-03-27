@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
@@ -29,6 +30,12 @@ export const useWeeklyPacks = () => {
 
   const fetchPacks = useCallback(async () => {
     if (!currentUserId) return;
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      setIsLoadingPacks(false);
+      return;
+    }
 
     const { data, error } = await supabase
       .from("weekly_packs")

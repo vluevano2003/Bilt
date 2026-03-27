@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,6 +64,11 @@ export const useAuthForm = () => {
   };
 
   const handleRegister = async () => {
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      return Alert.alert(t("alerts.error"), t("errors.networkFailed"));
+    }
+
     if (!height || !weight)
       return Alert.alert(t("alerts.missingData"), t("alerts.completeMetrics"));
 
@@ -143,6 +149,11 @@ export const useAuthForm = () => {
   };
 
   const handleLogin = async () => {
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      return Alert.alert(t("alerts.error"), t("errors.networkFailed"));
+    }
+
     if (!email || !password)
       return Alert.alert(
         t("alerts.emptyFields"),
@@ -168,6 +179,11 @@ export const useAuthForm = () => {
   };
 
   const handleForgotPassword = async () => {
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      return Alert.alert(t("alerts.error"), t("errors.networkFailed"));
+    }
+
     if (!email)
       return Alert.alert(t("alerts.missingEmail"), t("alerts.writeEmail"));
     if (!isValidEmail(email))

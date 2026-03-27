@@ -1,7 +1,9 @@
+import { useNetInfo } from "@react-native-community/netinfo";
 import * as Linking from "expo-linking";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
@@ -16,8 +18,25 @@ function RootLayoutNav() {
   const segments = useSegments();
   const { colors } = useTheme();
 
+  const { t } = useTranslation();
+  const netInfo = useNetInfo();
+  const [offlineAlertShown, setOfflineAlertShown] = useState(false);
+
   const url = Linking.useURL();
   const [hasHandledInitialLink, setHasHandledInitialLink] = useState(false);
+
+  useEffect(() => {
+    if (netInfo.isConnected === false && !offlineAlertShown) {
+      Alert.alert(
+        t("alerts.error", "Error"),
+        t(
+          "errors.networkFailed",
+          "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
+        ),
+      );
+      setOfflineAlertShown(true);
+    }
+  }, [netInfo.isConnected, offlineAlertShown, t]);
 
   useEffect(() => {
     if (isLoading) return;

@@ -331,9 +331,7 @@ export default function ActiveWorkoutScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
             padding: 15,
-            paddingBottom: isResting
-              ? 120 + insets.bottom
-              : 100 + insets.bottom,
+            paddingBottom: isResting ? 100 + insets.bottom : 20 + insets.bottom,
           }}
           showsVerticalScrollIndicator={false}
           renderItem={renderDraggableExercise}

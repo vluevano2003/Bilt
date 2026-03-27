@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo"; // --- NUEVO ---
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
@@ -16,6 +17,12 @@ export const useUserActivity = (userId?: string) => {
 
   const fetchActivity = useCallback(async () => {
     if (!userId) return;
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      setIsLoadingActivity(false);
+      return;
+    }
 
     const { data: routinesData } = await supabase
       .from("routines")
