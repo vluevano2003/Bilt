@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo_black.png",
-    "scheme": "gymtrackerapp",
+    "scheme": "bilttracker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -65,9 +65,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "0adb8bcf-108f-4396-951d-7cab3e105379"
+        "projectId": "476cb77e-465f-494a-bf84-21fb30cafa28"
       }
     },
-    "owner": "vluevano_2003"
+    "owner": "victorluevano"
   }
 }

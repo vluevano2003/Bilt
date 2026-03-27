@@ -55,8 +55,18 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlayCentered}>
-        <View style={styles.modalContentCentered}>
-          <View style={styles.modalHeader}>
+        <View
+          style={[
+            styles.modalContentCentered,
+            {
+              paddingHorizontal: 0,
+              paddingBottom: 0,
+              paddingTop: 25,
+              maxHeight: "80%",
+            },
+          ]}
+        >
+          <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
             <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={2}>
               {name}
             </Text>
@@ -65,7 +75,14 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={{ flexShrink: 1 }}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={{
+              paddingHorizontal: 25,
+              paddingBottom: Math.max(80, insets.bottom + 40),
+            }}
+          >
             {exercise.imageUrl ? (
               <Image
                 source={{ uri: exercise.imageUrl }}
@@ -146,7 +163,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                       fontSize: 12,
                     }}
                   >
-                    Sinérgicos
+                    {t("routines.synergists", "Sinérgicos")}
                   </Text>
                 </View>
                 <Text
@@ -170,7 +187,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                   marginBottom: 10,
                 }}
               >
-                Instrucciones
+                {t("routines.instructions", "Instrucciones")}
               </Text>
               <Text
                 style={{
@@ -222,10 +239,15 @@ export const CreatePackModal = ({
           <View
             style={[
               styles.modalContentBottomSheet,
-              { paddingBottom: Math.max(25, insets.bottom + 10) },
+              {
+                paddingHorizontal: 0,
+                paddingBottom: 0,
+                paddingTop: 25,
+                maxHeight: "85%",
+              },
             ]}
           >
-            <View style={styles.modalHeader}>
+            <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
               <Text style={styles.modalTitle}>
                 {t("weeklyPacks.createNew", "Crear Pack Semanal")}
               </Text>
@@ -233,9 +255,14 @@ export const CreatePackModal = ({
                 <AntDesign name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
+
             <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 60 }}
+              style={{ flexShrink: 1 }}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{
+                paddingHorizontal: 25,
+                paddingBottom: Math.max(80, insets.bottom + 40),
+              }}
             >
               <Text style={styles.label}>
                 {t("weeklyPacks.packName", "Nombre del Pack")}
@@ -388,18 +415,30 @@ export const PackDetailsModal = ({
         <View
           style={[
             styles.modalContentBottomSheet,
-            { paddingBottom: Math.max(40, insets.bottom + 20) },
+            {
+              paddingHorizontal: 0,
+              paddingBottom: 0,
+              paddingTop: 25,
+              maxHeight: "85%",
+            },
           ]}
         >
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{pack.name}</Text>
+          <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+            <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={1}>
+              {pack.name}
+            </Text>
             <TouchableOpacity onPress={onClose}>
               <AntDesign name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
+
           <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 60 }}
+            style={{ flexShrink: 1 }}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={{
+              paddingHorizontal: 25,
+              paddingBottom: Math.max(80, insets.bottom + 40),
+            }}
           >
             {pack.description && (
               <Text
@@ -505,18 +544,30 @@ export const ReadonlyRoutineModal = ({
           <View
             style={[
               styles.modalContentBottomSheet,
-              { paddingBottom: Math.max(40, insets.bottom + 20) },
+              {
+                paddingHorizontal: 0,
+                paddingBottom: 0,
+                paddingTop: 25,
+                maxHeight: "85%",
+              },
             ]}
           >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{routine.name}</Text>
+            <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+              <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={1}>
+                {routine.name}
+              </Text>
               <TouchableOpacity onPress={onClose}>
                 <AntDesign name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
+
             <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 60 }}
+              style={{ flexShrink: 1 }}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{
+                paddingHorizontal: 25,
+                paddingBottom: Math.max(80, insets.bottom + 40),
+              }}
             >
               <Text style={[styles.label, { marginBottom: 10 }]}>
                 {t("routines.exercises")}:
@@ -623,7 +674,9 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
         <View
           style={{
             backgroundColor: isActive ? colors.background : colors.surface,
-            padding: 15,
+            paddingVertical: 15,
+            paddingLeft: 15,
+            paddingRight: 5,
             borderRadius: 10,
             marginBottom: 15,
             borderWidth: 1,
@@ -667,16 +720,16 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <TouchableOpacity
                 onPress={() => editor.removeExercise(routineEx.id)}
-                style={{ padding: 5, marginRight: 10 }}
+                style={{ padding: 8, marginRight: 2 }}
               >
                 <Feather name="trash-2" size={20} color="#EF4444" />
               </TouchableOpacity>
               <TouchableOpacity
                 onLongPress={drag}
                 delayLongPress={150}
-                style={{ padding: 5 }}
+                style={{ padding: 8 }}
               >
-                <Feather name="menu" size={22} color={colors.textSecondary} />
+                <Feather name="menu" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -691,6 +744,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                 padding: 8,
                 borderRadius: 6,
                 marginBottom: 5,
+                marginRight: 10,
               }}
             >
               <Text style={{ color: colors.textPrimary, fontWeight: "500" }}>
@@ -751,11 +805,19 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               <View
                 style={[
                   styles.modalContentBottomSheet,
-                  { paddingBottom: Math.max(40, insets.bottom + 20) },
+                  {
+                    paddingHorizontal: 0,
+                    paddingBottom: 0,
+                    paddingTop: 25,
+                    maxHeight: "85%",
+                  },
                 ]}
               >
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>
+                <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+                  <Text
+                    style={[styles.modalTitle, { flex: 1 }]}
+                    numberOfLines={1}
+                  >
                     {editor.editingRoutine
                       ? t("routines.edit")
                       : t("routines.createNew")}
@@ -768,13 +830,17 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                     />
                   </TouchableOpacity>
                 </View>
+
                 <DraggableFlatList
+                  style={{ flexShrink: 1 }}
+                  showsVerticalScrollIndicator={true}
                   data={editor.routineExercises}
                   onDragEnd={({ data }) => editor.reorderExercises(data)}
                   keyExtractor={(item) => item.id}
                   renderItem={renderDraggableExercise}
                   contentContainerStyle={{
-                    paddingBottom: 60,
+                    paddingHorizontal: 25,
+                    paddingBottom: Math.max(120, insets.bottom + 60),
                   }}
                   ListHeaderComponent={
                     <View style={{ marginBottom: 20 }}>

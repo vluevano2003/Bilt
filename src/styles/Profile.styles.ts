@@ -133,7 +133,7 @@ export const getStyles = (colors: any) =>
       borderTopRightRadius: 25,
       padding: 25,
       width: "100%",
-      maxHeight: "90%",
+      maxHeight: "85%",
       flexShrink: 1,
     },
     modalHeader: {
