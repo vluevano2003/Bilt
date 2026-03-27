@@ -320,9 +320,12 @@ export default function ActiveWorkoutScreen() {
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 110 : 0}
       >
         <DraggableFlatList
+          automaticallyAdjustKeyboardInsets={true}
+          keyboardDismissMode="interactive"
           data={activeRoutine.exercises}
           onDragEnd={({ data }) => reorderActiveExercises(data)}
           keyExtractor={(item) => item.id}

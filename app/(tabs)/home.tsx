@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -117,7 +118,21 @@ export default function HomeScreen() {
         t("activeWorkout.workoutInProgressMsg"),
       );
     } else {
-      startWorkout(routine);
+      let routineToStart = routine;
+      if (routine.originalCreatorId) {
+        routineToStart = {
+          ...routine,
+          exercises: routine.exercises.map((ex: any) => ({
+            ...ex,
+            sets: ex.sets.map((set: any) => ({
+              ...set,
+              weight: 0,
+              reps: 0,
+            })),
+          })),
+        };
+      }
+      startWorkout(routineToStart);
       router.push("/activeWorkout");
     }
   };
@@ -646,102 +661,109 @@ export default function HomeScreen() {
         onRequestClose={() => setFeedbackModalVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
           <View style={routineStyles.modalOverlayBottomSheet}>
-            <View
-              style={[
-                routineStyles.modalContentBottomSheet,
-                { paddingBottom: Math.max(25, insets.bottom + 10) },
-              ]}
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "flex-end",
+              }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <View style={routineStyles.modalHeader}>
-                <Text style={routineStyles.modalTitle}>
-                  {t("feedback.title", "Reportar / Sugerencias")}
+              <View
+                style={[
+                  routineStyles.modalContentBottomSheet,
+                  { paddingBottom: Math.max(25, insets.bottom + 10) },
+                ]}
+              >
+                <View style={routineStyles.modalHeader}>
+                  <Text style={routineStyles.modalTitle}>
+                    {t("feedback.title", "Reportar / Sugerencias")}             
+                       {" "}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setFeedbackModalVisible(false)}
+                  >
+                    <AntDesign
+                      name="close"
+                      size={24}
+                      color={colors.textPrimary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Text style={[routineStyles.label, { marginBottom: 15 }]}>
+                  {t(
+                    "feedback.description",
+                    "¿Encontraste un error o tienes alguna idea para mejorar la app? ¡Te escuchamos!",
+                  )}
                 </Text>
-                <TouchableOpacity
-                  onPress={() => setFeedbackModalVisible(false)}
+                <View
+                  style={{
+                    backgroundColor: colors.surface,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    padding: 15,
+                    marginBottom: 20,
+                  }}
                 >
-                  <AntDesign
-                    name="close"
-                    size={24}
-                    color={colors.textPrimary}
+                  <TextInput
+                    style={{
+                      color: colors.textPrimary,
+                      minHeight: 120,
+                      textAlignVertical: "top",
+                      fontSize: 15,
+                    }}
+                    multiline
+                    placeholder={t(
+                      "feedback.placeholder",
+                      "Escribe tu comentario aquí...",
+                    )}
+                    placeholderTextColor={colors.textSecondary}
+                    value={feedbackText}
+                    onChangeText={setFeedbackText}
                   />
+                </View>
+                <TouchableOpacity
+                  style={[
+                    routineStyles.actionButton,
+                    {
+                      backgroundColor: colors.primary,
+                      borderColor: colors.primary,
+                      opacity: !feedbackText.trim() ? 0.5 : 1,
+                      flexDirection: "row",
+                      justifyContent: "center",
+                    },
+                  ]}
+                  disabled={!feedbackText.trim() || isSendingFeedback}
+                  onPress={handleSendFeedback}
+                >
+                  {isSendingFeedback ? (
+                    <ActivityIndicator color="#FFF" />
+                  ) : (
+                    <>
+                      <Feather
+                        name="send"
+                        size={18}
+                        color="#FFF"
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text
+                        style={[
+                          routineStyles.actionButtonText,
+                          { color: "#FFF" },
+                        ]}
+                      >
+                        {t("feedback.send", "Enviar Comentario")}               
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
-
-              <Text style={[routineStyles.label, { marginBottom: 15 }]}>
-                {t(
-                  "feedback.description",
-                  "¿Encontraste un error o tienes alguna idea para mejorar la app? ¡Te escuchamos!",
-                )}
-              </Text>
-
-              <View
-                style={{
-                  backgroundColor: colors.surface,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  padding: 15,
-                  marginBottom: 20,
-                }}
-              >
-                <TextInput
-                  style={{
-                    color: colors.textPrimary,
-                    minHeight: 120,
-                    textAlignVertical: "top",
-                    fontSize: 15,
-                  }}
-                  multiline
-                  placeholder={t(
-                    "feedback.placeholder",
-                    "Escribe tu comentario aquí...",
-                  )}
-                  placeholderTextColor={colors.textSecondary}
-                  value={feedbackText}
-                  onChangeText={setFeedbackText}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={[
-                  routineStyles.actionButton,
-                  {
-                    backgroundColor: colors.primary,
-                    borderColor: colors.primary,
-                    opacity: !feedbackText.trim() ? 0.5 : 1,
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  },
-                ]}
-                disabled={!feedbackText.trim() || isSendingFeedback}
-                onPress={handleSendFeedback}
-              >
-                {isSendingFeedback ? (
-                  <ActivityIndicator color="#FFF" />
-                ) : (
-                  <>
-                    <Feather
-                      name="send"
-                      size={18}
-                      color="#FFF"
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text
-                      style={[
-                        routineStyles.actionButtonText,
-                        { color: "#FFF" },
-                      ]}
-                    >
-                      {t("feedback.send", "Enviar Comentario")}
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>

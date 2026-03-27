@@ -28,6 +28,11 @@ import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
 
+/**
+ * Modal para mostrar los detalles de un ejercicio, con imagen (si existe), descripción y músculos trabajados, y opción a cerrar el modal
+ * @param param0
+ * @returns
+ */
 export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -206,6 +211,11 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
   );
 };
 
+/**
+ * Modal para crear un nuevo pack semanal, con campos para nombre y descripción, listado de rutinas propias para seleccionar (hasta 6) y botón para guardar el pack
+ * @param param0
+ * @returns
+ */
 export const CreatePackModal = ({
   visible,
   onClose,
@@ -390,6 +400,11 @@ export const CreatePackModal = ({
   );
 };
 
+/**
+ * Modal para mostrar los detalles de un pack semanal guardado, con opción a iniciar cada rutina o eliminar el pack del perfil
+ * @param param0
+ * @returns
+ */
 export const PackDetailsModal = ({
   visible,
   onClose,
@@ -437,7 +452,7 @@ export const PackDetailsModal = ({
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{
               paddingHorizontal: 25,
-              paddingBottom: Math.max(80, insets.bottom + 40),
+              paddingBottom: Math.max(40, insets.bottom + 20),
             }}
           >
             {pack.description && (
@@ -519,6 +534,11 @@ export const PackDetailsModal = ({
   );
 };
 
+/**
+ * Modal para mostrar una rutina guardada en modo solo lectura, con opción a eliminarla del perfil
+ * @param param0
+ * @returns
+ */
 export const ReadonlyRoutineModal = ({
   visible,
   onClose,
@@ -566,7 +586,7 @@ export const ReadonlyRoutineModal = ({
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{
                 paddingHorizontal: 25,
-                paddingBottom: Math.max(80, insets.bottom + 40),
+                paddingBottom: Math.max(40, insets.bottom + 20),
               }}
             >
               <Text style={[styles.label, { marginBottom: 10 }]}>
@@ -594,6 +614,7 @@ export const ReadonlyRoutineModal = ({
                         • {t(`exercises.${exercise.exerciseDetails?.id}`)}
                       </Text>
                     </TouchableOpacity>
+
                     {exercise.sets?.map((set: any, setIdx: number) => (
                       <Text
                         key={setIdx}
@@ -603,7 +624,7 @@ export const ReadonlyRoutineModal = ({
                           fontSize: 14,
                         }}
                       >
-                        Set {setIdx + 1}: {set.reps} reps
+                        {t("routines.set", "Set")} {setIdx + 1}
                       </Text>
                     ))}
                   </View>
@@ -655,6 +676,11 @@ export const ReadonlyRoutineModal = ({
   );
 };
 
+/**
+ * Modal para crear o editar una rutina, con drag-and-drop para reordenar ejercicios y opción a eliminar la rutina si ya estaba guardada
+ * @param param0
+ * @returns
+ */
 export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
