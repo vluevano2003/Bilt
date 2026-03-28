@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Keyboard, // <--- Importante para cerrar el teclado
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -117,7 +118,21 @@ export default function HomeScreen() {
         t("activeWorkout.workoutInProgressMsg"),
       );
     } else {
-      startWorkout(routine);
+      let routineToStart = routine;
+      if (routine.originalCreatorId) {
+        routineToStart = {
+          ...routine,
+          exercises: routine.exercises.map((ex: any) => ({
+            ...ex,
+            sets: ex.sets.map((set: any) => ({
+              ...set,
+              weight: 0,
+              reps: 0,
+            })),
+          })),
+        };
+      }
+      startWorkout(routineToStart);
       router.push("/activeWorkout");
     }
   };
@@ -646,10 +661,16 @@ export default function HomeScreen() {
         onRequestClose={() => setFeedbackModalVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
           <View style={routineStyles.modalOverlayBottomSheet}>
+            <TouchableOpacity
+              style={{ flex: 1, width: "100%" }}
+              activeOpacity={1}
+              onPress={() => Keyboard.dismiss()}
+            />
+
             <View
               style={[
                 routineStyles.modalContentBottomSheet,
@@ -670,14 +691,12 @@ export default function HomeScreen() {
                   />
                 </TouchableOpacity>
               </View>
-
               <Text style={[routineStyles.label, { marginBottom: 15 }]}>
                 {t(
                   "feedback.description",
                   "¿Encontraste un error o tienes alguna idea para mejorar la app? ¡Te escuchamos!",
                 )}
               </Text>
-
               <View
                 style={{
                   backgroundColor: colors.surface,
@@ -705,7 +724,6 @@ export default function HomeScreen() {
                   onChangeText={setFeedbackText}
                 />
               </View>
-
               <TouchableOpacity
                 style={[
                   routineStyles.actionButton,

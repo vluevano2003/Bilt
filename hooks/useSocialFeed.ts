@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
@@ -30,6 +31,12 @@ export const useSocialFeed = () => {
 
   const fetchFeed = useCallback(async () => {
     if (!user?.id) return;
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      setLoadingFeed(false);
+      return;
+    }
 
     try {
       const { data: followingData } = await supabase

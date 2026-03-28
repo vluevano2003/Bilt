@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo"; // --- NUEVO ---
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
@@ -67,6 +68,9 @@ export const useRoutines = () => {
    * Cargar ejercicios desde la base de datos al iniciar el hook. Esto se hace una sola vez y se almacena en el estado `exercisesDb` para su uso posterior en la selección de ejercicios al crear o editar rutinas
    */
   const fetchExercisesFromDB = useCallback(async () => {
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) return;
+
     try {
       const { data, error } = await supabase
         .from("exercises")
@@ -93,6 +97,12 @@ export const useRoutines = () => {
 
   const fetchRoutines = useCallback(async () => {
     if (!currentUserId) return;
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      setIsLoading(false);
+      return;
+    }
 
     const { data, error } = await supabase
       .from("routines")

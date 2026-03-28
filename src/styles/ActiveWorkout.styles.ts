@@ -212,7 +212,7 @@ export const getStyles = (colors: any) =>
       justifyContent: "center",
       paddingVertical: 15,
       marginTop: 20,
-      marginBottom: 40,
+      marginBottom: 10,
     },
     cancelWorkoutText: {
       color: "#EF4444",

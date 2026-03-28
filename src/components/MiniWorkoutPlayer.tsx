@@ -3,6 +3,7 @@ import { usePathname, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../context/ActiveWorkoutContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -12,7 +13,8 @@ export const MiniWorkoutPlayer = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { colors } = useTheme();
-  const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
+  const styles = getStyles(colors, insets.bottom);
 
   if (!activeRoutine || pathname === "/activeWorkout") return null;
 
@@ -41,11 +43,11 @@ export const MiniWorkoutPlayer = () => {
   );
 };
 
-const getStyles = (colors: any) =>
+const getStyles = (colors: any, bottomInset: number) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      bottom: 110,
+      bottom: 75 + bottomInset,
       left: 15,
       right: 15,
       backgroundColor: colors.primary,

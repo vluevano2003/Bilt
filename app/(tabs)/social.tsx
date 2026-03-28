@@ -1,9 +1,11 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
+import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   RefreshControl,
@@ -92,6 +94,12 @@ export default function SocialScreen() {
   }, [searchQuery]);
 
   const searchUsers = async (text: string) => {
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      Alert.alert(t("alerts.error", "Error"), t("errors.networkFailed"));
+      return;
+    }
+
     setIsSearching(true);
     try {
       const { data, error } = await supabase
