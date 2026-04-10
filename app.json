@@ -45,7 +45,7 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "EXPO_PUBLIC_ADMOB_APP_ID",
+          "androidAppId": "ca-app-pub-5910452576156640~4652637040",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ],

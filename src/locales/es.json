@@ -4,7 +4,8 @@
     "next": "Siguiente",
     "finish": "Finalizar",
     "cancel": "Cancelar",
-    "or": "O"
+    "or": "O",
+    "saving": "Guardando..."
   },
   "tabs": {
     "workout": "Workout",

@@ -4,7 +4,8 @@
     "next": "Next",
     "finish": "Finish",
     "cancel": "Cancel",
-    "or": "OR"
+    "or": "OR",
+    "saving": "Saving..."
   },
   "tabs": {
     "workout": "Workout",
