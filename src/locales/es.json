@@ -1,0 +1,819 @@
+{
+  "common": {
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar",
+    "cancel": "Cancelar",
+    "or": "O"
+  },
+  "tabs": {
+    "workout": "Workout",
+    "social": "Comunidad",
+    "history": "Historial",
+    "profile": "Perfil"
+  },
+  "login": {
+    "title": "BILT TRACKER",
+    "subtitle": "Tu progreso, tu ritmo",
+    "emailPlaceholder": "Correo electrónico",
+    "passwordPlaceholder": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "loginButton": "Iniciar Sesión",
+    "noAccount": "¿No tienes cuenta? Regístrate aquí",
+    "forgotSubtitle": "Recupera el acceso a tu cuenta",
+    "forgotInfo": "Escribe tu correo electrónico a continuación y te enviaremos instrucciones.",
+    "sendLink": "Enviar enlace",
+    "backToLogin": "Volver al inicio de sesión",
+    "hasAccount": "¿Ya tienes cuenta? Inicia sesión",
+    "newPasswordTitle": "Nueva Contraseña",
+    "newPasswordSubtitle": "Ingresa tu nueva contraseña para recuperar tu cuenta.",
+    "newPasswordPlaceholder": "Escribe tu nueva contraseña",
+    "updatePasswordBtn": "Actualizar Contraseña",
+    "passwordUpdated": "Tu contraseña ha sido actualizada correctamente.",
+    "goToHome": "Ir al inicio",
+    "verifyCodeTitle": "Verifica tu código",
+    "verifyCodeSubtitle": "Ingresa el código de 8 dígitos que enviamos a tu correo y tu nueva contraseña.",
+    "codePlaceholder": "Código de 8 dígitos",
+    "tryAnotherEmail": "Probar con otro correo"
+  },
+  "register": {
+    "step": "Paso {{step}} de 4",
+    "addPhoto": "Añadir foto",
+    "usernamePlaceholder": "¿Cómo te llaman en el gym? (Usuario)",
+    "birthDateLabel": "Fecha de nacimiento:",
+    "selectDate": "Seleccionar fecha",
+    "confirmDate": "Confirmar fecha",
+    "genderLabel": "Género:",
+    "male": "Hombre",
+    "female": "Mujer",
+    "systemLabel": "Sistema de medida:",
+    "metric": "Métrico (cm/kg)",
+    "imperial": "Imperial (in/lbs)",
+    "heightCm": "Altura (cm)",
+    "heightIn": "Altura (in)",
+    "weightKg": "Peso (kg)",
+    "weightLbs": "Peso (lbs)"
+  },
+  "google": {
+    "comingSoonTitle": "Próximamente",
+    "comingSoonMsg": "Estamos trabajando duro para traer el inicio de sesión con Google. ¡Vuelve pronto!",
+    "continue": "Continuar con Google"
+  },
+  "social": {
+    "feed": "Novedades",
+    "findFriends": "Buscar",
+    "searchPlaceholder": "Buscar usuarios...",
+    "follow": "Seguir",
+    "requested": "Pendiente",
+    "following": "Siguiendo",
+    "unfollowPrivateTitle": "¿Dejar de seguir cuenta privada?",
+    "unfollowPrivateMsg": "Si cambias de opinión, tendrás que enviar una nueva solicitud para ver sus rutinas.",
+    "unfollowConfirm": "Dejar de seguir",
+    "noResults": "No se encontraron resultados.",
+    "noNotifications": "No hay notificaciones.",
+    "searchInstructions": "Busca usuarios por su nombre para seguirlos.",
+    "requests": "Solicitudes",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "time": {
+      "justNow": "Justo ahora",
+      "minsAgo": "Hace {{count}} min",
+      "hoursAgo": "Hace {{count}} h",
+      "daysAgo": "Hace {{count}} d"
+    },
+    "completedWorkout": "Completó un entrenamiento",
+    "createdRoutine": "Creó una nueva rutina",
+    "emptyFeed": "Sigue a otros usuarios para ver su actividad aquí.",
+    "defaultWorkout": "Entrenamiento",
+    "notifications": {
+      "newRequestTitle": "Nueva solicitud",
+      "newRequestBody": "@{{name}} te ha enviado una solicitud de seguimiento.",
+      "newFollowerTitle": "Nuevo seguidor",
+      "newFollowerBody": "@{{name}} ha comenzado a seguirte.",
+      "requestAcceptedTitle": "Solicitud aceptada",
+      "requestAcceptedBody": "@{{name}} ha aceptado tu solicitud de seguimiento."
+    }
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "profileOf": "Perfil",
+    "years": "años",
+    "username": "Nombre de usuario",
+    "email": "Correo electrónico",
+    "gender": "Género",
+    "measurementSystem": "Sistema de medición",
+    "metric": "Métrico",
+    "imperial": "Imperial",
+    "height": "Estatura",
+    "weight": "Peso",
+    "saveChanges": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "editProfile": "Editar Perfil",
+    "settings": "Configuración",
+    "language": "Idioma",
+    "darkMode": "Modo Oscuro",
+    "logout": "Cerrar Sesión",
+    "posts": "Rutinas",
+    "followers": "Seguidores",
+    "following": "Siguiendo",
+    "friends": "amigos",
+    "privateAccount": "Cuenta Privada",
+    "privateMsg": "Sigue a este usuario para ver sus rutinas y progreso.",
+    "visibilityOptions": "Opciones de visibilidad",
+    "showAge": "Mostrar Edad",
+    "showGender": "Mostrar Género",
+    "showHeight": "Mostrar Estatura",
+    "showWeight": "Mostrar Peso",
+    "alerts": {
+      "error": "Error",
+      "success": "Éxito",
+      "errorLoad": "No se pudo cargar la información del perfil.",
+      "successSave": "Perfil actualizado correctamente.",
+      "errorSave": "No se pudieron guardar los cambios."
+    },
+    "workoutHistory": "Historial de Entrenamientos",
+    "noHistory": "El historial está vacío.",
+    "noPublicRoutines": "Este usuario aún no tiene rutinas públicas.",
+    "loadMore": "Cargar más",
+    "accountSection": "CUENTA",
+    "preferencesSection": "PREFERENCIAS",
+    "blockedUsers": "Usuarios Bloqueados",
+    "noBlockedUsers": "No tienes usuarios bloqueados.",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountTitle": "Eliminar Cuenta",
+    "deleteAccountMsg": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es permanente y no se puede deshacer.",
+    "unblock": "Desbloquear",
+    "block": "Bloquear usuario",
+    "blockConfirmTitle": "Bloquear",
+    "unblockConfirmTitle": "Desbloquear",
+    "blockMsg": "¿Estás seguro de bloquear a este usuario? No podrán ver tu perfil ni interactuar.",
+    "unblockMsg": "¿Quieres desbloquear a este usuario?",
+    "userBlockedTitle": "Usuario no disponible",
+    "report": "Reportar usuario",
+    "reportReasonPrompt": "¿Por qué quieres reportar a este usuario? Por favor detalla el motivo.",
+    "reportReasonPlaceholder": "Escribe el motivo...",
+    "reportConfirmTitle": "Reportar Usuario",
+    "sendReport": "Enviar Reporte",
+    "reportedTitle": "Usuario Reportado",
+    "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil."
+  },
+  "alerts": {
+    "missingData": "Faltan datos",
+    "completeMetrics": "Completa tus métricas para continuar.",
+    "error": "Error",
+    "mustBeNumbers": "Deben ser números.",
+    "unusualHeightCm": "Estatura poco común (cm).",
+    "unusualWeightKg": "Peso poco común (kg).",
+    "unusualHeightIn": "Estatura poco común (in).",
+    "unusualWeightLbs": "Peso poco común (lbs).",
+    "emptyFields": "Campos vacíos",
+    "needEmailPassword": "Necesitamos correo y contraseña.",
+    "invalidEmailTitle": "Correo inválido",
+    "invalidEmailFormat": "Formato incorrecto.",
+    "missingEmail": "Falta correo",
+    "writeEmail": "Escribe tu dirección de correo.",
+    "wrongFormatTitle": "Formato incorrecto",
+    "includeAt": "Asegúrate de incluir '@' y dominio.",
+    "sent": "¡Enviado!",
+    "checkSpam": "Revisa tu bandeja de entrada o SPAM.",
+    "incomplete": "Incompleto",
+    "enterEmailPassword": "Ingresa correo y contraseña.",
+    "minChars": "Mínimo 6 caracteres.",
+    "missingNickname": "Falta tu apodo.",
+    "missingDateGender": "Falta fecha o género.",
+    "minAge": "Debes tener al menos 13 años.",
+    "checkYear": "Verifica el año de nacimiento.",
+    "sentOtpCode": "Revisa tu correo. Te hemos enviado un código de 8 dígitos.",
+    "invalidOtpCode": "Ingresa un código de 8 dígitos válido."
+  },
+  "errors": {
+    "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
+    "userNotFound": "No encontramos ninguna cuenta asociada a este correo.",
+    "wrongPassword": "La contraseña es incorrecta. Inténtalo de nuevo.",
+    "emailInUse": "Este correo ya está registrado en otra cuenta. Intenta iniciar sesión.",
+    "weakPassword": "La contraseña es muy débil. Usa al menos 6 caracteres.",
+    "networkFailed": "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
+    "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
+    "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.",
+    "updatePasswordFailed": "No se pudo actualizar la contraseña.",
+    "invalidLink": "El enlace no es válido o ya ha expirado."
+  },
+  "routines": {
+    "title": "Tus Rutinas",
+    "emptyMessage": "Aún no tienes rutinas creadas. ¡Empieza a construir tu primer entrenamiento!",
+    "createNew": "Crear Rutina",
+    "edit": "Editar Rutina",
+    "routineName": "Nombre de la rutina",
+    "routineNamePlaceholder": "Ej. Día de Pecho, Full Body...",
+    "addExercise": "Añadir Ejercicio",
+    "startWorkout": "Iniciar Entrenamiento",
+    "exercises": "Ejercicios",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "deleteConfirmTitle": "Eliminar Rutina",
+    "deleteConfirmMsg": "¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.",
+    "yesDelete": "Sí, eliminar",
+    "searchExercise": "Buscar ejercicio...",
+    "selectMuscle": "Filtrar por músculo",
+    "allMuscles": "Todos los músculos",
+    "addSelected": "Añadir Seleccionados ({{count}})",
+    "sets": "Series",
+    "remove": "Quitar",
+    "noExercises": "No hay ejercicios en esta rutina aún.",
+    "saveToProfile": "Guardar Rutina",
+    "removeFromProfile": "Dejar de guardar",
+    "successSaved": "¡Rutina guardada en tu perfil!",
+    "successRemoved": "Rutina eliminada de tu perfil.",
+    "readonlyTitle": "Rutina Guardada",
+    "readonlyMsg": "Esta rutina fue creada por @{{creator}} y no puede ser modificada.\n\n¡Aún así, puedes darle a Play para entrenar con ella!",
+    "understood": "Entendido",
+    "fromCreator": "De: @{{creator}}",
+    "unsaveConfirmTitle": "Eliminar de mi perfil",
+    "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?",
+    "savedRoutines": "Rutinas Guardadas",
+    "cannotDeleteInPack": "No puedes eliminar esta rutina porque pertenece a un Pack Semanal. Quítala del pack primero.",
+    "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?",
+    "animationComingSoon": "Animación próximamente",
+    "synergists": "Sinérgicos",
+    "instructions": "Instrucciones"
+  },
+  "activeWorkout": {
+    "finish": "Finalizar",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "cancel": "Cancelar Rutina",
+    "workoutOf": "Entrenamiento: {{name}}",
+    "set": "Serie",
+    "reps": "Reps",
+    "weight": "Peso",
+    "addSet": "Añadir Serie",
+    "finishAlertTitle": "Finalizar Entrenamiento",
+    "finishAlertMsg": "¡Gran trabajo! ¿Quieres finalizar y guardar este entrenamiento?",
+    "cancelAlertTitle": "Cancelar Entrenamiento",
+    "cancelAlertMsg": "¿Estás seguro? Se perderá el progreso de esta sesión.",
+    "yesFinish": "Sí, finalizar",
+    "yesCancel": "Sí, cancelar",
+    "keepChanges": "¿Deseas guardar las modificaciones (nuevas series/ejercicios) en tu plantilla original?",
+    "restTimer": "Tiempo de Descanso",
+    "skip": "Saltar",
+    "units": {
+      "kg": "kg",
+      "lbs": "lbs",
+      "bars": "barras",
+      "plates": "discos",
+      "bodyweight": "libre"
+    },
+    "cancelWorkoutButton": "Cancelar Entrenamiento",
+    "trainingLabel": "Entrenando",
+    "workoutInProgressTitle": "Entrenamiento en curso",
+    "workoutInProgressMsg": "Tienes otro entrenamiento activo. Cancélalo primero desde el mini-reproductor.",
+    "updateTemplateTitle": "Actualizar Plantilla",
+    "updateTemplateMsg": "Has modificado los ejercicios o series. ¿Deseas guardar estos cambios para la próxima vez?",
+    "updateTemplateBtn": "Actualizar",
+    "keepOriginalBtn": "Mantener original",
+    "summaryTitle": "Resumen del Entrenamiento",
+    "totalVolume": "Volumen Total",
+    "completedSets": "Series Completadas",
+    "duration": "Duración",
+    "closeSummary": "Cerrar",
+    "logWorkout": "Registrar Rutina",
+    "goodJob": "¡Buen trabajo!",
+    "workoutCompleted": "Entrenamiento completado",
+    "musclesWorked": "Músculos trabajados",
+    "noSetsValid": "No completaste ninguna serie válida.",
+    "previous": "ANTERIOR",
+    "notificationTitle": "¡Descanso terminado! 🏋️‍♂️",
+    "notificationBody": "Es hora de tu siguiente serie. ¡A darle!"
+  },
+  "muscles": {
+    "chest": "Pecho",
+    "back": "Espalda",
+    "legs": "Piernas",
+    "shoulders": "Hombros",
+    "arms": "Brazos",
+    "core": "Core"
+  },
+  "equipment": {
+    "free_weight": "Peso Libre",
+    "machine": "Máquina",
+    "bodyweight": "Peso Corporal",
+    "cable": "Polea"
+  },
+  "exercises": {
+    "bench_press_barbell": "Press de Banca con Barra",
+    "bench_press_dumbbell": "Press de Banca con Mancuernas",
+    "incline_bench_press_barbell": "Press Inclinado con Barra",
+    "incline_bench_press_dumbbell": "Press Inclinado con Mancuernas",
+    "decline_bench_press_barbell": "Press Declinado con Barra",
+    "decline_bench_press_dumbbell": "Press Declinado con Mancuernas",
+    "chest_press_machine": "Press de Pecho en Máquina",
+    "incline_chest_press_machine": "Press Inclinado en Máquina",
+    "chest_fly_dumbbell": "Aperturas con Mancuernas",
+    "pec_deck": "Pec Deck (Contractor)",
+    "cable_crossover": "Cruces en Polea",
+    "pushups": "Flexiones",
+    "dips_chest": "Fondos de Pecho",
+    "pullover_dumbbell": "Pullover con Mancuerna",
+    "pullups": "Dominadas",
+    "chinups": "Dominadas Supinas",
+    "lat_pulldown_wide": "Jalón al Pecho Agarre Abierto",
+    "lat_pulldown_close": "Jalón al Pecho Agarre Cerrado",
+    "barbell_row": "Remo con Barra",
+    "dumbbell_row": "Remo con Mancuerna a una Mano",
+    "seated_cable_row": "Remo en Polea Baja",
+    "machine_row": "Remo en Máquina",
+    "t_bar_row": "Remo en T (Peso Libre)",
+    "t_bar_row_machine": "Remo en T en Máquina",
+    "deadlift": "Peso Muerto",
+    "straight_arm_pulldown": "Jalón con Brazos Rectos",
+    "hyperextensions": "Hiperextensiones lumbares",
+    "shrugs_barbell": "Encogimientos de Hombros con Barra",
+    "shrugs_dumbbell": "Encogimientos de Hombros con Mancuernas",
+    "squat_barbell": "Sentadilla Libre con Barra",
+    "squat_dumbbell": "Sentadilla Copa (Mancuerna)",
+    "front_squat_barbell": "Sentadilla Frontal",
+    "hack_squat_machine": "Sentadilla Hack en Máquina",
+    "leg_press": "Prensa de Piernas",
+    "leg_extension": "Extensión de Cuádriceps",
+    "leg_curl_lying": "Curl de Isquiotibiales Tumbado",
+    "leg_curl_seated": "Curl de Isquiotibiales Sentado",
+    "romanian_deadlift_barbell": "Peso Muerto Rumano con Barra",
+    "romanian_deadlift_dumbbell": "Peso Muerto Rumano con Mancuernas",
+    "lunges_barbell": "Desplantes con Barra",
+    "lunges_dumbbell": "Desplantes con Mancuernas",
+    "bulgarian_split_squat_dumbbell": "Sentadilla Búlgara con Mancuernas",
+    "hip_thrust_barbell": "Hip Thrust con Barra",
+    "hip_thrust_machine": "Hip Thrust en Máquina",
+    "calf_raise_standing": "Elevación de Gemelos de Pie",
+    "calf_raise_seated": "Elevación de Gemelos Sentado",
+    "overhead_press_barbell": "Press Militar con Barra",
+    "overhead_press_dumbbell": "Press de Hombros con Mancuernas",
+    "shoulder_press_machine": "Press de Hombros en Máquina",
+    "arnold_press": "Press Arnold",
+    "lateral_raises_dumbbell": "Elevaciones Laterales con Mancuernas",
+    "lateral_raises_cable": "Elevaciones Laterales en Polea",
+    "front_raises_dumbbell": "Elevaciones Frontales con Mancuernas",
+    "front_raises_barbell": "Elevaciones Frontales con Barra",
+    "face_pull": "Face Pull",
+    "reverse_pec_deck": "Pájaros en Máquina (Posterior)",
+    "upright_row_barbell": "Remo al Mentón con Barra",
+    "upright_row_cable": "Remo al Mentón en Polea",
+    "bicep_curl_barbell": "Curl de Bíceps con Barra",
+    "bicep_curl_dumbbell": "Curl de Bíceps con Mancuernas",
+    "hammer_curl_dumbbell": "Curl Martillo con Mancuernas",
+    "hammer_curl_cable": "Curl Martillo en Polea",
+    "preacher_curl_barbell": "Curl Predicador con Barra",
+    "preacher_curl_machine": "Curl Predicador en Máquina",
+    "bicep_curl_cable": "Curl de Bíceps en Polea",
+    "concentration_curl_dumbbell": "Curl Concentrado con Mancuerna",
+    "tricep_pushdown_cable": "Extensión de Tríceps en Polea",
+    "overhead_tricep_extension_dumbbell": "Extensión de Tríceps por encima de la cabeza (Mancuerna)",
+    "overhead_tricep_extension_cable": "Extensión de Tríceps por encima de la cabeza (Polea)",
+    "skullcrusher_barbell": "Rompecráneos con Barra",
+    "dips_triceps": "Fondos de Tríceps",
+    "close_grip_bench_press": "Press de Banca Agarre Estrecho",
+    "tricep_kickback_dumbbell": "Patada de Tríceps con Mancuerna",
+    "tricep_kickback_cable": "Patada de Tríceps en Polea",
+    "crunch": "Crunch Abdominal",
+    "plank": "Plancha Isométrica",
+    "russian_twist": "Giro Ruso",
+    "leg_raises_lying": "Elevación de Piernas Tumbado",
+    "leg_raises_hanging": "Elevación de Piernas Colgado",
+    "ab_wheel_rollout": "Rueda Abdominal",
+    "bicycle_crunch": "Crunches en Bicicleta",
+    "cable_crunch": "Crunch en Polea",
+    "hip_abductor_machine": "Abductores en Máquina",
+    "hip_adductor_machine": "Aductores en Máquina",
+    "glute_kickback_machine": "Patada de Glúteo en Máquina",
+    "smith_machine_squat": "Sentadilla en Máquina Smith",
+    "smith_machine_bench_press": "Press de Banca en Máquina Smith",
+    "smith_machine_incline_press": "Press Inclinado en Máquina Smith",
+    "smith_machine_overhead_press": "Press Militar en Máquina Smith",
+    "good_mornings": "Buenos Días con Barra",
+    "sumo_deadlift": "Peso Muerto Sumo"
+  },
+  "unitSelection": {
+    "title": "Seleccionar Unidad",
+    "kg": "Kilogramos (kg)",
+    "kg_desc": "Registra el volumen total levantado en kilogramos.",
+    "lbs": "Libras (lbs)",
+    "lbs_desc": "Registra el volumen total levantado en libras.",
+    "bodyweight": "Peso Corporal",
+    "bodyweight_desc": "Para ejercicios con tu peso. Registra peso solo si usas lastre extra.",
+    "bars": "Barras / Bloques",
+    "bars_desc": "Para niveles o bloques en máquinas de poleas. No suma al volumen total.",
+    "plates": "Discos",
+    "plates_desc": "Registra la cantidad de discos usados por lado. No suma al volumen total."
+  },
+  "home": {
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches",
+    "thisWeek": "Esta semana",
+    "weeklySummary": "Resumen de Actividad",
+    "workouts": "Entrenos totales",
+    "volume": "Volumen ({{unit}})",
+    "startEmpty": "+ Iniciar Entreno Vacío",
+    "workoutInProgress": "Entrenamiento en curso",
+    "goToWorkout": "Ir al Entrenamiento Activo",
+    "defaultName": "Atleta"
+  },
+  "weeklyPacks": {
+    "tabPacks": "Packs",
+    "emptyMessage": "Aún no tienes packs semanales. ¡Agrupa tus rutinas!",
+    "createNew": "Crear Pack Semanal",
+    "packName": "Nombre del Pack",
+    "packNamePlaceholder": "Ej. Semana de Hipertrofia",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ej. Rutina de 5 días para ganar masa...",
+    "selectRoutines": "Selecciona hasta 6 rutinas",
+    "maxRoutinesAlert": "Solo puedes añadir un máximo de 6 rutinas por pack.",
+    "routinesSelected": "{{count}}/6 seleccionadas",
+    "savePack": "Guardar Pack",
+    "noRoutinesAvailable": "Crea algunas rutinas primero para armar un pack.",
+    "routinesIncluded": "Rutinas en este Pack:",
+    "savePackToProfile": "Guardar Pack en mi Perfil",
+    "noPublicPacks": "Este usuario aún no tiene Packs Semanales.",
+    "routinesCount": "Rutinas"
+  },
+  "exerciseDetails": {
+    "bench_press_barbell": {
+      "submuscles": "Pectoral mayor, Tríceps braquial, Deltoides anterior",
+      "description": "Acuéstate en el banco con los pies plantados en el suelo. Agarra la barra un poco más ancho que los hombros. Baja la barra controladamente hasta la parte media del pecho y empuja explosivamente hacia arriba."
+    },
+    "bench_press_dumbbell": {
+      "submuscles": "Pectoral mayor, Tríceps braquial, Deltoides anterior",
+      "description": "Acuéstate en el banco sosteniendo una mancuerna en cada mano. Baja las mancuernas controladamente a los lados del pecho y empuja hacia arriba juntándolas ligeramente."
+    },
+    "incline_bench_press_barbell": {
+      "submuscles": "Pectoral superior, Tríceps braquial, Deltoides anterior",
+      "description": "En un banco inclinado (30-45 grados), baja la barra hasta la parte superior del pecho y empuja hacia arriba."
+    },
+    "incline_bench_press_dumbbell": {
+      "submuscles": "Pectoral superior, Tríceps braquial, Deltoides anterior",
+      "description": "En un banco inclinado, baja las mancuernas a los lados del pecho superior y empuja hacia arriba controladamente."
+    },
+    "decline_bench_press_barbell": {
+      "submuscles": "Pectoral inferior, Tríceps braquial, Deltoides anterior",
+      "description": "En un banco declinado, asegura tus piernas. Baja la barra hasta la parte baja del pecho y empuja explosivamente."
+    },
+    "decline_bench_press_dumbbell": {
+      "submuscles": "Pectoral inferior, Tríceps braquial, Deltoides anterior",
+      "description": "En un banco declinado, baja las mancuernas controladamente a los lados de la parte inferior del pecho y empuja."
+    },
+    "chest_press_machine": {
+      "submuscles": "Pectoral mayor, Tríceps braquial, Deltoides anterior",
+      "description": "Ajusta el asiento para que las asas queden a la altura de tu pecho. Empuja hacia adelante extendiendo los brazos sin bloquear los codos."
+    },
+    "incline_chest_press_machine": {
+      "submuscles": "Pectoral superior, Tríceps braquial, Deltoides anterior",
+      "description": "Ajusta el asiento. Empuja las asas hacia adelante y arriba enfocándote en contraer la parte superior del pecho."
+    },
+    "chest_fly_dumbbell": {
+      "submuscles": "Pectoral mayor, Deltoides anterior",
+      "description": "Acuéstate en un banco plano. Con los brazos ligeramente flexionados, abre las mancuernas hacia los lados hasta sentir estiramiento en el pecho y ciérralas abrazando un barril imaginario."
+    },
+    "pec_deck": {
+      "submuscles": "Pectoral mayor, Deltoides anterior",
+      "description": "Siéntate en la máquina con la espalda apoyada. Junta los brazos (o codos, según la máquina) frente a ti apretando el pecho."
+    },
+    "cable_crossover": {
+      "submuscles": "Pectoral mayor, Pectoral inferior",
+      "description": "De pie entre las poleas altas, jala los cables hacia abajo y frente a tu cuerpo, cruzando ligeramente las manos al final del movimiento."
+    },
+    "pushups": {
+      "submuscles": "Pectoral mayor, Tríceps braquial, Deltoides anterior, Core",
+      "description": "En posición de plancha, baja el cuerpo doblando los codos a unos 45 grados de tu torso, y empuja de vuelta arriba."
+    },
+    "dips_chest": {
+      "submuscles": "Pectoral inferior, Tríceps braquial, Deltoides anterior",
+      "description": "En las barras paralelas, inclina el torso hacia adelante y baja hasta que tus codos estén a 90 grados, luego empuja hacia arriba."
+    },
+    "pullover_dumbbell": {
+      "submuscles": "Pectoral mayor, Dorsal ancho",
+      "description": "Acuéstate perpendicularmente sobre un banco, apoyando solo la espalda alta. Sostén una mancuerna con ambas manos sobre el pecho, bájala hacia atrás de tu cabeza y súbela de nuevo."
+    },
+    "pullups": {
+      "submuscles": "Dorsal ancho, Bíceps braquial, Trapecio inferior",
+      "description": "Cuélgate de la barra con agarre prono (palmas hacia adelante) más ancho que los hombros. Jala tu cuerpo hasta que tu barbilla pase la barra."
+    },
+    "chinups": {
+      "submuscles": "Dorsal ancho, Bíceps braquial (fuerte enfoque)",
+      "description": "Cuélgate con agarre supino (palmas hacia ti) al ancho de los hombros. Jala hacia arriba contrayendo la espalda y los bíceps."
+    },
+    "lat_pulldown_wide": {
+      "submuscles": "Dorsal ancho, Bíceps braquial, Romboides",
+      "description": "Siéntate en la máquina. Agarra la barra más ancho que los hombros y jálala hacia la parte alta de tu pecho, sacando pecho."
+    },
+    "lat_pulldown_close": {
+      "submuscles": "Dorsal ancho, Bíceps braquial",
+      "description": "Usa un agarre estrecho o en V. Jala el maneral hacia tu pecho manteniendo los codos cerca de tu cuerpo."
+    },
+    "barbell_row": {
+      "submuscles": "Dorsal ancho, Romboides, Trapecio, Erector espinal",
+      "description": "Inclina el torso a unos 45 grados manteniendo la espalda recta. Jala la barra hacia tu ombligo contrayendo la espalda."
+    },
+    "dumbbell_row": {
+      "submuscles": "Dorsal ancho, Romboides, Bíceps braquial",
+      "description": "Apoya una mano y rodilla en un banco. Con la otra mano, jala la mancuerna hacia tu cadera, manteniendo el codo cerca del cuerpo."
+    },
+    "seated_cable_row": {
+      "submuscles": "Dorsal ancho, Romboides, Trapecio",
+      "description": "Siéntate frente a la polea. Con la espalda recta y pecho afuera, jala el maneral hacia tu abdomen contrayendo las escápulas."
+    },
+    "machine_row": {
+      "submuscles": "Dorsal ancho, Romboides",
+      "description": "Ajusta el asiento y el apoyo del pecho. Jala las asas hacia atrás apretando la parte media de la espalda."
+    },
+    "t_bar_row": {
+      "submuscles": "Dorsal ancho, Romboides, Trapecio medio",
+      "description": "Párate sobre la barra T con el torso inclinado. Jala el peso hacia tu pecho/abdomen manteniendo los codos cerca."
+    },
+    "t_bar_row_machine": {
+      "submuscles": "Dorsal ancho, Romboides",
+      "description": "Acuéstate sobre el soporte del pecho de la máquina. Jala las asas hacia arriba aislando completamente la espalda."
+    },
+    "deadlift": {
+      "submuscles": "Glúteos, Isquiotibiales, Erector espinal, Trapecio, Cuádriceps",
+      "description": "Párate con la barra sobre la mitad de tus pies. Agarra la barra, baja la cadera, mantén la espalda recta y levántate empujando el suelo con las piernas."
+    },
+    "straight_arm_pulldown": {
+      "submuscles": "Dorsal ancho",
+      "description": "De pie frente a una polea alta. Con los brazos rectos (leve flexión de codos), baja la barra o cuerda hacia tus muslos contrayendo el dorsal."
+    },
+    "hyperextensions": {
+      "submuscles": "Erector espinal, Glúteos, Isquiotibiales",
+      "description": "En el banco de hiperextensiones, baja el torso controladamente y súbelo hasta alinear tu espalda con las piernas. No sobreextiendas."
+    },
+    "shrugs_barbell": {
+      "submuscles": "Trapecio superior",
+      "description": "De pie, sostén la barra frente a ti. Eleva los hombros hacia tus orejas lo más alto posible, haz una pausa y baja lento."
+    },
+    "shrugs_dumbbell": {
+      "submuscles": "Trapecio superior",
+      "description": "De pie, sostén una mancuerna en cada mano a los lados. Encoge los hombros hacia arriba apretando los trapecios."
+    },
+    "squat_barbell": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales, Core",
+      "description": "Coloca la barra sobre la espalda alta. Mantén el pecho arriba y baja la cadera hacia atrás y abajo rompiendo el paralelo. Empuja con fuerza para subir."
+    },
+    "squat_dumbbell": {
+      "submuscles": "Cuádriceps, Glúteos, Core",
+      "description": "Sostén una mancuerna verticalmente frente a tu pecho a la altura del cuello (Copa). Baja en sentadilla manteniendo el torso erguido."
+    },
+    "front_squat_barbell": {
+      "submuscles": "Cuádriceps (énfasis), Glúteos, Core, Espalda alta",
+      "description": "Sostén la barra apoyada en tus hombros frontales y clavículas. Mantén los codos muy altos y haz una sentadilla profunda."
+    },
+    "hack_squat_machine": {
+      "submuscles": "Cuádriceps, Glúteos",
+      "description": "Acuéstate en la máquina apoyando espalda y hombros. Baja controladamente hasta que las rodillas superen los 90 grados y empuja la plataforma."
+    },
+    "leg_press": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales",
+      "description": "Siéntate en la máquina. Baja la plataforma hacia ti controladamente y empuja de regreso sin bloquear las rodillas al final."
+    },
+    "leg_extension": {
+      "submuscles": "Cuádriceps",
+      "description": "Ajusta la máquina para que el rodillo quede en tus tobillos. Extiende las piernas contrayendo los cuádriceps al máximo y baja lento."
+    },
+    "leg_curl_lying": {
+      "submuscles": "Isquiotibiales, Gemelos",
+      "description": "Acuéstate boca abajo. Flexiona las rodillas llevando los talones hacia los glúteos y baja el peso controladamente."
+    },
+    "leg_curl_seated": {
+      "submuscles": "Isquiotibiales",
+      "description": "Siéntate en la máquina. Empuja el rodillo hacia abajo y atrás flexionando las rodillas para aislar la parte posterior del muslo."
+    },
+    "romanian_deadlift_barbell": {
+      "submuscles": "Isquiotibiales, Glúteos, Erector espinal",
+      "description": "De pie con la barra. Con las rodillas semi-rígidas, empuja la cadera hacia atrás hasta sentir estiramiento en los femorales, luego contrae glúteos para subir."
+    },
+    "romanian_deadlift_dumbbell": {
+      "submuscles": "Isquiotibiales, Glúteos, Erector espinal",
+      "description": "Con mancuernas a los lados o al frente, empuja la cadera hacia atrás manteniendo la espalda recta. Enfócate en el estiramiento femoral."
+    },
+    "lunges_barbell": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales",
+      "description": "Con la barra en la espalda, da un paso adelante y baja la cadera hasta que ambas rodillas formen un ángulo de 90 grados. Empuja para volver atrás."
+    },
+    "lunges_dumbbell": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales",
+      "description": "Con mancuernas a los lados, da pasos amplios controlando la bajada de la rodilla trasera hasta rozar el suelo."
+    },
+    "bulgarian_split_squat_dumbbell": {
+      "submuscles": "Glúteos, Cuádriceps",
+      "description": "Apoya el empeine de un pie en un banco atrás de ti. Baja controladamente enfocando el peso en la pierna delantera."
+    },
+    "hip_thrust_barbell": {
+      "submuscles": "Glúteos, Isquiotibiales",
+      "description": "Apoya la espalda alta en un banco, pon la barra sobre tu cadera (usa almohadilla). Empuja la cadera hacia arriba contrayendo fuertemente los glúteos al tope."
+    },
+    "hip_thrust_machine": {
+      "submuscles": "Glúteos",
+      "description": "Ajusta el cinturón o almohadilla sobre tu cadera. Empuja hacia arriba apretando los glúteos en la parte más alta del movimiento."
+    },
+    "calf_raise_standing": {
+      "submuscles": "Gemelos (Gastrocnemio)",
+      "description": "En máquina o escalón. Deja caer los talones para estirar al máximo, y empuja hacia arriba parándote de puntas, apretando un segundo."
+    },
+    "calf_raise_seated": {
+      "submuscles": "Sóleo",
+      "description": "Siéntate en la máquina. Eleva los talones contrayendo las pantorrillas y baja despacio sintiendo el estiramiento."
+    },
+    "overhead_press_barbell": {
+      "submuscles": "Deltoides anterior, Deltoides lateral, Tríceps, Core",
+      "description": "De pie, sostén la barra a la altura de clavículas. Empuja verticalmente hacia arriba hasta extender los brazos y asoma ligeramente la cabeza."
+    },
+    "overhead_press_dumbbell": {
+      "submuscles": "Deltoides anterior, Deltoides lateral, Tríceps",
+      "description": "Sentado con apoyo en la espalda. Sube las mancuernas por encima de tu cabeza y bájalas controladamente hasta la altura de las orejas."
+    },
+    "shoulder_press_machine": {
+      "submuscles": "Deltoides anterior, Tríceps",
+      "description": "Ajusta el asiento. Empuja las asas hacia arriba contrayendo los hombros y baja controlando el peso."
+    },
+    "arnold_press": {
+      "submuscles": "Deltoides anterior, Deltoides lateral",
+      "description": "Sostén las mancuernas frente a tu cara con palmas viéndote. Sube girando las muñecas hasta que al final las palmas miren hacia el frente."
+    },
+    "lateral_raises_dumbbell": {
+      "submuscles": "Deltoides lateral",
+      "description": "De pie, eleva los brazos hacia los lados con una ligera flexión de codo, como si estuvieras vaciando dos jarras de agua."
+    },
+    "lateral_raises_cable": {
+      "submuscles": "Deltoides lateral",
+      "description": "Usa una polea baja cruzando el cable por delante o detrás de ti. Eleva el brazo manteniendo tensión constante en el hombro."
+    },
+    "front_raises_dumbbell": {
+      "submuscles": "Deltoides anterior",
+      "description": "Sostén las mancuernas frente a ti. Elévalas alternadas o juntas hacia el frente hasta la altura de los ojos."
+    },
+    "front_raises_barbell": {
+      "submuscles": "Deltoides anterior",
+      "description": "Con agarre prono, eleva la barra con los brazos casi estirados hacia el frente hasta la altura de los hombros."
+    },
+    "face_pull": {
+      "submuscles": "Deltoides posterior, Trapecio medio, Romboides",
+      "description": "Usa una cuerda en polea alta. Jala hacia tu cara separando las manos, asegurando que tus codos queden más altos que tus hombros al final."
+    },
+    "reverse_pec_deck": {
+      "submuscles": "Deltoides posterior, Romboides",
+      "description": "Siéntate de frente a la máquina. Abre los brazos hacia atrás contrayendo específicamente la parte trasera de los hombros."
+    },
+    "upright_row_barbell": {
+      "submuscles": "Deltoides lateral, Trapecio superior",
+      "description": "Con agarre medio/abierto, jala la barra hacia tu barbilla guiando el movimiento con los codos hacia arriba."
+    },
+    "upright_row_cable": {
+      "submuscles": "Deltoides lateral, Trapecio superior",
+      "description": "Con una barra recta en polea baja, eleva el peso hacia el cuello enfocándote en la tracción de los hombros."
+    },
+    "bicep_curl_barbell": {
+      "submuscles": "Bíceps braquial, Braquial, Antebrazos",
+      "description": "De pie, agarre supino al ancho de los hombros. Flexiona los codos subiendo la barra sin balancear el torso."
+    },
+    "bicep_curl_dumbbell": {
+      "submuscles": "Bíceps braquial, Braquial",
+      "description": "Sube las mancuernas girando ligeramente las muñecas hacia afuera (supinación) en el punto más alto para máxima contracción."
+    },
+    "hammer_curl_dumbbell": {
+      "submuscles": "Braquiorradial, Braquial, Bíceps",
+      "description": "Agarre neutro (palmas mirándose). Flexiona el codo subiendo la mancuerna para darle grosor al brazo."
+    },
+    "hammer_curl_cable": {
+      "submuscles": "Braquiorradial, Braquial",
+      "description": "Usa el accesorio de cuerda en polea baja. Realiza el movimiento de curl de martillo manteniendo tensión constante."
+    },
+    "preacher_curl_barbell": {
+      "submuscles": "Bíceps braquial (cabeza corta)",
+      "description": "Apoya los tríceps en el banco predicador. Baja la barra (EZ de preferencia) hasta estirar casi por completo y contrae al subir."
+    },
+    "preacher_curl_machine": {
+      "submuscles": "Bíceps braquial",
+      "description": "Ajusta la altura para que las axilas queden en el cojín. Jala la palanca contrayendo fuertemente los bíceps."
+    },
+    "bicep_curl_cable": {
+      "submuscles": "Bíceps braquial",
+      "description": "Polea baja con barra recta. El cable proporciona tensión continua; sube explosivo y baja lentamente."
+    },
+    "concentration_curl_dumbbell": {
+      "submuscles": "Bíceps braquial",
+      "description": "Sentado, apoya el codo en el interior del muslo. Haz el curl aislando completamente el bíceps y apretando arriba."
+    },
+    "tricep_pushdown_cable": {
+      "submuscles": "Tríceps braquial (cabeza lateral)",
+      "description": "Polea alta con barra recta o V. Empuja hacia abajo estirando los codos por completo, manteniendo los codos pegados a las costillas."
+    },
+    "overhead_tricep_extension_dumbbell": {
+      "submuscles": "Tríceps braquial (cabeza larga)",
+      "description": "Sentado o de pie. Sostén una mancuerna con ambas manos tras la cabeza. Extiende los codos hacia arriba sintiendo el estiramiento en la bajada."
+    },
+    "overhead_tricep_extension_cable": {
+      "submuscles": "Tríceps braquial (cabeza larga)",
+      "description": "Polea baja o media con cuerda. Dale la espalda a la máquina y extiende la cuerda por encima de tu cabeza hacia adelante."
+    },
+    "skullcrusher_barbell": {
+      "submuscles": "Tríceps braquial",
+      "description": "Acuéstate en un banco. Con barra EZ, baja el peso hacia tu frente flexionando los codos y extiende sin mover los brazos de su posición."
+    },
+    "dips_triceps": {
+      "submuscles": "Tríceps braquial, Pectoral inferior, Deltoides anterior",
+      "description": "En barras paralelas o apoyado en un banco. Mantén el torso muy recto (no inclinado) y empuja aislando los tríceps."
+    },
+    "close_grip_bench_press": {
+      "submuscles": "Tríceps braquial, Pectoral mayor, Deltoides anterior",
+      "description": "Acuéstate en el banco. Toma la barra con un agarre a la anchura de los hombros. Baja manteniendo los codos muy pegados a tu torso."
+    },
+    "tricep_kickback_dumbbell": {
+      "submuscles": "Tríceps braquial",
+      "description": "Inclina el torso apoyando una mano. Lleva el codo hacia atrás y arriba, y extiende el antebrazo pateando hacia atrás."
+    },
+    "tricep_kickback_cable": {
+      "submuscles": "Tríceps braquial",
+      "description": "Polea baja sin ningún accesorio (agarra la bola). El cable da tensión en todo el recorrido de la patada de tríceps."
+    },
+    "crunch": {
+      "submuscles": "Recto abdominal",
+      "description": "Acuéstate bocarriba. Flexiona ligeramente el torso levantando los hombros del suelo para contraer el abdomen."
+    },
+    "plank": {
+      "submuscles": "Transverso abdominal, Recto abdominal, Core completo",
+      "description": "Apóyate sobre tus antebrazos y puntas de los pies. Mantén el cuerpo en línea recta apretando abdomen y glúteos."
+    },
+    "russian_twist": {
+      "submuscles": "Oblicuos, Recto abdominal",
+      "description": "Sentado con el torso inclinado hacia atrás y pies elevados. Gira el torso llevando el peso de un lado a otro."
+    },
+    "leg_raises_lying": {
+      "submuscles": "Recto abdominal (zona inferior)",
+      "description": "Acuéstate y coloca las manos bajo los glúteos. Mantén las piernas rectas, súbelas a 90 grados y bájalas sin tocar el piso."
+    },
+    "leg_raises_hanging": {
+      "submuscles": "Recto abdominal (zona inferior), Flexores de cadera",
+      "description": "Colgado de una barra. Sube las rodillas al pecho (o las piernas rectas para más dificultad) usando el abdomen sin columpiarte."
+    },
+    "ab_wheel_rollout": {
+      "submuscles": "Core completo, Dorsal ancho",
+      "description": "De rodillas, agarra la rueda y rueda hacia adelante extendiendo el cuerpo. Usa el abdomen para jalar y volver a la posición inicial."
+    },
+    "bicycle_crunch": {
+      "submuscles": "Oblicuos, Recto abdominal",
+      "description": "Acuéstate y simula pedalear. Lleva el codo derecho hacia la rodilla izquierda y viceversa en un movimiento controlado."
+    },
+    "cable_crunch": {
+      "submuscles": "Recto abdominal",
+      "description": "De rodillas frente a una polea alta con cuerda. Jala la cuerda tras tu cuello y haz una contracción abdominal hundiendo el pecho hacia la pelvis."
+    },
+    "hip_abductor_machine": {
+      "submuscles": "Glúteo medio, Glúteo menor",
+      "description": "Siéntate en la máquina. Abre las piernas empujando los cojines hacia afuera contrayendo los glúteos."
+    },
+    "hip_adductor_machine": {
+      "submuscles": "Aductores, Parte interna del muslo",
+      "description": "Siéntate en la máquina. Cierra las piernas juntando los cojines para trabajar la parte interna del muslo."
+    },
+    "glute_kickback_machine": {
+      "submuscles": "Glúteo mayor, Isquiotibiales",
+      "description": "Apóyate en la máquina y empuja la plataforma hacia atrás y arriba con una pierna, contrayendo el glúteo en la parte más alta."
+    },
+    "smith_machine_squat": {
+      "submuscles": "Cuádriceps, Glúteos, Isquiotibiales",
+      "description": "Coloca la barra de la máquina Smith sobre tus hombros. Baja controladamente la cadera y empuja hacia arriba. La máquina estabiliza el peso."
+    },
+    "smith_machine_bench_press": {
+      "submuscles": "Pectoral mayor, Tríceps, Deltoides anterior",
+      "description": "Acuéstate en el banco bajo la máquina Smith. Baja la barra al pecho y empuja hacia arriba de forma guiada."
+    },
+    "smith_machine_incline_press": {
+      "submuscles": "Pectoral superior, Tríceps, Deltoides anterior",
+      "description": "Usa un banco inclinado bajo la máquina Smith. Baja la barra a la parte alta del pecho y empuja."
+    },
+    "smith_machine_overhead_press": {
+      "submuscles": "Deltoides anterior, Deltoides lateral, Tríceps",
+      "description": "Sentado o de pie bajo la máquina Smith, empuja la barra desde la altura de tus hombros hasta extender los brazos arriba."
+    },
+    "good_mornings": {
+      "submuscles": "Isquiotibiales, Erector espinal, Glúteos",
+      "description": "Con una barra en la espalda, flexiona la cadera hacia atrás manteniendo las piernas semi-rectas hasta que tu torso esté casi paralelo al suelo."
+    },
+    "sumo_deadlift": {
+      "submuscles": "Glúteos, Cuádriceps, Isquiotibiales, Espalda baja",
+      "description": "Abre las piernas más allá de los hombros con las puntas hacia afuera. Agarra la barra por el centro y levántala usando la fuerza de las piernas y glúteos."
+    }
+  },
+  "share": {
+    "profileMessage": "¡Mira el perfil de @{{username}} en BILT TRACKER!\n\n{{url}}",
+    "routineMessage": "¡Echa un vistazo a la rutina \"{{routineName}}\" en BILT TRACKER!\n\n{{url}}",
+    "packMessage": "¡Mira este Pack Semanal \"{{packName}}\" en BILT TRACKER!\n\n{{url}}"
+  },
+  "feedback": {
+    "title": "Reportar / Sugerencias",
+    "description": "¿Encontraste un error o tienes alguna idea para mejorar la app? ¡Te escuchamos!",
+    "placeholder": "Escribe tu comentario aquí...",
+    "send": "Enviar Comentario",
+    "successMsg": "Tu comentario ha sido enviado. ¡Lo revisaremos pronto!",
+    "errorMsg": "No se pudo enviar el comentario. Intenta de nuevo más tarde."
+  }
+}

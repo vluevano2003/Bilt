@@ -1,0 +1,819 @@
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "cancel": "Cancel",
+    "or": "OR"
+  },
+  "tabs": {
+    "workout": "Workout",
+    "social": "Community",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "login": {
+    "title": "BILT TRACKER",
+    "subtitle": "Your progress, your pace",
+    "emailPlaceholder": "Email address",
+    "passwordPlaceholder": "Password",
+    "forgotPassword": "Forgot your password?",
+    "loginButton": "Log In",
+    "noAccount": "Don't have an account? Sign up here",
+    "forgotSubtitle": "Recover access to your account",
+    "forgotInfo": "Enter your email below and we will send you instructions.",
+    "sendLink": "Send link",
+    "backToLogin": "Back to login",
+    "hasAccount": "Already have an account? Log in",
+    "newPasswordTitle": "New Password",
+    "newPasswordSubtitle": "Enter your new password to recover your account.",
+    "newPasswordPlaceholder": "Enter your new password",
+    "updatePasswordBtn": "Update Password",
+    "passwordUpdated": "Your password has been successfully updated.",
+    "goToHome": "Go to Home",
+    "verifyCodeTitle": "Verify your code",
+    "verifyCodeSubtitle": "Enter the 8-digit code we sent to your email and your new password.",
+    "codePlaceholder": "8-digit code",
+    "tryAnotherEmail": "Try another email"
+  },
+  "register": {
+    "step": "Step {{step}} of 4",
+    "addPhoto": "Add photo",
+    "usernamePlaceholder": "What do they call you at the gym? (Username)",
+    "birthDateLabel": "Date of birth:",
+    "selectDate": "Select date",
+    "confirmDate": "Confirm date",
+    "genderLabel": "Gender:",
+    "male": "Male",
+    "female": "Female",
+    "systemLabel": "Measurement system:",
+    "metric": "Metric (cm/kg)",
+    "imperial": "Imperial (in/lbs)",
+    "heightCm": "Height (cm)",
+    "heightIn": "Height (in)",
+    "weightKg": "Weight (kg)",
+    "weightLbs": "Weight (lbs)"
+  },
+  "google": {
+    "comingSoonTitle": "Coming Soon",
+    "comingSoonMsg": "We are working hard to bring Google Sign-In. Check back soon!",
+    "continue": "Continue with Google"
+  },
+  "social": {
+    "feed": "Activity",
+    "findFriends": "Search",
+    "searchPlaceholder": "Search users...",
+    "follow": "Follow",
+    "requested": "Requested",
+    "following": "Following",
+    "unfollowPrivateTitle": "Unfollow Private Account?",
+    "unfollowPrivateMsg": "If you change your mind, you will have to send a new follow request to see their routines again.",
+    "unfollowConfirm": "Unfollow",
+    "noResults": "No users found.",
+    "noNotifications": "No notifications.",
+    "searchInstructions": "Search users by their username to follow them.",
+    "requests": "Requests",
+    "accept": "Accept",
+    "reject": "Reject",
+    "time": {
+      "justNow": "Just now",
+      "minsAgo": "{{count}}min ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "completedWorkout": "Completed a workout",
+    "createdRoutine": "Created a new routine",
+    "emptyFeed": "Follow other users to see their activity here.",
+    "defaultWorkout": "Workout",
+    "notifications": {
+      "newRequestTitle": "New request",
+      "newRequestBody": "@{{name}} sent you a follow request.",
+      "newFollowerTitle": "New follower",
+      "newFollowerBody": "@{{name}} started following you.",
+      "requestAcceptedTitle": "Request accepted",
+      "requestAcceptedBody": "@{{name}} accepted your follow request."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "profileOf": "Profile",
+    "years": "years",
+    "username": "Username",
+    "email": "Email",
+    "gender": "Gender",
+    "measurementSystem": "Measurement System",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "height": "Height",
+    "weight": "Weight",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "editProfile": "Edit Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "logout": "Log Out",
+    "posts": "Routines",
+    "followers": "Followers",
+    "following": "Following",
+    "friends": "friends",
+    "privateAccount": "Private Account",
+    "privateMsg": "Follow this user to see their routines and progress.",
+    "visibilityOptions": "Visibility Options",
+    "showAge": "Show Age",
+    "showGender": "Show Gender",
+    "showHeight": "Show Height",
+    "showWeight": "Show Weight",
+    "alerts": {
+      "error": "Error",
+      "success": "Success",
+      "errorLoad": "Could not load profile information.",
+      "successSave": "Profile updated successfully.",
+      "errorSave": "Could not save changes."
+    },
+    "workoutHistory": "Workout History",
+    "noHistory": "The history is empty.",
+    "noPublicRoutines": "This user doesn't have any public routines yet.",
+    "loadMore": "Load more",
+    "accountSection": "ACCOUNT",
+    "preferencesSection": "PREFERENCES",
+    "blockedUsers": "Blocked Users",
+    "noBlockedUsers": "You don't have any blocked users.",
+    "deleteAccount": "Delete Account",
+    "deleteAccountTitle": "Delete Account",
+    "deleteAccountMsg": "Are you sure you want to delete your account? This action is permanent and cannot be undone.",
+    "unblock": "Unblock",
+    "block": "Block user",
+    "blockConfirmTitle": "Block",
+    "unblockConfirmTitle": "Unblock",
+    "blockMsg": "Are you sure you want to block this user? They won't be able to see your profile or interact with you.",
+    "unblockMsg": "Do you want to unblock this user?",
+    "userBlockedTitle": "User unavailable",
+    "report": "Report user",
+    "reportReasonPrompt": "Why do you want to report this user? Please detail the reason.",
+    "reportReasonPlaceholder": "Write the reason...",
+    "reportConfirmTitle": "Report User",
+    "sendReport": "Send Report",
+    "reportedTitle": "User Reported",
+    "reportedMsg": "Thanks for letting us know. We will review this profile."
+  },
+  "alerts": {
+    "missingData": "Missing data",
+    "completeMetrics": "Complete your metrics to continue.",
+    "error": "Error",
+    "mustBeNumbers": "Must be numbers.",
+    "unusualHeightCm": "Unusual height (cm).",
+    "unusualWeightKg": "Unusual weight (kg).",
+    "unusualHeightIn": "Unusual height (in).",
+    "unusualWeightLbs": "Unusual weight (lbs).",
+    "emptyFields": "Empty fields",
+    "needEmailPassword": "We need email and password.",
+    "invalidEmailTitle": "Invalid email",
+    "invalidEmailFormat": "Incorrect format.",
+    "missingEmail": "Missing email",
+    "writeEmail": "Enter your email address.",
+    "wrongFormatTitle": "Incorrect format",
+    "includeAt": "Make sure to include '@' and domain.",
+    "sent": "Sent!",
+    "checkSpam": "Check your inbox or SPAM folder.",
+    "incomplete": "Incomplete",
+    "enterEmailPassword": "Enter email and password.",
+    "minChars": "Minimum 6 characters.",
+    "missingNickname": "Missing your nickname.",
+    "missingDateGender": "Missing date or gender.",
+    "minAge": "You must be at least 13 years old.",
+    "checkYear": "Verify your birth year.",
+    "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
+    "invalidOtpCode": "Please enter a valid 8-digit code."
+  },
+  "errors": {
+    "invalidEmail": "The email format is invalid. Check for trailing spaces.",
+    "userNotFound": "We couldn't find an account associated with this email.",
+    "wrongPassword": "Incorrect password. Try again.",
+    "emailInUse": "This email is already registered to another account. Try logging in.",
+    "weakPassword": "Password is too weak. Use at least 6 characters.",
+    "networkFailed": "It seems there is no internet connection. Check your network and try again.",
+    "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
+    "unexpected": "An unexpected error occurred. Please try again later.",
+    "updatePasswordFailed": "Could not update the password.",
+    "invalidLink": "The link is invalid or has expired."
+  },
+  "routines": {
+    "title": "Your Routines",
+    "emptyMessage": "You don't have any routines yet. Start building your first workout!",
+    "createNew": "Create Routine",
+    "edit": "Edit Routine",
+    "routineName": "Routine Name",
+    "routineNamePlaceholder": "E.g. Chest Day, Full Body...",
+    "addExercise": "Add Exercise",
+    "startWorkout": "Start Workout",
+    "exercises": "Exercises",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete Routine",
+    "deleteConfirmMsg": "Are you sure you want to delete this routine? This action cannot be undone.",
+    "yesDelete": "Yes, delete",
+    "searchExercise": "Search exercise...",
+    "selectMuscle": "Filter by muscle",
+    "allMuscles": "All muscles",
+    "addSelected": "Add Selected ({{count}})",
+    "sets": "Sets",
+    "remove": "Remove",
+    "noExercises": "No exercises in this routine yet.",
+    "saveToProfile": "Save Routine to Profile",
+    "removeFromProfile": "Remove from Profile",
+    "successSaved": "Routine saved to your profile!",
+    "successRemoved": "Routine removed from your profile.",
+    "readonlyTitle": "Saved Routine",
+    "readonlyMsg": "This routine was created by @{{creator}} and cannot be modified.\n\nHowever, you can still hit Play to train with it!",
+    "understood": "Understood",
+    "fromCreator": "From: @{{creator}}",
+    "unsaveConfirmTitle": "Remove from my profile",
+    "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?",
+    "savedRoutines": "Saved Routines",
+    "cannotDeleteInPack": "You cannot delete this routine because it belongs to a Weekly Pack. Remove it from the pack first.",
+    "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?",
+    "animationComingSoon": "Animation coming soon",
+    "synergists": "Synergists",
+    "instructions": "Instructions"
+  },
+  "activeWorkout": {
+    "finish": "Finish",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel Workout",
+    "workoutOf": "Workout: {{name}}",
+    "set": "Set",
+    "reps": "Reps",
+    "weight": "Weight",
+    "addSet": "Add Set",
+    "finishAlertTitle": "Finish Workout",
+    "finishAlertMsg": "Great job! Do you want to finish and save this workout?",
+    "cancelAlertTitle": "Cancel Workout",
+    "cancelAlertMsg": "Are you sure? Progress for this session will be lost.",
+    "yesFinish": "Yes, finish",
+    "yesCancel": "Yes, cancel",
+    "keepChanges": "Do you want to save the modifications (new sets/exercises) to your original template?",
+    "restTimer": "Rest Timer",
+    "skip": "Skip",
+    "units": {
+      "kg": "kg",
+      "lbs": "lbs",
+      "bars": "bars",
+      "plates": "plates",
+      "bodyweight": "bw"
+    },
+    "cancelWorkoutButton": "Cancel Workout",
+    "trainingLabel": "Training",
+    "workoutInProgressTitle": "Workout in progress",
+    "workoutInProgressMsg": "You have another active workout. Please cancel it first from the mini-player.",
+    "updateTemplateTitle": "Update Template",
+    "updateTemplateMsg": "You have modified exercises or sets. Do you want to save these changes for next time?",
+    "updateTemplateBtn": "Update",
+    "keepOriginalBtn": "Keep Original",
+    "summaryTitle": "Workout Summary",
+    "totalVolume": "Total Volume",
+    "completedSets": "Completed Sets",
+    "duration": "Duration",
+    "closeSummary": "Close",
+    "logWorkout": "Log Workout",
+    "goodJob": "Great job!",
+    "workoutCompleted": "Workout completed",
+    "musclesWorked": "Muscles worked",
+    "noSetsValid": "You haven't completed any valid sets.",
+    "previous": "PREV",
+    "notificationTitle": "Rest finished! 🏋️‍♂️",
+    "notificationBody": "It's time for your next set. Let's go!"
+  },
+  "muscles": {
+    "chest": "Chest",
+    "back": "Back",
+    "legs": "Legs",
+    "shoulders": "Shoulders",
+    "arms": "Arms",
+    "core": "Core"
+  },
+  "equipment": {
+    "free_weight": "Free Weight",
+    "machine": "Machine",
+    "bodyweight": "Bodyweight",
+    "cable": "Cable"
+  },
+  "exercises": {
+    "bench_press_barbell": "Barbell Bench Press",
+    "bench_press_dumbbell": "Dumbbell Bench Press",
+    "incline_bench_press_barbell": "Incline Barbell Bench Press",
+    "incline_bench_press_dumbbell": "Incline Dumbbell Bench Press",
+    "decline_bench_press_barbell": "Decline Barbell Bench Press",
+    "decline_bench_press_dumbbell": "Decline Dumbbell Bench Press",
+    "chest_press_machine": "Machine Chest Press",
+    "incline_chest_press_machine": "Machine Incline Chest Press",
+    "chest_fly_dumbbell": "Dumbbell Flyes",
+    "pec_deck": "Pec Deck Machine",
+    "cable_crossover": "Cable Crossover",
+    "pushups": "Push-ups",
+    "dips_chest": "Chest Dips",
+    "pullover_dumbbell": "Dumbbell Pullover",
+    "pullups": "Pull-ups",
+    "chinups": "Chin-ups",
+    "lat_pulldown_wide": "Wide Grip Lat Pulldown",
+    "lat_pulldown_close": "Close Grip Lat Pulldown",
+    "barbell_row": "Barbell Row",
+    "dumbbell_row": "Single-Arm Dumbbell Row",
+    "seated_cable_row": "Seated Cable Row",
+    "machine_row": "Machine Row",
+    "t_bar_row": "T-Bar Row (Free Weight)",
+    "t_bar_row_machine": "T-Bar Row Machine",
+    "deadlift": "Deadlift",
+    "straight_arm_pulldown": "Straight-Arm Pulldown",
+    "hyperextensions": "Back Extensions",
+    "shrugs_barbell": "Barbell Shrugs",
+    "shrugs_dumbbell": "Dumbbell Shrugs",
+    "squat_barbell": "Barbell Squat",
+    "squat_dumbbell": "Goblet Squat (Dumbbell)",
+    "front_squat_barbell": "Front Squat",
+    "hack_squat_machine": "Hack Squat Machine",
+    "leg_press": "Leg Press",
+    "leg_extension": "Leg Extension",
+    "leg_curl_lying": "Lying Leg Curl",
+    "leg_curl_seated": "Seated Leg Curl",
+    "romanian_deadlift_barbell": "Barbell Romanian Deadlift",
+    "romanian_deadlift_dumbbell": "Dumbbell Romanian Deadlift",
+    "lunges_barbell": "Barbell Lunges",
+    "lunges_dumbbell": "Dumbbell Lunges",
+    "bulgarian_split_squat_dumbbell": "Dumbbell Bulgarian Split Squat",
+    "hip_thrust_barbell": "Barbell Hip Thrust",
+    "hip_thrust_machine": "Machine Hip Thrust",
+    "calf_raise_standing": "Standing Calf Raise",
+    "calf_raise_seated": "Seated Calf Raise",
+    "overhead_press_barbell": "Barbell Overhead Press",
+    "overhead_press_dumbbell": "Dumbbell Overhead Press",
+    "shoulder_press_machine": "Machine Shoulder Press",
+    "arnold_press": "Arnold Press",
+    "lateral_raises_dumbbell": "Dumbbell Lateral Raises",
+    "lateral_raises_cable": "Cable Lateral Raises",
+    "front_raises_dumbbell": "Dumbbell Front Raises",
+    "front_raises_barbell": "Barbell Front Raises",
+    "face_pull": "Face Pull",
+    "reverse_pec_deck": "Reverse Pec Deck",
+    "upright_row_barbell": "Barbell Upright Row",
+    "upright_row_cable": "Cable Upright Row",
+    "bicep_curl_barbell": "Barbell Bicep Curl",
+    "bicep_curl_dumbbell": "Dumbbell Bicep Curl",
+    "hammer_curl_dumbbell": "Dumbbell Hammer Curl",
+    "hammer_curl_cable": "Cable Hammer Curl",
+    "preacher_curl_barbell": "Barbell Preacher Curl",
+    "preacher_curl_machine": "Machine Preacher Curl",
+    "bicep_curl_cable": "Cable Bicep Curl",
+    "concentration_curl_dumbbell": "Dumbbell Concentration Curl",
+    "tricep_pushdown_cable": "Cable Triceps Pushdown",
+    "overhead_tricep_extension_dumbbell": "Dumbbell Overhead Triceps Extension",
+    "overhead_tricep_extension_cable": "Cable Overhead Triceps Extension",
+    "skullcrusher_barbell": "Barbell Skullcrushers",
+    "dips_triceps": "Triceps Dips",
+    "close_grip_bench_press": "Close-Grip Bench Press",
+    "tricep_kickback_dumbbell": "Dumbbell Triceps Kickback",
+    "tricep_kickback_cable": "Cable Triceps Kickback",
+    "crunch": "Crunches",
+    "plank": "Plank",
+    "russian_twist": "Russian Twist",
+    "leg_raises_lying": "Lying Leg Raises",
+    "leg_raises_hanging": "Hanging Leg Raises",
+    "ab_wheel_rollout": "Ab Wheel Rollout",
+    "bicycle_crunch": "Bicycle Crunches",
+    "cable_crunch": "Cable Crunch",
+    "hip_abductor_machine": "Hip Abductor Machine",
+    "hip_adductor_machine": "Hip Adductor Machine",
+    "glute_kickback_machine": "Machine Glute Kickback",
+    "smith_machine_squat": "Smith Machine Squat",
+    "smith_machine_bench_press": "Smith Machine Bench Press",
+    "smith_machine_incline_press": "Smith Machine Incline Press",
+    "smith_machine_overhead_press": "Smith Machine Overhead Press",
+    "good_mornings": "Barbell Good Mornings",
+    "sumo_deadlift": "Sumo Deadlift"
+  },
+  "unitSelection": {
+    "title": "Select Unit",
+    "kg": "Kilograms (kg)",
+    "kg_desc": "Tracks total volume lifted in kilograms.",
+    "lbs": "Pounds (lbs)",
+    "lbs_desc": "Tracks total volume lifted in pounds.",
+    "bodyweight": "Bodyweight",
+    "bodyweight_desc": "For bodyweight exercises. Log weight only if using extra load.",
+    "bars": "Bars / Pins",
+    "bars_desc": "Records weight stack levels or pins on machines. Does not add to volume.",
+    "plates": "Plates",
+    "plates_desc": "Records the number of plates per side. Does not add to total volume."
+  },
+  "home": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "thisWeek": "This week",
+    "weeklySummary": "Activity Summary",
+    "workouts": "Total Workouts",
+    "volume": "Volume ({{unit}})",
+    "startEmpty": "+ Start Empty Workout",
+    "workoutInProgress": "Workout in progress",
+    "goToWorkout": "Go to Active Workout",
+    "defaultName": "Athlete"
+  },
+  "weeklyPacks": {
+    "tabPacks": "Packs",
+    "emptyMessage": "You don't have any weekly packs yet. Group your routines!",
+    "createNew": "Create Weekly Pack",
+    "packName": "Pack Name",
+    "packNamePlaceholder": "E.g. Hypertrophy Week",
+    "description": "Description",
+    "descriptionPlaceholder": "E.g. 5-day routine to build mass...",
+    "selectRoutines": "Select up to 6 routines",
+    "maxRoutinesAlert": "You can only add a maximum of 6 routines per pack.",
+    "routinesSelected": "{{count}}/6 selected",
+    "savePack": "Save Pack",
+    "noRoutinesAvailable": "Create some routines first to build a pack.",
+    "routinesIncluded": "Routines in this Pack:",
+    "savePackToProfile": "Save Pack to Profile",
+    "noPublicPacks": "This user doesn't have any Weekly Packs yet.",
+    "routinesCount": "Routines"
+  },
+  "exerciseDetails": {
+    "bench_press_barbell": {
+      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "description": "Lie flat on the bench with your feet flat on the floor. Grab the barbell slightly wider than shoulder-width. Lower the bar with control to your mid-chest and push explosively back up."
+    },
+    "bench_press_dumbbell": {
+      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "description": "Lie flat on a bench holding a dumbbell in each hand. Lower the dumbbells under control to the sides of your chest and push them up, bringing them slightly together at the top."
+    },
+    "incline_bench_press_barbell": {
+      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "On an incline bench (30-45 degrees), lower the bar to your upper chest and press it straight up."
+    },
+    "incline_bench_press_dumbbell": {
+      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "On an incline bench, lower the dumbbells to the sides of your upper chest and press up under control."
+    },
+    "decline_bench_press_barbell": {
+      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "On a decline bench, secure your legs. Lower the bar to your lower chest and press explosively."
+    },
+    "decline_bench_press_dumbbell": {
+      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "On a decline bench, lower the dumbbells under control to the sides of your lower chest and press."
+    },
+    "chest_press_machine": {
+      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "description": "Adjust the seat so the handles are at chest level. Push forward extending your arms without locking your elbows."
+    },
+    "incline_chest_press_machine": {
+      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "Adjust the seat. Push the handles forward and up, focusing on squeezing the upper chest."
+    },
+    "chest_fly_dumbbell": {
+      "submuscles": "Pectoralis Major, Anterior Deltoid",
+      "description": "Lie on a flat bench. With a slight bend in your elbows, open the dumbbells to the sides until you feel a stretch in your chest, then close them as if hugging an imaginary barrel."
+    },
+    "pec_deck": {
+      "submuscles": "Pectoralis Major, Anterior Deltoid",
+      "description": "Sit on the machine with your back flat against the pad. Bring your arms (or elbows) together in front of you, squeezing your chest."
+    },
+    "cable_crossover": {
+      "submuscles": "Pectoralis Major, Lower Pectoralis",
+      "description": "Standing between high pulleys, pull the cables down and in front of your body, slightly crossing your hands at the end."
+    },
+    "pushups": {
+      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid, Core",
+      "description": "In a plank position, lower your body by bending your elbows at a 45-degree angle from your torso, and push back up."
+    },
+    "dips_chest": {
+      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "description": "On parallel bars, lean your torso forward and lower yourself until your elbows are at 90 degrees, then push back up."
+    },
+    "pullover_dumbbell": {
+      "submuscles": "Pectoralis Major, Latissimus Dorsi",
+      "description": "Lie perpendicularly across a bench, supporting only your upper back. Hold a dumbbell with both hands over your chest, lower it behind your head, and pull it back up."
+    },
+    "pullups": {
+      "submuscles": "Latissimus Dorsi, Biceps Brachii, Lower Trapezius",
+      "description": "Hang from the bar with an overhand grip wider than your shoulders. Pull your body up until your chin clears the bar."
+    },
+    "chinups": {
+      "submuscles": "Latissimus Dorsi, Biceps Brachii (strong focus)",
+      "description": "Hang with an underhand grip at shoulder width. Pull yourself up by contracting your back and biceps."
+    },
+    "lat_pulldown_wide": {
+      "submuscles": "Latissimus Dorsi, Biceps Brachii, Rhomboids",
+      "description": "Sit at the machine. Grab the bar wider than shoulder-width and pull it down to your upper chest while sticking your chest out."
+    },
+    "lat_pulldown_close": {
+      "submuscles": "Latissimus Dorsi, Biceps Brachii",
+      "description": "Use a close or V-grip attachment. Pull the handle down to your chest keeping your elbows close to your body."
+    },
+    "barbell_row": {
+      "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius, Erector Spinae",
+      "description": "Hinge your torso forward to about a 45-degree angle keeping your back straight. Pull the barbell to your belly button by retracting your shoulder blades."
+    },
+    "dumbbell_row": {
+      "submuscles": "Latissimus Dorsi, Rhomboids, Biceps Brachii",
+      "description": "Support one hand and knee on a bench. With the other hand, pull the dumbbell up to your hip, keeping the elbow close to your body."
+    },
+    "seated_cable_row": {
+      "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius",
+      "description": "Sit facing the pulley. With a straight back and chest up, pull the handle to your abdomen, squeezing your shoulder blades."
+    },
+    "machine_row": {
+      "submuscles": "Latissimus Dorsi, Rhomboids",
+      "description": "Adjust the seat and chest pad. Pull the handles back, squeezing the middle of your back."
+    },
+    "t_bar_row": {
+      "submuscles": "Latissimus Dorsi, Rhomboids, Middle Trapezius",
+      "description": "Stand over the T-bar with your torso hinged forward. Pull the weight towards your chest/abdomen keeping elbows close."
+    },
+    "t_bar_row_machine": {
+      "submuscles": "Latissimus Dorsi, Rhomboids",
+      "description": "Lie chest-down on the machine pad. Pull the handles up, isolating your back completely."
+    },
+    "deadlift": {
+      "submuscles": "Glutes, Hamstrings, Erector Spinae, Trapezius, Quads",
+      "description": "Stand with the barbell over mid-foot. Grab the bar, drop your hips, keep your back straight, and stand up by pushing the floor away with your legs."
+    },
+    "straight_arm_pulldown": {
+      "submuscles": "Latissimus Dorsi",
+      "description": "Stand facing a high pulley. With arms straight (slight elbow bend), pull the bar or rope down to your thighs by contracting your lats."
+    },
+    "hyperextensions": {
+      "submuscles": "Erector Spinae, Glutes, Hamstrings",
+      "description": "On the hyperextension bench, lower your torso under control and raise it until your back is aligned with your legs. Do not overextend."
+    },
+    "shrugs_barbell": {
+      "submuscles": "Upper Trapezius",
+      "description": "Stand holding the barbell in front of you. Shrug your shoulders straight up toward your ears, pause, and lower slowly."
+    },
+    "shrugs_dumbbell": {
+      "submuscles": "Upper Trapezius",
+      "description": "Stand holding a dumbbell in each hand at your sides. Shrug your shoulders up, squeezing the traps."
+    },
+    "squat_barbell": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings, Core",
+      "description": "Place the barbell across your upper back. Keep your chest up and lower your hips back and down, breaking parallel. Push powerfully to stand."
+    },
+    "squat_dumbbell": {
+      "submuscles": "Quadriceps, Glutes, Core",
+      "description": "Hold one dumbbell vertically in front of your chest (Goblet grip). Squat down while keeping your torso upright."
+    },
+    "front_squat_barbell": {
+      "submuscles": "Quadriceps (focus), Glutes, Core, Upper Back",
+      "description": "Rest the barbell on your front delts and clavicles. Keep your elbows very high and perform a deep squat."
+    },
+    "hack_squat_machine": {
+      "submuscles": "Quadriceps, Glutes",
+      "description": "Lie back against the machine pads. Lower under control until your knees pass 90 degrees, then push the platform up."
+    },
+    "leg_press": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "description": "Sit in the machine. Lower the platform toward you under control and press it back up without locking your knees at the top."
+    },
+    "leg_extension": {
+      "submuscles": "Quadriceps",
+      "description": "Adjust the machine so the pad sits on your ankles. Extend your legs, squeezing your quads at the top, and lower slowly."
+    },
+    "leg_curl_lying": {
+      "submuscles": "Hamstrings, Calves",
+      "description": "Lie face down. Curl your knees by bringing your heels toward your glutes, and lower the weight under control."
+    },
+    "leg_curl_seated": {
+      "submuscles": "Hamstrings",
+      "description": "Sit in the machine. Push the leg pad down and back, flexing your knees to isolate the back of the thigh."
+    },
+    "romanian_deadlift_barbell": {
+      "submuscles": "Hamstrings, Glutes, Erector Spinae",
+      "description": "Stand with the barbell. With slightly bent knees, push your hips back until you feel a stretch in your hamstrings, then squeeze glutes to stand."
+    },
+    "romanian_deadlift_dumbbell": {
+      "submuscles": "Hamstrings, Glutes, Erector Spinae",
+      "description": "With dumbbells at your sides or in front, push your hips back keeping a straight back. Focus on the hamstring stretch."
+    },
+    "lunges_barbell": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "description": "With the barbell on your back, step forward and drop your hips until both knees form a 90-degree angle. Push back to the start."
+    },
+    "lunges_dumbbell": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "description": "Holding dumbbells at your sides, take long steps, controlling the descent of the back knee until it barely hovers above the floor."
+    },
+    "bulgarian_split_squat_dumbbell": {
+      "submuscles": "Glutes, Quadriceps",
+      "description": "Rest the top of your back foot on a bench behind you. Lower yourself under control, keeping the weight focused on the front leg."
+    },
+    "hip_thrust_barbell": {
+      "submuscles": "Glutes, Hamstrings",
+      "description": "Rest your upper back on a bench, place the barbell across your hips (use a pad). Drive your hips up, squeezing glutes hard at the top."
+    },
+    "hip_thrust_machine": {
+      "submuscles": "Glutes",
+      "description": "Adjust the belt or pad across your hips. Thrust upward, squeezing your glutes at the peak of the movement."
+    },
+    "calf_raise_standing": {
+      "submuscles": "Calves (Gastrocnemius)",
+      "description": "On a machine or block. Let your heels drop for a full stretch, then push up onto your toes, holding the squeeze for a second."
+    },
+    "calf_raise_seated": {
+      "submuscles": "Soleus",
+      "description": "Sit at the machine. Raise your heels by contracting your calves and lower slowly to feel the stretch."
+    },
+    "overhead_press_barbell": {
+      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps, Core",
+      "description": "Standing, hold the bar at clavicle level. Press straight up until arms are fully extended, slightly pushing your head through at the top."
+    },
+    "overhead_press_dumbbell": {
+      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps",
+      "description": "Seated with back support. Press the dumbbells up over your head and lower them under control until they are at ear level."
+    },
+    "shoulder_press_machine": {
+      "submuscles": "Anterior Deltoid, Triceps",
+      "description": "Adjust the seat. Push the handles upward by contracting your shoulders, and lower the weight under control."
+    },
+    "arnold_press": {
+      "submuscles": "Anterior Deltoid, Lateral Deltoid",
+      "description": "Hold dumbbells in front of your face with palms facing you. Press up while rotating your wrists so your palms face forward at the top."
+    },
+    "lateral_raises_dumbbell": {
+      "submuscles": "Lateral Deltoid",
+      "description": "Standing, raise your arms to the sides with a slight bend in your elbows, as if you were pouring out two pitchers of water."
+    },
+    "lateral_raises_cable": {
+      "submuscles": "Lateral Deltoid",
+      "description": "Use a low pulley, crossing the cable in front of or behind you. Raise your arm to the side, keeping constant tension on the shoulder."
+    },
+    "front_raises_dumbbell": {
+      "submuscles": "Anterior Deltoid",
+      "description": "Hold dumbbells in front of you. Raise them alternately or together straight out to eye level."
+    },
+    "front_raises_barbell": {
+      "submuscles": "Anterior Deltoid",
+      "description": "Using an overhand grip, raise the barbell with mostly straight arms out in front of you up to shoulder height."
+    },
+    "face_pull": {
+      "submuscles": "Posterior Deltoid, Middle Trapezius, Rhomboids",
+      "description": "Use a rope on a high pulley. Pull it toward your face, separating your hands, ensuring your elbows stay higher than your shoulders."
+    },
+    "reverse_pec_deck": {
+      "submuscles": "Posterior Deltoid, Rhomboids",
+      "description": "Sit facing the machine. Open your arms backward, specifically squeezing the rear part of your shoulders."
+    },
+    "upright_row_barbell": {
+      "submuscles": "Lateral Deltoid, Upper Trapezius",
+      "description": "With a medium/wide grip, pull the bar up toward your chin, letting your elbows lead the movement upward."
+    },
+    "upright_row_cable": {
+      "submuscles": "Lateral Deltoid, Upper Trapezius",
+      "description": "Using a straight bar on a low pulley, pull the weight toward your neck, focusing on your shoulders doing the pulling."
+    },
+    "bicep_curl_barbell": {
+      "submuscles": "Biceps Brachii, Brachialis, Forearms",
+      "description": "Standing, use an underhand grip at shoulder width. Curl the bar up without swinging your torso."
+    },
+    "bicep_curl_dumbbell": {
+      "submuscles": "Biceps Brachii, Brachialis",
+      "description": "Curl the dumbbells while slightly twisting your wrists outward (supination) at the top for maximum contraction."
+    },
+    "hammer_curl_dumbbell": {
+      "submuscles": "Brachioradialis, Brachialis, Biceps",
+      "description": "Neutral grip (palms facing each other). Curl the dumbbell up to build thickness in the arm."
+    },
+    "hammer_curl_cable": {
+      "submuscles": "Brachioradialis, Brachialis",
+      "description": "Use the rope attachment on a low pulley. Perform the hammer curl motion maintaining constant tension."
+    },
+    "preacher_curl_barbell": {
+      "submuscles": "Biceps Brachii (short head)",
+      "description": "Rest your triceps on the preacher pad. Lower the EZ bar until almost fully stretched, and contract hard on the way up."
+    },
+    "preacher_curl_machine": {
+      "submuscles": "Biceps Brachii",
+      "description": "Adjust the seat so your armpits rest on the pad. Pull the lever toward you, squeezing your biceps tightly."
+    },
+    "bicep_curl_cable": {
+      "submuscles": "Biceps Brachii",
+      "description": "Low pulley with a straight bar. The cable provides continuous tension; pull up explosively and lower slowly."
+    },
+    "concentration_curl_dumbbell": {
+      "submuscles": "Biceps Brachii",
+      "description": "Seated, rest your elbow on your inner thigh. Curl the weight, completely isolating the bicep and squeezing at the top."
+    },
+    "tricep_pushdown_cable": {
+      "submuscles": "Triceps Brachii (lateral head)",
+      "description": "High pulley with a straight or V-bar. Push down extending your elbows completely, keeping them pinned to your ribs."
+    },
+    "overhead_tricep_extension_dumbbell": {
+      "submuscles": "Triceps Brachii (long head)",
+      "description": "Seated or standing. Hold a dumbbell with both hands behind your head. Extend your elbows upward, feeling the stretch on the way down."
+    },
+    "overhead_tricep_extension_cable": {
+      "submuscles": "Triceps Brachii (long head)",
+      "description": "Low or mid pulley with a rope. Face away from the machine and extend the rope overhead forward."
+    },
+    "skullcrusher_barbell": {
+      "submuscles": "Triceps Brachii",
+      "description": "Lie on a bench. Using an EZ bar, lower the weight to your forehead by bending your elbows, then extend without moving your upper arms."
+    },
+    "dips_triceps": {
+      "submuscles": "Triceps Brachii, Lower Pectoralis, Anterior Deltoid",
+      "description": "On parallel bars or a bench. Keep your torso completely upright (do not lean forward) and press to isolate the triceps."
+    },
+    "close_grip_bench_press": {
+      "submuscles": "Triceps Brachii, Pectoralis Major, Anterior Deltoid",
+      "description": "Lie on the bench. Grip the bar at shoulder width. Lower the bar keeping your elbows tucked tight against your torso."
+    },
+    "tricep_kickback_dumbbell": {
+      "submuscles": "Triceps Brachii",
+      "description": "Hinge your torso, supporting one hand. Bring your elbow up and back, then extend your forearm straight backward."
+    },
+    "tricep_kickback_cable": {
+      "submuscles": "Triceps Brachii",
+      "description": "Low pulley with no attachment (grab the rubber ball). The cable provides tension throughout the entire kickback range of motion."
+    },
+    "crunch": {
+      "submuscles": "Rectus Abdominis",
+      "description": "Lie face up. Slightly flex your torso, raising your shoulders off the floor to contract your abs."
+    },
+    "plank": {
+      "submuscles": "Transverse Abdominis, Rectus Abdominis, Full Core",
+      "description": "Support your weight on your forearms and toes. Keep your body in a straight line by squeezing your core and glutes."
+    },
+    "russian_twist": {
+      "submuscles": "Obliques, Rectus Abdominis",
+      "description": "Seated with your torso leaning back and feet elevated. Twist your torso bringing the weight from one side to the other."
+    },
+    "leg_raises_lying": {
+      "submuscles": "Rectus Abdominis (lower region)",
+      "description": "Lie down and place your hands under your glutes. Keep your legs straight, raise them to 90 degrees, and lower them without touching the floor."
+    },
+    "leg_raises_hanging": {
+      "submuscles": "Rectus Abdominis (lower region), Hip Flexors",
+      "description": "Hang from a bar. Bring your knees to your chest (or keep legs straight for more difficulty) using your abs, without swinging."
+    },
+    "ab_wheel_rollout": {
+      "submuscles": "Full Core, Latissimus Dorsi",
+      "description": "On your knees, grab the wheel and roll forward extending your body. Use your core to pull yourself back to the starting position."
+    },
+    "bicycle_crunch": {
+      "submuscles": "Obliques, Rectus Abdominis",
+      "description": "Lie down and simulate pedaling. Bring your right elbow toward your left knee and vice versa in a controlled motion."
+    },
+    "cable_crunch": {
+      "submuscles": "Rectus Abdominis",
+      "description": "Kneeling facing a high pulley with a rope. Pull the rope behind your neck and crunch your torso by rounding your back towards your pelvis."
+    },
+    "hip_abductor_machine": {
+      "submuscles": "Gluteus Medius, Gluteus Minimus",
+      "description": "Sit on the machine. Push the pads outward by opening your legs, squeezing your glutes."
+    },
+    "hip_adductor_machine": {
+      "submuscles": "Adductors, Inner Thigh",
+      "description": "Sit on the machine. Squeeze your legs together against the pads to target your inner thighs."
+    },
+    "glute_kickback_machine": {
+      "submuscles": "Gluteus Maximus, Hamstrings",
+      "description": "Stand or lean on the machine and push the footplate backward and upward, squeezing your glute at the top."
+    },
+    "smith_machine_squat": {
+      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "description": "Place the Smith machine bar on your shoulders. Squat down under control and press back up. The machine provides stabilization."
+    },
+    "smith_machine_bench_press": {
+      "submuscles": "Pectoralis Major, Triceps, Anterior Deltoid",
+      "description": "Lie on a bench under the Smith machine. Lower the bar to your chest and press up smoothly."
+    },
+    "smith_machine_incline_press": {
+      "submuscles": "Upper Pectoralis, Triceps, Anterior Deltoid",
+      "description": "Use an incline bench under the Smith machine. Lower the bar to your upper chest and press up."
+    },
+    "smith_machine_overhead_press": {
+      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps",
+      "description": "Seated or standing in the Smith machine, press the bar from shoulder level up until your arms are extended."
+    },
+    "good_mornings": {
+      "submuscles": "Hamstrings, Erector Spinae, Glutes",
+      "description": "With a barbell on your back, hinge at the hips keeping your legs mostly straight until your torso is nearly parallel to the floor."
+    },
+    "sumo_deadlift": {
+      "submuscles": "Glutes, Quadriceps, Hamstrings, Lower Back",
+      "description": "Take a wide stance with toes pointing out. Grip the bar in the middle and lift by driving through your legs and glutes."
+    }
+  },
+  "share": {
+    "profileMessage": "Check out @{{username}}'s profile on BILT TRACKER!\n\n{{url}}",
+    "routineMessage": "Take a look at the routine \"{{routineName}}\" on BILT TRACKER!\n\n{{url}}",
+    "packMessage": "Check out this Weekly Pack \"{{packName}}\" on BILT TRACKER!\n\n{{url}}"
+  },
+  "feedback": {
+    "title": "Report / Suggestions",
+    "description": "Found a bug or have an idea to improve the app? We are listening!",
+    "placeholder": "Write your feedback here...",
+    "send": "Send Feedback",
+    "successMsg": "Your feedback has been sent. We will review it soon!",
+    "errorMsg": "Could not send feedback. Please try again later."
+  }
+}

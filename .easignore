@@ -1,0 +1,41 @@
+# dependencias (NUNCA se suben)
+node_modules/
+
+# Expo y compilación
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+app-example/
+
+# --- SECCIÓN CRÍTICA: VARIABLES DE ENTORNO ---
+# Bloqueamos el archivo .env principal y cualquier variante local
+.env
+.env.local
+.env.*.local
+# --------------------------------------------
+
+# Archivos Nativos y Llaves de seguridad
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+/ios
+/android
+
+# Metro y Debug
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Sistema (macOS / Windows)
+.DS_Store
+Thumbs.db
+*.pem
+
+# TypeScript
+*.tsbuildinfo
