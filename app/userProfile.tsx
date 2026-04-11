@@ -40,7 +40,7 @@ import {
 import { shareProfile } from "../src/utils/shareHelpers";
 
 export default function UserProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const params = useLocalSearchParams();
   const router = useRouter();
   const profileId = params.id as string | undefined;
@@ -683,6 +683,26 @@ export default function UserProfileScreen() {
                           >
                             <Text style={styles.routineName}>
                               {session.routineName}
+                            </Text>
+                            <Text
+                              style={{
+                                color: colors.textSecondary,
+                                fontSize: 13,
+                                marginTop: 2,
+                                marginBottom: 4,
+                              }}
+                            >
+                              {new Date(session.completedAt).toLocaleDateString(
+                                i18n.language.includes("es")
+                                  ? "es-ES"
+                                  : "en-US",
+                                {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
                             </Text>
                             <View
                               style={{

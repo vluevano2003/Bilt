@@ -282,7 +282,7 @@ export const ItemDetailsModal = ({
   onToggleSave,
   onClose,
 }: any) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
@@ -298,11 +298,38 @@ export const ItemDetailsModal = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {type === "routine" ? item.name : item.routineName}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
+          <View style={[styles.modalHeader, { alignItems: "flex-start" }]}>
+            <View style={{ flex: 1, paddingRight: 15 }}>
+              <Text style={styles.modalTitle}>
+                {type === "routine" ? item.name : item.routineName}
+              </Text>
+
+              {type === "history" && item.completedAt && (
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    fontSize: 14,
+                    marginTop: 4,
+                  }}
+                >
+                  {new Date(item.completedAt).toLocaleDateString(
+                    i18n.language.includes("es") ? "es-ES" : "en-US",
+                    {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={onClose}
+              style={{ padding: 5, marginRight: -5 }}
+            >
               <AntDesign name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
