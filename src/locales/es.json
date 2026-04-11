@@ -5,7 +5,8 @@
     "finish": "Finalizar",
     "cancel": "Cancelar",
     "or": "O",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "backToHome": "Volver al inicio"
   },
   "tabs": {
     "workout": "Workout",
@@ -156,7 +157,9 @@
     "reportConfirmTitle": "Reportar Usuario",
     "sendReport": "Enviar Reporte",
     "reportedTitle": "Usuario Reportado",
-    "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil."
+    "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil.",
+    "userNotFoundTitle": "Usuario no encontrado",
+    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta."
   },
   "alerts": {
     "missingData": "Faltan datos",

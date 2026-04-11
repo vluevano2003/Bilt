@@ -60,7 +60,7 @@ function RootLayoutNav() {
   const [offlineAlertShown, setOfflineAlertShown] = useState(false);
 
   const url = Linking.useURL();
-  const [hasHandledInitialLink, setHasHandledInitialLink] = useState(false);
+  const [initialDeepLinkHandled, setInitialDeepLinkHandled] = useState(false);
 
   useEffect(() => {
     if (netInfo.isConnected === false && !offlineAlertShown) {
@@ -88,19 +88,34 @@ function RootLayoutNav() {
 
     const inIndex = !firstSegment || firstSegment === "index";
 
-    if (!user && isProtectedScreen) {
-      router.replace("/");
-    } else if (user && !hasProfile && isProtectedScreen) {
-      router.replace("/");
-    } else if (user && hasProfile && inIndex) {
-      if (url && !hasHandledInitialLink) {
-        setHasHandledInitialLink(true);
+    // Caso: no hay sesión
+    if (!user) {
+      if (isProtectedScreen) {
+        router.replace("/");
+      }
+      return;
+    }
+
+    // Caso: hay sesión pero no hay perfil
+    if (user && !hasProfile) {
+      if (isProtectedScreen) {
+        router.replace("/");
+      }
+      return;
+    }
+
+    // Caso: el usuario está logueado y tiene perfil
+    if (user && hasProfile) {
+      if (url && !initialDeepLinkHandled) {
+        setInitialDeepLinkHandled(true);
         return;
       }
 
-      setTimeout(() => {
-        router.replace("/(tabs)/home");
-      }, 10);
+      if (inIndex) {
+        setTimeout(() => {
+          router.replace("/(tabs)/home");
+        }, 10);
+      }
     }
   }, [
     user,
@@ -108,7 +123,7 @@ function RootLayoutNav() {
     hasProfile,
     segments,
     url,
-    hasHandledInitialLink,
+    initialDeepLinkHandled,
     rootNavigationState?.key,
   ]);
 

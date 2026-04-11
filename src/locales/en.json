@@ -5,7 +5,8 @@
     "finish": "Finish",
     "cancel": "Cancel",
     "or": "OR",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "backToHome": "Back to home"
   },
   "tabs": {
     "workout": "Workout",
@@ -156,7 +157,9 @@
     "reportConfirmTitle": "Report User",
     "sendReport": "Send Report",
     "reportedTitle": "User Reported",
-    "reportedMsg": "Thanks for letting us know. We will review this profile."
+    "reportedMsg": "Thanks for letting us know. We will review this profile.",
+    "userNotFoundTitle": "User not found",
+    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account."
   },
   "alerts": {
     "missingData": "Missing data",
