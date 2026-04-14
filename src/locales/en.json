@@ -190,7 +190,8 @@
     "minAge": "You must be at least 13 years old.",
     "checkYear": "Verify your birth year.",
     "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
-    "invalidOtpCode": "Please enter a valid 8-digit code."
+    "invalidOtpCode": "Please enter a valid 8-digit code.",
+    "noNegative": "Values must be greater than zero."
   },
   "errors": {
     "invalidEmail": "The email format is invalid. Check for trailing spaces.",
@@ -204,7 +205,8 @@
     "updatePasswordFailed": "Could not update the password.",
     "invalidLink": "The link is invalid or has expired.",
     "connectionTitle": "Connection Problem",
-    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again."
+    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again.",
+    "userCreation": "Could not create user account."
   },
   "routines": {
     "title": "Your Routines",

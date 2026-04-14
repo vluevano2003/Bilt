@@ -66,6 +66,14 @@ export const useAuthForm = () => {
     }
   };
 
+  const handleHeightChange = (text: string) => {
+    setHeight(text.replace(/[^0-9.,]/g, ""));
+  };
+
+  const handleWeightChange = (text: string) => {
+    setWeight(text.replace(/[^0-9.,]/g, ""));
+  };
+
   const handleRegister = async () => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
@@ -80,6 +88,26 @@ export const useAuthForm = () => {
 
     if (isNaN(parsedHeight) || isNaN(parsedWeight))
       return Alert.alert(t("alerts.error"), t("alerts.mustBeNumbers"));
+
+    if (parsedHeight <= 0 || parsedWeight <= 0) {
+      return Alert.alert(t("alerts.error"), t("alerts.noNegative"));
+    }
+
+    if (measurementSystem === "metric") {
+      if (parsedHeight < 50 || parsedHeight > 300) {
+        return Alert.alert(t("alerts.error"), t("alerts.unusualHeightCm"));
+      }
+      if (parsedWeight < 20 || parsedWeight > 600) {
+        return Alert.alert(t("alerts.error"), t("alerts.unusualWeightKg"));
+      }
+    } else {
+      if (parsedHeight < 20 || parsedHeight > 120) {
+        return Alert.alert(t("alerts.error"), t("alerts.unusualHeightIn"));
+      }
+      if (parsedWeight < 40 || parsedWeight > 1300) {
+        return Alert.alert(t("alerts.error"), t("alerts.unusualWeightLbs"));
+      }
+    }
 
     setIsLoading(true);
     try {
@@ -100,7 +128,7 @@ export const useAuthForm = () => {
         );
 
         if (authError) throw authError;
-        if (!authData.user) throw new Error("No se pudo crear el usuario");
+        if (!authData.user) throw new Error(t("errors.userCreation"));
         userId = authData.user.id;
       }
 
@@ -282,9 +310,9 @@ export const useAuthForm = () => {
     measurementSystem,
     setMeasurementSystem,
     height,
-    setHeight,
+    setHeight: handleHeightChange,
     weight,
-    setWeight,
+    setWeight: handleWeightChange,
     date,
     showDatePicker,
     setShowDatePicker,

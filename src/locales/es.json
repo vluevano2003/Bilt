@@ -190,7 +190,8 @@
     "minAge": "Debes tener al menos 13 años.",
     "checkYear": "Verifica el año de nacimiento.",
     "sentOtpCode": "Revisa tu correo. Te hemos enviado un código de 8 dígitos.",
-    "invalidOtpCode": "Ingresa un código de 8 dígitos válido."
+    "invalidOtpCode": "Ingresa un código de 8 dígitos válido.",
+    "noNegative": "Los valores deben ser mayores a cero."
   },
   "errors": {
     "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
@@ -204,7 +205,8 @@
     "updatePasswordFailed": "No se pudo actualizar la contraseña.",
     "invalidLink": "El enlace no es válido o ya ha expirado.",
     "connectionTitle": "Problema de conexión",
-    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo."
+    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
+    "userCreation": "No se pudo crear el usuario."
   },
   "routines": {
     "title": "Tus Rutinas",
