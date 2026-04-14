@@ -1,14 +1,20 @@
+import { Feather } from "@expo/vector-icons";
 import { useNetInfo } from "@react-native-community/netinfo";
 import * as Linking from "expo-linking";
 import * as Notifications from "expo-notifications";
-import { Stack, useRouter, useSegments } from "expo-router";
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, AppState, View } from "react-native";
+import { Alert, AppState, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
 
-import { useRootNavigationState } from "expo-router";
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
@@ -22,6 +28,7 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
@@ -49,7 +56,7 @@ Notifications.setNotificationHandler({
 });
 
 function RootLayoutNav() {
-  const { user, isLoading, hasProfile } = useAuth();
+  const { user, isLoading, hasProfile, isError, retryInit } = useAuth();
   const router = useRouter();
   const segments = useSegments();
   const { colors } = useTheme();
@@ -60,7 +67,10 @@ function RootLayoutNav() {
   const [offlineAlertShown, setOfflineAlertShown] = useState(false);
 
   const url = Linking.useURL();
-  const [initialDeepLinkHandled, setInitialDeepLinkHandled] = useState(false);
+  const [hasHandledInitialLink, setHasHandledInitialLink] = useState(false);
+
+  const firstSegment = segments[0] as string | undefined;
+  const inIndex = !firstSegment || firstSegment === "index";
 
   useEffect(() => {
     if (netInfo.isConnected === false && !offlineAlertShown) {
@@ -76,46 +86,35 @@ function RootLayoutNav() {
   }, [netInfo.isConnected, offlineAlertShown, t]);
 
   useEffect(() => {
-    if (isLoading || !rootNavigationState?.key) return;
-
-    const firstSegment = segments[0] as string | undefined;
+    if (isLoading || !rootNavigationState?.key || isError) return;
 
     const inTabsGroup = firstSegment === "(tabs)";
     const inUserProfile = firstSegment === "userProfile";
     const inActiveWorkout = firstSegment === "activeWorkout";
-
     const isProtectedScreen = inTabsGroup || inUserProfile || inActiveWorkout;
 
-    const inIndex = !firstSegment || firstSegment === "index";
+    const hideSplash = () => {
+      setTimeout(() => {
+        SplashScreen.hideAsync().catch(debugError);
+      }, 50);
+    };
 
-    // Caso: no hay sesión
-    if (!user) {
-      if (isProtectedScreen) {
-        router.replace("/");
-      }
-      return;
-    }
-
-    // Caso: hay sesión pero no hay perfil
-    if (user && !hasProfile) {
-      if (isProtectedScreen) {
-        router.replace("/");
-      }
-      return;
-    }
-
-    // Caso: el usuario está logueado y tiene perfil
-    if (user && hasProfile) {
-      if (url && !initialDeepLinkHandled) {
-        setInitialDeepLinkHandled(true);
+    if (!user && isProtectedScreen) {
+      router.replace("/");
+      hideSplash();
+    } else if (user && !hasProfile && isProtectedScreen) {
+      router.replace("/");
+      hideSplash();
+    } else if (user && hasProfile && inIndex) {
+      if (url && !hasHandledInitialLink) {
+        setHasHandledInitialLink(true);
+        hideSplash();
         return;
       }
-
-      if (inIndex) {
-        setTimeout(() => {
-          router.replace("/(tabs)/home");
-        }, 10);
-      }
+      router.replace("/(tabs)/home");
+      hideSplash();
+    } else {
+      hideSplash();
     }
   }, [
     user,
@@ -123,26 +122,73 @@ function RootLayoutNav() {
     hasProfile,
     segments,
     url,
-    initialDeepLinkHandled,
+    hasHandledInitialLink,
     rootNavigationState?.key,
+    isError,
   ]);
 
-  if (isLoading) {
+  if (isError) {
+    SplashScreen.hideAsync().catch(debugError);
     return (
       <View
         style={{
           flex: 1,
           backgroundColor: colors.background,
           justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
         }}
       >
-        <ActivityIndicator size="large" color={colors.primary} />
+        <Feather
+          name="wifi-off"
+          size={60}
+          color={colors.textSecondary}
+          style={{ marginBottom: 20 }}
+        />
+        <Text
+          style={{
+            color: colors.textPrimary,
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 10,
+            textAlign: "center",
+          }}
+        >
+          {t("errors.connectionTitle", "Problema de conexión")}
+        </Text>
+        <Text
+          style={{
+            color: colors.textSecondary,
+            fontSize: 14,
+            marginBottom: 30,
+            textAlign: "center",
+          }}
+        >
+          {t(
+            "errors.connectionMsg",
+            "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
+          )}
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: colors.primary,
+            paddingVertical: 12,
+            paddingHorizontal: 30,
+            borderRadius: 25,
+          }}
+          onPress={retryInit}
+        >
+          <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: 16 }}>
+            {t("common.retry", "Reintentar")}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, animation: "none" }}>
+      <Stack.Screen name="index" />
       <Stack.Screen name="userProfile" options={{ presentation: "card" }} />
       <Stack.Screen
         name="activeWorkout"

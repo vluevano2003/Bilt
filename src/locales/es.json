@@ -6,7 +6,8 @@
     "cancel": "Cancelar",
     "or": "O",
     "saving": "Guardando...",
-    "backToHome": "Volver al inicio"
+    "backToHome": "Volver al inicio",
+    "retry": "Reintentar"
   },
   "tabs": {
     "workout": "Workout",
@@ -200,7 +201,9 @@
     "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
     "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.",
     "updatePasswordFailed": "No se pudo actualizar la contraseña.",
-    "invalidLink": "El enlace no es válido o ya ha expirado."
+    "invalidLink": "El enlace no es válido o ya ha expirado.",
+    "connectionTitle": "Problema de conexión",
+    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo."
   },
   "routines": {
     "title": "Tus Rutinas",

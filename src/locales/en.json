@@ -6,7 +6,8 @@
     "cancel": "Cancel",
     "or": "OR",
     "saving": "Saving...",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "retry": "Retry"
   },
   "tabs": {
     "workout": "Workout",
@@ -200,7 +201,9 @@
     "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
     "unexpected": "An unexpected error occurred. Please try again later.",
     "updatePasswordFailed": "Could not update the password.",
-    "invalidLink": "The link is invalid or has expired."
+    "invalidLink": "The link is invalid or has expired.",
+    "connectionTitle": "Connection Problem",
+    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again."
   },
   "routines": {
     "title": "Your Routines",
