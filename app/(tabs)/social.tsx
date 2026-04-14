@@ -106,10 +106,12 @@ export default function SocialScreen() {
 
     setIsSearching(true);
     try {
+      const searchPattern = text.replace(/[aeiouáéíóúü]/gi, "_");
+
       const { data, error } = await supabase
         .from("users")
         .select("id, username, profile_picture_url")
-        .ilike("username", `%${text}%`)
+        .ilike("username", `%${searchPattern}%`)
         .limit(10);
 
       if (error) throw error;
