@@ -7,7 +7,8 @@
     "or": "OR",
     "saving": "Saving...",
     "backToHome": "Back to home",
-    "retry": "Retry"
+    "retry": "Retry",
+    "pressBackAgain": "Press back again to exit"
   },
   "tabs": {
     "workout": "Workout",
@@ -243,7 +244,9 @@
     "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?",
     "animationComingSoon": "Animation coming soon",
     "synergists": "Synergists",
-    "instructions": "Instructions"
+    "instructions": "Instructions",
+    "n_sets_one": "1 Set",
+    "n_sets_other": "{{count}} Sets"
   },
   "activeWorkout": {
     "finish": "Finish",

@@ -1,10 +1,16 @@
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
-import { Tabs, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import {
+  Tabs,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,6 +18,7 @@ import {
   Platform,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -50,6 +57,40 @@ export default function HomeScreen() {
 
   const homeStyles = getHomeStyles(colors);
   const routineStyles = getRoutineStyles(colors);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") return;
+
+      let backPressCount = 0;
+
+      const onBackPress = () => {
+        if (backPressCount === 1) {
+          BackHandler.exitApp();
+          return true;
+        }
+
+        backPressCount = 1;
+        ToastAndroid.show(
+          t("common.pressBackAgain", "Presiona atrás de nuevo para salir"),
+          ToastAndroid.SHORT,
+        );
+
+        setTimeout(() => {
+          backPressCount = 0;
+        }, 2000);
+
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [t]),
+  );
 
   const {
     isPrivate,

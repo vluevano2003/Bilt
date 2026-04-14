@@ -7,7 +7,8 @@
     "or": "O",
     "saving": "Guardando...",
     "backToHome": "Volver al inicio",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "pressBackAgain": "Presiona atrás de nuevo para salir"
   },
   "tabs": {
     "workout": "Workout",
@@ -243,7 +244,9 @@
     "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?",
     "animationComingSoon": "Animación próximamente",
     "synergists": "Sinérgicos",
-    "instructions": "Instrucciones"
+    "instructions": "Instrucciones",
+    "n_sets_one": "1 Serie",
+    "n_sets_other": "{{count}} Series"
   },
   "activeWorkout": {
     "finish": "Finalizar",

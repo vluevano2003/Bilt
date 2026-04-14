@@ -615,18 +615,20 @@ export const ReadonlyRoutineModal = ({
                       </Text>
                     </TouchableOpacity>
 
-                    {exercise.sets?.map((set: any, setIdx: number) => (
+                    {exercise.sets && exercise.sets.length > 0 && (
                       <Text
-                        key={setIdx}
                         style={{
                           color: colors.textSecondary,
                           marginLeft: 15,
                           fontSize: 14,
                         }}
                       >
-                        {t("routines.set", "Set")} {setIdx + 1}
+                        {t("routines.n_sets", {
+                          count: exercise.sets.length,
+                          defaultValue: `${exercise.sets.length} Series`,
+                        })}
                       </Text>
-                    ))}
+                    )}
                   </View>
                 );
               })}
