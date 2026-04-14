@@ -1,14 +1,17 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  BackHandler,
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -32,6 +35,40 @@ export default function LoginScreen() {
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") return;
+
+      let backPressCount = 0;
+
+      const onBackPress = () => {
+        if (backPressCount === 1) {
+          BackHandler.exitApp();
+          return true;
+        }
+
+        backPressCount = 1;
+        ToastAndroid.show(
+          t("common.pressBackAgain", "Presiona atrás de nuevo para salir"),
+          ToastAndroid.SHORT,
+        );
+
+        setTimeout(() => {
+          backPressCount = 0;
+        }, 2000);
+
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [t]),
+  );
 
   const {
     currentView,
