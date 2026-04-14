@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { usePathname, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../context/ActiveWorkoutContext";
 import { useTheme } from "../context/ThemeContext";
@@ -24,6 +24,24 @@ export const MiniWorkoutPlayer = () => {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  const handleCancel = () => {
+    Alert.alert(
+      t("activeWorkout.cancelAlertTitle", "Cancelar entrenamiento"),
+      t(
+        "activeWorkout.cancelAlertMsg",
+        "¿Seguro que deseas cancelar el entrenamiento actual? Perderás el progreso de esta sesión.",
+      ),
+      [
+        { text: t("common.back", "Volver"), style: "cancel" },
+        {
+          text: t("activeWorkout.yesCancel", "Sí, cancelar"),
+          style: "destructive",
+          onPress: () => cancelWorkout(),
+        },
+      ],
+    );
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -36,7 +54,7 @@ export const MiniWorkoutPlayer = () => {
         </Text>
         <Text style={styles.time}>{formatTime(elapsedSeconds)}</Text>
       </View>
-      <TouchableOpacity style={styles.cancelBtn} onPress={cancelWorkout}>
+      <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
         <Feather name="x" size={20} color="#FFF" />
       </TouchableOpacity>
     </TouchableOpacity>

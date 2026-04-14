@@ -1,4 +1,4 @@
-import NetInfo from "@react-native-community/netinfo"; // --- NUEVO ---
+import NetInfo from "@react-native-community/netinfo";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";

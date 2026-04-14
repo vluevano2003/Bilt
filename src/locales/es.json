@@ -4,7 +4,10 @@
     "next": "Siguiente",
     "finish": "Finalizar",
     "cancel": "Cancelar",
-    "or": "O"
+    "or": "O",
+    "saving": "Guardando...",
+    "backToHome": "Volver al inicio",
+    "retry": "Reintentar"
   },
   "tabs": {
     "workout": "Workout",
@@ -155,7 +158,9 @@
     "reportConfirmTitle": "Reportar Usuario",
     "sendReport": "Enviar Reporte",
     "reportedTitle": "Usuario Reportado",
-    "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil."
+    "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil.",
+    "userNotFoundTitle": "Usuario no encontrado",
+    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta."
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -196,7 +201,9 @@
     "tooManyRequests": "Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de volver a intentar.",
     "unexpected": "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.",
     "updatePasswordFailed": "No se pudo actualizar la contraseña.",
-    "invalidLink": "El enlace no es válido o ya ha expirado."
+    "invalidLink": "El enlace no es válido o ya ha expirado.",
+    "connectionTitle": "Problema de conexión",
+    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo."
   },
   "routines": {
     "title": "Tus Rutinas",

@@ -4,7 +4,10 @@
     "next": "Next",
     "finish": "Finish",
     "cancel": "Cancel",
-    "or": "OR"
+    "or": "OR",
+    "saving": "Saving...",
+    "backToHome": "Back to home",
+    "retry": "Retry"
   },
   "tabs": {
     "workout": "Workout",
@@ -155,7 +158,9 @@
     "reportConfirmTitle": "Report User",
     "sendReport": "Send Report",
     "reportedTitle": "User Reported",
-    "reportedMsg": "Thanks for letting us know. We will review this profile."
+    "reportedMsg": "Thanks for letting us know. We will review this profile.",
+    "userNotFoundTitle": "User not found",
+    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account."
   },
   "alerts": {
     "missingData": "Missing data",
@@ -196,7 +201,9 @@
     "tooManyRequests": "Too many failed attempts. For your safety, wait a few minutes before trying again.",
     "unexpected": "An unexpected error occurred. Please try again later.",
     "updatePasswordFailed": "Could not update the password.",
-    "invalidLink": "The link is invalid or has expired."
+    "invalidLink": "The link is invalid or has expired.",
+    "connectionTitle": "Connection Problem",
+    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again."
   },
   "routines": {
     "title": "Your Routines",

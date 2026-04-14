@@ -1,5 +1,5 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -24,7 +24,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
-import { ExerciseType, RoutineExercise } from "../hooks/useRoutines";
+import {
+  ExerciseType,
+  RoutineExercise,
+  useRoutines,
+} from "../hooks/useRoutines";
+import { ExerciseSelectorModal } from "../src/components/ExerciseSelectorModal";
 import { ExerciseDetailsModal } from "../src/components/RoutinesModals";
 import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
@@ -35,6 +40,7 @@ export default function ActiveWorkoutScreen() {
   const styles = getStyles(colors);
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const { exercisesDb } = useRoutines();
 
   const {
     t,
@@ -64,6 +70,8 @@ export default function ActiveWorkoutScreen() {
     changeExerciseUnit,
     getPreviousSet,
     isSavingHistory,
+    addExercisesToActiveRoutine,
+    removeExerciseFromActiveRoutine,
   } = useActiveWorkoutScreen();
 
   const [restEditExId, setRestEditExId] = useState<string | null>(null);
@@ -72,6 +80,12 @@ export default function ActiveWorkoutScreen() {
   const [detailsExercise, setDetailsExercise] = useState<ExerciseType | null>(
     null,
   );
+  const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
+  const [tempSelectedExercises, setTempSelectedExercises] = useState<
+    ExerciseType[]
+  >([]);
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
@@ -113,6 +127,60 @@ export default function ActiveWorkoutScreen() {
     setUnitModalExId(null);
   };
 
+  /**
+   * Abre el modal para seleccionar ejercicios y resetea los filtros de búsqueda y selección de músculo, así como la lista temporal de ejercicios seleccionados, para preparar una nueva selección de ejercicios que se agregarán a la rutina activa
+   */
+  const openExerciseSelector = () => {
+    setSearchQuery("");
+    setSelectedMuscle(null);
+    setTempSelectedExercises([]);
+    setExerciseModalVisible(true);
+  };
+
+  const toggleExerciseSelection = (exercise: ExerciseType) => {
+    setTempSelectedExercises((prev) => {
+      const exists = prev.find((e) => e.id === exercise.id);
+      if (exists) return prev.filter((e) => e.id !== exercise.id);
+      return [...prev, exercise];
+    });
+  };
+
+  const confirmSelectedExercises = () => {
+    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
+      id: Math.random().toString(36).substr(2, 9),
+      exerciseDetails: ex,
+      restTimeSeconds: 90,
+      sets: [
+        {
+          id: Math.random().toString(36).substr(2, 9),
+          type: "normal",
+          reps: 0,
+          weight: 0,
+          weightUnit: measurementSystem === "metric" ? "kg" : "lbs",
+          completed: false,
+        },
+      ],
+    }));
+    addExercisesToActiveRoutine(newExercises);
+    setExerciseModalVisible(false);
+  };
+
+  const filteredExercises = useMemo(() => {
+    return exercisesDb.filter((ex) => {
+      const exerciseName = t(`exercises.${ex.id}`).toLowerCase();
+      const matchesSearch = exerciseName.includes(searchQuery.toLowerCase());
+      const matchesMuscle = selectedMuscle
+        ? ex.muscleGroup === selectedMuscle
+        : true;
+      return matchesSearch && matchesMuscle;
+    });
+  }, [searchQuery, selectedMuscle, t, exercisesDb]);
+
+  const uniqueMuscles = useMemo(() => {
+    const muscles = exercisesDb.map((ex) => ex.muscleGroup);
+    return [...new Set(muscles)];
+  }, [exercisesDb]);
+
   const renderDraggableExercise = ({
     item: exercise,
     drag,
@@ -126,18 +194,35 @@ export default function ActiveWorkoutScreen() {
         <View
           style={[styles.exerciseCard, isActive && styles.exerciseCardActive]}
         >
-          <TouchableOpacity
-            style={styles.exerciseHeader}
-            onLongPress={!isReadonly ? drag : undefined}
-            onPress={() => setDetailsExercise(exercise.exerciseDetails)}
-            delayLongPress={200}
-            activeOpacity={0.7}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
-            <Text style={styles.exerciseName}>
-              {t(`exercises.${exercise.exerciseDetails.id}`)}{" "}
-              <Feather name="info" size={16} color={colors.textSecondary} />
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.exerciseHeader, { flex: 1 }]}
+              onLongPress={!isReadonly ? drag : undefined}
+              onPress={() => setDetailsExercise(exercise.exerciseDetails)}
+              delayLongPress={200}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.exerciseName}>
+                {t(`exercises.${exercise.exerciseDetails.id}`)}{" "}
+                <Feather name="info" size={16} color={colors.textSecondary} />
+              </Text>
+            </TouchableOpacity>
+
+            {!isReadonly && (
+              <TouchableOpacity
+                onPress={() => removeExerciseFromActiveRoutine(exercise.id)}
+                style={{ padding: 5, paddingLeft: 15 }}
+              >
+                <Feather name="trash-2" size={20} color="#EF4444" />
+              </TouchableOpacity>
+            )}
+          </View>
 
           <TouchableOpacity
             style={styles.exerciseRestIndicator}
@@ -336,14 +421,49 @@ export default function ActiveWorkoutScreen() {
           renderItem={renderDraggableExercise}
           keyboardShouldPersistTaps="handled"
           ListFooterComponent={
-            <TouchableOpacity
-              style={styles.cancelWorkoutButton}
-              onPress={handleCancelWorkout}
-            >
-              <Text style={styles.cancelWorkoutText}>
-                {t("activeWorkout.cancelWorkoutButton")}
-              </Text>
-            </TouchableOpacity>
+            <View>
+              {!isReadonly && (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: 12,
+                    backgroundColor: "rgba(234, 88, 12, 0.1)",
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: colors.primary,
+                    borderStyle: "dashed",
+                    marginBottom: 20,
+                  }}
+                  onPress={openExerciseSelector}
+                >
+                  <Feather
+                    name="plus"
+                    size={20}
+                    color={colors.primary}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                  >
+                    {t("routines.addExercise", "Añadir Ejercicio")}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.cancelWorkoutButton}
+                onPress={handleCancelWorkout}
+              >
+                <Text style={styles.cancelWorkoutText}>
+                  {t("activeWorkout.cancelWorkoutButton")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           }
         />
       </KeyboardAvoidingView>
@@ -742,7 +862,7 @@ export default function ActiveWorkoutScreen() {
               )}
               <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>
                 {isSavingHistory
-                  ? "Guardando..."
+                  ? t("common.saving", "Guardando...")
                   : t("common.finish", "Terminar")}
               </Text>
             </TouchableOpacity>
@@ -754,6 +874,20 @@ export default function ActiveWorkoutScreen() {
         visible={!!detailsExercise}
         onClose={() => setDetailsExercise(null)}
         exercise={detailsExercise}
+      />
+
+      <ExerciseSelectorModal
+        visible={exerciseModalVisible}
+        onClose={() => setExerciseModalVisible(false)}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedMuscle={selectedMuscle}
+        setSelectedMuscle={setSelectedMuscle}
+        uniqueMuscles={uniqueMuscles}
+        filteredExercises={filteredExercises}
+        tempSelectedExercises={tempSelectedExercises}
+        toggleExerciseSelection={toggleExerciseSelection}
+        onConfirm={confirmSelectedExercises}
       />
     </SafeAreaView>
   );

@@ -10,11 +10,11 @@ import { useUserActivity } from "./useUserActivity";
 
 /**
  * Hook para manejar la lógica de la pantalla de workout activo, incluyendo:
-- Cálculo de estadísticas en tiempo real (volumen, distribución muscular)
-- Formateo de tiempos y pesos
-- Manejo de acciones del usuario (finalizar, cancelar, minimizar)
-- Comparación con el historial para mostrar el último set realizado
- * @returns 
+ * - Cálculo de estadísticas en tiempo real (volumen, distribución muscular)
+ * - Formateo de tiempos y pesos
+ * - Manejo de acciones del usuario (finalizar, cancelar, minimizar)
+ * - Comparación con el historial para mostrar el último set realizado
+ * @returns
  */
 export const useActiveWorkoutScreen = () => {
   const { t } = useTranslation();
@@ -158,16 +158,23 @@ export const useActiveWorkoutScreen = () => {
   const checkModifications = () => {
     if (!activeRoutine || !originalRoutine) return false;
 
-    const cleanActive = activeRoutine.exercises.map((ex) => ({
-      ...ex,
-      sets: ex.sets.map(({ completed, ...rest }) => rest),
-    }));
-    const cleanOriginal = originalRoutine.exercises.map((ex) => ({
-      ...ex,
-      sets: ex.sets.map(({ completed, ...rest }) => rest),
-    }));
+    if (activeRoutine.exercises.length !== originalRoutine.exercises.length) {
+      return true;
+    }
 
-    return JSON.stringify(cleanActive) !== JSON.stringify(cleanOriginal);
+    for (const activeEx of activeRoutine.exercises) {
+      const originalEx = originalRoutine.exercises.find(
+        (origEx) => origEx.id === activeEx.id,
+      );
+
+      if (!originalEx) return true;
+
+      if (activeEx.sets.length !== originalEx.sets.length) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   const calculateAndShowSummary = () => {

@@ -40,7 +40,7 @@ import {
 import { shareProfile } from "../src/utils/shareHelpers";
 
 export default function UserProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const params = useLocalSearchParams();
   const router = useRouter();
   const profileId = params.id as string | undefined;
@@ -117,6 +117,72 @@ export default function UserProfileScreen() {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  const isProfileNotFound = !profile.isLoading && !profile.username;
+
+  if (isProfileNotFound) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.headerContainer, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity
+            onPress={handleGoBack}
+            style={{ zIndex: 10, padding: 5 }}
+          >
+            <Feather name="arrow-left" size={28} color={colors.textPrimary} />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 20,
+          }}
+        >
+          <Feather name="user-x" size={60} color={colors.textSecondary} />
+          <Text
+            style={{
+              color: colors.textPrimary,
+              fontSize: 22,
+              fontWeight: "bold",
+              marginTop: 20,
+              textAlign: "center",
+            }}
+          >
+            {t("profile.userNotFoundTitle", "Usuario no encontrado")}
+          </Text>
+          <Text
+            style={{
+              color: colors.textSecondary,
+              marginTop: 10,
+              textAlign: "center",
+              fontSize: 16,
+            }}
+          >
+            {t(
+              "profile.userNotFoundMsg",
+              "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
+            )}
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              {
+                marginTop: 30,
+                backgroundColor: colors.primary,
+                paddingHorizontal: 30,
+              },
+            ]}
+            onPress={handleGoBack}
+          >
+            <Text style={[styles.actionButtonText, { color: "#FFF" }]}>
+              {t("common.backToHome", "Volver al inicio")}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -270,7 +336,7 @@ export default function UserProfileScreen() {
                   textAlign: "center",
                 }}
               >
-                {t("profile.userBlockedTitle", "Usuario no encontrado")}
+                {t("profile.userBlockedTitle", "Usuario no disponible")}
               </Text>
               <Text
                 style={{
@@ -617,6 +683,26 @@ export default function UserProfileScreen() {
                           >
                             <Text style={styles.routineName}>
                               {session.routineName}
+                            </Text>
+                            <Text
+                              style={{
+                                color: colors.textSecondary,
+                                fontSize: 13,
+                                marginTop: 2,
+                                marginBottom: 4,
+                              }}
+                            >
+                              {new Date(session.completedAt).toLocaleDateString(
+                                i18n.language.includes("es")
+                                  ? "es-ES"
+                                  : "en-US",
+                                {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
                             </Text>
                             <View
                               style={{

@@ -324,6 +324,24 @@ export default function ProfileScreen() {
                       <Text style={styles.routineName}>
                         {session.routineName}
                       </Text>
+                      <Text
+                        style={{
+                          color: colors.textSecondary,
+                          fontSize: 13,
+                          marginTop: 2,
+                          marginBottom: 4,
+                        }}
+                      >
+                        {new Date(session.completedAt).toLocaleDateString(
+                          i18n.language.includes("es") ? "es-ES" : "en-US",
+                          {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
+                      </Text>
                       <View
                         style={{
                           flexDirection: "row",

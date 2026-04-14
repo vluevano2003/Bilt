@@ -59,6 +59,8 @@ interface ActiveWorkoutContextProps {
   reorderActiveExercises: (newExercises: RoutineExercise[]) => void;
   setIsPaused: (val: boolean) => void;
   updateExerciseRestTime: (exId: string, newTime: number) => void;
+  addExercisesToActiveRoutine: (newExercises: RoutineExercise[]) => void;
+  removeExerciseFromActiveRoutine: (exId: string) => void;
 }
 
 export const ActiveWorkoutContext =
@@ -497,6 +499,22 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
+  const addExercisesToActiveRoutine = (newExercises: RoutineExercise[]) => {
+    if (!activeRoutine) return;
+    setActiveRoutine({
+      ...activeRoutine,
+      exercises: [...activeRoutine.exercises, ...newExercises],
+    });
+  };
+
+  const removeExerciseFromActiveRoutine = (exId: string) => {
+    if (!activeRoutine) return;
+    setActiveRoutine({
+      ...activeRoutine,
+      exercises: activeRoutine.exercises.filter((ex) => ex.id !== exId),
+    });
+  };
+
   return (
     <ActiveWorkoutContext.Provider
       value={{
@@ -521,6 +539,8 @@ export const ActiveWorkoutProvider = ({
         reorderActiveExercises,
         setIsPaused,
         updateExerciseRestTime,
+        addExercisesToActiveRoutine,
+        removeExerciseFromActiveRoutine,
       }}
     >
       {children}

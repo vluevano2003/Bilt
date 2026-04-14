@@ -1,6 +1,12 @@
 import NetInfo from "@react-native-community/netinfo";
 import { Session, User } from "@supabase/supabase-js";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { supabase } from "../config/supabase";
 
 const debugError = (...args: any[]) => {
@@ -12,18 +18,18 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   hasProfile: boolean;
+  isError: boolean;
+  retryInit: () => void;
   checkProfileStatus: (userId?: string) => Promise<void>;
 }
 
-/**
- * Provee un contexto de autenticación para manejar el estado del usuario, sesión y perfil en la aplicación
- * Permite a los componentes hijos acceder a la información de autenticación y verificar el estado del perfil del usuario
- */
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isLoading: true,
   hasProfile: false,
+  isError: false,
+  retryInit: () => {},
   checkProfileStatus: async () => {},
 });
 
@@ -34,6 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const checkProfileStatus = async (userId?: string) => {
     const idToCheck = userId || user?.id;
@@ -42,10 +49,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    /**
-     * Verifica la conexión a internet antes de intentar consultar el perfil del usuario en Supabase.
-     * Si no hay conexión, asume que el perfil existe para evitar bloquear la experiencia del usuario.
-     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       setHasProfile(true);
@@ -69,35 +72,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const initializeAuth = useCallback(async () => {
+    setIsError(false);
+    setIsLoading(true);
+
+    const fallbackTimeout = setTimeout(() => {
+      debugError("Timeout de seguridad: La conexión tardó demasiado.");
+      setIsError(true);
+      setIsLoading(false);
+    }, 6000);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await checkProfileStatus(session.user.id);
+      } else {
+        setHasProfile(false);
+      }
+    } catch (error) {
+      debugError("Error loading session:", error);
+      setIsError(true);
+    } finally {
+      clearTimeout(fallbackTimeout);
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
-    const loadSession = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!mounted) return;
-
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          await checkProfileStatus(session.user.id);
-        } else {
-          setHasProfile(false);
-        }
-      } catch (error) {
-        debugError("Error loading session:", error);
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadSession();
+    initializeAuth();
 
     const {
       data: { subscription },
@@ -108,19 +118,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(currentSession?.user ?? null);
 
       if (currentSession?.user) {
-        await checkProfileStatus(currentSession.user.id);
+        checkProfileStatus(currentSession.user.id).finally(() => {
+          if (mounted) setIsLoading(false);
+        });
       } else {
         setHasProfile(false);
+        if (mounted) setIsLoading(false);
       }
-
-      setIsLoading(false);
     });
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [initializeAuth]);
 
   return (
     <AuthContext.Provider
@@ -129,6 +140,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         session,
         isLoading,
         hasProfile,
+        isError,
+        retryInit: initializeAuth,
         checkProfileStatus,
       }}
     >
