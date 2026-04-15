@@ -2,10 +2,12 @@ import { Platform, StatusBar, StyleSheet } from "react-native";
 
 export const getStyles = (colors: any) =>
   StyleSheet.create({
+    //Contenedor principal y scroll
     container: { flex: 1, backgroundColor: colors.background },
     scrollContainer: { paddingBottom: 40 },
     formContainer: { paddingBottom: 60 },
 
+    //Cabecera
     headerContainer: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -16,14 +18,24 @@ export const getStyles = (colors: any) =>
       marginBottom: 0,
       zIndex: 10,
     },
+    headerRightActions: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingRight: 20,
+      gap: 15,
+    },
+    iconButton: { zIndex: 10, padding: 5 },
+    headerRightIcons: { flexDirection: "row", gap: 15, zIndex: 10 },
 
+    //Información principal del perfil
     centeredProfileInfo: {
       alignItems: "center",
       paddingHorizontal: 20,
       marginBottom: 25,
-      marginTop: 0,
+      marginTop: 20,
     },
     avatarContainer: { marginBottom: 10, position: "relative" },
+    avatarCenterContainer: { alignSelf: "center", marginTop: 10 },
     avatarPlaceholder: {
       width: 100,
       height: 100,
@@ -61,6 +73,7 @@ export const getStyles = (colors: any) =>
       marginBottom: 15,
     },
 
+    //Estatísticas sociales, biografía y datos públicos
     socialStatsRow: {
       flexDirection: "row",
       justifyContent: "center",
@@ -75,7 +88,16 @@ export const getStyles = (colors: any) =>
       color: colors.textPrimary,
     },
     socialStatLabel: { fontSize: 14, color: colors.textSecondary },
-
+    bioContainer: {
+      paddingHorizontal: 20,
+      marginTop: 10,
+      marginBottom: 5,
+      alignItems: "center",
+    },
+    bioText: {
+      textAlign: "center",
+      fontSize: 15,
+    },
     publicDataContainer: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -89,6 +111,8 @@ export const getStyles = (colors: any) =>
       fontWeight: "500",
     },
 
+    //Botones de acción (seguir, aceptar/rechazar solicitud, cerrar sesión)
+    actionButtonContainer: { width: "100%", marginTop: 10 },
     actionButton: {
       backgroundColor: colors.surface,
       paddingVertical: 10,
@@ -104,58 +128,19 @@ export const getStyles = (colors: any) =>
       fontWeight: "bold",
       fontSize: 15,
     },
-
-    segmentContainer: {
+    followRequestContainer: {
       flexDirection: "row",
-      backgroundColor: "transparent",
-      marginBottom: 20,
-      marginHorizontal: 15,
+      gap: 10,
+      justifyContent: "center",
     },
-    segmentButton: {
+    acceptButton: {
       flex: 1,
-      paddingVertical: 10,
-      alignItems: "center",
-      borderBottomWidth: 2,
-      borderBottomColor: "transparent",
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
     },
-    segmentButtonActive: { borderBottomColor: colors.primary },
-
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.7)",
-      justifyContent: "flex-end",
-      margin: 0,
-      padding: 0,
-    },
-    modalContent: {
-      backgroundColor: colors.background,
-      borderTopLeftRadius: 25,
-      borderTopRightRadius: 25,
-      padding: 25,
-      width: "100%",
-      maxHeight: "85%",
-      flexShrink: 1,
-    },
-    modalHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    modalTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "bold" },
-    settingRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    settingLabel: {
-      color: colors.textPrimary,
-      fontSize: 16,
-      fontWeight: "500",
-    },
+    rejectButton: { flex: 1, backgroundColor: colors.surface },
+    rejectButtonText: { color: colors.textPrimary },
+    buttonTextWhite: { color: "#FFF" },
     logoutButton: {
       flexDirection: "row",
       backgroundColor: "transparent",
@@ -169,23 +154,59 @@ export const getStyles = (colors: any) =>
     },
     logoutText: { color: "#EF4444", fontSize: 16, fontWeight: "bold" },
 
-    label: {
-      color: colors.textSecondary,
-      fontSize: 13,
-      marginBottom: 6,
-      marginLeft: 4,
-      fontWeight: "600",
+    //Estados vacíos (perfil sin publicaciones, sin seguidores, perfil privado, etc.)
+    emptyStateContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 20,
     },
-    rowInputs: { flexDirection: "row", justifyContent: "space-between" },
-    halfInput: { width: "48%" },
+    emptyStateTitle: {
+      color: colors.textPrimary,
+      fontSize: 22,
+      fontWeight: "bold",
+      marginTop: 20,
+      textAlign: "center",
+    },
+    emptyStateText: {
+      color: colors.textSecondary,
+      marginTop: 10,
+      textAlign: "center",
+      fontSize: 16,
+    },
+    emptyStateActionBtn: {
+      marginTop: 30,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 30,
+    },
+    privateContainer: { alignItems: "center", marginTop: 40 },
+    privateTitle: {
+      color: colors.textPrimary,
+      fontSize: 18,
+      fontWeight: "bold",
+      marginTop: 15,
+    },
+    privateText: { color: colors.textSecondary, marginTop: 5 },
 
-    readOnlyInput: {
-      backgroundColor: "transparent",
+    //Pestañas y segmentos (Publicaciones/Rutinas, Estadísticas, Configuración, etc.)
+    segmentContainer: {
+      flexDirection: "row",
+      backgroundColor: colors.background,
+      marginHorizontal: 20,
+      marginBottom: 15,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    segmentButton: {
+      flex: 1,
+      paddingVertical: 12,
+      alignItems: "center",
+      borderBottomWidth: 2,
       borderColor: "transparent",
-      color: colors.textSecondary,
-      paddingHorizontal: 0,
     },
+    segmentButtonActive: { borderColor: colors.primary },
 
+    //Botones de segmento para formularios (editar perfil, cambiar contraseña, etc.)
     formSegmentContainer: {
       flexDirection: "row",
       backgroundColor: colors.surface,
@@ -209,6 +230,194 @@ export const getStyles = (colors: any) =>
     },
     segmentTextActive: { color: colors.textPrimary },
 
+    //Historial de actividad, publicaciones, rutinas, etc.
+    historySectionContainer: { marginTop: 10, paddingHorizontal: 20 },
+    historySectionTitle: { fontSize: 16, marginBottom: 15, marginLeft: 0 },
+    emptyHistoryText: {
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginTop: 20,
+    },
+    historyCard: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+    },
+    historyDateText: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      marginTop: 2,
+      marginBottom: 4,
+    },
+    historyStatsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+      marginTop: 5,
+    },
+    loadMoreBtn: {
+      paddingVertical: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 40,
+    },
+    loadMoreText: { color: colors.primary, fontWeight: "bold" },
+    routineCard: {
+      backgroundColor: colors.surface,
+      padding: 15,
+      borderRadius: 10,
+      marginBottom: 15,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    routineInfo: { flex: 1 },
+    routineName: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: "bold",
+      marginBottom: 5,
+    },
+    routineDetails: {
+      color: colors.textSecondary,
+      fontSize: 13,
+    },
+    routineDetailsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+      marginTop: 5,
+    },
+    routineStatText: { color: colors.textSecondary, fontSize: 13 },
+    bookmarkBtn: {
+      padding: 10,
+      backgroundColor: colors.background,
+      borderRadius: 10,
+    },
+
+    //Modales generales (editar perfil, opciones de publicación, reportar usuario, etc.)
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.7)",
+      justifyContent: "flex-end",
+      margin: 0,
+      padding: 0,
+    },
+    modalContent: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 25,
+      borderTopRightRadius: 25,
+      padding: 25,
+      width: "100%",
+      maxHeight: "85%",
+      flexShrink: 1,
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    modalTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "bold" },
+
+    //Modales específicos (opciones de publicación, reportar usuario, etc.)
+    optionsModalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "flex-end",
+    },
+    optionsModalContent: {
+      backgroundColor: colors.background,
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+    },
+    optionsModalHandle: {
+      width: 40,
+      height: 4,
+      backgroundColor: colors.border,
+      borderRadius: 2,
+      alignSelf: "center",
+      marginBottom: 20,
+    },
+    optionsModalRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 15,
+    },
+    optionsModalRowBorder: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 15,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      marginTop: 10,
+    },
+    optionsModalTextDanger: {
+      fontSize: 16,
+      color: "#EF4444",
+      fontWeight: "600",
+    },
+    optionsModalText: { fontSize: 16, color: colors.textPrimary },
+    optionsModalIcon: { marginRight: 15 },
+    reportModalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      padding: 20,
+    },
+    reportModalContent: {
+      backgroundColor: colors.background,
+      borderRadius: 15,
+      padding: 20,
+    },
+    reportModalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 15,
+    },
+    reportModalTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: colors.textPrimary,
+    },
+    reportReasonPrompt: { color: colors.textSecondary, marginBottom: 15 },
+    reportInput: {
+      backgroundColor: colors.surface,
+      color: colors.textPrimary,
+      borderRadius: 10,
+      padding: 15,
+      minHeight: 100,
+      textAlignVertical: "top",
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 20,
+    },
+    reportSubmitBtn: { padding: 15, borderRadius: 10, alignItems: "center" },
+    reportSubmitText: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
+
+    //Configuración y ajustes (privacidad, notificaciones, idioma, etc.)
+    settingRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    settingLabel: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: "500",
+    },
+
+    //Lista de seguidores/seguidos, solicitudes de seguimiento, etc.
     socialListItem: {
       flexDirection: "row",
       alignItems: "center",
@@ -241,28 +450,21 @@ export const getStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
     },
-    routineCard: {
-      backgroundColor: colors.surface,
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 15,
-      borderWidth: 1,
-      borderColor: colors.border,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    routineInfo: {
-      flex: 1,
-    },
-    routineName: {
-      color: colors.textPrimary,
-      fontSize: 16,
-      fontWeight: "bold",
-      marginBottom: 5,
-    },
-    routineDetails: {
+
+    //Inputs de edición de perfil, cambio de contraseña, etc.
+    label: {
       color: colors.textSecondary,
       fontSize: 13,
+      marginBottom: 6,
+      marginLeft: 4,
+      fontWeight: "600",
+    },
+    rowInputs: { flexDirection: "row", justifyContent: "space-between" },
+    halfInput: { width: "48%" },
+    readOnlyInput: {
+      backgroundColor: "transparent",
+      borderColor: "transparent",
+      color: colors.textSecondary,
+      paddingHorizontal: 0,
     },
   });

@@ -3,6 +3,8 @@ import { StyleSheet } from "react-native";
 export const getStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+    flexContainer: { flex: 1 },
+
     topTabs: {
       flexDirection: "row",
       justifyContent: "space-around",
@@ -18,6 +20,8 @@ export const getStyles = (colors: any) =>
       paddingBottom: 5,
     },
     content: { padding: 20, flex: 1 },
+
+    //Buscador y feed
     searchBar: {
       flexDirection: "row",
       backgroundColor: colors.surface,
@@ -39,6 +43,10 @@ export const getStyles = (colors: any) =>
       textAlign: "center",
       marginTop: 40,
     },
+    searchLoader: { marginTop: 20 },
+    feedLoader: { marginTop: 40 },
+
+    //Tarjeta de usuario en feed
     userCard: {
       flexDirection: "row",
       alignItems: "center",
@@ -71,6 +79,8 @@ export const getStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
     },
+
+    //Tarjeta de publicación en feed
     feedCard: {
       backgroundColor: colors.surface,
       borderRadius: 12,
@@ -140,5 +150,32 @@ export const getStyles = (colors: any) =>
     feedStatText: {
       color: colors.textSecondary,
       fontSize: 13,
+    },
+
+    //Anuncios
+    adContainer: {
+      alignItems: "center",
+      marginVertical: 10,
+    },
+    adLabelText: {
+      fontSize: 10,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    loadMoreBtn: {
+      paddingVertical: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginHorizontal: 20,
+      marginTop: 10,
+      marginBottom: 40,
+    },
+    loadMoreText: {
+      color: colors.primary,
+      fontWeight: "bold",
     },
   });

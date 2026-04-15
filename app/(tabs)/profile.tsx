@@ -1,30 +1,25 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
   Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   RefreshControl,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { useUserActivity } from "../../hooks/useUserActivity";
-import { CustomInput } from "../../src/components/CustomInput";
-import { PrimaryButton } from "../../src/components/PrimaryButton";
+import { EditProfileModal } from "../../src/components/EditProfileModal";
 import { SocialListModal } from "../../src/components/ProfileModals";
-import { SecondaryButton } from "../../src/components/SecondaryButton";
 import { SettingsModal } from "../../src/components/SettingsModal";
+import { WorkoutDetailsModal } from "../../src/components/WorkoutDetailsModal";
 import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
@@ -33,16 +28,184 @@ import { shareProfile } from "../../src/utils/shareHelpers";
 import {
   calculateSessionVolume,
   formatDuration,
-  getConvertedWeight,
 } from "../../src/utils/workoutCalculations";
 
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
 
+/**
+ * Pantalla de perfil del usuario. Muestra información del perfil, estadísticas sociales, historial de entrenamientos y permite editar el perfil, compartirlo, acceder a configuraciones y ver detalles de entrenamientos pasados.
+ * @param param0
+ * @returns
+ */
+const HeaderRightActions = ({ colors, styles, onShare, onSettings }: any) => (
+  <View style={styles.headerRightActions}>
+    <TouchableOpacity onPress={onShare}>
+      <Feather name="share" size={22} color={colors.textPrimary} />
+    </TouchableOpacity>
+    <TouchableOpacity onPress={onSettings}>
+      <AntDesign name="setting" size={24} color={colors.textPrimary} />
+    </TouchableOpacity>
+  </View>
+);
+
+/**
+ * Componente para mostrar la información principal del perfil, incluyendo avatar, nombre de usuario, bio y estadísticas de seguidores. También incluye el botón para editar el perfil y acceder a la lista de seguidores/seguidos.
+ * @param param0
+ * @returns
+ */
+const ProfileHeader = ({
+  t,
+  colors,
+  styles,
+  profilePic,
+  username,
+  followersCount,
+  followingCount,
+  bio,
+  openSocialModal,
+  openEditModal,
+}: any) => (
+  <View style={styles.centeredProfileInfo}>
+    <View style={styles.avatarContainer}>
+      {profilePic ? (
+        <Image source={{ uri: profilePic }} style={styles.avatarImage} />
+      ) : (
+        <View style={styles.avatarPlaceholder}>
+          <AntDesign name="user" size={45} color={colors.textSecondary} />
+        </View>
+      )}
+    </View>
+    <Text style={styles.usernameText}>@{username}</Text>
+
+    <View style={styles.socialStatsRow}>
+      <TouchableOpacity
+        style={styles.socialStatBox}
+        onPress={() => openSocialModal("followers")}
+      >
+        <Text style={styles.socialStatNumber}>{followersCount}</Text>
+        <Text style={styles.socialStatLabel}>{t("profile.followers")}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.socialStatBox}
+        onPress={() => openSocialModal("following")}
+      >
+        <Text style={styles.socialStatNumber}>{followingCount}</Text>
+        <Text style={styles.socialStatLabel}>{t("profile.following")}</Text>
+      </TouchableOpacity>
+    </View>
+
+    <View style={styles.bioContainer}>
+      <Text
+        style={[
+          styles.bioText,
+          {
+            color: bio ? colors.textPrimary : colors.textSecondary,
+            fontStyle: bio ? "normal" : "italic",
+          },
+        ]}
+      >
+        {bio
+          ? bio
+          : t(
+              "profile.addBioPrompt",
+              "Agrega una breve presentación sobre ti.",
+            )}
+      </Text>
+    </View>
+
+    <View style={styles.actionButtonContainer}>
+      <TouchableOpacity style={styles.actionButton} onPress={openEditModal}>
+        <Text style={styles.actionButtonText}>{t("profile.editProfile")}</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
+
+/**
+ * Componente para mostrar el historial de entrenamientos del usuario. Muestra una lista de entrenamientos con su duración, volumen total y fecha. Permite cargar más entrenamientos si hay más de los mostrados inicialmente. Al tocar un entrenamiento se abre un modal con los detalles completos.
+ * @param param0
+ * @returns
+ */
+const WorkoutHistoryList = ({
+  t,
+  i18n,
+  colors,
+  styles,
+  userHistory,
+  historyLimit,
+  setHistoryLimit,
+  isLoadingActivity,
+  measurementSystem,
+  openDetails,
+}: any) => {
+  if (isLoadingActivity) {
+    return <ActivityIndicator size="small" color={colors.primary} />;
+  }
+
+  if (userHistory.length === 0) {
+    return (
+      <Text style={styles.emptyHistoryText}>{t("profile.noHistory")}</Text>
+    );
+  }
+
+  return (
+    <>
+      {userHistory.slice(0, historyLimit).map((session: any) => {
+        const durationMins = formatDuration(session.durationSeconds);
+        const totalVolume = calculateSessionVolume(session, measurementSystem);
+        const volumeUnit = measurementSystem === "metric" ? "kg" : "lbs";
+
+        return (
+          <TouchableOpacity
+            key={session.id}
+            style={[styles.routineCard, styles.historyCard]}
+            onPress={() => openDetails(session)}
+          >
+            <Text style={styles.routineName}>{session.routineName}</Text>
+            <Text style={styles.historyDateText}>
+              {new Date(session.completedAt).toLocaleDateString(
+                i18n.language.includes("es") ? "es-ES" : "en-US",
+                {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                },
+              )}
+            </Text>
+            <View style={styles.historyStatsRow}>
+              <Text style={styles.routineDetails}>
+                <Feather name="clock" size={12} /> {durationMins} min
+              </Text>
+              <Text style={styles.routineDetails}>
+                <Feather name="activity" size={12} /> {totalVolume} {volumeUnit}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      })}
+      {userHistory.length > historyLimit && (
+        <TouchableOpacity
+          style={styles.loadMoreBtn}
+          onPress={() => setHistoryLimit((prev: number) => prev + 10)}
+        >
+          <Text style={styles.loadMoreText}>
+            {t("profile.loadMore", "Cargar más entrenamientos")}
+          </Text>
+        </TouchableOpacity>
+      )}
+    </>
+  );
+};
+
+/**
+ * Pantalla de perfil del usuario. Muestra información del perfil, estadísticas sociales, historial de entrenamientos y permite editar el perfil, compartirlo, acceder a configuraciones y ver detalles de entrenamientos pasados.
+ * @returns
+ */
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
-  const router = useRouter();
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
@@ -90,8 +253,6 @@ export default function ProfileScreen() {
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
 
-  const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
-
   const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
 
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
@@ -113,7 +274,7 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleDeletaAccount = () => {
+  const handleDeleteAccount = () => {
     Alert.alert(
       t("profile.deleteAccountTitle", "Eliminar Cuenta"),
       t(
@@ -129,16 +290,6 @@ export default function ProfileScreen() {
         },
       ],
     );
-  };
-
-  const loadBlockedUsers = async () => {
-    const list = await getBlockedUsersList();
-    setBlockedUsers(list);
-  };
-
-  const handleUnblock = async (blockedId: string) => {
-    await unblockUserFromList(blockedId);
-    loadBlockedUsers();
   };
 
   const toggleLanguage = async (lang: string) => {
@@ -177,27 +328,12 @@ export default function ProfileScreen() {
       <Tabs.Screen
         options={{
           headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingRight: 20,
-                gap: 15,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => shareProfile(user?.id || "", username)}
-              >
-                <Feather name="share" size={22} color={colors.textPrimary} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSettingsVisible(true)}>
-                <AntDesign
-                  name="setting"
-                  size={24}
-                  color={colors.textPrimary}
-                />
-              </TouchableOpacity>
-            </View>
+            <HeaderRightActions
+              colors={colors}
+              styles={styles}
+              onShare={() => shareProfile(user?.id || "", username)}
+              onSettings={() => setSettingsVisible(true)}
+            />
           ),
         }}
       />
@@ -217,404 +353,75 @@ export default function ProfileScreen() {
         }
       >
         <View style={styles.formContainer}>
-          <View style={[styles.centeredProfileInfo, { marginTop: 20 }]}>
-            <View style={styles.avatarContainer}>
-              {profilePic ? (
-                <Image
-                  source={{ uri: profilePic }}
-                  style={styles.avatarImage}
-                />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <AntDesign
-                    name="user"
-                    size={45}
-                    color={colors.textSecondary}
-                  />
-                </View>
-              )}
-            </View>
-            <Text style={styles.usernameText}>@{username}</Text>
+          <ProfileHeader
+            t={t}
+            colors={colors}
+            styles={styles}
+            profilePic={profilePic}
+            username={username}
+            followersCount={followersCount}
+            followingCount={followingCount}
+            bio={bio}
+            openSocialModal={openSocialModal}
+            openEditModal={openEditModal}
+          />
 
-            <View style={styles.socialStatsRow}>
-              <TouchableOpacity
-                style={styles.socialStatBox}
-                onPress={() => openSocialModal("followers")}
-              >
-                <Text style={styles.socialStatNumber}>{followersCount}</Text>
-                <Text style={styles.socialStatLabel}>
-                  {t("profile.followers")}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.socialStatBox}
-                onPress={() => openSocialModal("following")}
-              >
-                <Text style={styles.socialStatNumber}>{followingCount}</Text>
-                <Text style={styles.socialStatLabel}>
-                  {t("profile.following")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View
-              style={{
-                paddingHorizontal: 20,
-                marginTop: 10,
-                marginBottom: 5,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color: bio ? colors.textPrimary : colors.textSecondary,
-                  textAlign: "center",
-                  fontSize: 15,
-                  fontStyle: bio ? "normal" : "italic",
-                }}
-              >
-                {bio
-                  ? bio
-                  : t(
-                      "profile.addBioPrompt",
-                      "Agrega una breve presentación sobre ti.",
-                    )}
-              </Text>
-            </View>
-
-            <View style={{ width: "100%", marginTop: 10 }}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={openEditModal}
-              >
-                <Text style={styles.actionButtonText}>
-                  {t("profile.editProfile")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
-            <Text
-              style={[
-                styles.label,
-                { fontSize: 16, marginBottom: 15, marginLeft: 0 },
-              ]}
-            >
+          <View style={styles.historySectionContainer}>
+            <Text style={[styles.label, styles.historySectionTitle]}>
               {t("profile.workoutHistory")}
             </Text>
-            {isLoadingActivity ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : userHistory.length > 0 ? (
-              <>
-                {userHistory.slice(0, historyLimit).map((session) => {
-                  const durationMins = formatDuration(session.durationSeconds);
-                  const totalVolume = calculateSessionVolume(
-                    session,
-                    measurementSystem,
-                  );
-                  const volumeUnit =
-                    measurementSystem === "metric" ? "kg" : "lbs";
-                  return (
-                    <TouchableOpacity
-                      key={session.id}
-                      style={[
-                        styles.routineCard,
-                        { flexDirection: "column", alignItems: "flex-start" },
-                      ]}
-                      onPress={() => openDetails(session)}
-                    >
-                      <Text style={styles.routineName}>
-                        {session.routineName}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.textSecondary,
-                          fontSize: 13,
-                          marginTop: 2,
-                          marginBottom: 4,
-                        }}
-                      >
-                        {new Date(session.completedAt).toLocaleDateString(
-                          i18n.language.includes("es") ? "es-ES" : "en-US",
-                          {
-                            weekday: "short",
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          },
-                        )}
-                      </Text>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          width: "100%",
-                          marginTop: 5,
-                        }}
-                      >
-                        <Text style={styles.routineDetails}>
-                          <Feather name="clock" size={12} /> {durationMins} min
-                        </Text>
-                        <Text style={styles.routineDetails}>
-                          <Feather name="activity" size={12} /> {totalVolume}{" "}
-                          {volumeUnit}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-                {userHistory.length > historyLimit && (
-                  <TouchableOpacity
-                    style={{
-                      paddingVertical: 12,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: colors.surface,
-                      borderRadius: 10,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      marginBottom: 20,
-                    }}
-                    onPress={() => setHistoryLimit((prev) => prev + 10)}
-                  >
-                    <Text style={{ color: colors.primary, fontWeight: "bold" }}>
-                      {t("profile.loadMore", "Cargar más entrenamientos")}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  textAlign: "center",
-                  marginTop: 20,
-                }}
-              >
-                {t("profile.noHistory")}
-              </Text>
-            )}
+            <WorkoutHistoryList
+              t={t}
+              i18n={i18n}
+              colors={colors}
+              styles={styles}
+              userHistory={userHistory}
+              historyLimit={historyLimit}
+              setHistoryLimit={setHistoryLimit}
+              isLoadingActivity={isLoadingActivity}
+              measurementSystem={measurementSystem}
+              openDetails={openDetails}
+            />
           </View>
         </View>
       </ScrollView>
 
-      {/* Editar Perfil Modal */}
-      <Modal
+      <EditProfileModal
         visible={isEditing}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={handleCancel}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              {
-                paddingHorizontal: 0,
-                paddingBottom: 0,
-                flex: 1,
-                marginTop: Platform.OS === "ios" ? insets.top + 20 : 20,
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                overflow: "hidden",
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.modalHeader,
-                { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
-              ]}
-            >
-              <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
-              <TouchableOpacity onPress={handleCancel}>
-                <AntDesign name="close" size={24} color={colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
+        onClose={handleCancel}
+        isSaving={isSaving}
+        handleSave={handleSave}
+        pickImage={pickImage}
+        profilePic={profilePic}
+        editUsername={editUsername}
+        setEditUsername={setEditUsername}
+        editHeight={editHeight}
+        setEditHeight={setEditHeight}
+        editWeight={editWeight}
+        setEditWeight={setEditWeight}
+        gender={gender}
+        email={email}
+        editBio={editBio}
+        setEditBio={setEditBio}
+        editMeasurementSystem={editMeasurementSystem}
+        changeMeasurementSystem={changeMeasurementSystem}
+        colors={colors}
+        styles={styles}
+        t={t}
+        insets={insets}
+      />
 
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "padding"}
-              style={{ flex: 1 }}
-            >
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{
-                  paddingHorizontal: 20,
-                  paddingBottom: Math.max(insets.bottom, 20) + 120,
-                  flexGrow: 1,
-                }}
-              >
-                <TouchableOpacity
-                  style={[
-                    styles.avatarContainer,
-                    { alignSelf: "center", marginTop: 10 },
-                  ]}
-                  onPress={pickImage}
-                >
-                  {profilePic ? (
-                    <Image
-                      source={{ uri: profilePic }}
-                      style={styles.avatarImage}
-                    />
-                  ) : (
-                    <View style={styles.avatarPlaceholder}>
-                      <AntDesign
-                        name="user"
-                        size={40}
-                        color={colors.textSecondary}
-                      />
-                    </View>
-                  )}
-                  <View style={styles.editBadge}>
-                    <AntDesign name="camera" size={14} color="#FFF" />
-                  </View>
-                </TouchableOpacity>
+      <WorkoutDetailsModal
+        visible={detailsModalVisible}
+        onClose={() => setDetailsModalVisible(false)}
+        selectedItem={selectedItem}
+        measurementSystem={measurementSystem}
+        colors={colors}
+        styles={styles}
+        t={t}
+        insets={insets}
+      />
 
-                <Text style={styles.label}>{t("profile.username")}</Text>
-                <CustomInput
-                  value={editUsername}
-                  onChangeText={setEditUsername}
-                />
-
-                <Text style={styles.label}>
-                  {t("profile.measurementSystem")}
-                </Text>
-                <View style={styles.formSegmentContainer}>
-                  <TouchableOpacity
-                    style={[
-                      styles.formSegmentButton,
-                      editMeasurementSystem === "metric" &&
-                        styles.formSegmentButtonActive,
-                    ]}
-                    onPress={() => changeMeasurementSystem("metric")}
-                  >
-                    <Text
-                      style={[
-                        styles.segmentText,
-                        editMeasurementSystem === "metric" &&
-                          styles.segmentTextActive,
-                      ]}
-                    >
-                      {t("profile.metric")}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.formSegmentButton,
-                      editMeasurementSystem === "imperial" &&
-                        styles.formSegmentButtonActive,
-                    ]}
-                    onPress={() => changeMeasurementSystem("imperial")}
-                  >
-                    <Text
-                      style={[
-                        styles.segmentText,
-                        editMeasurementSystem === "imperial" &&
-                          styles.segmentTextActive,
-                      ]}
-                    >
-                      {t("profile.imperial")}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.rowInputs}>
-                  <View style={styles.halfInput}>
-                    <Text style={styles.label}>
-                      {t("profile.height")} (
-                      {editMeasurementSystem === "metric" ? "cm" : "in"})
-                    </Text>
-                    <CustomInput
-                      value={editHeight}
-                      onChangeText={setEditHeight}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                  <View style={styles.halfInput}>
-                    <Text style={styles.label}>
-                      {t("profile.weight")} (
-                      {editMeasurementSystem === "metric" ? "kg" : "lbs"})
-                    </Text>
-                    <CustomInput
-                      value={editWeight}
-                      onChangeText={setEditWeight}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.rowInputs}>
-                  <View style={styles.halfInput}>
-                    <Text style={styles.label}>{t("profile.gender")}</Text>
-                    <CustomInput
-                      value={gender}
-                      editable={false}
-                      style={styles.readOnlyInput}
-                    />
-                  </View>
-                  <View style={styles.halfInput}>
-                    <Text style={styles.label}>{t("profile.email")}</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={{ width: "100%" }}
-                    >
-                      <CustomInput
-                        value={email}
-                        editable={false}
-                        style={styles.readOnlyInput}
-                      />
-                    </ScrollView>
-                  </View>
-                </View>
-
-                <Text style={[styles.label, { marginTop: 15 }]}>
-                  {t("profile.bio", "Presentación")}
-                </Text>
-                <TextInput
-                  value={editBio}
-                  onChangeText={setEditBio}
-                  multiline
-                  placeholder={t(
-                    "profile.bioPlaceholder",
-                    "Escribe una breve presentación sobre ti...",
-                  )}
-                  placeholderTextColor={colors.textSecondary}
-                  maxLength={150}
-                  style={{
-                    backgroundColor: colors.background,
-                    color: colors.textPrimary,
-                    borderRadius: 10,
-                    padding: 15,
-                    minHeight: 100,
-                    textAlignVertical: "top",
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    marginBottom: 10,
-                  }}
-                />
-
-                <View style={{ marginTop: 25, gap: 10 }}>
-                  <PrimaryButton
-                    title={t("profile.saveChanges")}
-                    onPress={handleSave}
-                    loading={isSaving}
-                  />
-                  <SecondaryButton
-                    title={t("profile.cancel")}
-                    onPress={handleCancel}
-                    disabled={isSaving}
-                  />
-                </View>
-              </ScrollView>
-            </KeyboardAvoidingView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Configuración Pantalla Completa */}
       <SettingsModal
         visible={settingsVisible}
         onClose={() => setSettingsVisible(false)}
@@ -623,7 +430,7 @@ export default function ProfileScreen() {
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
         handleLogout={handleLogout}
-        deleteAccount={handleDeletaAccount}
+        deleteAccount={handleDeleteAccount}
         getBlockedUsersList={getBlockedUsersList}
         unblockUserFromList={unblockUserFromList}
         t={t}
@@ -639,130 +446,6 @@ export default function ProfileScreen() {
         loading={loadingSocial}
         onClose={() => setSocialModalVisible(false)}
       />
-
-      <Modal
-        visible={detailsModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setDetailsModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { paddingBottom: Math.max(40, insets.bottom + 20) },
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{selectedItem?.routineName}</Text>
-              <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
-                <AntDesign name="close" size={24} color={colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 50 }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  marginBottom: 20,
-                  padding: 10,
-                  backgroundColor: colors.surface,
-                  borderRadius: 10,
-                }}
-              >
-                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
-                  <Feather name="clock" size={16} />{" "}
-                  {formatDuration(selectedItem?.durationSeconds)} min
-                </Text>
-                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
-                  <Feather name="activity" size={16} />{" "}
-                  {calculateSessionVolume(selectedItem, measurementSystem)}{" "}
-                  {measurementSystem === "metric" ? "kg" : "lbs"}
-                </Text>
-              </View>
-              <Text style={[styles.label, { marginBottom: 10 }]}>
-                {t("routines.exercises")}:
-              </Text>
-              {selectedItem?.exercises?.map((exercise: any, index: number) => {
-                const exerciseName =
-                  exercise.exerciseDetails?.id
-                    ?.replace(/_/g, " ")
-                    .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-                  "Ejercicio";
-                return (
-                  <View
-                    key={index}
-                    style={{ marginBottom: 15, paddingLeft: 10 }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.textPrimary,
-                        fontSize: 16,
-                        fontWeight: "bold",
-                        marginBottom: 5,
-                      }}
-                    >
-                      • {exerciseName}
-                    </Text>
-                    {exercise.sets?.map((set: any, setIdx: number) => {
-                      let displayUnit = "";
-                      let displayWeight = set.weight;
-
-                      if (
-                        set.weightUnit === "bars" ||
-                        set.weightUnit === "plates" ||
-                        set.weightUnit === "bodyweight"
-                      ) {
-                        displayUnit = t(`unitSelection.${set.weightUnit}`);
-                        if (
-                          set.weightUnit === "bodyweight" &&
-                          set.weight === 0
-                        ) {
-                          displayWeight = "";
-                        } else if (
-                          set.weightUnit === "bodyweight" &&
-                          set.weight > 0
-                        ) {
-                          displayWeight = `+${set.weight}`;
-                        }
-                      } else {
-                        displayWeight = Math.round(
-                          getConvertedWeight(
-                            set.weight,
-                            set.weightUnit,
-                            measurementSystem,
-                          ),
-                        );
-                        displayUnit =
-                          measurementSystem === "metric" ? "kg" : "lbs";
-                      }
-
-                      return (
-                        <Text
-                          key={setIdx}
-                          style={{
-                            color: colors.textSecondary,
-                            marginLeft: 15,
-                            fontSize: 14,
-                          }}
-                        >
-                          Set {setIdx + 1}: {set.reps} reps{" "}
-                          {set.weightUnit === "bodyweight" && set.weight === 0
-                            ? "BW"
-                            : `x ${displayWeight} ${displayUnit}`}
-                        </Text>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
