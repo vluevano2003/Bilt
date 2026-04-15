@@ -12,8 +12,8 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
-  Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -40,10 +40,6 @@ const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
 
-/**
- * Pantalla de perfil de usuario donde se muestra la información del usuario, su historial de entrenamientos, seguidores y seguidos. Permite editar el perfil, cambiar configuraciones y compartir el perfil
- * @returns
- */
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -56,32 +52,27 @@ export default function ProfileScreen() {
     isLoading,
     isSaving,
     isEditing,
-    setIsEditing,
+    openEditModal,
     username,
-    setUsername,
     profilePic,
-    age,
     email,
     gender,
     measurementSystem,
-    setMeasurementSystem,
-    height,
-    setHeight,
-    weight,
-    setWeight,
+    isPrivate,
+    togglePrivacy,
+    bio,
+    editUsername,
+    setEditUsername,
+    editHeight,
+    setEditHeight,
+    editWeight,
+    setEditWeight,
+    editBio,
+    setEditBio,
+    editMeasurementSystem,
     pickImage,
     handleSave,
     handleCancel,
-    isPrivate,
-    togglePrivacy,
-    showAge,
-    setShowAge,
-    showWeight,
-    setShowWeight,
-    showHeight,
-    setShowHeight,
-    showGender,
-    setShowGender,
     followersCount,
     followingCount,
     getSocialList,
@@ -99,7 +90,6 @@ export default function ProfileScreen() {
   const [socialList, setSocialList] = useState<SocialUser[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
 
-  const [blockedModalVisible, setBlockedModalVisible] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
 
   const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
@@ -174,17 +164,6 @@ export default function ProfileScreen() {
     setLoadingSocial(false);
   };
 
-  const getPublicDataString = () => {
-    const data = [];
-    if (showAge && age) data.push(`${age} ${t("profile.years")}`);
-    if (showGender && gender) data.push(gender);
-    if (showHeight && height)
-      data.push(`${height} ${measurementSystem === "metric" ? "cm" : "in"}`);
-    if (showWeight && weight)
-      data.push(`${weight} ${measurementSystem === "metric" ? "kg" : "lbs"}`);
-    return data.join(" • ");
-  };
-
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
@@ -256,6 +235,7 @@ export default function ProfileScreen() {
               )}
             </View>
             <Text style={styles.usernameText}>@{username}</Text>
+
             <View style={styles.socialStatsRow}>
               <TouchableOpacity
                 style={styles.socialStatBox}
@@ -276,13 +256,36 @@ export default function ProfileScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.publicDataContainer}>
-              <Text style={styles.publicDataText}>{getPublicDataString()}</Text>
+
+            <View
+              style={{
+                paddingHorizontal: 20,
+                marginTop: 10,
+                marginBottom: 5,
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: bio ? colors.textPrimary : colors.textSecondary,
+                  textAlign: "center",
+                  fontSize: 15,
+                  fontStyle: bio ? "normal" : "italic",
+                }}
+              >
+                {bio
+                  ? bio
+                  : t(
+                      "profile.addBioPrompt",
+                      "Agrega una breve presentación sobre ti.",
+                    )}
+              </Text>
             </View>
+
             <View style={{ width: "100%", marginTop: 10 }}>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => setIsEditing(true)}
+                onPress={openEditModal}
               >
                 <Text style={styles.actionButtonText}>
                   {t("profile.editProfile")}
@@ -396,42 +399,58 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* Editar Perfil */}
+      {/* Editar Perfil Modal */}
       <Modal
         visible={isEditing}
         animationType="slide"
         transparent={true}
         onRequestClose={handleCancel}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1 }}
-        >
-          <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                paddingHorizontal: 0,
+                paddingBottom: 0,
+                flex: 1,
+                marginTop: Platform.OS === "ios" ? insets.top + 20 : 20,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                overflow: "hidden",
+              },
+            ]}
+          >
             <View
               style={[
-                styles.modalContent,
-                { paddingBottom: Math.max(40, insets.bottom + 20) },
+                styles.modalHeader,
+                { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
               ]}
             >
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {t("profile.editProfile")}
-                </Text>
-                <TouchableOpacity onPress={handleCancel}>
-                  <AntDesign
-                    name="close"
-                    size={24}
-                    color={colors.textPrimary}
-                  />
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
+              <TouchableOpacity onPress={handleCancel}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "padding"}
+              style={{ flex: 1 }}
+            >
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 60 }}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{
+                  paddingHorizontal: 20,
+                  paddingBottom: Math.max(insets.bottom, 20) + 120,
+                  flexGrow: 1,
+                }}
               >
                 <TouchableOpacity
-                  style={[styles.avatarContainer, { alignSelf: "center" }]}
+                  style={[
+                    styles.avatarContainer,
+                    { alignSelf: "center", marginTop: 10 },
+                  ]}
                   onPress={pickImage}
                 >
                   {profilePic ? (
@@ -452,8 +471,13 @@ export default function ProfileScreen() {
                     <AntDesign name="camera" size={14} color="#FFF" />
                   </View>
                 </TouchableOpacity>
+
                 <Text style={styles.label}>{t("profile.username")}</Text>
-                <CustomInput value={username} onChangeText={setUsername} />
+                <CustomInput
+                  value={editUsername}
+                  onChangeText={setEditUsername}
+                />
+
                 <Text style={styles.label}>
                   {t("profile.measurementSystem")}
                 </Text>
@@ -461,7 +485,7 @@ export default function ProfileScreen() {
                   <TouchableOpacity
                     style={[
                       styles.formSegmentButton,
-                      measurementSystem === "metric" &&
+                      editMeasurementSystem === "metric" &&
                         styles.formSegmentButtonActive,
                     ]}
                     onPress={() => changeMeasurementSystem("metric")}
@@ -469,7 +493,7 @@ export default function ProfileScreen() {
                     <Text
                       style={[
                         styles.segmentText,
-                        measurementSystem === "metric" &&
+                        editMeasurementSystem === "metric" &&
                           styles.segmentTextActive,
                       ]}
                     >
@@ -479,7 +503,7 @@ export default function ProfileScreen() {
                   <TouchableOpacity
                     style={[
                       styles.formSegmentButton,
-                      measurementSystem === "imperial" &&
+                      editMeasurementSystem === "imperial" &&
                         styles.formSegmentButtonActive,
                     ]}
                     onPress={() => changeMeasurementSystem("imperial")}
@@ -487,7 +511,7 @@ export default function ProfileScreen() {
                     <Text
                       style={[
                         styles.segmentText,
-                        measurementSystem === "imperial" &&
+                        editMeasurementSystem === "imperial" &&
                           styles.segmentTextActive,
                       ]}
                     >
@@ -495,30 +519,32 @@ export default function ProfileScreen() {
                     </Text>
                   </TouchableOpacity>
                 </View>
+
                 <View style={styles.rowInputs}>
                   <View style={styles.halfInput}>
                     <Text style={styles.label}>
                       {t("profile.height")} (
-                      {measurementSystem === "metric" ? "cm" : "in"})
+                      {editMeasurementSystem === "metric" ? "cm" : "in"})
                     </Text>
                     <CustomInput
-                      value={height}
-                      onChangeText={setHeight}
+                      value={editHeight}
+                      onChangeText={setEditHeight}
                       keyboardType="numeric"
                     />
                   </View>
                   <View style={styles.halfInput}>
                     <Text style={styles.label}>
                       {t("profile.weight")} (
-                      {measurementSystem === "metric" ? "kg" : "lbs"})
+                      {editMeasurementSystem === "metric" ? "kg" : "lbs"})
                     </Text>
                     <CustomInput
-                      value={weight}
-                      onChangeText={setWeight}
+                      value={editWeight}
+                      onChangeText={setEditWeight}
                       keyboardType="numeric"
                     />
                   </View>
                 </View>
+
                 <View style={styles.rowInputs}>
                   <View style={styles.halfInput}>
                     <Text style={styles.label}>{t("profile.gender")}</Text>
@@ -543,55 +569,33 @@ export default function ProfileScreen() {
                     </ScrollView>
                   </View>
                 </View>
-                <Text
-                  style={[styles.label, { marginTop: 15, marginBottom: 10 }]}
-                >
-                  {t("profile.visibilityOptions")}
+
+                <Text style={[styles.label, { marginTop: 15 }]}>
+                  {t("profile.bio", "Presentación")}
                 </Text>
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>
-                    {t("profile.showAge")}
-                  </Text>
-                  <Switch
-                    value={showAge}
-                    onValueChange={setShowAge}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor={"#FFF"}
-                  />
-                </View>
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>
-                    {t("profile.showGender")}
-                  </Text>
-                  <Switch
-                    value={showGender}
-                    onValueChange={setShowGender}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor={"#FFF"}
-                  />
-                </View>
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>
-                    {t("profile.showHeight")}
-                  </Text>
-                  <Switch
-                    value={showHeight}
-                    onValueChange={setShowHeight}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor={"#FFF"}
-                  />
-                </View>
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>
-                    {t("profile.showWeight")}
-                  </Text>
-                  <Switch
-                    value={showWeight}
-                    onValueChange={setShowWeight}
-                    trackColor={{ false: colors.border, true: colors.primary }}
-                    thumbColor={"#FFF"}
-                  />
-                </View>
+                <TextInput
+                  value={editBio}
+                  onChangeText={setEditBio}
+                  multiline
+                  placeholder={t(
+                    "profile.bioPlaceholder",
+                    "Escribe una breve presentación sobre ti...",
+                  )}
+                  placeholderTextColor={colors.textSecondary}
+                  maxLength={150}
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.textPrimary,
+                    borderRadius: 10,
+                    padding: 15,
+                    minHeight: 100,
+                    textAlignVertical: "top",
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    marginBottom: 10,
+                  }}
+                />
+
                 <View style={{ marginTop: 25, gap: 10 }}>
                   <PrimaryButton
                     title={t("profile.saveChanges")}
@@ -605,9 +609,9 @@ export default function ProfileScreen() {
                   />
                 </View>
               </ScrollView>
-            </View>
+            </KeyboardAvoidingView>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       {/* Configuración Pantalla Completa */}
@@ -636,7 +640,6 @@ export default function ProfileScreen() {
         onClose={() => setSocialModalVisible(false)}
       />
 
-      {/* MODAL DE HISTORIAL DETALLADO CORREGIDO */}
       <Modal
         visible={detailsModalVisible}
         animationType="slide"

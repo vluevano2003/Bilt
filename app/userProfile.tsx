@@ -34,8 +34,6 @@ import { getStyles } from "../src/styles/Profile.styles";
 import {
   calculateTotalVolume,
   formatDuration,
-  getConvertedProfileHeight,
-  getConvertedProfileWeight,
 } from "../src/utils/profileHelpers";
 import { shareProfile } from "../src/utils/shareHelpers";
 
@@ -228,22 +226,6 @@ export default function UserProfileScreen() {
   );
   const displayedUserPacks = userPacks.filter((p) => !p.originalCreatorId);
 
-  const getPublicDataString = () => {
-    const data = [];
-    if (profile.showAge && profile.age)
-      data.push(`${profile.age} ${t("profile.years")}`);
-    if (profile.showGender && profile.gender) data.push(profile.gender);
-    if (profile.showHeight && profile.height)
-      data.push(
-        `${getConvertedProfileHeight(profile.height, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "cm" : "in"}`,
-      );
-    if (profile.showWeight && profile.weight)
-      data.push(
-        `${getConvertedProfileWeight(profile.weight, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "kg" : "lbs"}`,
-      );
-    return data.join(" • ");
-  };
-
   const openSocialModal = async (type: "followers" | "following") => {
     if (!showContent) return;
     setSocialModalType(type);
@@ -399,9 +381,31 @@ export default function UserProfileScreen() {
                         </Text>
                       </TouchableOpacity>
                     </View>
-                    <View style={styles.publicDataContainer}>
-                      <Text style={styles.publicDataText}>
-                        {getPublicDataString()}
+
+                    <View
+                      style={{
+                        paddingHorizontal: 20,
+                        marginTop: 10,
+                        marginBottom: 5,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: profile.bio
+                            ? colors.textPrimary
+                            : colors.textSecondary,
+                          textAlign: "center",
+                          fontSize: 15,
+                          fontStyle: profile.bio ? "normal" : "italic",
+                        }}
+                      >
+                        {profile.bio
+                          ? profile.bio
+                          : t(
+                              "profile.defaultBio",
+                              "Este usuario aún no ha agregado una presentación.",
+                            )}
                       </Text>
                     </View>
                   </>
@@ -900,7 +904,7 @@ export default function UserProfileScreen() {
         onRequestClose={() => setReportModalVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
           <View
@@ -995,6 +999,7 @@ export default function UserProfileScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* Resto de Modales de Detalles... */}
       <SocialListModal
         visible={socialModalVisible}
         type={socialModalType}

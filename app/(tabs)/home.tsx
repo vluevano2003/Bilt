@@ -12,10 +12,10 @@ import {
   Alert,
   BackHandler,
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  ScrollView,
   Text,
   TextInput,
   ToastAndroid,
@@ -697,134 +697,121 @@ export default function HomeScreen() {
 
       <Modal
         visible={feedbackModalVisible}
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         onRequestClose={() => setFeedbackModalVisible(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
+        <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
           <View
             style={{
+              backgroundColor: colors.background,
               flex: 1,
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              justifyContent: "center",
-              alignItems: "center",
-              paddingHorizontal: 20,
+              marginTop: Platform.OS === "ios" ? insets.top + 50 : 50,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              overflow: "hidden",
             }}
           >
-            <TouchableOpacity
-              style={{ position: "absolute", width: "100%", height: "100%" }}
-              activeOpacity={1}
-              onPress={() => {
-                Keyboard.dismiss();
-              }}
-            />
-
             <View
               style={[
-                routineStyles.modalContentBottomSheet,
-                {
-                  width: "100%",
-                  borderRadius: 20,
-                  paddingBottom: 25,
-                  maxHeight: "80%",
-                  elevation: 5,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                },
+                routineStyles.modalHeader,
+                { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
               ]}
             >
-              <View style={routineStyles.modalHeader}>
-                <Text style={routineStyles.modalTitle}>
-                  {t("feedback.title", "Reportar / Sugerencias")}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setFeedbackModalVisible(false)}
-                >
-                  <AntDesign
-                    name="close"
-                    size={24}
-                    color={colors.textPrimary}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={[routineStyles.label, { marginBottom: 15 }]}>
-                {t("feedback.description", "¿Encontraste un error...?")}
+              <Text style={routineStyles.modalTitle}>
+                {t("feedback.title", "Reportar / Sugerencias")}
               </Text>
-
-              <View
-                style={{
-                  backgroundColor: colors.surface,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  padding: 15,
-                  marginBottom: 20,
-                }}
-              >
-                <TextInput
-                  style={{
-                    color: colors.textPrimary,
-                    minHeight: 120,
-                    textAlignVertical: "top",
-                    fontSize: 15,
-                  }}
-                  multiline
-                  placeholder={t(
-                    "feedback.placeholder",
-                    "Escribe tu comentario aquí...",
-                  )}
-                  placeholderTextColor={colors.textSecondary}
-                  value={feedbackText}
-                  onChangeText={setFeedbackText}
-                  autoFocus={false}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={[
-                  routineStyles.actionButton,
-                  {
-                    backgroundColor: colors.primary,
-                    borderColor: colors.primary,
-                    opacity: !feedbackText.trim() ? 0.5 : 1,
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    marginTop: 10,
-                  },
-                ]}
-                disabled={!feedbackText.trim() || isSendingFeedback}
-                onPress={handleSendFeedback}
-              >
-                {isSendingFeedback ? (
-                  <ActivityIndicator color="#FFF" />
-                ) : (
-                  <>
-                    <Feather
-                      name="send"
-                      size={18}
-                      color="#FFF"
-                      style={{ marginRight: 8 }}
-                    />
-                    <Text
-                      style={[
-                        routineStyles.actionButtonText,
-                        { color: "#FFF" },
-                      ]}
-                    >
-                      {t("feedback.send", "Enviar Comentario")}
-                    </Text>
-                  </>
-                )}
+              <TouchableOpacity onPress={() => setFeedbackModalVisible(false)}>
+                <AntDesign name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
+
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "padding"}
+              style={{ flex: 1 }}
+            >
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{
+                  paddingHorizontal: 20,
+                  paddingBottom: Math.max(insets.bottom, 20) + 120,
+                  flexGrow: 1,
+                }}
+              >
+                <Text style={[routineStyles.label, { marginBottom: 15 }]}>
+                  {t("feedback.description", "¿Encontraste un error...?")}
+                </Text>
+
+                <View
+                  style={{
+                    backgroundColor: colors.surface,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    padding: 15,
+                    marginBottom: 20,
+                  }}
+                >
+                  <TextInput
+                    style={{
+                      color: colors.textPrimary,
+                      minHeight: 120,
+                      textAlignVertical: "top",
+                      fontSize: 15,
+                    }}
+                    multiline
+                    placeholder={t(
+                      "feedback.placeholder",
+                      "Escribe tu comentario aquí...",
+                    )}
+                    placeholderTextColor={colors.textSecondary}
+                    value={feedbackText}
+                    onChangeText={setFeedbackText}
+                    autoFocus={false}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  style={[
+                    routineStyles.actionButton,
+                    {
+                      backgroundColor: colors.primary,
+                      borderColor: colors.primary,
+                      opacity: !feedbackText.trim() ? 0.5 : 1,
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      marginTop: 10,
+                    },
+                  ]}
+                  disabled={!feedbackText.trim() || isSendingFeedback}
+                  onPress={handleSendFeedback}
+                >
+                  {isSendingFeedback ? (
+                    <ActivityIndicator color="#FFF" />
+                  ) : (
+                    <>
+                      <Feather
+                        name="send"
+                        size={18}
+                        color="#FFF"
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text
+                        style={[
+                          routineStyles.actionButtonText,
+                          { color: "#FFF" },
+                        ]}
+                      >
+                        {t("feedback.send", "Enviar Comentario")}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       <NotificationModal
