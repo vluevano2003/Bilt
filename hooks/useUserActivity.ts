@@ -1,4 +1,4 @@
-import NetInfo from "@react-native-community/netinfo"; // --- NUEVO ---
+import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
@@ -34,6 +34,8 @@ export const useUserActivity = (userId?: string) => {
         routinesData.map((d) => ({
           id: d.id,
           ...d,
+          originalCreatorId: d.original_creator_id,
+          originalRoutineId: d.original_routine_id,
           createdAt: new Date(d.created_at).getTime(),
         })),
       );
@@ -70,6 +72,8 @@ export const useUserActivity = (userId?: string) => {
           name: d.name,
           description: d.description,
           routineIds: d.routine_ids,
+          originalCreatorId: d.original_creator_id,
+          originalPackId: d.original_pack_id,
           createdAt: new Date(d.created_at).getTime(),
         })) as WeeklyPack[],
       );

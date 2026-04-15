@@ -446,7 +446,9 @@
     "routinesIncluded": "Rutinas en este Pack:",
     "savePackToProfile": "Guardar Pack en mi Perfil",
     "noPublicPacks": "Este usuario aún no tiene Packs Semanales.",
-    "routinesCount": "Rutinas"
+    "routinesCount": "Rutinas",
+    "successSaved": "¡Pack y rutinas guardados en tu perfil!",
+    "successRemoved": "Pack removido de tu perfil."
   },
   "exerciseDetails": {
     "bench_press_barbell": {

@@ -364,11 +364,12 @@ export const ItemDetailsModal = ({
             <Text style={[styles.label, { marginBottom: 10 }]}>
               {t("routines.exercises")}:
             </Text>
+
             {item.exercises?.map((exercise: any, index: number) => {
               const exerciseName =
                 exercise.exerciseDetails?.id
                   ?.replace(/_/g, " ")
-                  .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+                  ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
                 "Ejercicio";
               return (
                 <View key={index} style={{ marginBottom: 15, paddingLeft: 10 }}>
@@ -382,8 +383,9 @@ export const ItemDetailsModal = ({
                   >
                     • {exerciseName}
                   </Text>
-                  {exercise.sets?.map((set: any, setIdx: number) => {
-                    if (type === "history") {
+
+                  {type === "history" ? (
+                    exercise.sets?.map((set: any, setIdx: number) => {
                       const convertedWeight = Math.round(
                         getConvertedWeight(set.weight, set.weightUnit, system),
                       );
@@ -406,23 +408,23 @@ export const ItemDetailsModal = ({
                           {displayUnit}
                         </Text>
                       );
-                    }
-                    return (
-                      <Text
-                        key={setIdx}
-                        style={{
-                          color: colors.textSecondary,
-                          marginLeft: 15,
-                          fontSize: 14,
-                        }}
-                      >
-                        Set {setIdx + 1}: {set.reps} reps
-                      </Text>
-                    );
-                  })}
+                    })
+                  ) : (
+                    <Text
+                      style={{
+                        color: colors.textSecondary,
+                        marginLeft: 15,
+                        fontSize: 14,
+                      }}
+                    >
+                      {exercise.sets?.length || 0}{" "}
+                      {exercise.sets?.length === 1 ? "Set" : "Sets"}
+                    </Text>
+                  )}
                 </View>
               );
             })}
+
             {type === "routine" && (
               <TouchableOpacity
                 style={[

@@ -999,7 +999,6 @@ export default function UserProfileScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Resto de Modales de Detalles... */}
       <SocialListModal
         visible={socialModalVisible}
         type={socialModalType}
