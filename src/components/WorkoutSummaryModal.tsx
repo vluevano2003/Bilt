@@ -1,17 +1,17 @@
 import React from "react";
 import {
-    ActivityIndicator,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    BannerAd,
-    BannerAdSize,
-    TestIds,
+  BannerAd,
+  BannerAdSize,
+  TestIds,
 } from "react-native-google-mobile-ads";
 
 /**
@@ -32,7 +32,16 @@ export const WorkoutSummaryModal = ({
   handleCloseSummary,
   isSavingHistory,
 }: any) => (
-  <Modal visible={visible} animationType="slide" transparent={false}>
+  <Modal
+    visible={visible}
+    animationType="slide"
+    transparent={false}
+    onRequestClose={() => {
+      if (!isSavingHistory) {
+        handleCloseSummary();
+      }
+    }}
+  >
     <SafeAreaView style={styles.summaryOverlay}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 160 + insets.bottom }}

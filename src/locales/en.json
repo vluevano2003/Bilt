@@ -133,7 +133,9 @@
       "success": "Success",
       "errorLoad": "Could not load profile information.",
       "successSave": "Profile updated successfully.",
-      "errorSave": "Could not save changes."
+      "errorSave": "Could not save changes.",
+      "usernameTakenTitle": "Username unavailable",
+      "usernameTakenMsg": "This username is already in use. Please choose a different one."
     },
     "workoutHistory": "Workout History",
     "noHistory": "The history is empty.",
@@ -407,7 +409,12 @@
     "smith_machine_incline_press": "Smith Machine Incline Press",
     "smith_machine_overhead_press": "Smith Machine Overhead Press",
     "good_mornings": "Barbell Good Mornings",
-    "sumo_deadlift": "Sumo Deadlift"
+    "sumo_deadlift": "Sumo Deadlift",
+    "bayesian_curl_cable": "Bayesian Cable Curl",
+    "katana_extension_cable": "Katana Triceps Extension",
+    "sissy_squat": "Sissy Squat",
+    "lat_pulldown_single_arm": "Single-Arm Lat Pulldown",
+    "reverse_fly_dumbbell": "Dumbbell Reverse Fly"
   },
   "unitSelection": {
     "title": "Select Unit",
@@ -824,6 +831,26 @@
     "sumo_deadlift": {
       "submuscles": "Glutes, Quadriceps, Hamstrings, Lower Back",
       "description": "Take a wide stance with toes pointing out. Grip the bar in the middle and lift by driving through your legs and glutes."
+    },
+    "bayesian_curl_cable": {
+      "submuscles": "Biceps Brachii (Long Head focus), Brachialis",
+      "description": "Stand facing away from a low cable pulley. With your arm extending slightly behind your torso to fully stretch the long head of the bicep, curl the weight forward and up, squeezing at the top."
+    },
+    "katana_extension_cable": {
+      "submuscles": "Triceps Brachii (Long Head focus)",
+      "description": "Stand facing away from a dual cable machine set at hip height. Grab the left cable with your right hand and the right cable with your left hand. Extend your arms outward and upward, crossing the cables behind your back."
+    },
+    "sissy_squat": {
+      "submuscles": "Quadriceps (Rectus Femoris focus), Core",
+      "description": "Stand with feet shoulder-width apart. Lean your torso backward while bending your knees forward, keeping a straight line from your knees to your shoulders. Push back up using only your quads."
+    },
+    "lat_pulldown_single_arm": {
+      "submuscles": "Latissimus Dorsi, Biceps Brachii",
+      "description": "Sit or kneel in front of a high pulley. Grab a single D-handle and pull it down to your side, squeezing your lat. Keep your torso stable and avoid excessive twisting."
+    },
+    "reverse_fly_dumbbell": {
+      "submuscles": "Posterior Deltoid, Rhomboids, Middle Trapezius",
+      "description": "Hinge forward at the hips until your torso is nearly parallel to the floor. Holding dumbbells, raise your arms out to the sides with a slight bend in your elbows, squeezing your shoulder blades together."
     }
   },
   "share": {

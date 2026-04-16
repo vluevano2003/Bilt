@@ -223,7 +223,7 @@ export default function ActiveWorkoutScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER PRINCIPAL */}
+      {/*Header*/}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={handleMinimize}>
           <AntDesign name="down" size={20} color={colors.textPrimary} />
@@ -241,7 +241,7 @@ export default function ActiveWorkoutScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* STRIP DE ESTADÍSTICAS EN TIEMPO REAL */}
+      {/*Estadísticas*/}
       <View style={styles.statsStrip}>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>
@@ -267,7 +267,7 @@ export default function ActiveWorkoutScreen() {
         </View>
       </View>
 
-      {/* LISTA DE EJERCICIOS */}
+      {/*Lista de ejercicios*/}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -316,7 +316,7 @@ export default function ActiveWorkoutScreen() {
         />
       </KeyboardAvoidingView>
 
-      {/* BANNER FLOTANTE DE DESCANSO */}
+      {/*Banner de descanso*/}
       {isResting && restTimeRemaining !== null && (
         <View
           style={[
@@ -350,10 +350,13 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
-      {/* MODALES */}
-
-      {/* Modal de Selección de Unidades */}
-      <Modal visible={!!unitModalExId} animationType="fade" transparent={true}>
+      {/*Modal de selección de unidades*/}
+      <Modal
+        visible={!!unitModalExId}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setUnitModalExId(null)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>
@@ -439,8 +442,13 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/* Modal de Edición de Tiempo de Descanso */}
-      <Modal visible={!!restEditExId} animationType="fade" transparent={true}>
+      {/*Modal de edición de tiempo de descanso*/}
+      <Modal
+        visible={!!restEditExId}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setRestEditExId(null)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>
@@ -490,7 +498,7 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/* Resumen de Entrenamiento y Selección de Ejercicios (Importados) */}
+      {/*Resumen de entrenamiento y selección de ejercicios*/}
       <WorkoutSummaryModal
         visible={showSummary}
         insets={insets}
