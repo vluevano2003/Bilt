@@ -343,26 +343,55 @@ export const ItemDetailsModal = ({
               <View
                 style={{
                   flexDirection: "row",
-                  justifyContent: "space-around",
-                  marginBottom: 20,
-                  padding: 10,
-                  backgroundColor: colors.surface,
-                  borderRadius: 10,
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  gap: 20,
+                  marginBottom: 25,
                 }}
               >
-                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
-                  <Feather name="clock" size={16} />{" "}
-                  {formatDuration(item.durationSeconds)} min
-                </Text>
-                <Text style={{ color: colors.textPrimary, fontWeight: "bold" }}>
-                  <Feather name="activity" size={16} />{" "}
-                  {calculateTotalVolume(item, system)}{" "}
-                  {system === "metric" ? "kg" : "lbs"}
-                </Text>
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                >
+                  <Feather name="clock" size={16} color={colors.textPrimary} />
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {formatDuration(item.durationSeconds)} min
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                >
+                  <Feather
+                    name="activity"
+                    size={16}
+                    color={colors.textPrimary}
+                  />
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {calculateTotalVolume(item, system)}{" "}
+                    {system === "metric" ? "kg" : "lbs"}
+                  </Text>
+                </View>
               </View>
             )}
-            <Text style={[styles.label, { marginBottom: 10 }]}>
-              {t("routines.exercises")}:
+
+            <Text
+              style={[
+                styles.label,
+                { marginBottom: 15, color: colors.textPrimary, fontSize: 16 },
+              ]}
+            >
+              {t("routines.exercises", "Exercises")}:
             </Text>
 
             {item.exercises?.map((exercise: any, index: number) => {
@@ -372,13 +401,13 @@ export const ItemDetailsModal = ({
                   ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
                 "Ejercicio";
               return (
-                <View key={index} style={{ marginBottom: 15, paddingLeft: 10 }}>
+                <View key={index} style={{ marginBottom: 25, paddingLeft: 5 }}>
                   <Text
                     style={{
                       color: colors.textPrimary,
                       fontSize: 16,
                       fontWeight: "bold",
-                      marginBottom: 5,
+                      marginBottom: 10,
                     }}
                   >
                     • {exerciseName}
@@ -402,6 +431,7 @@ export const ItemDetailsModal = ({
                             color: colors.textSecondary,
                             marginLeft: 15,
                             fontSize: 14,
+                            marginBottom: 6,
                           }}
                         >
                           Set {setIdx + 1}: {set.reps} reps x {convertedWeight}{" "}

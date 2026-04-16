@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { supabase } from "../src/config/supabase";
@@ -92,41 +92,108 @@ export const useProfile = (profileUid?: string) => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
 
-  useEffect(() => {
-    if (!targetUid) return;
+  const fetchProfile = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", targetUid)
+        .single();
 
-    const fetchProfile = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", targetUid)
-          .single();
-
-        if (error || !data) {
-          debugLog("Perfil no encontrado o bloqueado por RLS");
-          setHasBlockedMe(true);
-          setIsLoading(false);
-          return;
-        }
-
-        if (data) {
-          setUsername(data.username || "");
-          setProfilePic(data.profile_picture_url || null);
-          setEmail(data.email || "");
-          setGender(data.gender || "");
-          setMeasurementSystem(data.measurement_system || "metric");
-          setHeight(data.height?.toString() || "");
-          setWeight(data.weight?.toString() || "");
-          setBio(data.bio || "");
-          setIsPrivate(data.is_private || false);
-        }
-        setIsLoading(false);
-      } catch (err) {
+      if (error || !data) {
+        debugLog("Perfil no encontrado o bloqueado por RLS");
         setHasBlockedMe(true);
         setIsLoading(false);
+        return;
       }
-    };
+
+      if (data) {
+        setUsername(data.username || "");
+        setProfilePic(data.profile_picture_url || null);
+        setEmail(data.email || "");
+        setGender(data.gender || "");
+        setMeasurementSystem(data.measurement_system || "metric");
+        setHeight(data.height?.toString() || "");
+        setWeight(data.weight?.toString() || "");
+        setBio(data.bio || "");
+        setIsPrivate(data.is_private || false);
+      }
+      setIsLoading(false);
+    } catch (err) {
+      setHasBlockedMe(true);
+      setIsLoading(false);
+    }
+  }, [targetUid]);
+
+  const fetchSocialStats = useCallback(async () => {
+    if (!isOwnProfile) {
+      const { data: myBlock } = await supabase
+        .from("blocks")
+        .select("*")
+        .eq("blocker_id", currentUserId)
+        .eq("blocked_id", targetUid)
+        .single();
+      setIsBlocked(!!myBlock);
+
+      const { data: theirBlock } = await supabase
+        .from("blocks")
+        .select("*")
+        .eq("blocker_id", targetUid)
+        .eq("blocked_id", currentUserId)
+        .single();
+      setHasBlockedMe(!!theirBlock);
+    }
+
+    const { count: fCount } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("following_id", targetUid)
+      .eq("status", "accepted");
+    setFollowersCount(fCount || 0);
+
+    const { count: followingC } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("follower_id", targetUid)
+      .eq("status", "accepted");
+    setFollowingCount(followingC || 0);
+
+    if (isOwnProfile) {
+      const { count: pCount } = await supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", targetUid)
+        .eq("status", "pending");
+      setPendingRequestsCount(pCount || 0);
+    } else {
+      const { data: myFollow } = await supabase
+        .from("follows")
+        .select("status")
+        .eq("follower_id", currentUserId)
+        .eq("following_id", targetUid)
+        .single();
+
+      setFollowStatus(
+        myFollow
+          ? myFollow.status === "accepted"
+            ? "following"
+            : "pending"
+          : "none",
+      );
+
+      const { data: theirRequest } = await supabase
+        .from("follows")
+        .select("status")
+        .eq("follower_id", targetUid)
+        .eq("following_id", currentUserId)
+        .single();
+
+      setHasPendingRequestFromThem(theirRequest?.status === "pending");
+    }
+  }, [targetUid, currentUserId, isOwnProfile]);
+
+  useEffect(() => {
+    if (!targetUid) return;
 
     fetchProfile();
 
@@ -147,77 +214,10 @@ export const useProfile = (profileUid?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [targetUid]);
+  }, [targetUid, fetchProfile]);
 
   useEffect(() => {
     if (!targetUid || !currentUserId) return;
-
-    const fetchSocialStats = async () => {
-      if (!isOwnProfile) {
-        const { data: myBlock } = await supabase
-          .from("blocks")
-          .select("*")
-          .eq("blocker_id", currentUserId)
-          .eq("blocked_id", targetUid)
-          .single();
-        setIsBlocked(!!myBlock);
-
-        const { data: theirBlock } = await supabase
-          .from("blocks")
-          .select("*")
-          .eq("blocker_id", targetUid)
-          .eq("blocked_id", currentUserId)
-          .single();
-        setHasBlockedMe(!!theirBlock);
-      }
-
-      const { count: fCount } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", targetUid)
-        .eq("status", "accepted");
-      setFollowersCount(fCount || 0);
-
-      const { count: followingC } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", targetUid)
-        .eq("status", "accepted");
-      setFollowingCount(followingC || 0);
-
-      if (isOwnProfile) {
-        const { count: pCount } = await supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("following_id", targetUid)
-          .eq("status", "pending");
-        setPendingRequestsCount(pCount || 0);
-      } else {
-        const { data: myFollow } = await supabase
-          .from("follows")
-          .select("status")
-          .eq("follower_id", currentUserId)
-          .eq("following_id", targetUid)
-          .single();
-
-        setFollowStatus(
-          myFollow
-            ? myFollow.status === "accepted"
-              ? "following"
-              : "pending"
-            : "none",
-        );
-
-        const { data: theirRequest } = await supabase
-          .from("follows")
-          .select("status")
-          .eq("follower_id", targetUid)
-          .eq("following_id", currentUserId)
-          .single();
-
-        setHasPendingRequestFromThem(theirRequest?.status === "pending");
-      }
-    };
 
     fetchSocialStats();
 
@@ -235,7 +235,11 @@ export const useProfile = (profileUid?: string) => {
     return () => {
       supabase.removeChannel(followsChannel);
     };
-  }, [targetUid, currentUserId, isOwnProfile]);
+  }, [targetUid, currentUserId, isOwnProfile, fetchSocialStats]);
+
+  const refetchData = async () => {
+    await Promise.all([fetchProfile(), fetchSocialStats()]);
+  };
 
   const openEditModal = () => {
     setEditUsername(username);
@@ -670,5 +674,6 @@ export const useProfile = (profileUid?: string) => {
     getBlockedUsersList,
     unblockUserFromList,
     deleteAccount,
+    refetchData,
   };
 };

@@ -20,6 +20,16 @@ import {
 import { supabase } from "../config/supabase";
 import { useAuth } from "./AuthContext";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
@@ -117,7 +127,6 @@ export const ActiveWorkoutProvider = ({
         await Notifications.setNotificationChannelAsync("rest-timer", {
           name: "Cronómetro de Descanso",
           importance: Notifications.AndroidImportance.MAX,
-          sound: "default",
           vibrationPattern: [0, 500, 250, 500],
           lockscreenVisibility:
             Notifications.AndroidNotificationVisibility.PUBLIC,
@@ -207,8 +216,36 @@ export const ActiveWorkoutProvider = ({
     loadSavedWorkout();
   }, []);
 
-  // Reloj Maestro Autocorrectivo
   const isWorkoutActive = !!activeRoutine;
+
+  // Sincronización cuando la app regresa del segundo plano o se enciende la pantalla
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active" && isWorkoutActive) {
+        const now = Date.now();
+        const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
+
+        if (deltaSeconds > 0 && !isPausedRef.current) {
+          lastTickRef.current += deltaSeconds * 1000;
+          setElapsedSeconds((prev) => prev + deltaSeconds);
+
+          if (isRestingRef.current && restTimeRemainingRef.current !== null) {
+            setRestTimeRemaining((prev) => {
+              if (prev === null) return null;
+              const newRest = prev - deltaSeconds;
+              return newRest > 0 ? newRest : 0;
+            });
+          }
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isWorkoutActive]);
+
+  // Reloj Maestro Autocorrectivo
   useEffect(() => {
     if (!isWorkoutActive) return;
 
@@ -257,8 +294,6 @@ export const ActiveWorkoutProvider = ({
     if (isResting && restTimeRemaining === 0) {
       setIsResting(false);
       setRestTimeRemaining(null);
-
-      Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
 
       if (AppState.currentState === "active") {
         playTimerEndSound();

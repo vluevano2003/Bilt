@@ -243,6 +243,7 @@ export default function ProfileScreen() {
     getBlockedUsersList,
     unblockUserFromList,
     deleteAccount,
+    refetchData,
   } = useProfile();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -262,9 +263,9 @@ export default function ProfileScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await refetchData();
     setRefreshing(false);
-  }, []);
+  }, [refetchData]);
 
   const handleLogout = async () => {
     try {
