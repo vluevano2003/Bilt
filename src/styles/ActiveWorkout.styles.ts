@@ -211,11 +211,16 @@ export const getStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "bold",
       textAlign: "center",
-      width: "100%",
+      width: "80%",
+      alignSelf: "center",
       padding: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      paddingBottom: 2,
     },
     inputDisabled: {
       color: colors.textPrimary,
+      borderBottomColor: "transparent",
     },
     checkButton: {
       width: 28,

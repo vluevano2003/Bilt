@@ -133,7 +133,9 @@
       "success": "Éxito",
       "errorLoad": "No se pudo cargar la información del perfil.",
       "successSave": "Perfil actualizado correctamente.",
-      "errorSave": "No se pudieron guardar los cambios."
+      "errorSave": "No se pudieron guardar los cambios.",
+      "usernameTakenTitle": "Nombre no disponible",
+      "usernameTakenMsg": "Este nombre de usuario ya está en uso. Por favor, elige otro distinto."
     },
     "workoutHistory": "Historial de Entrenamientos",
     "noHistory": "El historial está vacío.",
@@ -407,7 +409,12 @@
     "smith_machine_incline_press": "Press Inclinado en Máquina Smith",
     "smith_machine_overhead_press": "Press Militar en Máquina Smith",
     "good_mornings": "Buenos Días con Barra",
-    "sumo_deadlift": "Peso Muerto Sumo"
+    "sumo_deadlift": "Peso Muerto Sumo",
+    "bayesian_curl_cable": "Curl Bayesiano en Polea",
+    "katana_extension_cable": "Extensiones Katana en Polea",
+    "sissy_squat": "Sentadilla Sissy",
+    "lat_pulldown_single_arm": "Jalón Unilateral en Polea",
+    "reverse_fly_dumbbell": "Vuelos Inversos con Mancuernas"
   },
   "unitSelection": {
     "title": "Seleccionar Unidad",
@@ -824,6 +831,26 @@
     "sumo_deadlift": {
       "submuscles": "Glúteos, Cuádriceps, Isquiotibiales, Espalda baja",
       "description": "Abre las piernas más allá de los hombros con las puntas hacia afuera. Agarra la barra por el centro y levántala usando la fuerza de las piernas y glúteos."
+    },
+    "bayesian_curl_cable": {
+      "submuscles": "Bíceps braquial (énfasis cabeza larga), Braquial",
+      "description": "De espaldas a una polea baja. Con el brazo extendido ligeramente detrás de tu torso para estirar al máximo la cabeza larga del bíceps, flexiona el codo llevando el peso hacia adelante y arriba."
+    },
+    "katana_extension_cable": {
+      "submuscles": "Tríceps braquial (énfasis cabeza larga)",
+      "description": "De espaldas a una polea doble ajustada a la altura de la cadera. Toma el cable izquierdo con la mano derecha y viceversa. Extiende los brazos hacia afuera y arriba, cruzando los cables por detrás de tu cabeza."
+    },
+    "sissy_squat": {
+      "submuscles": "Cuádriceps (énfasis Recto Femoral), Core",
+      "description": "De pie, inclina tu torso hacia atrás mientras flexionas las rodillas hacia adelante. Mantén una línea recta desde tus rodillas hasta tus hombros y empuja hacia arriba usando solo la fuerza de tus cuádriceps."
+    },
+    "lat_pulldown_single_arm": {
+      "submuscles": "Dorsal ancho, Bíceps braquial",
+      "description": "Sentado o de rodillas frente a una polea alta. Toma un maneral en D y jálalo hacia tu costado contrayendo el dorsal al máximo. Mantén el torso estable y evita rotarlo en exceso."
+    },
+    "reverse_fly_dumbbell": {
+      "submuscles": "Deltoides posterior, Romboides, Trapecio medio",
+      "description": "Inclina tu torso hacia adelante hasta que esté casi paralelo al suelo. Sosteniendo mancuernas, levanta los brazos hacia los lados con una ligera flexión de codos, juntando las escápulas al final del movimiento."
     }
   },
   "share": {

@@ -29,6 +29,11 @@ interface Props {
   onConfirm: () => void;
 }
 
+/**
+ * Modal para seleccionar ejercicios al crear o editar una rutina. Permite buscar por nombre, filtrar por grupo muscular y seleccionar múltiples ejercicios antes de confirmar la selección.
+ * @param param0
+ * @returns
+ */
 export const ExerciseSelectorModal = ({
   visible,
   onClose,
@@ -47,7 +52,12 @@ export const ExerciseSelectorModal = ({
   const styles = getStyles(colors);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
       <View style={styles.modalOverlay}>
         <View
           style={[

@@ -32,10 +32,8 @@ export const ExerciseListItem = React.memo(
       >
         <View style={styles.exerciseHeaderRow}>
           <TouchableOpacity
-            style={styles.exerciseHeader}
-            onLongPress={!isReadonly ? drag : undefined}
+            style={[styles.exerciseHeader, { flex: 1 }]}
             onPress={() => onDetails(exercise.exerciseDetails)}
-            delayLongPress={200}
             activeOpacity={0.7}
           >
             <Text style={styles.exerciseName}>
@@ -43,12 +41,13 @@ export const ExerciseListItem = React.memo(
               <Feather name="info" size={16} color={colors.textSecondary} />
             </Text>
           </TouchableOpacity>
+
           {!isReadonly && (
             <TouchableOpacity
-              onPress={() => onRemoveEx(exercise.id)}
-              style={styles.deleteExBtn}
+              onPressIn={drag}
+              style={{ paddingVertical: 4, paddingLeft: 12 }}
             >
-              <Feather name="trash-2" size={20} color="#EF4444" />
+              <Feather name="menu" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -125,6 +124,7 @@ export const ExerciseListItem = React.memo(
                 }
                 editable={!set.completed}
                 selectTextOnFocus
+                underlineColorAndroid="transparent"
               />
             </View>
             <View style={styles.colInput}>
@@ -139,6 +139,7 @@ export const ExerciseListItem = React.memo(
                 }
                 editable={!set.completed}
                 selectTextOnFocus
+                underlineColorAndroid="transparent"
               />
             </View>
             <View style={styles.colCheck}>
@@ -168,20 +169,45 @@ export const ExerciseListItem = React.memo(
         ))}
 
         {!isReadonly && (
-          <TouchableOpacity
-            style={styles.addSetButton}
-            onPress={() => onAddSet(exercise.id)}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: 10,
+            }}
           >
-            <Feather
-              name="plus"
-              size={16}
-              color={colors.textPrimary}
-              style={styles.addSetIcon}
-            />
-            <Text style={styles.addSetText}>
-              {t("activeWorkout.addSet", "Añadir Serie")}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.addSetButton,
+                { flex: 1, marginTop: 0, marginRight: 10 },
+              ]}
+              onPress={() => onAddSet(exercise.id)}
+            >
+              <Feather
+                name="plus"
+                size={16}
+                color={colors.textPrimary}
+                style={styles.addSetIcon}
+              />
+              <Text style={styles.addSetText}>
+                {t("activeWorkout.addSet", "Añadir Serie")}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onRemoveEx(exercise.id)}
+              style={{
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                paddingHorizontal: 15,
+                paddingVertical: 10,
+                borderRadius: 8,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Feather name="trash-2" size={18} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </ScaleDecorator>

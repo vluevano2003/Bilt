@@ -317,8 +317,20 @@ export const useProfile = (profileUid?: string) => {
       setNewProfilePic(null);
       setIsEditing(false);
       Alert.alert(t("profile.alerts.success"), t("profile.alerts.successSave"));
-    } catch (error) {
-      Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorSave"));
+    } catch (error: any) {
+      debugLog("Error al guardar perfil:", error);
+
+      if (error?.code === "23505") {
+        Alert.alert(
+          t("profile.alerts.usernameTakenTitle", "Nombre no disponible"),
+          t(
+            "profile.alerts.usernameTakenMsg",
+            "Este nombre de usuario ya está en uso. Por favor, elige otro distinto.",
+          ),
+        );
+      } else {
+        Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorSave"));
+      }
     } finally {
       setIsSaving(false);
     }
