@@ -92,6 +92,7 @@ const DashboardHeader = ({
   trainedDays,
   activeTab,
   setActiveTab,
+  ownRoutinesCount,
 }: any) => {
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -217,6 +218,42 @@ const DashboardHeader = ({
           </Text>
         </TouchableOpacity>
       </View>
+
+      {activeTab === "own" && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: 15,
+            paddingHorizontal: 5,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor:
+                ownRoutinesCount >= 10
+                  ? "rgba(239, 68, 68, 0.1)"
+                  : colors.surface,
+              paddingHorizontal: 12,
+              paddingVertical: 5,
+              borderRadius: 15,
+              borderWidth: 1,
+              borderColor: ownRoutinesCount >= 10 ? "#EF4444" : colors.border,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color:
+                  ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
+              }}
+            >
+              {ownRoutinesCount} / 10 {t("routines.createdLabel", "creadas")}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -422,6 +459,9 @@ export default function HomeScreen() {
             trainedDays={getTrainingDaysThisWeek()}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            ownRoutinesCount={
+              routines.filter((r) => !r.originalCreatorId).length
+            }
           />
         }
         data={activeTab === "packs" ? packs : displayedRoutines}
@@ -568,11 +608,24 @@ export default function HomeScreen() {
             routineStyles.fab,
             { bottom: Math.max(30, insets.bottom + 15) },
           ]}
-          onPress={() =>
-            activeTab === "packs"
-              ? actions.setPackModalVisible(true)
-              : editor.openRoutineModal()
-          }
+          onPress={() => {
+            if (activeTab === "packs") {
+              actions.openPackModal();
+            } else {
+              const ownRoutines = routines.filter((r) => !r.originalCreatorId);
+              if (ownRoutines.length >= 10) {
+                Alert.alert(
+                  t("alerts.limitReached", "Límite alcanzado"),
+                  t(
+                    "routines.limitReached",
+                    "Solo puedes crear un máximo de 10 rutinas.",
+                  ),
+                );
+              } else {
+                editor.openRoutineModal();
+              }
+            }
+          }}
         >
           <AntDesign name="plus" size={28} color="#FFF" />
         </TouchableOpacity>
@@ -607,9 +660,11 @@ export default function HomeScreen() {
         setPackDescription={actions.setPackDescription}
         selectedRoutineIds={actions.selectedRoutineIds}
         toggleRoutineSelection={actions.toggleRoutineSelection}
+        setReorderedRoutineIds={actions.setReorderedRoutineIds}
         routines={routines}
         handleCreatePack={actions.handleCreatePack}
         isSavingPack={isSavingPack}
+        isEditing={!!actions.editingPackId}
       />
       <PackDetailsModal
         visible={packDetailsModalVisible}
@@ -622,6 +677,10 @@ export default function HomeScreen() {
         startWorkoutAndClose={(r: any) => {
           setPackDetailsModalVisible(false);
           handleStartWorkout(r);
+        }}
+        onEditPack={(pack: any) => {
+          setPackDetailsModalVisible(false);
+          actions.openPackModal(pack);
         }}
       />
       <ReadonlyRoutineModal

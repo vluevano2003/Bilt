@@ -2,9 +2,9 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import {
-    calculateSessionVolume,
-    formatDuration,
-    getConvertedWeight,
+  calculateSessionVolume,
+  formatDuration,
+  getConvertedWeight,
 } from "../utils/workoutCalculations";
 
 /**
@@ -37,7 +37,9 @@ export const WorkoutDetailsModal = ({
           ]}
         >
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{selectedItem?.routineName}</Text>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
+              {selectedItem?.routineName}
+            </Text>
             <TouchableOpacity onPress={onClose}>
               <AntDesign name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
@@ -46,20 +48,55 @@ export const WorkoutDetailsModal = ({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 50 }}
           >
-            <View style={styles.detailsStatsContainer}>
-              <Text style={styles.detailsStatText}>
-                <Feather name="clock" size={16} />{" "}
-                {formatDuration(selectedItem?.durationSeconds)} min
-              </Text>
-              <Text style={styles.detailsStatText}>
-                <Feather name="activity" size={16} />{" "}
-                {calculateSessionVolume(selectedItem, measurementSystem)}{" "}
-                {measurementSystem === "metric" ? "kg" : "lbs"}
-              </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                gap: 20,
+                marginBottom: 25,
+              }}
+            >
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+              >
+                <Feather name="clock" size={16} color={colors.textPrimary} />
+                <Text
+                  style={{
+                    color: colors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: "500",
+                  }}
+                >
+                  {formatDuration(selectedItem?.durationSeconds)} min
+                </Text>
+              </View>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+              >
+                <Feather name="activity" size={16} color={colors.textPrimary} />
+                <Text
+                  style={{
+                    color: colors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: "500",
+                  }}
+                >
+                  {calculateSessionVolume(selectedItem, measurementSystem)}{" "}
+                  {measurementSystem === "metric" ? "kg" : "lbs"}
+                </Text>
+              </View>
             </View>
-            <Text style={[styles.label, { marginBottom: 10 }]}>
+
+            <Text
+              style={[
+                styles.label,
+                { marginBottom: 15, color: colors.textPrimary, fontSize: 16 },
+              ]}
+            >
               {t("routines.exercises")}:
             </Text>
+
             {selectedItem?.exercises?.map((exercise: any, index: number) => {
               const exerciseName =
                 exercise.exerciseDetails?.id
@@ -68,8 +105,17 @@ export const WorkoutDetailsModal = ({
                 "Ejercicio";
 
               return (
-                <View key={index} style={styles.exerciseListContainer}>
-                  <Text style={styles.exerciseNameText}>• {exerciseName}</Text>
+                <View key={index} style={{ marginBottom: 25, paddingLeft: 5 }}>
+                  <Text
+                    style={{
+                      color: colors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: "bold",
+                      marginBottom: 10,
+                    }}
+                  >
+                    • {exerciseName}
+                  </Text>
                   {exercise.sets?.map((set: any, setIdx: number) => {
                     let displayUnit = "";
                     let displayWeight = set.weight;
@@ -99,7 +145,15 @@ export const WorkoutDetailsModal = ({
                     }
 
                     return (
-                      <Text key={setIdx} style={styles.setDetailsText}>
+                      <Text
+                        key={setIdx}
+                        style={{
+                          color: colors.textSecondary,
+                          marginLeft: 15,
+                          fontSize: 14,
+                          marginBottom: 6,
+                        }}
+                      >
                         Set {setIdx + 1}: {set.reps} reps{" "}
                         {set.weightUnit === "bodyweight" && set.weight === 0
                           ? "BW"

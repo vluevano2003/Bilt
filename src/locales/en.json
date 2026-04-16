@@ -8,7 +8,8 @@
     "saving": "Saving...",
     "backToHome": "Back to home",
     "retry": "Retry",
-    "pressBackAgain": "Press back again to exit"
+    "pressBackAgain": "Press back again to exit",
+    "day": "Day"
   },
   "tabs": {
     "workout": "Workout",
@@ -190,7 +191,8 @@
     "checkYear": "Verify your birth year.",
     "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
     "invalidOtpCode": "Please enter a valid 8-digit code.",
-    "noNegative": "Values must be greater than zero."
+    "noNegative": "Values must be greater than zero.",
+    "limitReached": "Limit reached"
   },
   "errors": {
     "invalidEmail": "The email format is invalid. Check for trailing spaces.",
@@ -247,7 +249,10 @@
     "synergists": "Synergists",
     "instructions": "Instructions",
     "n_sets_one": "1 Set",
-    "n_sets_other": "{{count}} Sets"
+    "n_sets_other": "{{count}} Sets",
+    "createdLabel": "created",
+    "limitReached": "You can only create a maximum of 10 routines.",
+    "addSet": "Add Set"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -434,6 +439,7 @@
     "tabPacks": "Packs",
     "emptyMessage": "You don't have any weekly packs yet. Group your routines!",
     "createNew": "Create Weekly Pack",
+    "edit": "Edit Weekly Pack",
     "packName": "Pack Name",
     "packNamePlaceholder": "E.g. Hypertrophy Week",
     "description": "Description",
@@ -442,6 +448,10 @@
     "maxRoutinesAlert": "You can only add a maximum of 6 routines per pack.",
     "routinesSelected": "{{count}}/6 selected",
     "savePack": "Save Pack",
+    "availableRoutines": "Available Routines to Add",
+    "noMoreRoutines": "No more routines available or limit reached.",
+    "selectedRoutinesTitle": "Training Days",
+    "dragHint": "Hold and drag to reorder your training days.",
     "noRoutinesAvailable": "Create some routines first to build a pack.",
     "routinesIncluded": "Routines in this Pack:",
     "savePackToProfile": "Save Pack to Profile",

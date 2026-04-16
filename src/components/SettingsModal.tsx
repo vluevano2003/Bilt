@@ -1,17 +1,17 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-    FlatList,
-    Image,
-    Modal,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  Modal,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { getStyles } from "../styles/Profile.styles";
 
@@ -302,6 +302,7 @@ export const SettingsModal = ({
         visible={blockedModalVisible}
         animationType="slide"
         transparent={false}
+        onRequestClose={() => setBlockedModalVisible(false)}
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <View
