@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { supabase } from "../src/config/supabase";
@@ -18,9 +18,6 @@ export interface SocialUser {
 
 /**
  * Función para enviar notificaciones push usando Expo Push API
- * @param expoPushToken
- * @param title
- * @param body
  */
 async function sendPushNotification(
   expoPushToken: string,
@@ -47,9 +44,7 @@ async function sendPushNotification(
 }
 
 /**
- * Hook personalizado para manejar la lógica del perfil de usuario, incluyendo edición, visualización y gestión de seguidores
- * @param profileUid
- * @returns
+ * Hook personalizado para manejar la lógica del perfil de usuario
  */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
@@ -65,23 +60,25 @@ export const useProfile = (profileUid?: string) => {
 
   const [username, setUsername] = useState("");
   const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [newProfilePic, setNewProfilePic] = useState<string | null>(null);
-  const [birthDate, setBirthDate] = useState("");
-  const [age, setAge] = useState("");
-
   const [email, setEmail] = useState("");
   const [gender, setGender] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [bio, setBio] = useState("");
   const [measurementSystem, setMeasurementSystem] = useState<
     "metric" | "imperial"
   >("metric");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
+
+  const [editUsername, setEditUsername] = useState("");
+  const [newProfilePic, setNewProfilePic] = useState<string | null>(null);
+  const [editHeight, setEditHeight] = useState("");
+  const [editWeight, setEditWeight] = useState("");
+  const [editBio, setEditBio] = useState("");
+  const [editMeasurementSystem, setEditMeasurementSystem] = useState<
+    "metric" | "imperial"
+  >("metric");
 
   const [isPrivate, setIsPrivate] = useState(false);
-  const [showAge, setShowAge] = useState(true);
-  const [showWeight, setShowWeight] = useState(true);
-  const [showHeight, setShowHeight] = useState(true);
-  const [showGender, setShowGender] = useState(true);
 
   const [followStatus, setFollowStatus] = useState<
     "none" | "pending" | "following"
@@ -95,66 +92,108 @@ export const useProfile = (profileUid?: string) => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
 
-  const calculateAge = (dateString: string) => {
-    if (!dateString) return "";
-    const parts = dateString.split("/");
-    if (parts.length === 3) {
-      const birth = new Date(
-        parseInt(parts[2]),
-        parseInt(parts[1]) - 1,
-        parseInt(parts[0]),
-      );
-      const today = new Date();
-      let calculatedAge = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        calculatedAge--;
+  const fetchProfile = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", targetUid)
+        .single();
+
+      if (error || !data) {
+        debugLog("Perfil no encontrado o bloqueado por RLS");
+        setHasBlockedMe(true);
+        setIsLoading(false);
+        return;
       }
-      return calculatedAge.toString();
+
+      if (data) {
+        setUsername(data.username || "");
+        setProfilePic(data.profile_picture_url || null);
+        setEmail(data.email || "");
+        setGender(data.gender || "");
+        setMeasurementSystem(data.measurement_system || "metric");
+        setHeight(data.height?.toString() || "");
+        setWeight(data.weight?.toString() || "");
+        setBio(data.bio || "");
+        setIsPrivate(data.is_private || false);
+      }
+      setIsLoading(false);
+    } catch (err) {
+      setHasBlockedMe(true);
+      setIsLoading(false);
     }
-    return "";
-  };
+  }, [targetUid]);
+
+  const fetchSocialStats = useCallback(async () => {
+    if (!isOwnProfile) {
+      const { data: myBlock } = await supabase
+        .from("blocks")
+        .select("*")
+        .eq("blocker_id", currentUserId)
+        .eq("blocked_id", targetUid)
+        .single();
+      setIsBlocked(!!myBlock);
+
+      const { data: theirBlock } = await supabase
+        .from("blocks")
+        .select("*")
+        .eq("blocker_id", targetUid)
+        .eq("blocked_id", currentUserId)
+        .single();
+      setHasBlockedMe(!!theirBlock);
+    }
+
+    const { count: fCount } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("following_id", targetUid)
+      .eq("status", "accepted");
+    setFollowersCount(fCount || 0);
+
+    const { count: followingC } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("follower_id", targetUid)
+      .eq("status", "accepted");
+    setFollowingCount(followingC || 0);
+
+    if (isOwnProfile) {
+      const { count: pCount } = await supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", targetUid)
+        .eq("status", "pending");
+      setPendingRequestsCount(pCount || 0);
+    } else {
+      const { data: myFollow } = await supabase
+        .from("follows")
+        .select("status")
+        .eq("follower_id", currentUserId)
+        .eq("following_id", targetUid)
+        .single();
+
+      setFollowStatus(
+        myFollow
+          ? myFollow.status === "accepted"
+            ? "following"
+            : "pending"
+          : "none",
+      );
+
+      const { data: theirRequest } = await supabase
+        .from("follows")
+        .select("status")
+        .eq("follower_id", targetUid)
+        .eq("following_id", currentUserId)
+        .single();
+
+      setHasPendingRequestFromThem(theirRequest?.status === "pending");
+    }
+  }, [targetUid, currentUserId, isOwnProfile]);
 
   useEffect(() => {
     if (!targetUid) return;
-
-    const fetchProfile = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", targetUid)
-          .single();
-
-        if (error || !data) {
-          debugLog("Perfil no encontrado o bloqueado por RLS");
-          setHasBlockedMe(true);
-          setIsLoading(false);
-          return;
-        }
-
-        if (data) {
-          setUsername(data.username || "");
-          setProfilePic(data.profile_picture_url || null);
-          setBirthDate(data.birth_date || "");
-          setAge(calculateAge(data.birth_date));
-          setEmail(data.email || "");
-          setGender(data.gender || "");
-          setMeasurementSystem(data.measurement_system || "metric");
-          setHeight(data.height?.toString() || "");
-          setWeight(data.weight?.toString() || "");
-          setIsPrivate(data.is_private || false);
-          setShowAge(data.show_age ?? true);
-          setShowWeight(data.show_weight ?? true);
-          setShowHeight(data.show_height ?? true);
-          setShowGender(data.show_gender ?? true);
-        }
-        setIsLoading(false);
-      } catch (err) {
-        setHasBlockedMe(true);
-        setIsLoading(false);
-      }
-    };
 
     fetchProfile();
 
@@ -175,77 +214,10 @@ export const useProfile = (profileUid?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [targetUid]);
+  }, [targetUid, fetchProfile]);
 
   useEffect(() => {
     if (!targetUid || !currentUserId) return;
-
-    const fetchSocialStats = async () => {
-      if (!isOwnProfile) {
-        const { data: myBlock } = await supabase
-          .from("blocks")
-          .select("*")
-          .eq("blocker_id", currentUserId)
-          .eq("blocked_id", targetUid)
-          .single();
-        setIsBlocked(!!myBlock);
-
-        const { data: theirBlock } = await supabase
-          .from("blocks")
-          .select("*")
-          .eq("blocker_id", targetUid)
-          .eq("blocked_id", currentUserId)
-          .single();
-        setHasBlockedMe(!!theirBlock);
-      }
-
-      const { count: fCount } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", targetUid)
-        .eq("status", "accepted");
-      setFollowersCount(fCount || 0);
-
-      const { count: followingC } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", targetUid)
-        .eq("status", "accepted");
-      setFollowingCount(followingC || 0);
-
-      if (isOwnProfile) {
-        const { count: pCount } = await supabase
-          .from("follows")
-          .select("*", { count: "exact", head: true })
-          .eq("following_id", targetUid)
-          .eq("status", "pending");
-        setPendingRequestsCount(pCount || 0);
-      } else {
-        const { data: myFollow } = await supabase
-          .from("follows")
-          .select("status")
-          .eq("follower_id", currentUserId)
-          .eq("following_id", targetUid)
-          .single();
-
-        setFollowStatus(
-          myFollow
-            ? myFollow.status === "accepted"
-              ? "following"
-              : "pending"
-            : "none",
-        );
-
-        const { data: theirRequest } = await supabase
-          .from("follows")
-          .select("status")
-          .eq("follower_id", targetUid)
-          .eq("following_id", currentUserId)
-          .single();
-
-        setHasPendingRequestFromThem(theirRequest?.status === "pending");
-      }
-    };
 
     fetchSocialStats();
 
@@ -263,7 +235,21 @@ export const useProfile = (profileUid?: string) => {
     return () => {
       supabase.removeChannel(followsChannel);
     };
-  }, [targetUid, currentUserId, isOwnProfile]);
+  }, [targetUid, currentUserId, isOwnProfile, fetchSocialStats]);
+
+  const refetchData = async () => {
+    await Promise.all([fetchProfile(), fetchSocialStats()]);
+  };
+
+  const openEditModal = () => {
+    setEditUsername(username);
+    setEditHeight(height);
+    setEditWeight(weight);
+    setEditBio(bio);
+    setEditMeasurementSystem(measurementSystem);
+    setNewProfilePic(null);
+    setIsEditing(true);
+  };
 
   const pickImage = async () => {
     if (!isOwnProfile) return;
@@ -304,24 +290,30 @@ export const useProfile = (profileUid?: string) => {
         }
       }
 
+      const parsedHeight = parseFloat(editHeight.replace(",", "."));
+      const parsedWeight = parseFloat(editWeight.replace(",", "."));
+
       const { error } = await supabase
         .from("users")
         .update({
-          username: username.trim(),
+          username: editUsername.trim(),
           profile_picture_url: profileUrl,
-          measurement_system: measurementSystem,
-          height: parseFloat(height.replace(",", ".")),
-          weight: parseFloat(weight.replace(",", ".")),
-          show_age: showAge,
-          show_weight: showWeight,
-          show_height: showHeight,
-          show_gender: showGender,
+          measurement_system: editMeasurementSystem,
+          height: isNaN(parsedHeight) ? null : parsedHeight,
+          weight: isNaN(parsedWeight) ? null : parsedWeight,
+          bio: editBio.trim(),
         })
         .eq("id", currentUserId);
 
       if (error) throw error;
 
+      setUsername(editUsername.trim());
+      setMeasurementSystem(editMeasurementSystem);
+      setHeight(editHeight);
+      setWeight(editWeight);
+      setBio(editBio.trim());
       setProfilePic(profileUrl);
+
       setNewProfilePic(null);
       setIsEditing(false);
       Alert.alert(t("profile.alerts.success"), t("profile.alerts.successSave"));
@@ -511,13 +503,13 @@ export const useProfile = (profileUid?: string) => {
   };
 
   const changeMeasurementSystem = (newSystem: "metric" | "imperial") => {
-    if (newSystem === measurementSystem) return;
+    if (newSystem === editMeasurementSystem) return;
 
-    const currentWeight = parseFloat(weight.replace(",", "."));
-    const currentHeight = parseFloat(height.replace(",", "."));
+    const currentWeight = parseFloat(editWeight.replace(",", "."));
+    const currentHeight = parseFloat(editHeight.replace(",", "."));
 
-    let newWeight = weight;
-    let newHeight = height;
+    let newWeight = editWeight;
+    let newHeight = editHeight;
 
     if (newSystem === "imperial") {
       if (!isNaN(currentWeight))
@@ -534,9 +526,10 @@ export const useProfile = (profileUid?: string) => {
       if (!isNaN(currentHeight))
         newHeight = parseFloat((currentHeight * 2.54).toFixed(1)).toString();
     }
-    setWeight(newWeight);
-    setHeight(newHeight);
-    setMeasurementSystem(newSystem);
+
+    setEditWeight(newWeight);
+    setEditHeight(newHeight);
+    setEditMeasurementSystem(newSystem);
   };
 
   const toggleBlock = async () => {
@@ -640,29 +633,26 @@ export const useProfile = (profileUid?: string) => {
     isLoading,
     isSaving,
     isEditing,
-    setIsEditing,
+    openEditModal,
     username,
-    setUsername,
     profilePic: newProfilePic || profilePic,
-    age,
     email,
     gender,
     measurementSystem,
-    setMeasurementSystem,
     height,
-    setHeight,
     weight,
-    setWeight,
     isPrivate,
     togglePrivacy,
-    showAge,
-    setShowAge,
-    showWeight,
-    setShowWeight,
-    showHeight,
-    setShowHeight,
-    showGender,
-    setShowGender,
+    bio,
+    editUsername,
+    setEditUsername,
+    editHeight,
+    setEditHeight,
+    editWeight,
+    setEditWeight,
+    editBio,
+    setEditBio,
+    editMeasurementSystem,
     pickImage,
     handleSave,
     handleCancel,
@@ -684,5 +674,6 @@ export const useProfile = (profileUid?: string) => {
     getBlockedUsersList,
     unblockUserFromList,
     deleteAccount,
+    refetchData,
   };
 };

@@ -8,7 +8,8 @@
     "saving": "Saving...",
     "backToHome": "Back to home",
     "retry": "Retry",
-    "pressBackAgain": "Press back again to exit"
+    "pressBackAgain": "Press back again to exit",
+    "day": "Day"
   },
   "tabs": {
     "workout": "Workout",
@@ -47,7 +48,7 @@
     "birthDateLabel": "Date of birth:",
     "selectDate": "Select date",
     "confirmDate": "Confirm date",
-    "genderLabel": "Gender:",
+    "genderLabel": "Sex:",
     "male": "Male",
     "female": "Female",
     "systemLabel": "Measurement system:",
@@ -104,7 +105,7 @@
     "years": "years",
     "username": "Username",
     "email": "Email",
-    "gender": "Gender",
+    "gender": "Sex",
     "measurementSystem": "Measurement System",
     "metric": "Metric",
     "imperial": "Imperial",
@@ -123,11 +124,10 @@
     "friends": "friends",
     "privateAccount": "Private Account",
     "privateMsg": "Follow this user to see their routines and progress.",
-    "visibilityOptions": "Visibility Options",
-    "showAge": "Show Age",
-    "showGender": "Show Gender",
-    "showHeight": "Show Height",
-    "showWeight": "Show Weight",
+    "bio": "Bio",
+    "bioPlaceholder": "Write a short bio about yourself...",
+    "addBioPrompt": "Add a short bio to introduce yourself.",
+    "defaultBio": "This user hasn't added a bio yet.",
     "alerts": {
       "error": "Error",
       "success": "Success",
@@ -186,11 +186,13 @@
     "enterEmailPassword": "Enter email and password.",
     "minChars": "Minimum 6 characters.",
     "missingNickname": "Missing your nickname.",
-    "missingDateGender": "Missing date or gender.",
+    "missingDateGender": "Missing date or sex.",
     "minAge": "You must be at least 13 years old.",
     "checkYear": "Verify your birth year.",
     "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
-    "invalidOtpCode": "Please enter a valid 8-digit code."
+    "invalidOtpCode": "Please enter a valid 8-digit code.",
+    "noNegative": "Values must be greater than zero.",
+    "limitReached": "Limit reached"
   },
   "errors": {
     "invalidEmail": "The email format is invalid. Check for trailing spaces.",
@@ -204,7 +206,8 @@
     "updatePasswordFailed": "Could not update the password.",
     "invalidLink": "The link is invalid or has expired.",
     "connectionTitle": "Connection Problem",
-    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again."
+    "connectionMsg": "We couldn't load your session. Please check your internet connection and try again.",
+    "userCreation": "Could not create user account."
   },
   "routines": {
     "title": "Your Routines",
@@ -246,7 +249,10 @@
     "synergists": "Synergists",
     "instructions": "Instructions",
     "n_sets_one": "1 Set",
-    "n_sets_other": "{{count}} Sets"
+    "n_sets_other": "{{count}} Sets",
+    "createdLabel": "created",
+    "limitReached": "You can only create a maximum of 10 routines.",
+    "addSet": "Add Set"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -433,6 +439,7 @@
     "tabPacks": "Packs",
     "emptyMessage": "You don't have any weekly packs yet. Group your routines!",
     "createNew": "Create Weekly Pack",
+    "edit": "Edit Weekly Pack",
     "packName": "Pack Name",
     "packNamePlaceholder": "E.g. Hypertrophy Week",
     "description": "Description",
@@ -441,11 +448,17 @@
     "maxRoutinesAlert": "You can only add a maximum of 6 routines per pack.",
     "routinesSelected": "{{count}}/6 selected",
     "savePack": "Save Pack",
+    "availableRoutines": "Available Routines to Add",
+    "noMoreRoutines": "No more routines available or limit reached.",
+    "selectedRoutinesTitle": "Training Days",
+    "dragHint": "Hold and drag to reorder your training days.",
     "noRoutinesAvailable": "Create some routines first to build a pack.",
     "routinesIncluded": "Routines in this Pack:",
     "savePackToProfile": "Save Pack to Profile",
     "noPublicPacks": "This user doesn't have any Weekly Packs yet.",
-    "routinesCount": "Routines"
+    "routinesCount": "Routines",
+    "successSaved": "Pack and routines saved to your profile!",
+    "successRemoved": "Pack removed from your profile."
   },
   "exerciseDetails": {
     "bench_press_barbell": {

@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   Alert,
   BackHandler,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -29,16 +28,24 @@ import {
   PackDetailsModal,
   SocialListModal,
 } from "../src/components/ProfileModals";
+import {
+  EmptyState,
+  SegmentedTabs,
+  TopNavigationBar,
+  UserInfoCard,
+} from "../src/components/UserProfileUI";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Profile.styles";
 import {
   calculateTotalVolume,
   formatDuration,
-  getConvertedProfileHeight,
-  getConvertedProfileWeight,
 } from "../src/utils/profileHelpers";
 import { shareProfile } from "../src/utils/shareHelpers";
 
+/**
+ * Pantalla de perfil de usuario. Muestra la información del usuario, sus rutinas, historial y packs semanales.
+ * @returns
+ */
 export default function UserProfileScreen() {
   const { t, i18n } = useTranslation();
   const params = useLocalSearchParams();
@@ -57,6 +64,24 @@ export default function UserProfileScreen() {
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [reportModalVisible, setReportModalVisible] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [activeTab, setActiveTab] = useState<"routines" | "history" | "packs">(
+    "routines",
+  );
+  const [socialModalVisible, setSocialModalVisible] = useState(false);
+  const [socialModalType, setSocialModalType] = useState<
+    "followers" | "following"
+  >("followers");
+  const [socialList, setSocialList] = useState<SocialUser[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [detailsType, setDetailsType] = useState<"routine" | "history">(
+    "routine",
+  );
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [packDetailsVisible, setPackDetailsVisible] = useState(false);
+  const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
+  const [historyLimit, setHistoryLimit] = useState(10);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!profile.isLoading && profile.isOwnProfile) {
@@ -84,25 +109,6 @@ export default function UserProfileScreen() {
     }
   };
 
-  const [activeTab, setActiveTab] = useState<"routines" | "history" | "packs">(
-    "routines",
-  );
-  const [socialModalVisible, setSocialModalVisible] = useState(false);
-  const [socialModalType, setSocialModalType] = useState<
-    "followers" | "following"
-  >("followers");
-  const [socialList, setSocialList] = useState<SocialUser[]>([]);
-  const [loadingSocial, setLoadingSocial] = useState(false);
-  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
-  const [detailsType, setDetailsType] = useState<"routine" | "history">(
-    "routine",
-  );
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [packDetailsVisible, setPackDetailsVisible] = useState(false);
-  const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
-  const [historyLimit, setHistoryLimit] = useState(10);
-  const [refreshing, setRefreshing] = useState(false);
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -112,80 +118,6 @@ export default function UserProfileScreen() {
       setRefreshing(false);
     }
   }, []);
-
-  if (profile.isLoading || profile.isOwnProfile) {
-    return (
-      <View style={[styles.container, { justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
-  const isProfileNotFound = !profile.isLoading && !profile.username;
-
-  if (isProfileNotFound) {
-    return (
-      <View style={styles.container}>
-        <View style={[styles.headerContainer, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity
-            onPress={handleGoBack}
-            style={{ zIndex: 10, padding: 5 }}
-          >
-            <Feather name="arrow-left" size={28} color={colors.textPrimary} />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 20,
-          }}
-        >
-          <Feather name="user-x" size={60} color={colors.textSecondary} />
-          <Text
-            style={{
-              color: colors.textPrimary,
-              fontSize: 22,
-              fontWeight: "bold",
-              marginTop: 20,
-              textAlign: "center",
-            }}
-          >
-            {t("profile.userNotFoundTitle", "Usuario no encontrado")}
-          </Text>
-          <Text
-            style={{
-              color: colors.textSecondary,
-              marginTop: 10,
-              textAlign: "center",
-              fontSize: 16,
-            }}
-          >
-            {t(
-              "profile.userNotFoundMsg",
-              "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
-            )}
-          </Text>
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              {
-                marginTop: 30,
-                backgroundColor: colors.primary,
-                paddingHorizontal: 30,
-              },
-            ]}
-            onPress={handleGoBack}
-          >
-            <Text style={[styles.actionButtonText, { color: "#FFF" }]}>
-              {t("common.backToHome", "Volver al inicio")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   const handleToggleBlock = () => {
     setOptionsModalVisible(false);
@@ -214,34 +146,6 @@ export default function UserProfileScreen() {
     profile.reportUser(reportReason);
     setReportModalVisible(false);
     setReportReason("");
-  };
-
-  const isUnavailable = profile.isBlocked || profile.hasBlockedMe;
-  const showContent =
-    !isUnavailable &&
-    (profile.isOwnProfile ||
-      !profile.isPrivate ||
-      profile.followStatus === "following");
-
-  const displayedUserRoutines = userRoutines.filter(
-    (r) => !r.originalCreatorId,
-  );
-  const displayedUserPacks = userPacks.filter((p) => !p.originalCreatorId);
-
-  const getPublicDataString = () => {
-    const data = [];
-    if (profile.showAge && profile.age)
-      data.push(`${profile.age} ${t("profile.years")}`);
-    if (profile.showGender && profile.gender) data.push(profile.gender);
-    if (profile.showHeight && profile.height)
-      data.push(
-        `${getConvertedProfileHeight(profile.height, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "cm" : "in"}`,
-      );
-    if (profile.showWeight && profile.weight)
-      data.push(
-        `${getConvertedProfileWeight(profile.weight, profile.measurementSystem)} ${profile.measurementSystem === "metric" ? "kg" : "lbs"}`,
-      );
-    return data.join(" • ");
   };
 
   const openSocialModal = async (type: "followers" | "following") => {
@@ -273,41 +177,73 @@ export default function UserProfileScreen() {
     }
   };
 
+  if (profile.isLoading || profile.isOwnProfile) {
+    return (
+      <View style={[styles.container, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  const isProfileNotFound = !profile.isLoading && !profile.username;
+
+  if (isProfileNotFound) {
+    return (
+      <View style={styles.container}>
+        <TopNavigationBar
+          colors={colors}
+          styles={styles}
+          insets={insets}
+          onBack={handleGoBack}
+          showActions={false}
+        />
+        <EmptyState
+          styles={styles}
+          colors={colors}
+          icon="user-x"
+          title={t("profile.userNotFoundTitle", "Usuario no encontrado")}
+          message={t(
+            "profile.userNotFoundMsg",
+            "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
+          )}
+          actionButton={
+            <TouchableOpacity
+              style={[styles.actionButton, styles.emptyStateActionBtn]}
+              onPress={handleGoBack}
+            >
+              <Text style={[styles.actionButtonText, styles.buttonTextWhite]}>
+                {t("common.backToHome", "Volver al inicio")}
+              </Text>
+            </TouchableOpacity>
+          }
+        />
+      </View>
+    );
+  }
+
+  const isUnavailable = profile.isBlocked || profile.hasBlockedMe;
+  const showContent =
+    !isUnavailable &&
+    (profile.isOwnProfile ||
+      !profile.isPrivate ||
+      profile.followStatus === "following");
+
+  const displayedUserRoutines = userRoutines.filter(
+    (r: any) => !r.originalCreatorId,
+  );
+  const displayedUserPacks = userPacks.filter((p: any) => !p.originalCreatorId);
+
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.headerContainer,
-          { justifyContent: "space-between", paddingTop: insets.top + 10 },
-        ]}
-      >
-        <TouchableOpacity
-          onPress={handleGoBack}
-          style={{ zIndex: 10, padding: 5 }}
-        >
-          <Feather name="arrow-left" size={28} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <View style={{ flexDirection: "row", gap: 15, zIndex: 10 }}>
-          {!isUnavailable && (
-            <TouchableOpacity
-              style={{ padding: 5 }}
-              onPress={() => shareProfile(profileId || "", profile.username)}
-            >
-              <Feather name="share" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={{ padding: 5 }}
-            onPress={() => setOptionsModalVisible(true)}
-          >
-            <Feather
-              name="more-vertical"
-              size={24}
-              color={colors.textPrimary}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <TopNavigationBar
+        colors={colors}
+        styles={styles}
+        insets={insets}
+        onBack={handleGoBack}
+        showActions={!isUnavailable}
+        onShare={() => shareProfile(profileId || "", profile.username)}
+        onOptions={() => setOptionsModalVisible(true)}
+      />
 
       <ScrollView
         contentContainerStyle={[
@@ -325,253 +261,53 @@ export default function UserProfileScreen() {
       >
         <View style={styles.formContainer}>
           {isUnavailable ? (
-            <View style={{ alignItems: "center", marginTop: 80 }}>
-              <Feather name="user-x" size={60} color={colors.textSecondary} />
-              <Text
-                style={{
-                  color: colors.textPrimary,
-                  fontSize: 22,
-                  fontWeight: "bold",
-                  marginTop: 20,
-                  textAlign: "center",
-                }}
-              >
-                {t("profile.userBlockedTitle", "Usuario no disponible")}
-              </Text>
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  marginTop: 10,
-                  textAlign: "center",
-                  paddingHorizontal: 20,
-                }}
-              >
-                {t(
-                  "profile.userNotFoundMsg",
-                  "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
-                )}
-              </Text>
-            </View>
+            <EmptyState
+              styles={styles}
+              colors={colors}
+              icon="user-x"
+              title={t("profile.userBlockedTitle", "Usuario no disponible")}
+              message={t(
+                "profile.userNotFoundMsg",
+                "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
+              )}
+            />
           ) : (
             <>
-              <View style={styles.centeredProfileInfo}>
-                <View style={styles.avatarContainer}>
-                  {profile.profilePic ? (
-                    <Image
-                      source={{ uri: profile.profilePic }}
-                      style={styles.avatarImage}
-                    />
-                  ) : (
-                    <View style={styles.avatarPlaceholder}>
-                      <AntDesign
-                        name="user"
-                        size={45}
-                        color={colors.textSecondary}
-                      />
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.usernameText}>@{profile.username}</Text>
-
-                {showContent && (
-                  <>
-                    <View style={styles.socialStatsRow}>
-                      <TouchableOpacity
-                        style={styles.socialStatBox}
-                        onPress={() => openSocialModal("followers")}
-                      >
-                        <Text style={styles.socialStatNumber}>
-                          {profile.followersCount}
-                        </Text>
-                        <Text style={styles.socialStatLabel}>
-                          {t("profile.followers")}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.socialStatBox}
-                        onPress={() => openSocialModal("following")}
-                      >
-                        <Text style={styles.socialStatNumber}>
-                          {profile.followingCount}
-                        </Text>
-                        <Text style={styles.socialStatLabel}>
-                          {t("profile.following")}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.publicDataContainer}>
-                      <Text style={styles.publicDataText}>
-                        {getPublicDataString()}
-                      </Text>
-                    </View>
-                  </>
-                )}
-
-                <View style={{ width: "100%", marginTop: 10 }}>
-                  {profile.hasPendingRequestFromThem ? (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 10,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <TouchableOpacity
-                        style={[
-                          styles.actionButton,
-                          {
-                            flex: 1,
-                            backgroundColor: colors.primary,
-                            borderColor: colors.primary,
-                          },
-                        ]}
-                        onPress={() =>
-                          profile.handleFollowRequest(profileId!, true)
-                        }
-                      >
-                        <Text
-                          style={[styles.actionButtonText, { color: "#FFF" }]}
-                        >
-                          {t("social.accept")}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[
-                          styles.actionButton,
-                          { flex: 1, backgroundColor: colors.surface },
-                        ]}
-                        onPress={() =>
-                          profile.handleFollowRequest(profileId!, false)
-                        }
-                      >
-                        <Text
-                          style={[
-                            styles.actionButtonText,
-                            { color: colors.textPrimary },
-                          ]}
-                        >
-                          {t("social.reject")}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor:
-                            profile.followStatus !== "none"
-                              ? colors.surface
-                              : colors.primary,
-                          borderColor:
-                            profile.followStatus !== "none"
-                              ? colors.border
-                              : colors.primary,
-                        },
-                      ]}
-                      onPress={handleToggleFollow}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          {
-                            color:
-                              profile.followStatus !== "none"
-                                ? colors.textPrimary
-                                : "#FFF",
-                          },
-                        ]}
-                      >
-                        {profile.followStatus === "following"
-                          ? t("social.following")
-                          : profile.followStatus === "pending"
-                            ? t("social.requested")
-                            : t("social.follow")}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
+              <UserInfoCard
+                t={t}
+                colors={colors}
+                styles={styles}
+                profile={profile}
+                profileId={profileId}
+                openSocialModal={openSocialModal}
+                handleToggleFollow={handleToggleFollow}
+              />
 
               {!showContent ? (
-                <View style={{ alignItems: "center", marginTop: 40 }}>
+                <View style={styles.privateContainer}>
                   <Feather name="lock" size={50} color={colors.textSecondary} />
-                  <Text
-                    style={{
-                      color: colors.textPrimary,
-                      fontSize: 18,
-                      fontWeight: "bold",
-                      marginTop: 15,
-                    }}
-                  >
+                  <Text style={styles.privateTitle}>
                     {t("profile.privateAccount")}
                   </Text>
-                  <Text style={{ color: colors.textSecondary, marginTop: 5 }}>
+                  <Text style={styles.privateText}>
                     {t("profile.privateMsg")}
                   </Text>
                 </View>
               ) : (
                 <>
-                  <View style={styles.segmentContainer}>
-                    <TouchableOpacity
-                      style={[
-                        styles.segmentButton,
-                        activeTab === "routines" && styles.segmentButtonActive,
-                      ]}
-                      onPress={() => setActiveTab("routines")}
-                    >
-                      <Feather
-                        name="grid"
-                        size={22}
-                        color={
-                          activeTab === "routines"
-                            ? colors.primary
-                            : colors.textSecondary
-                        }
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.segmentButton,
-                        activeTab === "packs" && styles.segmentButtonActive,
-                      ]}
-                      onPress={() => setActiveTab("packs")}
-                    >
-                      <Feather
-                        name="layers"
-                        size={22}
-                        color={
-                          activeTab === "packs"
-                            ? colors.primary
-                            : colors.textSecondary
-                        }
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.segmentButton,
-                        activeTab === "history" && styles.segmentButtonActive,
-                      ]}
-                      onPress={() => setActiveTab("history")}
-                    >
-                      <AntDesign
-                        name="calendar"
-                        size={22}
-                        color={
-                          activeTab === "history"
-                            ? colors.primary
-                            : colors.textSecondary
-                        }
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <SegmentedTabs
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    styles={styles}
+                    colors={colors}
+                  />
 
                   <View style={{ paddingHorizontal: 20 }}>
                     {isLoadingActivity ? (
                       <ActivityIndicator size="small" color={colors.primary} />
                     ) : activeTab === "routines" ? (
                       displayedUserRoutines.length > 0 ? (
-                        displayedUserRoutines.map((routine) => (
+                        displayedUserRoutines.map((routine: any) => (
                           <View key={routine.id} style={styles.routineCard}>
                             <TouchableOpacity
                               style={styles.routineInfo}
@@ -590,11 +326,7 @@ export default function UserProfileScreen() {
                               </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                              style={{
-                                padding: 10,
-                                backgroundColor: colors.background,
-                                borderRadius: 10,
-                              }}
+                              style={styles.bookmarkBtn}
                               onPress={() =>
                                 actions.handleToggleSaveRoutine(routine)
                               }
@@ -612,19 +344,13 @@ export default function UserProfileScreen() {
                           </View>
                         ))
                       ) : (
-                        <Text
-                          style={{
-                            color: colors.textSecondary,
-                            textAlign: "center",
-                            marginTop: 20,
-                          }}
-                        >
+                        <Text style={styles.emptyHistoryText}>
                           {t("profile.noPublicRoutines")}
                         </Text>
                       )
                     ) : activeTab === "packs" ? (
                       displayedUserPacks.length > 0 ? (
-                        displayedUserPacks.map((pack) => (
+                        displayedUserPacks.map((pack: any) => (
                           <TouchableOpacity
                             key={pack.id}
                             style={styles.routineCard}
@@ -650,13 +376,7 @@ export default function UserProfileScreen() {
                           </TouchableOpacity>
                         ))
                       ) : (
-                        <Text
-                          style={{
-                            color: colors.textSecondary,
-                            textAlign: "center",
-                            marginTop: 20,
-                          }}
-                        >
+                        <Text style={styles.emptyHistoryText}>
                           {t(
                             "weeklyPacks.noPublicPacks",
                             "Este usuario aún no tiene Packs Semanales.",
@@ -665,90 +385,60 @@ export default function UserProfileScreen() {
                       )
                     ) : userHistory.length > 0 ? (
                       <>
-                        {userHistory.slice(0, historyLimit).map((session) => (
-                          <TouchableOpacity
-                            key={session.id}
-                            style={[
-                              styles.routineCard,
-                              {
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                              },
-                            ]}
-                            onPress={() => {
-                              setSelectedItem(session);
-                              setDetailsType("history");
-                              setDetailsModalVisible(true);
-                            }}
-                          >
-                            <Text style={styles.routineName}>
-                              {session.routineName}
-                            </Text>
-                            <Text
-                              style={{
-                                color: colors.textSecondary,
-                                fontSize: 13,
-                                marginTop: 2,
-                                marginBottom: 4,
+                        {userHistory
+                          .slice(0, historyLimit)
+                          .map((session: any) => (
+                            <TouchableOpacity
+                              key={session.id}
+                              style={[styles.routineCard, styles.historyCard]}
+                              onPress={() => {
+                                setSelectedItem(session);
+                                setDetailsType("history");
+                                setDetailsModalVisible(true);
                               }}
                             >
-                              {new Date(session.completedAt).toLocaleDateString(
-                                i18n.language.includes("es")
-                                  ? "es-ES"
-                                  : "en-US",
-                                {
-                                  weekday: "short",
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
-                            </Text>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                width: "100%",
-                                marginTop: 5,
-                              }}
-                            >
-                              <Text style={styles.routineDetails}>
-                                <Feather name="clock" size={12} />{" "}
-                                {formatDuration(session.durationSeconds)} min
+                              <Text style={styles.routineName}>
+                                {session.routineName}
                               </Text>
-                              <Text style={styles.routineDetails}>
-                                <Feather name="activity" size={12} />{" "}
-                                {calculateTotalVolume(
-                                  session,
-                                  profile.measurementSystem,
-                                )}{" "}
-                                {profile.measurementSystem === "metric"
-                                  ? "kg"
-                                  : "lbs"}
+                              <Text style={styles.historyDateText}>
+                                {new Date(
+                                  session.completedAt,
+                                ).toLocaleDateString(
+                                  i18n.language.includes("es")
+                                    ? "es-ES"
+                                    : "en-US",
+                                  {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  },
+                                )}
                               </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ))}
+                              <View style={styles.routineDetailsRow}>
+                                <Text style={styles.routineStatText}>
+                                  <Feather name="clock" size={12} />{" "}
+                                  {formatDuration(session.durationSeconds)} min
+                                </Text>
+                                <Text style={styles.routineStatText}>
+                                  <Feather name="activity" size={12} />{" "}
+                                  {calculateTotalVolume(
+                                    session,
+                                    profile.measurementSystem,
+                                  )}{" "}
+                                  {profile.measurementSystem === "metric"
+                                    ? "kg"
+                                    : "lbs"}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          ))}
                         {userHistory.length > historyLimit && (
                           <TouchableOpacity
-                            style={{
-                              paddingVertical: 12,
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: colors.surface,
-                              borderRadius: 10,
-                              borderWidth: 1,
-                              borderColor: colors.border,
-                              marginBottom: 40,
-                            }}
+                            style={styles.loadMoreBtn}
                             onPress={() => setHistoryLimit((prev) => prev + 10)}
                           >
-                            <Text
-                              style={{
-                                color: colors.primary,
-                                fontWeight: "bold",
-                              }}
-                            >
+                            <Text style={styles.loadMoreText}>
                               {t(
                                 "profile.loadMore",
                                 "Cargar más entrenamientos",
@@ -758,13 +448,7 @@ export default function UserProfileScreen() {
                         )}
                       </>
                     ) : (
-                      <Text
-                        style={{
-                          color: colors.textSecondary,
-                          textAlign: "center",
-                          marginTop: 20,
-                        }}
-                      >
+                      <Text style={styles.emptyHistoryText}>
                         {t("profile.noHistory")}
                       </Text>
                     )}
@@ -776,6 +460,7 @@ export default function UserProfileScreen() {
         </View>
       </ScrollView>
 
+      {/* Modal de Opciones */}
       <Modal
         visible={optionsModalVisible}
         transparent={true}
@@ -783,40 +468,18 @@ export default function UserProfileScreen() {
         onRequestClose={() => setOptionsModalVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setOptionsModalVisible(false)}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              justifyContent: "flex-end",
-            }}
-          >
+          <View style={styles.optionsModalOverlay}>
             <TouchableWithoutFeedback>
               <View
-                style={{
-                  backgroundColor: colors.background,
-                  padding: 20,
-                  paddingBottom: Math.max(20, insets.bottom + 10),
-                  borderTopLeftRadius: 20,
-                  borderTopRightRadius: 20,
-                }}
+                style={[
+                  styles.optionsModalContent,
+                  { paddingBottom: Math.max(20, insets.bottom + 10) },
+                ]}
               >
-                <View
-                  style={{
-                    width: 40,
-                    height: 4,
-                    backgroundColor: colors.border,
-                    borderRadius: 2,
-                    alignSelf: "center",
-                    marginBottom: 20,
-                  }}
-                />
+                <View style={styles.optionsModalHandle} />
 
                 <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingVertical: 15,
-                  }}
+                  style={styles.optionsModalRow}
                   onPress={() => {
                     setOptionsModalVisible(false);
                     setReportModalVisible(true);
@@ -826,40 +489,24 @@ export default function UserProfileScreen() {
                     name="flag"
                     size={22}
                     color="#EF4444"
-                    style={{ marginRight: 15 }}
+                    style={styles.optionsModalIcon}
                   />
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: "#EF4444",
-                      fontWeight: "600",
-                    }}
-                  >
+                  <Text style={styles.optionsModalTextDanger}>
                     {t("profile.report", "Reportar usuario")}
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingVertical: 15,
-                  }}
+                  style={styles.optionsModalRow}
                   onPress={handleToggleBlock}
                 >
                   <Feather
                     name="slash"
                     size={22}
                     color="#EF4444"
-                    style={{ marginRight: 15 }}
+                    style={styles.optionsModalIcon}
                   />
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: "#EF4444",
-                      fontWeight: "600",
-                    }}
-                  >
+                  <Text style={styles.optionsModalTextDanger}>
                     {profile.isBlocked
                       ? t("profile.unblock", "Desbloquear usuario")
                       : t("profile.block", "Bloquear usuario")}
@@ -867,23 +514,16 @@ export default function UserProfileScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingVertical: 15,
-                    borderTopWidth: 1,
-                    borderColor: colors.border,
-                    marginTop: 10,
-                  }}
+                  style={styles.optionsModalRowBorder}
                   onPress={() => setOptionsModalVisible(false)}
                 >
                   <Feather
                     name="x"
                     size={22}
                     color={colors.textPrimary}
-                    style={{ marginRight: 15 }}
+                    style={styles.optionsModalIcon}
                   />
-                  <Text style={{ fontSize: 16, color: colors.textPrimary }}>
+                  <Text style={styles.optionsModalText}>
                     {t("common.cancel", "Cancelar")}
                   </Text>
                 </TouchableOpacity>
@@ -893,6 +533,7 @@ export default function UserProfileScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* Modal de Reporte */}
       <Modal
         visible={reportModalVisible}
         transparent={true}
@@ -900,39 +541,13 @@ export default function UserProfileScreen() {
         onRequestClose={() => setReportModalVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              justifyContent: "center",
-              padding: 20,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.background,
-                borderRadius: 15,
-                padding: 20,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 15,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    color: colors.textPrimary,
-                  }}
-                >
+          <View style={styles.reportModalOverlay}>
+            <View style={styles.reportModalContent}>
+              <View style={styles.reportModalHeader}>
+                <Text style={styles.reportModalTitle}>
                   {t("profile.reportConfirmTitle", "Reportar Usuario")}
                 </Text>
                 <TouchableOpacity onPress={() => setReportModalVisible(false)}>
@@ -944,7 +559,7 @@ export default function UserProfileScreen() {
                 </TouchableOpacity>
               </View>
 
-              <Text style={{ color: colors.textSecondary, marginBottom: 15 }}>
+              <Text style={styles.reportReasonPrompt}>
                 {t(
                   "profile.reportReasonPrompt",
                   "¿Por qué quieres reportar a este usuario? Por favor detalla el motivo.",
@@ -952,17 +567,7 @@ export default function UserProfileScreen() {
               </Text>
 
               <TextInput
-                style={{
-                  backgroundColor: colors.surface,
-                  color: colors.textPrimary,
-                  borderRadius: 10,
-                  padding: 15,
-                  minHeight: 100,
-                  textAlignVertical: "top",
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  marginBottom: 20,
-                }}
+                style={styles.reportInput}
                 placeholderTextColor={colors.textSecondary}
                 placeholder={t(
                   "profile.reportReasonPlaceholder",
@@ -974,19 +579,19 @@ export default function UserProfileScreen() {
               />
 
               <TouchableOpacity
-                style={{
-                  backgroundColor:
-                    reportReason.trim().length > 0 ? "#EF4444" : colors.border,
-                  padding: 15,
-                  borderRadius: 10,
-                  alignItems: "center",
-                }}
+                style={[
+                  styles.reportSubmitBtn,
+                  {
+                    backgroundColor:
+                      reportReason.trim().length > 0
+                        ? "#EF4444"
+                        : colors.border,
+                  },
+                ]}
                 disabled={reportReason.trim().length === 0}
                 onPress={handleSendReport}
               >
-                <Text
-                  style={{ color: "#FFF", fontWeight: "bold", fontSize: 16 }}
-                >
+                <Text style={styles.reportSubmitText}>
                   {t("profile.sendReport", "Enviar Reporte")}
                 </Text>
               </TouchableOpacity>

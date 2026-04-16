@@ -1,5 +1,7 @@
 import NetInfo from "@react-native-community/netinfo";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
+import { Alert } from "react-native";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
 
@@ -131,6 +133,12 @@ export const useRoutines = () => {
     setIsLoading(false);
   }, [currentUserId]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchRoutines();
+    }, [fetchRoutines]),
+  );
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -140,8 +148,10 @@ export const useRoutines = () => {
 
     loadData();
 
+    const channelId = `custom-routines-channel-${Date.now()}-${Math.random()}`;
+
     const channel = supabase
-      .channel("custom-routines-channel")
+      .channel(channelId)
       .on(
         "postgres_changes",
         {
@@ -167,6 +177,18 @@ export const useRoutines = () => {
     exercises: RoutineExercise[] = [],
   ) => {
     if (!currentUserId || !name.trim()) return;
+
+    if (!routineId) {
+      const ownRoutines = routines.filter((r) => !r.originalCreatorId);
+      if (ownRoutines.length >= 10) {
+        Alert.alert(
+          "Límite alcanzado",
+          "Has alcanzado el límite máximo de 10 rutinas creadas.",
+        );
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       if (routineId) {

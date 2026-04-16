@@ -1,26 +1,17 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
   SafeAreaView,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import DraggableFlatList, {
   RenderItemParams,
-  ScaleDecorator,
 } from "react-native-draggable-flatlist";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
@@ -29,16 +20,45 @@ import {
   RoutineExercise,
   useRoutines,
 } from "../hooks/useRoutines";
+import { ExerciseListItem } from "../src/components/ExerciseListItem";
 import { ExerciseSelectorModal } from "../src/components/ExerciseSelectorModal";
 import { ExerciseDetailsModal } from "../src/components/RoutinesModals";
-import { useAuth } from "../src/context/AuthContext";
+import { WorkoutSummaryModal } from "../src/components/WorkoutSummaryModal";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
 
+/**
+ * Vista principal del entrenamiento activo. Muestra la lista de ejercicios, estadísticas en tiempo real, y maneja toda la lógica de interacción durante el entrenamiento
+ * @param param0
+ * @returns
+ */
+const EmptyWorkoutView = ({ router, styles }: any) => (
+  <View style={[styles.container, styles.emptyContainer]}>
+    <Text style={styles.emptyText}>No hay rutina activa</Text>
+    <TouchableOpacity onPress={() => router.back()} style={styles.emptyBtn}>
+      <Text style={styles.emptyBtnText}>Volver</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+/**
+ * Función auxiliar para formatear el tiempo de descanso en formato mm:ss
+ * @param seconds
+ * @returns
+ */
+const formatRestTimeStr = (seconds: number) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
+};
+
+/**
+ * Pantalla principal del entrenamiento activo. Muestra la lista de ejercicios, estadísticas en tiempo real, y maneja toda la lógica de interacción durante el entrenamiento
+ * @returns
+ */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const { exercisesDb } = useRoutines();
 
@@ -61,7 +81,6 @@ export default function ActiveWorkoutScreen() {
     stopRestTimer,
     reorderActiveExercises,
     formatTime,
-    formatRestTime,
     handleMinimize,
     handleFinishWorkout,
     handleCloseSummary,
@@ -89,33 +108,15 @@ export default function ActiveWorkoutScreen() {
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
-  if (!activeRoutine) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <Text style={{ color: colors.textSecondary }}>
-          No hay rutina activa
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ marginTop: 20 }}
-        >
-          <Text style={{ color: colors.primary }}>Volver</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  if (!activeRoutine)
+    return <EmptyWorkoutView router={router} styles={styles} />;
 
   const isReadonly = !!activeRoutine.originalCreatorId;
 
-  const openRestEditor = (exId: string, currentRest: number) => {
+  const openRestEditor = useCallback((exId: string, currentRest: number) => {
     setRestEditExId(exId);
     setTempRest(currentRest);
-  };
+  }, []);
 
   const saveRestTime = () => {
     if (restEditExId) updateExerciseRestTime(restEditExId, tempRest);
@@ -127,9 +128,6 @@ export default function ActiveWorkoutScreen() {
     setUnitModalExId(null);
   };
 
-  /**
-   * Abre el modal para seleccionar ejercicios y resetea los filtros de búsqueda y selección de músculo, así como la lista temporal de ejercicios seleccionados, para preparar una nueva selección de ejercicios que se agregarán a la rutina activa
-   */
   const openExerciseSelector = () => {
     setSearchQuery("");
     setSelectedMuscle(null);
@@ -176,191 +174,56 @@ export default function ActiveWorkoutScreen() {
     });
   }, [searchQuery, selectedMuscle, t, exercisesDb]);
 
-  const uniqueMuscles = useMemo(() => {
-    const muscles = exercisesDb.map((ex) => ex.muscleGroup);
-    return [...new Set(muscles)];
-  }, [exercisesDb]);
+  const uniqueMuscles = useMemo(
+    () => [...new Set(exercisesDb.map((ex) => ex.muscleGroup))],
+    [exercisesDb],
+  );
 
-  const renderDraggableExercise = ({
-    item: exercise,
-    drag,
-    isActive,
-  }: RenderItemParams<RoutineExercise>) => {
-    const unitText = exercise.sets[0]
-      ? t(`activeWorkout.units.${exercise.sets[0].weightUnit}`)
-      : "KG";
-    return (
-      <ScaleDecorator>
-        <View
-          style={[styles.exerciseCard, isActive && styles.exerciseCardActive]}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <TouchableOpacity
-              style={[styles.exerciseHeader, { flex: 1 }]}
-              onLongPress={!isReadonly ? drag : undefined}
-              onPress={() => setDetailsExercise(exercise.exerciseDetails)}
-              delayLongPress={200}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.exerciseName}>
-                {t(`exercises.${exercise.exerciseDetails.id}`)}{" "}
-                <Feather name="info" size={16} color={colors.textSecondary} />
-              </Text>
-            </TouchableOpacity>
-
-            {!isReadonly && (
-              <TouchableOpacity
-                onPress={() => removeExerciseFromActiveRoutine(exercise.id)}
-                style={{ padding: 5, paddingLeft: 15 }}
-              >
-                <Feather name="trash-2" size={20} color="#EF4444" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <TouchableOpacity
-            style={styles.exerciseRestIndicator}
-            onPress={() =>
-              openRestEditor(exercise.id, exercise.restTimeSeconds || 90)
-            }
-          >
-            <Feather name="clock" size={14} color={colors.primary} />
-            <Text style={styles.exerciseRestText}>
-              {t("activeWorkout.restTimer", "Rest Timer")}:{" "}
-              {formatRestTime(exercise.restTimeSeconds || 90)}
-            </Text>
-          </TouchableOpacity>
-
-          <View style={styles.tableHeader}>
-            <Text style={styles.colSetHeader}>
-              {t("activeWorkout.set", "SET")}
-            </Text>
-            <Text style={styles.colPrevHeader}>
-              {t("activeWorkout.previous", "ANTERIOR").toUpperCase()}
-            </Text>
-
-            {/* ESTE ES EL BOTÓN QUE ABRE EL MODAL DE UNIDADES */}
-            <TouchableOpacity
-              style={styles.colInputHeader}
-              onPress={() => setUnitModalExId(exercise.id)}
-            >
-              <Text style={styles.tableHeaderText}>{unitText}</Text>
-            </TouchableOpacity>
-
-            <View style={styles.colInputHeader}>
-              <Text style={styles.tableHeaderText}>
-                {t("activeWorkout.reps", "REPS")}
-              </Text>
-            </View>
-            <View style={styles.colCheckHeader}>
-              <Feather name="check" size={14} color={colors.textSecondary} />
-            </View>
-          </View>
-
-          {exercise.sets.map((set, setIndex) => (
-            <View
-              key={set.id}
-              style={[styles.setRow, set.completed && styles.setRowCompleted]}
-            >
-              <View style={styles.colSet}>
-                {!set.completed && !isReadonly && (
-                  <TouchableOpacity
-                    onPress={() => removeSetFromExercise(exercise.id, set.id)}
-                    style={styles.deleteSetIcon}
-                  >
-                    <Feather name="minus-circle" size={20} color="#EF4444" />
-                  </TouchableOpacity>
-                )}
-                <Text style={styles.setText}>{setIndex + 1}</Text>
-              </View>
-              <View style={styles.colPrev}>
-                <Text style={styles.prevText}>
-                  {getPreviousSet(exercise.exerciseDetails.id, setIndex)}
-                </Text>
-              </View>
-              <View style={styles.colInput}>
-                <TextInput
-                  style={[styles.input, set.completed && styles.inputDisabled]}
-                  keyboardType="numeric"
-                  value={set.weight ? set.weight.toString() : ""}
-                  placeholder="-"
-                  placeholderTextColor={colors.textSecondary}
-                  onChangeText={(val) =>
-                    handleSetChange(exercise.id, set.id, "weight", val)
-                  }
-                  editable={!set.completed}
-                  selectTextOnFocus
-                />
-              </View>
-              <View style={styles.colInput}>
-                <TextInput
-                  style={[styles.input, set.completed && styles.inputDisabled]}
-                  keyboardType="numeric"
-                  value={set.reps ? set.reps.toString() : ""}
-                  placeholder="-"
-                  placeholderTextColor={colors.textSecondary}
-                  onChangeText={(val) =>
-                    handleSetChange(exercise.id, set.id, "reps", val)
-                  }
-                  editable={!set.completed}
-                  selectTextOnFocus
-                />
-              </View>
-              <View style={styles.colCheck}>
-                <TouchableOpacity
-                  style={[
-                    styles.checkButton,
-                    set.completed
-                      ? styles.checkButtonActive
-                      : styles.checkButtonInactive,
-                  ]}
-                  onPress={() =>
-                    toggleSetCompletion(
-                      exercise.id,
-                      set.id,
-                      exercise.restTimeSeconds || 90,
-                    )
-                  }
-                >
-                  <Feather
-                    name="check"
-                    size={16}
-                    color={set.completed ? "#FFF" : "transparent"}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-
-          {!isReadonly && (
-            <TouchableOpacity
-              style={styles.addSetButton}
-              onPress={() => addSetToExercise(exercise.id)}
-            >
-              <Feather
-                name="plus"
-                size={16}
-                color={colors.textPrimary}
-                style={{ marginRight: 5 }}
-              />
-              <Text style={styles.addSetText}>
-                {t("activeWorkout.addSet", "Añadir Serie")}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </ScaleDecorator>
-    );
-  };
+  const renderDraggableExercise = useCallback(
+    ({ item: exercise, drag, isActive }: RenderItemParams<RoutineExercise>) => {
+      const unitText = exercise.sets[0]
+        ? t(`activeWorkout.units.${exercise.sets[0].weightUnit}`)
+        : "KG";
+      return (
+        <ExerciseListItem
+          exercise={exercise}
+          drag={drag}
+          isActive={isActive}
+          colors={colors}
+          styles={styles}
+          t={t}
+          isReadonly={isReadonly}
+          unitText={unitText}
+          onDetails={setDetailsExercise}
+          onRemoveEx={removeExerciseFromActiveRoutine}
+          onOpenRest={openRestEditor}
+          onUnitModal={setUnitModalExId}
+          onRemoveSet={removeSetFromExercise}
+          getPrevSet={getPreviousSet}
+          onSetChange={handleSetChange}
+          onToggleCompletion={toggleSetCompletion}
+          onAddSet={addSetToExercise}
+        />
+      );
+    },
+    [
+      colors,
+      styles,
+      t,
+      isReadonly,
+      removeExerciseFromActiveRoutine,
+      openRestEditor,
+      removeSetFromExercise,
+      getPreviousSet,
+      handleSetChange,
+      toggleSetCompletion,
+      addSetToExercise,
+    ],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* HEADER PRINCIPAL */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={handleMinimize}>
           <AntDesign name="down" size={20} color={colors.textPrimary} />
@@ -378,12 +241,13 @@ export default function ActiveWorkoutScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* STRIP DE ESTADÍSTICAS EN TIEMPO REAL */}
       <View style={styles.statsStrip}>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>
             {t("activeWorkout.duration", "Duration")}
           </Text>
-          <Text style={[styles.statValue, { color: colors.primary }]}>
+          <Text style={[styles.statValue, styles.statValuePrimary]}>
             {formatTime(elapsedSeconds)}
           </Text>
         </View>
@@ -403,6 +267,7 @@ export default function ActiveWorkoutScreen() {
         </View>
       </View>
 
+      {/* LISTA DE EJERCICIOS */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -424,33 +289,16 @@ export default function ActiveWorkoutScreen() {
             <View>
               {!isReadonly && (
                 <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingVertical: 12,
-                    backgroundColor: "rgba(234, 88, 12, 0.1)",
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: colors.primary,
-                    borderStyle: "dashed",
-                    marginBottom: 20,
-                  }}
+                  style={styles.addExerciseBtn}
                   onPress={openExerciseSelector}
                 >
                   <Feather
                     name="plus"
                     size={20}
                     color={colors.primary}
-                    style={{ marginRight: 8 }}
+                    style={styles.addExerciseBtnIcon}
                   />
-                  <Text
-                    style={{
-                      color: colors.primary,
-                      fontWeight: "bold",
-                      fontSize: 16,
-                    }}
-                  >
+                  <Text style={styles.addExerciseBtnText}>
                     {t("routines.addExercise", "Añadir Ejercicio")}
                   </Text>
                 </TouchableOpacity>
@@ -468,6 +316,7 @@ export default function ActiveWorkoutScreen() {
         />
       </KeyboardAvoidingView>
 
+      {/* BANNER FLOTANTE DE DESCANSO */}
       {isResting && restTimeRemaining !== null && (
         <View
           style={[
@@ -482,7 +331,7 @@ export default function ActiveWorkoutScreen() {
             <Text style={styles.floatingRestAdjustText}>-15</Text>
           </TouchableOpacity>
           <Text style={styles.floatingRestTime}>
-            {formatRestTime(restTimeRemaining)}
+            {formatRestTimeStr(restTimeRemaining)}
           </Text>
           <TouchableOpacity
             style={styles.floatingRestAdjustBtn}
@@ -501,13 +350,16 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
-      {/*MODAL PARA CAMBIAR UNIDADES*/}
+      {/* MODALES */}
+
+      {/* Modal de Selección de Unidades */}
       <Modal visible={!!unitModalExId} animationType="fade" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>
               {t("unitSelection.title", "Seleccionar Unidad")}
             </Text>
+
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("kg")}
@@ -519,6 +371,7 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.kg_desc")}
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("lbs")}
@@ -530,6 +383,7 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.lbs_desc")}
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("bodyweight")}
@@ -541,6 +395,7 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.bodyweight_desc")}
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("bars")}
@@ -552,8 +407,9 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.bars_desc")}
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
-              style={[styles.unitOptionBtn, { borderBottomWidth: 0 }]}
+              style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
               onPress={() => handleUnitSelect("plates")}
             >
               <Text style={styles.unitOptionTitle}>
@@ -563,15 +419,16 @@ export default function ActiveWorkoutScreen() {
                 {t("unitSelection.plates_desc")}
               </Text>
             </TouchableOpacity>
-            <View style={[styles.editRestButtonsRow, { marginTop: 20 }]}>
+
+            <View style={[styles.editRestButtonsRow, styles.unitOptionsMargin]}>
               <TouchableOpacity
-                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
+                style={[styles.editRestBtn, styles.editRestBtnTransparent]}
                 onPress={() => setUnitModalExId(null)}
               >
                 <Text
                   style={[
                     styles.editRestBtnText,
-                    { color: colors.textPrimary },
+                    styles.editRestBtnTextSecondary,
                   ]}
                 >
                   {t("common.cancel", "Cancelar")}
@@ -582,7 +439,7 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*MODAL DE DESCANSO*/}
+      {/* Modal de Edición de Tiempo de Descanso */}
       <Modal visible={!!restEditExId} animationType="fade" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
@@ -597,7 +454,7 @@ export default function ActiveWorkoutScreen() {
                 <Text style={styles.floatingRestAdjustText}>-15</Text>
               </TouchableOpacity>
               <Text style={styles.editRestTimeDisplay}>
-                {formatRestTime(tempRest)}
+                {formatRestTimeStr(tempRest)}
               </Text>
               <TouchableOpacity
                 style={styles.floatingRestAdjustBtn}
@@ -608,23 +465,20 @@ export default function ActiveWorkoutScreen() {
             </View>
             <View style={styles.editRestButtonsRow}>
               <TouchableOpacity
-                style={[styles.editRestBtn, { backgroundColor: "transparent" }]}
+                style={[styles.editRestBtn, styles.editRestBtnTransparent]}
                 onPress={() => setRestEditExId(null)}
               >
                 <Text
                   style={[
                     styles.editRestBtnText,
-                    { color: colors.textPrimary },
+                    styles.editRestBtnTextSecondary,
                   ]}
                 >
                   {t("common.cancel", "Cancelar")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.editRestBtn,
-                  { backgroundColor: colors.primary, borderWidth: 0 },
-                ]}
+                style={[styles.editRestBtn, styles.editRestBtnPrimary]}
                 onPress={saveRestTime}
               >
                 <Text style={styles.editRestBtnText}>
@@ -636,239 +490,20 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*MODAL DE RESUMEN*/}
-      <Modal visible={showSummary} animationType="slide" transparent={false}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-          <ScrollView
-            contentContainerStyle={{ paddingBottom: 160 + insets.bottom }}
-          >
-            <View
-              style={{ alignItems: "center", marginTop: 40, marginBottom: 30 }}
-            >
-              <Text
-                style={{
-                  color: colors.textPrimary,
-                  fontSize: 32,
-                  fontWeight: "900",
-                }}
-              >
-                {t("activeWorkout.goodJob", "¡Buen trabajo!")}
-              </Text>
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: 16,
-                  marginTop: 5,
-                }}
-              >
-                {t(
-                  "activeWorkout.workoutCompleted",
-                  "Entrenamiento completado",
-                )}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                backgroundColor: colors.surface,
-                marginHorizontal: 20,
-                borderRadius: 24,
-                padding: 25,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginBottom: 30,
-                  borderBottomWidth: 1,
-                  borderBottomColor: colors.border,
-                  paddingBottom: 25,
-                }}
-              >
-                <View style={{ alignItems: "center" }}>
-                  <Text
-                    style={{
-                      color: colors.textSecondary,
-                      fontSize: 14,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {t("activeWorkout.duration", "Duración")}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.textPrimary,
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      marginTop: 5,
-                    }}
-                  >
-                    {formatTime(elapsedSeconds)}
-                  </Text>
-                </View>
-                <View style={{ alignItems: "center" }}>
-                  <Text
-                    style={{
-                      color: colors.textSecondary,
-                      fontSize: 14,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {t("activeWorkout.totalVolume", "Volumen")}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.textPrimary,
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      marginTop: 5,
-                    }}
-                  >
-                    {stats.volume.toLocaleString()}{" "}
-                    <Text style={{ fontSize: 14 }}>{volumeUnitText}</Text>
-                  </Text>
-                </View>
-                <View style={{ alignItems: "center" }}>
-                  <Text
-                    style={{
-                      color: colors.textSecondary,
-                      fontSize: 14,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {t("activeWorkout.completedSets", "Series")}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.textPrimary,
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      marginTop: 5,
-                    }}
-                  >
-                    {stats.sets}
-                  </Text>
-                </View>
-              </View>
-
-              <Text
-                style={{
-                  color: colors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  marginBottom: 15,
-                }}
-              >
-                {t("activeWorkout.musclesWorked", "Músculos trabajados")}
-              </Text>
-              {muscleDistribution.length > 0 ? (
-                muscleDistribution.map((muscle) => (
-                  <View key={muscle.name} style={{ marginBottom: 15 }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginBottom: 6,
-                      }}
-                    >
-                      <Text style={{ color: colors.textPrimary, fontSize: 14 }}>
-                        {t(`muscles.${muscle.name}`)}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.textSecondary,
-                          fontSize: 14,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {Math.round(muscle.percentage)}%
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        height: 8,
-                        backgroundColor: colors.background,
-                        borderRadius: 4,
-                        overflow: "hidden",
-                        borderWidth: 1,
-                        borderColor: colors.border,
-                      }}
-                    >
-                      <View
-                        style={{
-                          height: "100%",
-                          width: `${muscle.percentage}%`,
-                          backgroundColor: colors.primary,
-                          borderRadius: 4,
-                        }}
-                      />
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <Text
-                  style={{
-                    color: colors.textSecondary,
-                    textAlign: "center",
-                    fontStyle: "italic",
-                    marginTop: 10,
-                  }}
-                >
-                  {t(
-                    "activeWorkout.noSetsValid",
-                    "No completaste ninguna serie válida.",
-                  )}
-                </Text>
-              )}
-            </View>
-          </ScrollView>
-
-          <View
-            style={{
-              position: "absolute",
-              bottom: Math.max(35, insets.bottom + 15),
-              left: 20,
-              right: 20,
-            }}
-          >
-            <View style={{ alignItems: "center", marginBottom: 15 }}>
-              <BannerAd
-                unitId={
-                  __DEV__
-                    ? TestIds.BANNER
-                    : (process.env.EXPO_PUBLIC_ADMOB_BANNER_RESUMEN as string)
-                }
-                size={BannerAdSize.BANNER}
-                requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-              />
-            </View>
-            <TouchableOpacity
-              style={{
-                backgroundColor: colors.primary,
-                paddingVertical: 16,
-                borderRadius: 14,
-                alignItems: "center",
-                flexDirection: "row",
-                justifyContent: "center",
-              }}
-              onPress={handleCloseSummary}
-              disabled={isSavingHistory}
-            >
-              {isSavingHistory && (
-                <ActivityIndicator color="#FFF" style={{ marginRight: 10 }} />
-              )}
-              <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>
-                {isSavingHistory
-                  ? t("common.saving", "Guardando...")
-                  : t("common.finish", "Terminar")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
+      {/* Resumen de Entrenamiento y Selección de Ejercicios (Importados) */}
+      <WorkoutSummaryModal
+        visible={showSummary}
+        insets={insets}
+        styles={styles}
+        t={t}
+        elapsedSeconds={elapsedSeconds}
+        stats={stats}
+        volumeUnitText={volumeUnitText}
+        formatTime={formatTime}
+        muscleDistribution={muscleDistribution}
+        handleCloseSummary={handleCloseSummary}
+        isSavingHistory={isSavingHistory}
+      />
 
       <ExerciseDetailsModal
         visible={!!detailsExercise}

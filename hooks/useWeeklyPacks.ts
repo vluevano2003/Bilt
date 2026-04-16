@@ -1,4 +1,5 @@
 import NetInfo from "@react-native-community/netinfo";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
@@ -66,11 +67,19 @@ export const useWeeklyPacks = () => {
     setIsLoadingPacks(false);
   }, [currentUserId]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchPacks();
+    }, [fetchPacks]),
+  );
+
   useEffect(() => {
     fetchPacks();
 
+    const channelId = `custom-weekly-packs-channel-${Date.now()}-${Math.random()}`;
+
     const channel = supabase
-      .channel("custom-weekly-packs-channel")
+      .channel(channelId)
       .on(
         "postgres_changes",
         {
@@ -105,23 +114,37 @@ export const useWeeklyPacks = () => {
     originalCreatorId?: string,
     originalCreatorName?: string,
     originalPackId?: string,
+    packIdToUpdate?: string,
   ) => {
     if (!currentUserId || !name.trim() || routineIds.length === 0) return;
     setIsSavingPack(true);
     try {
-      const { error } = await supabase.from("weekly_packs").insert([
-        {
-          user_id: currentUserId,
-          name,
-          description,
-          routine_ids: routineIds,
-          original_creator_id: originalCreatorId || null,
-          original_creator_name: originalCreatorName || null,
-          original_pack_id: originalPackId || null,
-        },
-      ]);
-      if (error) throw error;
+      if (packIdToUpdate) {
+        const { error } = await supabase
+          .from("weekly_packs")
+          .update({
+            name,
+            description,
+            routine_ids: routineIds,
+          })
+          .eq("id", packIdToUpdate)
+          .eq("user_id", currentUserId);
 
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("weekly_packs").insert([
+          {
+            user_id: currentUserId,
+            name,
+            description,
+            routine_ids: routineIds,
+            original_creator_id: originalCreatorId || null,
+            original_creator_name: originalCreatorName || null,
+            original_pack_id: originalPackId || null,
+          },
+        ]);
+        if (error) throw error;
+      }
       await fetchPacks();
     } catch (error) {
       debugError("Error guardando el pack:", error);

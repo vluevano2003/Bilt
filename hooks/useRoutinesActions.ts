@@ -16,15 +16,75 @@ export const useRoutinesActions = (
   packs: WeeklyPack[],
   deleteRoutine: (id: string) => Promise<void>,
   deletePack: (id: string) => Promise<void>,
-  saveWeeklyPack: (name: string, desc: string, ids: string[]) => Promise<void>,
+  saveWeeklyPack: (
+    name: string,
+    desc: string,
+    ids: string[],
+    origCreatorId?: string,
+    origCreatorName?: string,
+    origPackId?: string,
+    packIdToUpdate?: string,
+  ) => Promise<void>,
   closeEditorModal: () => void,
 ) => {
   const { t } = useTranslation();
 
   const [packModalVisible, setPackModalVisible] = useState(false);
+  const [editingPackId, setEditingPackId] = useState<string | null>(null);
   const [packName, setPackName] = useState("");
   const [packDescription, setPackDescription] = useState("");
   const [selectedRoutineIds, setSelectedRoutineIds] = useState<string[]>([]);
+
+  const openPackModal = (pack?: WeeklyPack) => {
+    if (pack) {
+      setEditingPackId(pack.id);
+      setPackName(pack.name);
+      setPackDescription(pack.description || "");
+      setSelectedRoutineIds(pack.routineIds || []);
+    } else {
+      setEditingPackId(null);
+      setPackName("");
+      setPackDescription("");
+      setSelectedRoutineIds([]);
+    }
+    setPackModalVisible(true);
+  };
+
+  const handleCreatePack = async () => {
+    await saveWeeklyPack(
+      packName,
+      packDescription,
+      selectedRoutineIds,
+      undefined,
+      undefined,
+      undefined,
+      editingPackId || undefined,
+    );
+    setPackModalVisible(false);
+    setEditingPackId(null);
+    setPackName("");
+    setPackDescription("");
+    setSelectedRoutineIds([]);
+  };
+
+  const toggleRoutineSelection = (id: string) => {
+    if (selectedRoutineIds.includes(id)) {
+      setSelectedRoutineIds((prev) => prev.filter((rId) => rId !== id));
+    } else {
+      if (selectedRoutineIds.length >= 6) {
+        Alert.alert(
+          t("alerts.limitReached", "Límite alcanzado"),
+          t("weeklyPacks.maxRoutinesAlert", "Máximo 6 rutinas."),
+        );
+        return;
+      }
+      setSelectedRoutineIds((prev) => [...prev, id]);
+    }
+  };
+
+  const setReorderedRoutineIds = (newOrder: string[]) => {
+    setSelectedRoutineIds(newOrder);
+  };
 
   const handleDelete = (routineId: string, onSuccess: () => void) => {
     const isRoutineInPack = packs.some(
@@ -133,34 +193,6 @@ export const useRoutinesActions = (
     );
   };
 
-  /**
-   * Agrega o remueve una rutina de la selección para crear un pack, limitando a 6 rutinas y mostrando alertas si se excede el límite
-   * @param id
-   * @returns
-   */
-  const toggleRoutineSelection = (id: string) => {
-    if (selectedRoutineIds.includes(id)) {
-      setSelectedRoutineIds((prev) => prev.filter((rId) => rId !== id));
-    } else {
-      if (selectedRoutineIds.length >= 6) {
-        Alert.alert(
-          t("alerts.error", "Límite alcanzado"),
-          t("weeklyPacks.maxRoutinesAlert", "Máximo 6 rutinas."),
-        );
-        return;
-      }
-      setSelectedRoutineIds((prev) => [...prev, id]);
-    }
-  };
-
-  const handleCreatePack = async () => {
-    await saveWeeklyPack(packName, packDescription, selectedRoutineIds);
-    setPackModalVisible(false);
-    setPackName("");
-    setPackDescription("");
-    setSelectedRoutineIds([]);
-  };
-
   const handleDeletePack = (packId: string, onSuccess: () => void) => {
     Alert.alert(
       t("routines.deleteConfirmTitle", "Eliminar Pack"),
@@ -204,10 +236,13 @@ export const useRoutinesActions = (
     packDescription,
     setPackDescription,
     selectedRoutineIds,
-    handleDelete,
-    handleUnsaveRoutine,
     toggleRoutineSelection,
     handleCreatePack,
     handleDeletePack,
+    handleDelete,
+    handleUnsaveRoutine,
+    openPackModal,
+    setReorderedRoutineIds,
+    editingPackId,
   };
 };

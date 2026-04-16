@@ -1,7 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -21,7 +21,7 @@ import {
 } from "react-native-google-mobile-ads";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { FeedItem, useSocialFeed } from "../../hooks/useSocialFeed";
+import { useSocialFeed } from "../../hooks/useSocialFeed";
 import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
 import { useTheme } from "../../src/context/ThemeContext";
@@ -38,7 +38,7 @@ interface SearchResult {
 }
 
 /**
- * Función auxiliar para mostrar el tiempo transcurrido desde una actividad de forma legible
+ * Función auxiliar para formatear el tiempo transcurrido desde una fecha dada, mostrando "Justo ahora", "Hace X min/h/d" o la fecha completa si es más de una semana.
  * @param timestamp
  * @param t
  * @returns
@@ -70,7 +70,111 @@ const getTimeAgo = (timestamp: number, t: any) => {
 const ITEMS_PER_PAGE = 15;
 
 /**
- * Pantalla principal de la sección social, con feed de actividades y búsqueda de usuarios
+ * Componente memoizado para mostrar cada resultado de búsqueda de usuario, con su avatar, nombre de usuario y un botón para ir a su perfil.
+ */
+const UserSearchCard = React.memo(({ item, colors, styles, onPress }: any) => (
+  <TouchableOpacity style={styles.userCard} onPress={() => onPress(item.id)}>
+    {item.profilePictureUrl ? (
+      <Image
+        source={{ uri: item.profilePictureUrl }}
+        style={styles.userAvatar}
+      />
+    ) : (
+      <View style={styles.userAvatarPlaceholder}>
+        <AntDesign name="user" size={24} color={colors.textSecondary} />
+      </View>
+    )}
+    <Text style={styles.usernameText}>@{item.username}</Text>
+    <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+  </TouchableOpacity>
+));
+
+/**
+ * Componente memoizado para mostrar cada actividad en el feed, ya sea una rutina creada o un entrenamiento completado, con detalles como duración, volumen o número de ejercicios, y un anuncio cada 5 publicaciones.
+ */
+const FeedActivityCard = React.memo(
+  ({ item, showAd, colors, styles, t, onPressUser }: any) => {
+    const isWorkout = item.type === "history";
+
+    return (
+      <>
+        <View style={styles.feedCard}>
+          <View style={styles.feedHeader}>
+            <TouchableOpacity onPress={() => onPressUser(item.userId)}>
+              {item.userAvatar ? (
+                <Image
+                  source={{ uri: item.userAvatar }}
+                  style={styles.feedAvatar}
+                />
+              ) : (
+                <View style={styles.feedAvatarPlaceholder}>
+                  <AntDesign
+                    name="user"
+                    size={20}
+                    color={colors.textSecondary}
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+            <View style={styles.feedHeaderText}>
+              <TouchableOpacity onPress={() => onPressUser(item.userId)}>
+                <Text style={styles.feedUsername}>@{item.username}</Text>
+              </TouchableOpacity>
+              <Text style={styles.feedAction}>
+                {isWorkout
+                  ? t("social.completedWorkout")
+                  : t("social.createdRoutine")}
+              </Text>
+            </View>
+            <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
+          </View>
+          <View style={styles.feedContent}>
+            <Text style={styles.feedTitle}>
+              {item.title || t("social.defaultWorkout")}
+            </Text>
+            <View style={styles.feedStats}>
+              {isWorkout ? (
+                <>
+                  <Text style={styles.feedStatText}>
+                    <Feather name="clock" size={12} />{" "}
+                    {Math.ceil((item.details.duration || 0) / 60)} min
+                  </Text>
+                  <Text style={styles.feedStatText}>
+                    <Feather name="activity" size={12} /> {item.details.volume}{" "}
+                    kg
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.feedStatText}>
+                  <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
+                  {t("routines.exercises", "ejercicios")}
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {showAd && (
+          <View style={styles.adContainer}>
+            <Text style={styles.adLabelText}>Publicidad</Text>
+            <BannerAd
+              unitId={
+                __DEV__
+                  ? TestIds.BANNER
+                  : (process.env.EXPO_PUBLIC_ADMOB_BANNER_SOCIAL as string)
+              }
+              size={BannerAdSize.MEDIUM_RECTANGLE}
+              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+            />
+          </View>
+        )}
+      </>
+    );
+  },
+);
+
+/**
+ * Pantalla principal de la pestaña Social, que incluye el feed de actividades y el buscador de usuarios.
  * @returns
  */
 export default function SocialScreen() {
@@ -106,10 +210,12 @@ export default function SocialScreen() {
 
     setIsSearching(true);
     try {
+      const searchPattern = text.replace(/[aeiouáéíóúü]/gi, "_");
+
       const { data, error } = await supabase
         .from("users")
         .select("id, username, profile_picture_url")
-        .ilike("username", `%${text}%`)
+        .ilike("username", `%${searchPattern}%`)
         .limit(10);
 
       if (error) throw error;
@@ -152,135 +258,12 @@ export default function SocialScreen() {
     onRefresh();
   };
 
-  const renderUserItem = ({ item }: { item: SearchResult }) => (
-    <TouchableOpacity
-      style={styles.userCard}
-      onPress={() =>
-        router.push({ pathname: "/userProfile", params: { id: item.id } })
-      }
-    >
-      {item.profilePictureUrl ? (
-        <Image
-          source={{ uri: item.profilePictureUrl }}
-          style={styles.userAvatar}
-        />
-      ) : (
-        <View style={styles.userAvatarPlaceholder}>
-          <AntDesign name="user" size={24} color={colors.textSecondary} />
-        </View>
-      )}
-      <Text style={styles.usernameText}>@{item.username}</Text>
-      <Feather name="chevron-right" size={20} color={colors.textSecondary} />
-    </TouchableOpacity>
+  const handleUserPress = useCallback(
+    (userId: string) => {
+      router.push({ pathname: "/userProfile", params: { id: userId } });
+    },
+    [router],
   );
-
-  const renderFeedItem = ({
-    item,
-    index,
-  }: {
-    item: FeedItem;
-    index: number;
-  }) => {
-    const isWorkout = item.type === "history";
-    const showAd = (index + 1) % 5 === 0;
-
-    return (
-      <>
-        <View style={styles.feedCard}>
-          <View style={styles.feedHeader}>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/userProfile",
-                  params: { id: item.userId },
-                })
-              }
-            >
-              {item.userAvatar ? (
-                <Image
-                  source={{ uri: item.userAvatar }}
-                  style={styles.feedAvatar}
-                />
-              ) : (
-                <View style={styles.feedAvatarPlaceholder}>
-                  <AntDesign
-                    name="user"
-                    size={20}
-                    color={colors.textSecondary}
-                  />
-                </View>
-              )}
-            </TouchableOpacity>
-            <View style={styles.feedHeaderText}>
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/userProfile",
-                    params: { id: item.userId },
-                  })
-                }
-              >
-                <Text style={styles.feedUsername}>@{item.username}</Text>
-              </TouchableOpacity>
-              <Text style={styles.feedAction}>
-                {isWorkout
-                  ? t("social.completedWorkout")
-                  : t("social.createdRoutine")}
-              </Text>
-            </View>
-            <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
-          </View>
-          <View style={styles.feedContent}>
-            <Text style={styles.feedTitle}>
-              {item.title || t("social.defaultWorkout")}
-            </Text>
-            <View style={styles.feedStats}>
-              {isWorkout ? (
-                <>
-                  <Text style={styles.feedStatText}>
-                    <Feather name="clock" size={12} />{" "}
-                    {Math.ceil((item.details.duration || 0) / 60)} min
-                  </Text>
-                  <Text style={styles.feedStatText}>
-                    <Feather name="activity" size={12} /> {item.details.volume}{" "}
-                    kg
-                  </Text>
-                </>
-              ) : (
-                <Text style={styles.feedStatText}>
-                  <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
-                  {t("routines.exercises", "ejercicios")}
-                </Text>
-              )}
-            </View>
-          </View>
-        </View>
-
-        {showAd && (
-          <View style={{ alignItems: "center", marginVertical: 10 }}>
-            <Text
-              style={{
-                fontSize: 10,
-                color: colors.textSecondary,
-                marginBottom: 5,
-              }}
-            >
-              Publicidad
-            </Text>
-            <BannerAd
-              unitId={
-                __DEV__
-                  ? TestIds.BANNER
-                  : (process.env.EXPO_PUBLIC_ADMOB_BANNER_SOCIAL as string)
-              }
-              size={BannerAdSize.MEDIUM_RECTANGLE}
-              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-            />
-          </View>
-        )}
-      </>
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -306,9 +289,10 @@ export default function SocialScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.content}>
         {activeTab === "search" ? (
-          <View style={{ flex: 1 }}>
+          <View style={styles.flexContainer}>
             <View style={styles.searchBar}>
               <Feather name="search" size={20} color={colors.textSecondary} />
               <TextInput
@@ -329,17 +313,25 @@ export default function SocialScreen() {
                 </TouchableOpacity>
               )}
             </View>
+
             {isSearching ? (
               <ActivityIndicator
                 size="large"
                 color={colors.primary}
-                style={{ marginTop: 20 }}
+                style={styles.searchLoader}
               />
             ) : searchResults.length > 0 ? (
               <FlatList
                 data={searchResults}
                 keyExtractor={(item) => item.id}
-                renderItem={renderUserItem}
+                renderItem={({ item }) => (
+                  <UserSearchCard
+                    item={item}
+                    colors={colors}
+                    styles={styles}
+                    onPress={handleUserPress}
+                  />
+                )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
               />
@@ -354,18 +346,27 @@ export default function SocialScreen() {
             )}
           </View>
         ) : (
-          <View style={{ flex: 1 }}>
+          <View style={styles.flexContainer}>
             {loadingFeed && feed.length === 0 ? (
               <ActivityIndicator
                 size="large"
                 color={colors.primary}
-                style={{ marginTop: 40 }}
+                style={styles.feedLoader}
               />
             ) : feed.length > 0 ? (
               <FlatList
                 data={displayedFeed}
                 keyExtractor={(item) => item.id}
-                renderItem={renderFeedItem}
+                renderItem={({ item, index }) => (
+                  <FeedActivityCard
+                    item={item}
+                    showAd={(index + 1) % 5 === 0}
+                    colors={colors}
+                    styles={styles}
+                    t={t}
+                    onPressUser={handleUserPress}
+                  />
+                )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
                 refreshControl={
@@ -380,23 +381,10 @@ export default function SocialScreen() {
                   if (displayedFeed.length < feed.length) {
                     return (
                       <TouchableOpacity
-                        style={{
-                          paddingVertical: 12,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: colors.surface,
-                          borderRadius: 10,
-                          borderWidth: 1,
-                          borderColor: colors.border,
-                          marginHorizontal: 20,
-                          marginTop: 10,
-                          marginBottom: 40,
-                        }}
+                        style={styles.loadMoreBtn}
                         onPress={() => setPage((prev) => prev + 1)}
                       >
-                        <Text
-                          style={{ color: colors.primary, fontWeight: "bold" }}
-                        >
+                        <Text style={styles.loadMoreText}>
                           {t("profile.loadMore", "Cargar más")}
                         </Text>
                       </TouchableOpacity>

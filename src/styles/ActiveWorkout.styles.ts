@@ -7,6 +7,23 @@ export const getStyles = (colors: any) =>
       backgroundColor: colors.background,
       paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
+
+    //Estado vacío (sin ejercicios)
+    emptyContainer: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    emptyText: {
+      color: colors.textSecondary,
+    },
+    emptyBtn: {
+      marginTop: 20,
+    },
+    emptyBtnText: {
+      color: colors.primary,
+    },
+
+    //Cabecera
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -36,6 +53,8 @@ export const getStyles = (colors: any) =>
       fontWeight: "bold",
       fontSize: 14,
     },
+
+    //Estadisticas
     statsStrip: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -59,6 +78,11 @@ export const getStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "bold",
     },
+    statValuePrimary: {
+      color: colors.primary,
+    },
+
+    //Tarjeta de ejercicio
     exerciseCard: {
       backgroundColor: colors.surface,
       borderRadius: 12,
@@ -75,14 +99,24 @@ export const getStyles = (colors: any) =>
       shadowOpacity: 0.3,
       shadowRadius: 5,
     },
+    exerciseHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
     exerciseHeader: {
       paddingVertical: 5,
       marginBottom: 5,
+      flex: 1,
     },
     exerciseName: {
       color: colors.primary,
       fontSize: 18,
       fontWeight: "bold",
+    },
+    deleteExBtn: {
+      padding: 5,
+      paddingLeft: 15,
     },
     exerciseRestIndicator: {
       flexDirection: "row",
@@ -95,6 +129,8 @@ export const getStyles = (colors: any) =>
       fontWeight: "600",
       marginLeft: 6,
     },
+
+    //Tabla de series
     tableHeader: {
       flexDirection: "row",
       marginBottom: 8,
@@ -149,6 +185,9 @@ export const getStyles = (colors: any) =>
       fontSize: 15,
       fontWeight: "bold",
     },
+    deleteSetIcon: {
+      marginRight: 8,
+    },
     deleteSetBadge: {
       width: 16,
       height: 16,
@@ -193,6 +232,8 @@ export const getStyles = (colors: any) =>
     checkButtonActive: {
       backgroundColor: "#22C55E",
     },
+
+    //Pie de lista de ejercicios
     addSetButton: {
       flexDirection: "row",
       alignItems: "center",
@@ -202,10 +243,29 @@ export const getStyles = (colors: any) =>
       backgroundColor: "rgba(255,255,255,0.05)",
       borderRadius: 8,
     },
+    addSetIcon: { marginRight: 5 },
     addSetText: {
       color: colors.textPrimary,
       fontWeight: "600",
       fontSize: 14,
+    },
+    addExerciseBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 12,
+      backgroundColor: "rgba(234, 88, 12, 0.1)",
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      borderStyle: "dashed",
+      marginBottom: 20,
+    },
+    addExerciseBtnIcon: { marginRight: 8 },
+    addExerciseBtnText: {
+      color: colors.primary,
+      fontWeight: "bold",
+      fontSize: 16,
     },
     cancelWorkoutButton: {
       alignItems: "center",
@@ -219,6 +279,8 @@ export const getStyles = (colors: any) =>
       fontWeight: "bold",
       fontSize: 15,
     },
+
+    //Temporizador de descanso flotante
     floatingRestBanner: {
       position: "absolute",
       bottom: 0,
@@ -229,7 +291,6 @@ export const getStyles = (colors: any) =>
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 20,
-      paddingBottom: 50,
       paddingTop: 20,
       borderTopColor: colors.border,
       elevation: 10,
@@ -266,6 +327,8 @@ export const getStyles = (colors: any) =>
       fontWeight: "bold",
       fontSize: 14,
     },
+
+    //Modales de edición de descanso
     modalOverlay: {
       flex: 1,
       backgroundColor: "rgba(0,0,0,0.8)",
@@ -312,68 +375,30 @@ export const getStyles = (colors: any) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
+    editRestBtnPrimary: {
+      backgroundColor: colors.primary,
+      borderWidth: 0,
+    },
+    editRestBtnTransparent: {
+      backgroundColor: "transparent",
+    },
     editRestBtnText: {
       color: "#FFF",
       fontWeight: "bold",
       fontSize: 16,
     },
-    summaryOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.8)",
-      justifyContent: "center",
-      padding: 20,
-    },
-    summaryContent: {
-      backgroundColor: colors.surface,
-      borderRadius: 20,
-      padding: 25,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    summaryTitle: {
+    editRestBtnTextSecondary: {
       color: colors.textPrimary,
-      fontSize: 22,
-      fontWeight: "bold",
-      textAlign: "center",
-      marginBottom: 25,
     },
-    summaryRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginBottom: 15,
-      backgroundColor: colors.background,
-      padding: 15,
-      borderRadius: 12,
-    },
-    summaryLabel: {
-      color: colors.textSecondary,
-      fontSize: 16,
-      flex: 1,
-      marginLeft: 10,
-    },
-    summaryValue: {
-      color: colors.textPrimary,
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-    summaryCloseButton: {
-      backgroundColor: colors.primary,
-      paddingVertical: 15,
-      borderRadius: 12,
-      alignItems: "center",
-      marginTop: 20,
-    },
-    summaryCloseText: {
-      color: "#FFF",
-      fontWeight: "bold",
-      fontSize: 16,
-    },
+
+    //Modal de selección de unidades
     unitOptionBtn: {
       width: "100%",
       paddingVertical: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
+    unitOptionBtnLast: { borderBottomWidth: 0 },
     unitOptionTitle: {
       color: colors.primary,
       fontSize: 16,
@@ -384,7 +409,115 @@ export const getStyles = (colors: any) =>
       color: colors.textSecondary,
       fontSize: 13,
     },
-    deleteSetIcon: {
-      marginRight: 8,
+    unitOptionsMargin: { marginTop: 20 },
+
+    //Modal de resumen de entrenamiento
+    summaryOverlay: {
+      flex: 1,
+      backgroundColor: colors.background,
     },
+    summaryHeader: {
+      alignItems: "center",
+      marginTop: 40,
+      marginBottom: 30,
+    },
+    summaryHeaderTitle: {
+      color: colors.textPrimary,
+      fontSize: 32,
+      fontWeight: "900",
+    },
+    summaryHeaderSub: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      marginTop: 5,
+    },
+    summaryCard: {
+      backgroundColor: colors.surface,
+      marginHorizontal: 20,
+      borderRadius: 24,
+      padding: 25,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    summaryStatsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 30,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      paddingBottom: 25,
+    },
+    summaryStatCol: { alignItems: "center" },
+    summaryStatLabel: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    summaryStatValue: {
+      color: colors.textPrimary,
+      fontSize: 20,
+      fontWeight: "bold",
+      marginTop: 5,
+    },
+    summaryStatUnit: { fontSize: 14 },
+    summaryMusclesTitle: {
+      color: colors.textPrimary,
+      fontSize: 18,
+      fontWeight: "bold",
+      marginBottom: 15,
+    },
+    muscleRow: { marginBottom: 15 },
+    muscleHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 6,
+    },
+    muscleName: { color: colors.textPrimary, fontSize: 14 },
+    musclePercentage: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      fontWeight: "bold",
+    },
+    muscleBarBg: {
+      height: 8,
+      backgroundColor: colors.background,
+      borderRadius: 4,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    muscleBarFill: {
+      height: "100%",
+      backgroundColor: colors.primary,
+      borderRadius: 4,
+    },
+    noSetsValid: {
+      color: colors.textSecondary,
+      textAlign: "center",
+      fontStyle: "italic",
+      marginTop: 10,
+    },
+    summaryFooter: {
+      position: "absolute",
+      left: 20,
+      right: 20,
+    },
+    adWrapper: {
+      alignItems: "center",
+      marginBottom: 15,
+    },
+    summaryFinishBtn: {
+      backgroundColor: colors.primary,
+      paddingVertical: 16,
+      borderRadius: 14,
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "center",
+    },
+    summaryFinishBtnText: {
+      color: "#FFF",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
+    summaryLoadingIcon: { marginRight: 10 },
   });

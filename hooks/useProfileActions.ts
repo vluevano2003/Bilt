@@ -137,7 +137,7 @@ export const useProfileActions = (
 
         Alert.alert(
           t("profile.alerts.success", "Éxito"),
-          t("routines.successRemoved", "Pack removido de tu perfil."),
+          t("weeklyPacks.successRemoved", "Pack removido de tu perfil."),
         );
         if (onComplete) onComplete();
       } catch (error) {

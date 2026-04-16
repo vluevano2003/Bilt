@@ -8,7 +8,8 @@
     "saving": "Guardando...",
     "backToHome": "Volver al inicio",
     "retry": "Reintentar",
-    "pressBackAgain": "Presiona atrás de nuevo para salir"
+    "pressBackAgain": "Presiona atrás de nuevo para salir",
+    "day": "Día"
   },
   "tabs": {
     "workout": "Workout",
@@ -47,7 +48,7 @@
     "birthDateLabel": "Fecha de nacimiento:",
     "selectDate": "Seleccionar fecha",
     "confirmDate": "Confirmar fecha",
-    "genderLabel": "Género:",
+    "genderLabel": "Sexo:",
     "male": "Hombre",
     "female": "Mujer",
     "systemLabel": "Sistema de medida:",
@@ -104,7 +105,7 @@
     "years": "años",
     "username": "Nombre de usuario",
     "email": "Correo electrónico",
-    "gender": "Género",
+    "gender": "Sexo",
     "measurementSystem": "Sistema de medición",
     "metric": "Métrico",
     "imperial": "Imperial",
@@ -123,11 +124,10 @@
     "friends": "amigos",
     "privateAccount": "Cuenta Privada",
     "privateMsg": "Sigue a este usuario para ver sus rutinas y progreso.",
-    "visibilityOptions": "Opciones de visibilidad",
-    "showAge": "Mostrar Edad",
-    "showGender": "Mostrar Género",
-    "showHeight": "Mostrar Estatura",
-    "showWeight": "Mostrar Peso",
+    "bio": "Presentación",
+    "bioPlaceholder": "Escribe una breve presentación sobre ti...",
+    "addBioPrompt": "Agrega una breve presentación sobre ti.",
+    "defaultBio": "Este usuario aún no ha agregado una presentación.",
     "alerts": {
       "error": "Error",
       "success": "Éxito",
@@ -186,11 +186,13 @@
     "enterEmailPassword": "Ingresa correo y contraseña.",
     "minChars": "Mínimo 6 caracteres.",
     "missingNickname": "Falta tu apodo.",
-    "missingDateGender": "Falta fecha o género.",
+    "missingDateGender": "Falta fecha o sexo.",
     "minAge": "Debes tener al menos 13 años.",
     "checkYear": "Verifica el año de nacimiento.",
     "sentOtpCode": "Revisa tu correo. Te hemos enviado un código de 8 dígitos.",
-    "invalidOtpCode": "Ingresa un código de 8 dígitos válido."
+    "invalidOtpCode": "Ingresa un código de 8 dígitos válido.",
+    "noNegative": "Los valores deben ser mayores a cero.",
+    "limitReached": "Límite alcanzado"
   },
   "errors": {
     "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
@@ -204,7 +206,8 @@
     "updatePasswordFailed": "No se pudo actualizar la contraseña.",
     "invalidLink": "El enlace no es válido o ya ha expirado.",
     "connectionTitle": "Problema de conexión",
-    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo."
+    "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
+    "userCreation": "No se pudo crear el usuario."
   },
   "routines": {
     "title": "Tus Rutinas",
@@ -246,7 +249,10 @@
     "synergists": "Sinérgicos",
     "instructions": "Instrucciones",
     "n_sets_one": "1 Serie",
-    "n_sets_other": "{{count}} Series"
+    "n_sets_other": "{{count}} Series",
+    "createdLabel": "creadas",
+    "limitReached": "Solo puedes crear un máximo de 10 rutinas.",
+    "addSet": "Añadir Serie"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -433,6 +439,7 @@
     "tabPacks": "Packs",
     "emptyMessage": "Aún no tienes packs semanales. ¡Agrupa tus rutinas!",
     "createNew": "Crear Pack Semanal",
+    "edit": "Editar Pack Semanal",
     "packName": "Nombre del Pack",
     "packNamePlaceholder": "Ej. Semana de Hipertrofia",
     "description": "Descripción",
@@ -441,11 +448,17 @@
     "maxRoutinesAlert": "Solo puedes añadir un máximo de 6 rutinas por pack.",
     "routinesSelected": "{{count}}/6 seleccionadas",
     "savePack": "Guardar Pack",
+    "availableRoutines": "Rutinas Disponibles para Añadir",
+    "noMoreRoutines": "No hay más rutinas disponibles o llegaste al límite.",
+    "selectedRoutinesTitle": "Días de Entrenamiento",
+    "dragHint": "Añade rutinas y arrástralas para ordenar tus días de entrenamiento.",
     "noRoutinesAvailable": "Crea algunas rutinas primero para armar un pack.",
     "routinesIncluded": "Rutinas en este Pack:",
     "savePackToProfile": "Guardar Pack en mi Perfil",
     "noPublicPacks": "Este usuario aún no tiene Packs Semanales.",
-    "routinesCount": "Rutinas"
+    "routinesCount": "Rutinas",
+    "successSaved": "¡Pack y rutinas guardados en tu perfil!",
+    "successRemoved": "Pack removido de tu perfil."
   },
   "exerciseDetails": {
     "bench_press_barbell": {
