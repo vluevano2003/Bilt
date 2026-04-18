@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, AppState, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
+import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
@@ -136,21 +137,21 @@ function RootLayoutNav() {
           backgroundColor: colors.background,
           justifyContent: "center",
           alignItems: "center",
-          padding: 20,
+          padding: scale(20),
         }}
       >
         <Feather
           name="wifi-off"
-          size={60}
+          size={moderateScale(60)}
           color={colors.textSecondary}
-          style={{ marginBottom: 20 }}
+          style={{ marginBottom: verticalScale(20) }}
         />
         <Text
           style={{
             color: colors.textPrimary,
-            fontSize: 18,
+            fontSize: moderateScale(18),
             fontWeight: "bold",
-            marginBottom: 10,
+            marginBottom: verticalScale(10),
             textAlign: "center",
           }}
         >
@@ -159,8 +160,8 @@ function RootLayoutNav() {
         <Text
           style={{
             color: colors.textSecondary,
-            fontSize: 14,
-            marginBottom: 30,
+            fontSize: moderateScale(14),
+            marginBottom: verticalScale(30),
             textAlign: "center",
           }}
         >
@@ -172,13 +173,19 @@ function RootLayoutNav() {
         <TouchableOpacity
           style={{
             backgroundColor: colors.primary,
-            paddingVertical: 12,
-            paddingHorizontal: 30,
-            borderRadius: 25,
+            paddingVertical: verticalScale(12),
+            paddingHorizontal: scale(30),
+            borderRadius: moderateScale(25),
           }}
           onPress={retryInit}
         >
-          <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: 16 }}>
+          <Text
+            style={{
+              color: "#FFF",
+              fontWeight: "bold",
+              fontSize: moderateScale(16),
+            }}
+          >
             {t("common.retry", "Reintentar")}
           </Text>
         </TouchableOpacity>

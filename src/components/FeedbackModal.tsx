@@ -2,19 +2,20 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { supabase } from "../config/supabase";
+import { scale, verticalScale } from "../utils/Responsive";
 
 interface FeedbackModalProps {
   visible: boolean;
@@ -87,20 +88,33 @@ export const FeedbackModal = ({
         <View
           style={[
             homeStyles.feedbackContent,
-            { marginTop: Platform.OS === "ios" ? insets.top + 50 : 50 },
+            {
+              marginTop:
+                Platform.OS === "ios"
+                  ? insets.top + verticalScale(50)
+                  : verticalScale(50),
+            },
           ]}
         >
           <View
             style={[
               routineStyles.modalHeader,
-              { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
+              {
+                paddingHorizontal: scale(20),
+                paddingTop: verticalScale(20),
+                paddingBottom: verticalScale(10),
+              },
             ]}
           >
             <Text style={routineStyles.modalTitle}>
               {t("feedback.title", "Reportar / Sugerencias")}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -113,10 +127,19 @@ export const FeedbackModal = ({
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={[
                 homeStyles.feedbackScrollContent,
-                { paddingBottom: Math.max(insets.bottom, 20) + 120 },
+                {
+                  paddingBottom:
+                    Math.max(insets.bottom, verticalScale(20)) +
+                    verticalScale(120),
+                },
               ]}
             >
-              <Text style={[routineStyles.label, { marginBottom: 15 }]}>
+              <Text
+                style={[
+                  routineStyles.label,
+                  { marginBottom: verticalScale(15) },
+                ]}
+              >
                 {t("feedback.description", "¿Encontraste un error...?")}
               </Text>
 
@@ -153,7 +176,7 @@ export const FeedbackModal = ({
                   <>
                     <Feather
                       name="send"
-                      size={18}
+                      size={scale(18)}
                       color="#FFF"
                       style={homeStyles.sendButtonIcon}
                     />

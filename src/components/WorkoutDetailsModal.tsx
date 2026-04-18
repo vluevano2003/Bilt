@@ -1,6 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import {
   calculateSessionVolume,
   formatDuration,
@@ -33,7 +34,12 @@ export const WorkoutDetailsModal = ({
         <View
           style={[
             styles.modalContent,
-            { paddingBottom: Math.max(40, insets.bottom + 20) },
+            {
+              paddingBottom: Math.max(
+                verticalScale(40),
+                insets.bottom + verticalScale(20),
+              ),
+            },
           ]}
         >
           <View style={styles.modalHeader}>
@@ -41,30 +47,42 @@ export const WorkoutDetailsModal = ({
               {selectedItem?.routineName}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 50 }}
+            contentContainerStyle={{ paddingBottom: verticalScale(50) }}
           >
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "flex-start",
                 alignItems: "center",
-                gap: 20,
-                marginBottom: 25,
+                gap: scale(20),
+                marginBottom: verticalScale(25),
               }}
             >
               <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: scale(6),
+                }}
               >
-                <Feather name="clock" size={16} color={colors.textPrimary} />
+                <Feather
+                  name="clock"
+                  size={scale(16)}
+                  color={colors.textPrimary}
+                />
                 <Text
                   style={{
                     color: colors.textPrimary,
-                    fontSize: 15,
+                    fontSize: moderateScale(15),
                     fontWeight: "500",
                   }}
                 >
@@ -72,13 +90,21 @@ export const WorkoutDetailsModal = ({
                 </Text>
               </View>
               <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: scale(6),
+                }}
               >
-                <Feather name="activity" size={16} color={colors.textPrimary} />
+                <Feather
+                  name="activity"
+                  size={scale(16)}
+                  color={colors.textPrimary}
+                />
                 <Text
                   style={{
                     color: colors.textPrimary,
-                    fontSize: 15,
+                    fontSize: moderateScale(15),
                     fontWeight: "500",
                   }}
                 >
@@ -91,7 +117,11 @@ export const WorkoutDetailsModal = ({
             <Text
               style={[
                 styles.label,
-                { marginBottom: 15, color: colors.textPrimary, fontSize: 16 },
+                {
+                  marginBottom: verticalScale(15),
+                  color: colors.textPrimary,
+                  fontSize: moderateScale(16),
+                },
               ]}
             >
               {t("routines.exercises")}:
@@ -105,13 +135,19 @@ export const WorkoutDetailsModal = ({
                 "Ejercicio";
 
               return (
-                <View key={index} style={{ marginBottom: 25, paddingLeft: 5 }}>
+                <View
+                  key={index}
+                  style={{
+                    marginBottom: verticalScale(25),
+                    paddingLeft: scale(5),
+                  }}
+                >
                   <Text
                     style={{
                       color: colors.textPrimary,
-                      fontSize: 16,
+                      fontSize: moderateScale(16),
                       fontWeight: "bold",
-                      marginBottom: 10,
+                      marginBottom: verticalScale(10),
                     }}
                   >
                     • {exerciseName}
@@ -149,9 +185,9 @@ export const WorkoutDetailsModal = ({
                         key={setIdx}
                         style={{
                           color: colors.textSecondary,
-                          marginLeft: 15,
-                          fontSize: 14,
-                          marginBottom: 6,
+                          marginLeft: scale(15),
+                          fontSize: moderateScale(14),
+                          marginBottom: verticalScale(6),
                         }}
                       >
                         Set {setIdx + 1}: {set.reps} reps{" "}

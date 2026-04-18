@@ -20,6 +20,7 @@ import {
   TestIds,
 } from "react-native-google-mobile-ads";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateScale, verticalScale } from "../../src/utils/Responsive";
 
 import { useSocialFeed } from "../../hooks/useSocialFeed";
 import { supabase } from "../../src/config/supabase";
@@ -81,11 +82,19 @@ const UserSearchCard = React.memo(({ item, colors, styles, onPress }: any) => (
       />
     ) : (
       <View style={styles.userAvatarPlaceholder}>
-        <AntDesign name="user" size={24} color={colors.textSecondary} />
+        <AntDesign
+          name="user"
+          size={moderateScale(24)}
+          color={colors.textSecondary}
+        />
       </View>
     )}
     <Text style={styles.usernameText}>@{item.username}</Text>
-    <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+    <Feather
+      name="chevron-right"
+      size={moderateScale(20)}
+      color={colors.textSecondary}
+    />
   </TouchableOpacity>
 ));
 
@@ -110,7 +119,7 @@ const FeedActivityCard = React.memo(
                 <View style={styles.feedAvatarPlaceholder}>
                   <AntDesign
                     name="user"
-                    size={20}
+                    size={moderateScale(20)}
                     color={colors.textSecondary}
                   />
                 </View>
@@ -136,17 +145,18 @@ const FeedActivityCard = React.memo(
               {isWorkout ? (
                 <>
                   <Text style={styles.feedStatText}>
-                    <Feather name="clock" size={12} />{" "}
+                    <Feather name="clock" size={moderateScale(12)} />{" "}
                     {Math.ceil((item.details.duration || 0) / 60)} min
                   </Text>
                   <Text style={styles.feedStatText}>
-                    <Feather name="activity" size={12} /> {item.details.volume}{" "}
-                    kg
+                    <Feather name="activity" size={moderateScale(12)} />{" "}
+                    {item.details.volume} kg
                   </Text>
                 </>
               ) : (
                 <Text style={styles.feedStatText}>
-                  <Feather name="list" size={12} /> {item.details.exerciseCount}{" "}
+                  <Feather name="list" size={moderateScale(12)} />{" "}
+                  {item.details.exerciseCount}{" "}
                   {t("routines.exercises", "ejercicios")}
                 </Text>
               )}
@@ -294,7 +304,11 @@ export default function SocialScreen() {
         {activeTab === "search" ? (
           <View style={styles.flexContainer}>
             <View style={styles.searchBar}>
-              <Feather name="search" size={20} color={colors.textSecondary} />
+              <Feather
+                name="search"
+                size={moderateScale(20)}
+                color={colors.textSecondary}
+              />
               <TextInput
                 style={styles.searchInput}
                 placeholder={t("social.searchPlaceholder")}
@@ -307,7 +321,7 @@ export default function SocialScreen() {
                 <TouchableOpacity onPress={() => setSearchQuery("")}>
                   <Feather
                     name="x-circle"
-                    size={16}
+                    size={moderateScale(16)}
                     color={colors.textSecondary}
                   />
                 </TouchableOpacity>
@@ -333,7 +347,9 @@ export default function SocialScreen() {
                   />
                 )}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+                contentContainerStyle={{
+                  paddingBottom: verticalScale(100) + insets.bottom,
+                }}
               />
             ) : searchQuery.length >= 2 ? (
               <Text style={styles.placeholderText}>
@@ -368,7 +384,9 @@ export default function SocialScreen() {
                   />
                 )}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+                contentContainerStyle={{
+                  paddingBottom: verticalScale(100) + insets.bottom,
+                }}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}

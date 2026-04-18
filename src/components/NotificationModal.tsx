@@ -15,6 +15,7 @@ import {
 import { SocialUser } from "../../hooks/useProfile";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 interface Props {
   visible: boolean;
@@ -60,7 +61,11 @@ export function NotificationModal({
           />
         ) : (
           <View style={styles.socialListAvatarPlaceholder}>
-            <AntDesign name="user" size={20} color={colors.textSecondary} />
+            <AntDesign
+              name="user"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
           </View>
         )}
         <Text style={styles.socialListUsername} numberOfLines={1}>
@@ -68,7 +73,7 @@ export function NotificationModal({
         </Text>
       </TouchableOpacity>
 
-      <View style={{ flexDirection: "row", gap: 10 }}>
+      <View style={{ flexDirection: "row", gap: scale(10) }}>
         <TouchableOpacity
           style={styles.acceptButton}
           onPress={() => onHandleRequest(item.id, true)}
@@ -97,7 +102,11 @@ export function NotificationModal({
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{t("social.requests")}</Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -105,7 +114,7 @@ export function NotificationModal({
             <ActivityIndicator
               size="large"
               color={colors.primary}
-              style={{ marginTop: 50 }}
+              style={{ marginTop: verticalScale(50) }}
             />
           ) : requestsList.length > 0 ? (
             <FlatList
@@ -132,39 +141,43 @@ const getStyles = (colors: any) =>
     },
     modalContent: {
       backgroundColor: colors.background,
-      borderTopLeftRadius: 25,
-      borderTopRightRadius: 25,
-      padding: 30,
-      paddingBottom: 50,
+      borderTopLeftRadius: scale(25),
+      borderTopRightRadius: scale(25),
+      padding: scale(30),
+      paddingBottom: verticalScale(50),
       height: "70%",
     },
     modalHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 20,
+      marginBottom: verticalScale(20),
     },
-    modalTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: "bold" },
+    modalTitle: {
+      color: colors.textPrimary,
+      fontSize: moderateScale(22),
+      fontWeight: "bold",
+    },
     socialListItem: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: 12,
+      paddingVertical: verticalScale(12),
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     socialListAvatar: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      marginRight: 15,
+      width: scale(44),
+      height: scale(44),
+      borderRadius: scale(22),
+      marginRight: scale(15),
       borderWidth: 1,
       borderColor: colors.primary,
     },
     socialListAvatarPlaceholder: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      marginRight: 15,
+      width: scale(44),
+      height: scale(44),
+      borderRadius: scale(22),
+      marginRight: scale(15),
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
@@ -174,28 +187,36 @@ const getStyles = (colors: any) =>
     socialListUsername: {
       flex: 1,
       color: colors.textPrimary,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: "600",
     },
     acceptButton: {
       backgroundColor: colors.primary,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 5,
+      paddingHorizontal: scale(12),
+      paddingVertical: verticalScale(6),
+      borderRadius: scale(5),
     },
-    acceptText: { color: "#FFF", fontWeight: "bold", fontSize: 12 },
+    acceptText: {
+      color: "#FFF",
+      fontWeight: "bold",
+      fontSize: moderateScale(12),
+    },
     rejectButton: {
       backgroundColor: colors.surface,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 5,
+      paddingHorizontal: scale(12),
+      paddingVertical: verticalScale(6),
+      borderRadius: scale(5),
       borderWidth: 1,
       borderColor: colors.border,
     },
-    rejectText: { color: colors.textPrimary, fontWeight: "bold", fontSize: 12 },
+    rejectText: {
+      color: colors.textPrimary,
+      fontWeight: "bold",
+      fontSize: moderateScale(12),
+    },
     emptyText: {
       color: colors.textSecondary,
       textAlign: "center",
-      marginTop: 40,
+      marginTop: verticalScale(40),
     },
   });

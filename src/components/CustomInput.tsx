@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 interface CustomInputProps extends TextInputProps {
   style?: any;
@@ -29,7 +30,11 @@ export const CustomInput = ({
   return isPassword ? (
     <View style={[styles.passwordContainer, containerStyle]}>
       <TextInput
-        style={[styles.input, style, { paddingRight: 45, marginBottom: 0 }]}
+        style={[
+          styles.input,
+          style,
+          { paddingRight: scale(45), marginBottom: 0 },
+        ]}
         placeholderTextColor={colors.textSecondary}
         secureTextEntry={!isPasswordVisible}
         {...props}
@@ -40,7 +45,7 @@ export const CustomInput = ({
       >
         <Feather
           name={isPasswordVisible ? "eye" : "eye-off"}
-          size={20}
+          size={scale(20)}
           color={colors.textSecondary}
         />
       </TouchableOpacity>
@@ -58,7 +63,7 @@ const getStyles = (colors: any) =>
   StyleSheet.create({
     passwordContainer: {
       width: "100%",
-      marginBottom: 15,
+      marginBottom: verticalScale(15),
       position: "relative",
       justifyContent: "center",
     },
@@ -66,16 +71,16 @@ const getStyles = (colors: any) =>
       width: "100%",
       backgroundColor: colors.surface,
       color: colors.textPrimary,
-      borderRadius: 10,
-      padding: 15,
-      fontSize: 14,
+      borderRadius: scale(10),
+      padding: scale(15),
+      fontSize: moderateScale(14),
       borderWidth: 1,
       borderColor: colors.border,
-      marginBottom: 15,
+      marginBottom: verticalScale(15),
     },
     iconContainer: {
       position: "absolute",
-      right: 15,
+      right: scale(15),
       height: "100%",
       justifyContent: "center",
       alignItems: "center",

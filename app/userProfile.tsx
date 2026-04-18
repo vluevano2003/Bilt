@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 import { SocialUser, useProfile } from "../hooks/useProfile";
 import { useProfileActions } from "../hooks/useProfileActions";
@@ -248,7 +249,7 @@ export default function UserProfileScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: insets.bottom + 100 },
+          { paddingBottom: insets.bottom + verticalScale(100) },
         ]}
         refreshControl={
           <RefreshControl
@@ -285,7 +286,11 @@ export default function UserProfileScreen() {
 
               {!showContent ? (
                 <View style={styles.privateContainer}>
-                  <Feather name="lock" size={50} color={colors.textSecondary} />
+                  <Feather
+                    name="lock"
+                    size={moderateScale(50)}
+                    color={colors.textSecondary}
+                  />
                   <Text style={styles.privateTitle}>
                     {t("profile.privateAccount")}
                   </Text>
@@ -302,7 +307,7 @@ export default function UserProfileScreen() {
                     colors={colors}
                   />
 
-                  <View style={{ paddingHorizontal: 20 }}>
+                  <View style={{ paddingHorizontal: scale(20) }}>
                     {isLoadingActivity ? (
                       <ActivityIndicator size="small" color={colors.primary} />
                     ) : activeTab === "routines" ? (
@@ -337,7 +342,7 @@ export default function UserProfileScreen() {
                                     ? "bookmark"
                                     : "bookmark-o"
                                 }
-                                size={22}
+                                size={moderateScale(22)}
                                 color={colors.primary}
                               />
                             </TouchableOpacity>
@@ -370,7 +375,7 @@ export default function UserProfileScreen() {
                             </View>
                             <Feather
                               name="chevron-right"
-                              size={22}
+                              size={moderateScale(22)}
                               color={colors.textSecondary}
                             />
                           </TouchableOpacity>
@@ -417,11 +422,17 @@ export default function UserProfileScreen() {
                               </Text>
                               <View style={styles.routineDetailsRow}>
                                 <Text style={styles.routineStatText}>
-                                  <Feather name="clock" size={12} />{" "}
+                                  <Feather
+                                    name="clock"
+                                    size={moderateScale(12)}
+                                  />{" "}
                                   {formatDuration(session.durationSeconds)} min
                                 </Text>
                                 <Text style={styles.routineStatText}>
-                                  <Feather name="activity" size={12} />{" "}
+                                  <Feather
+                                    name="activity"
+                                    size={moderateScale(12)}
+                                  />{" "}
                                   {calculateTotalVolume(
                                     session,
                                     profile.measurementSystem,
@@ -473,7 +484,12 @@ export default function UserProfileScreen() {
               <View
                 style={[
                   styles.optionsModalContent,
-                  { paddingBottom: Math.max(20, insets.bottom + 10) },
+                  {
+                    paddingBottom: Math.max(
+                      verticalScale(20),
+                      insets.bottom + verticalScale(10),
+                    ),
+                  },
                 ]}
               >
                 <View style={styles.optionsModalHandle} />
@@ -487,7 +503,7 @@ export default function UserProfileScreen() {
                 >
                   <Feather
                     name="flag"
-                    size={22}
+                    size={moderateScale(22)}
                     color="#EF4444"
                     style={styles.optionsModalIcon}
                   />
@@ -502,7 +518,7 @@ export default function UserProfileScreen() {
                 >
                   <Feather
                     name="slash"
-                    size={22}
+                    size={moderateScale(22)}
                     color="#EF4444"
                     style={styles.optionsModalIcon}
                   />
@@ -519,7 +535,7 @@ export default function UserProfileScreen() {
                 >
                   <Feather
                     name="x"
-                    size={22}
+                    size={moderateScale(22)}
                     color={colors.textPrimary}
                     style={styles.optionsModalIcon}
                   />
@@ -553,7 +569,7 @@ export default function UserProfileScreen() {
                 <TouchableOpacity onPress={() => setReportModalVisible(false)}>
                   <AntDesign
                     name="close"
-                    size={22}
+                    size={moderateScale(22)}
                     color={colors.textSecondary}
                   />
                 </TouchableOpacity>

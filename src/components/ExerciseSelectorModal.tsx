@@ -13,6 +13,7 @@ import {
 import { ExerciseType } from "../../hooks/useRoutines";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Routines.styles";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import { PrimaryButton } from "./PrimaryButton";
 
 interface Props {
@@ -68,7 +69,11 @@ export const ExerciseSelectorModal = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{t("routines.addExercise")}</Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -77,20 +82,25 @@ export const ExerciseSelectorModal = ({
               flexDirection: "row",
               alignItems: "center",
               backgroundColor: colors.surface,
-              borderRadius: 8,
-              paddingHorizontal: 15,
-              marginBottom: 15,
+              borderRadius: scale(8),
+              paddingHorizontal: scale(15),
+              marginBottom: verticalScale(15),
               borderWidth: 1,
               borderColor: colors.border,
             }}
           >
-            <Feather name="search" size={20} color={colors.textSecondary} />
+            <Feather
+              name="search"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
             <TextInput
               style={{
                 flex: 1,
-                paddingVertical: 12,
-                paddingHorizontal: 10,
+                paddingVertical: verticalScale(12),
+                paddingHorizontal: scale(10),
                 color: colors.textPrimary,
+                fontSize: moderateScale(14),
               }}
               placeholder={t("routines.searchExercise")}
               placeholderTextColor={colors.textSecondary}
@@ -99,14 +109,14 @@ export const ExerciseSelectorModal = ({
             />
           </View>
 
-          <View style={{ marginBottom: 15 }}>
+          <View style={{ marginBottom: verticalScale(15) }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity
                 style={{
-                  paddingHorizontal: 15,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                  marginRight: 10,
+                  paddingHorizontal: scale(15),
+                  paddingVertical: verticalScale(8),
+                  borderRadius: scale(20),
+                  marginRight: scale(10),
                   backgroundColor:
                     selectedMuscle === null ? colors.primary : colors.surface,
                   borderWidth: 1,
@@ -120,6 +130,7 @@ export const ExerciseSelectorModal = ({
                     color:
                       selectedMuscle === null ? "#FFF" : colors.textPrimary,
                     fontWeight: "bold",
+                    fontSize: moderateScale(14),
                   }}
                 >
                   {t("routines.allMuscles", "Todos")}
@@ -130,10 +141,10 @@ export const ExerciseSelectorModal = ({
                 <TouchableOpacity
                   key={muscle}
                   style={{
-                    paddingHorizontal: 15,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    marginRight: 10,
+                    paddingHorizontal: scale(15),
+                    paddingVertical: verticalScale(8),
+                    borderRadius: scale(20),
+                    marginRight: scale(10),
                     backgroundColor:
                       selectedMuscle === muscle
                         ? colors.primary
@@ -151,6 +162,7 @@ export const ExerciseSelectorModal = ({
                       color:
                         selectedMuscle === muscle ? "#FFF" : colors.textPrimary,
                       fontWeight: "bold",
+                      fontSize: moderateScale(14),
                     }}
                   >
                     {t(`muscles.${muscle}`)}
@@ -173,7 +185,7 @@ export const ExerciseSelectorModal = ({
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    paddingVertical: 15,
+                    paddingVertical: verticalScale(15),
                     borderBottomWidth: 1,
                     borderBottomColor: colors.border,
                   }}
@@ -181,9 +193,9 @@ export const ExerciseSelectorModal = ({
                 >
                   <View
                     style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
+                      width: scale(24),
+                      height: scale(24),
+                      borderRadius: scale(12),
                       borderWidth: 2,
                       borderColor: isSelected
                         ? colors.primary
@@ -193,24 +205,29 @@ export const ExerciseSelectorModal = ({
                         : "transparent",
                       justifyContent: "center",
                       alignItems: "center",
-                      marginRight: 15,
+                      marginRight: scale(15),
                     }}
                   >
                     {isSelected && (
-                      <Feather name="check" size={16} color="#FFF" />
+                      <Feather name="check" size={scale(16)} color="#FFF" />
                     )}
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text
                       style={{
                         color: colors.textPrimary,
-                        fontSize: 16,
+                        fontSize: moderateScale(16),
                         fontWeight: "bold",
                       }}
                     >
                       {t(`exercises.${item.id}`)}
                     </Text>
-                    <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
+                    <Text
+                      style={{
+                        color: colors.textSecondary,
+                        fontSize: moderateScale(13),
+                      }}
+                    >
                       {t(`muscles.${item.muscleGroup}`)} •{" "}
                       {t(`equipment.${item.equipment}`)}
                     </Text>
@@ -223,7 +240,7 @@ export const ExerciseSelectorModal = ({
           {tempSelectedExercises.length > 0 && (
             <View
               style={{
-                paddingTop: 15,
+                paddingTop: verticalScale(15),
                 borderTopWidth: 1,
                 borderTopColor: colors.border,
               }}

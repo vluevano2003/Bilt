@@ -19,6 +19,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  moderateScale,
+  scale,
+  verticalScale,
+} from "../../src/utils/Responsive";
 
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
@@ -57,14 +62,22 @@ const HeaderRightActions = ({
 }: any) => (
   <View style={styles.headerRightContainer}>
     <TouchableOpacity onPress={onOpenFeedback}>
-      <Feather name="message-square" size={24} color={colors.textPrimary} />
+      <Feather
+        name="message-square"
+        size={moderateScale(24)}
+        color={colors.textPrimary}
+      />
     </TouchableOpacity>
 
     <TouchableOpacity
       style={styles.notificationIconContainer}
       onPress={onOpenNotifications}
     >
-      <Feather name="bell" size={24} color={colors.textPrimary} />
+      <Feather
+        name="bell"
+        size={moderateScale(24)}
+        color={colors.textPrimary}
+      />
       {isPrivate && pendingRequestsCount > 0 && (
         <View style={styles.notificationBadge}>
           <Text style={styles.notificationBadgeText}>
@@ -118,7 +131,7 @@ const DashboardHeader = ({
         <View style={homeStyles.weeklySummaryHeader}>
           <Feather
             name="bar-chart-2"
-            size={20}
+            size={moderateScale(20)}
             color={colors.textPrimary}
             style={homeStyles.weeklySummaryIcon}
           />
@@ -169,6 +182,7 @@ const DashboardHeader = ({
       </View>
 
       <View style={routineStyles.tabsContainer}>
+        {/* ... TABS INTACTOS ... */}
         <TouchableOpacity
           style={[
             routineStyles.tab,
@@ -224,8 +238,8 @@ const DashboardHeader = ({
           style={{
             flexDirection: "row",
             justifyContent: "flex-end",
-            marginTop: 15,
-            paddingHorizontal: 5,
+            marginTop: verticalScale(15),
+            paddingHorizontal: scale(5),
           }}
         >
           <View
@@ -234,16 +248,16 @@ const DashboardHeader = ({
                 ownRoutinesCount >= 10
                   ? "rgba(239, 68, 68, 0.1)"
                   : colors.surface,
-              paddingHorizontal: 12,
-              paddingVertical: 5,
-              borderRadius: 15,
+              paddingHorizontal: scale(12),
+              paddingVertical: verticalScale(5),
+              borderRadius: moderateScale(15),
               borderWidth: 1,
               borderColor: ownRoutinesCount >= 10 ? "#EF4444" : colors.border,
             }}
           >
             <Text
               style={{
-                fontSize: 12,
+                fontSize: moderateScale(12),
                 fontWeight: "bold",
                 color:
                   ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
@@ -468,13 +482,16 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={[
           routineStyles.listContainer,
-          { paddingHorizontal: 20, paddingBottom: 100 + insets.bottom },
+          {
+            paddingHorizontal: scale(20),
+            paddingBottom: verticalScale(100) + insets.bottom,
+          },
         ]}
         ListEmptyComponent={
           <View style={routineStyles.emptyState}>
             <Feather
               name={activeTab === "packs" ? "layers" : "clipboard"}
-              size={60}
+              size={moderateScale(60)}
               color={colors.textSecondary}
             />
             <Text style={routineStyles.emptyText}>
@@ -503,7 +520,7 @@ export default function HomeScreen() {
                   <Text style={routineStyles.routineName}>{packItem.name}</Text>
                   <Feather
                     name="chevron-right"
-                    size={20}
+                    size={moderateScale(20)}
                     color={colors.textSecondary}
                   />
                 </View>
@@ -511,7 +528,7 @@ export default function HomeScreen() {
                   <View style={homeStyles.bookmarkContainer}>
                     <FontAwesome
                       name="bookmark"
-                      size={12}
+                      size={moderateScale(12)}
                       color={colors.primary}
                       style={homeStyles.bookmarkIcon}
                     />
@@ -530,7 +547,7 @@ export default function HomeScreen() {
                 <View style={homeStyles.packRoutinesContainer}>
                   <Feather
                     name="list"
-                    size={14}
+                    size={moderateScale(14)}
                     color={colors.primary}
                     style={homeStyles.packRoutinesIcon}
                   />
@@ -566,7 +583,7 @@ export default function HomeScreen() {
                   </Text>
                   <Feather
                     name="more-horizontal"
-                    size={20}
+                    size={moderateScale(20)}
                     color={colors.textSecondary}
                   />
                 </View>
@@ -574,7 +591,7 @@ export default function HomeScreen() {
                   <View style={homeStyles.bookmarkContainer}>
                     <FontAwesome
                       name="bookmark"
-                      size={12}
+                      size={moderateScale(12)}
                       color={colors.primary}
                       style={homeStyles.bookmarkIcon}
                     />
@@ -606,7 +623,12 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[
             routineStyles.fab,
-            { bottom: Math.max(30, insets.bottom + 15) },
+            {
+              bottom: Math.max(
+                verticalScale(30),
+                insets.bottom + verticalScale(15),
+              ),
+            },
           ]}
           onPress={() => {
             if (activeTab === "packs") {
@@ -627,10 +649,11 @@ export default function HomeScreen() {
             }
           }}
         >
-          <AntDesign name="plus" size={28} color="#FFF" />
+          <AntDesign name="plus" size={moderateScale(28)} color="#FFF" />
         </TouchableOpacity>
       )}
 
+      {/* Modales y resto de código... */}
       <FeedbackModal
         visible={feedbackModalVisible}
         onClose={() => setFeedbackModalVisible(false)}

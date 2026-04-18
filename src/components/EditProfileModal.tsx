@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { scale, verticalScale } from "../utils/Responsive";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
@@ -59,20 +60,29 @@ export const EditProfileModal = ({
           <View
             style={[
               styles.modalContent,
-              { paddingBottom: Math.max(40, insets.bottom + 20) },
+              {
+                paddingBottom: Math.max(
+                  verticalScale(40),
+                  insets.bottom + verticalScale(20),
+                ),
+              },
             ]}
           >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
               <TouchableOpacity onPress={onClose}>
-                <AntDesign name="close" size={24} color={colors.textPrimary} />
+                <AntDesign
+                  name="close"
+                  size={scale(24)}
+                  color={colors.textPrimary}
+                />
               </TouchableOpacity>
             </View>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 60 }}
+              contentContainerStyle={{ paddingBottom: verticalScale(60) }}
             >
               <TouchableOpacity
                 style={[styles.avatarContainer, { alignSelf: "center" }]}
@@ -87,13 +97,13 @@ export const EditProfileModal = ({
                   <View style={styles.avatarPlaceholder}>
                     <AntDesign
                       name="user"
-                      size={40}
+                      size={scale(40)}
                       color={colors.textSecondary}
                     />
                   </View>
                 )}
                 <View style={styles.editBadge}>
-                  <AntDesign name="camera" size={14} color="#FFF" />
+                  <AntDesign name="camera" size={scale(14)} color="#FFF" />
                 </View>
               </TouchableOpacity>
 
@@ -193,7 +203,15 @@ export const EditProfileModal = ({
                 </View>
               </View>
 
-              <Text style={[styles.label, { marginTop: 15, marginBottom: 10 }]}>
+              <Text
+                style={[
+                  styles.label,
+                  {
+                    marginTop: verticalScale(15),
+                    marginBottom: verticalScale(10),
+                  },
+                ]}
+              >
                 {t("profile.bio", "Presentación")}
               </Text>
               <TextInput
@@ -209,17 +227,17 @@ export const EditProfileModal = ({
                 style={{
                   backgroundColor: colors.surface,
                   color: colors.textPrimary,
-                  borderRadius: 10,
-                  padding: 15,
-                  minHeight: 100,
+                  borderRadius: scale(10),
+                  padding: scale(15),
+                  minHeight: verticalScale(100),
                   textAlignVertical: "top",
                   borderWidth: 1,
                   borderColor: colors.border,
-                  marginBottom: 20,
+                  marginBottom: verticalScale(20),
                 }}
               />
 
-              <View style={{ marginTop: 15, gap: 10 }}>
+              <View style={{ marginTop: verticalScale(15), gap: scale(10) }}>
                 <PrimaryButton
                   title={t("profile.saveChanges")}
                   onPress={handleSave}

@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { getStyles } from "../styles/Profile.styles";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 interface SettingsModalProps {
   visible: boolean;
@@ -64,7 +65,9 @@ export const SettingsModal = ({
   };
 
   const safePaddingTop =
-    Platform.OS === "android" ? (StatusBar.currentHeight || 20) + 15 : 20;
+    Platform.OS === "android"
+      ? (StatusBar.currentHeight || verticalScale(20)) + verticalScale(15)
+      : verticalScale(20);
 
   return (
     <>
@@ -79,43 +82,49 @@ export const SettingsModal = ({
             style={{
               flexDirection: "row",
               alignItems: "center",
-              padding: 20,
+              padding: scale(20),
               paddingTop: safePaddingTop,
               borderBottomWidth: 1,
               borderColor: colors.border,
             }}
           >
             <TouchableOpacity onPress={onClose}>
-              <Feather name="arrow-left" size={26} color={colors.textPrimary} />
+              <Feather
+                name="arrow-left"
+                size={scale(26)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 20,
+                fontSize: moderateScale(20),
                 fontWeight: "bold",
                 color: colors.textPrimary,
-                marginLeft: 20,
+                marginLeft: scale(20),
               }}
             >
               {t("profile.settings")}
             </Text>
           </View>
 
-          <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: verticalScale(60) }}
+          >
             {/* SECCIÓN CUENTA */}
             <View
               style={{
-                paddingHorizontal: 20,
-                paddingTop: 30,
-                paddingBottom: 10,
+                paddingHorizontal: scale(20),
+                paddingTop: verticalScale(30),
+                paddingBottom: verticalScale(10),
               }}
             >
               <Text
                 style={{
-                  fontSize: 13,
+                  fontSize: moderateScale(13),
                   color: colors.primary,
                   fontWeight: "bold",
-                  marginBottom: 15,
-                  letterSpacing: 1,
+                  marginBottom: verticalScale(15),
+                  letterSpacing: scale(1),
                 }}
               >
                 {t("profile.accountSection")}
@@ -124,10 +133,12 @@ export const SettingsModal = ({
               <View
                 style={[
                   styles.settingRow,
-                  { paddingHorizontal: 0, paddingVertical: 10 },
+                  { paddingHorizontal: 0, paddingVertical: verticalScale(10) },
                 ]}
               >
-                <Text style={[styles.settingLabel, { fontSize: 16 }]}>
+                <Text
+                  style={[styles.settingLabel, { fontSize: moderateScale(16) }]}
+                >
                   {t("profile.privateAccount")}
                 </Text>
                 <Switch
@@ -143,19 +154,24 @@ export const SettingsModal = ({
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  paddingVertical: 15,
+                  paddingVertical: verticalScale(15),
                 }}
                 onPress={() => {
                   loadBlockedUsers();
                   setBlockedModalVisible(true);
                 }}
               >
-                <Text style={{ color: colors.textPrimary, fontSize: 16 }}>
+                <Text
+                  style={{
+                    color: colors.textPrimary,
+                    fontSize: moderateScale(16),
+                  }}
+                >
                   {t("profile.blockedUsers")}
                 </Text>
                 <Feather
                   name="chevron-right"
-                  size={20}
+                  size={scale(20)}
                   color={colors.textSecondary}
                 />
               </TouchableOpacity>
@@ -164,12 +180,16 @@ export const SettingsModal = ({
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  paddingVertical: 15,
+                  paddingVertical: verticalScale(15),
                 }}
                 onPress={deleteAccount}
               >
                 <Text
-                  style={{ color: "#EF4444", fontSize: 16, fontWeight: "600" }}
+                  style={{
+                    color: "#EF4444",
+                    fontSize: moderateScale(16),
+                    fontWeight: "600",
+                  }}
                 >
                   {t("profile.deleteAccount")}
                 </Text>
@@ -179,20 +199,20 @@ export const SettingsModal = ({
             {/* SECCIÓN PREFERENCIAS */}
             <View
               style={{
-                paddingHorizontal: 20,
-                paddingTop: 30,
-                paddingBottom: 20,
+                paddingHorizontal: scale(20),
+                paddingTop: verticalScale(30),
+                paddingBottom: verticalScale(20),
                 borderTopWidth: 1,
                 borderColor: colors.border,
               }}
             >
               <Text
                 style={{
-                  fontSize: 13,
+                  fontSize: moderateScale(13),
                   color: colors.primary,
                   fontWeight: "bold",
-                  marginBottom: 15,
-                  letterSpacing: 1,
+                  marginBottom: verticalScale(15),
+                  letterSpacing: scale(1),
                 }}
               >
                 {t("profile.preferencesSection")}
@@ -201,16 +221,18 @@ export const SettingsModal = ({
               <View
                 style={[
                   styles.settingRow,
-                  { paddingHorizontal: 0, paddingVertical: 10 },
+                  { paddingHorizontal: 0, paddingVertical: verticalScale(10) },
                 ]}
               >
-                <Text style={[styles.settingLabel, { fontSize: 16 }]}>
+                <Text
+                  style={[styles.settingLabel, { fontSize: moderateScale(16) }]}
+                >
                   {t("profile.language")}
                 </Text>
                 <View
                   style={[
                     styles.formSegmentContainer,
-                    { width: 140, marginBottom: 0 },
+                    { width: scale(140), marginBottom: 0 },
                   ]}
                 >
                   <TouchableOpacity
@@ -218,7 +240,7 @@ export const SettingsModal = ({
                       styles.formSegmentButton,
                       i18n.language.includes("es") &&
                         styles.formSegmentButtonActive,
-                      { paddingVertical: 6 },
+                      { paddingVertical: verticalScale(6) },
                     ]}
                     onPress={() => toggleLanguage("es")}
                   >
@@ -237,7 +259,7 @@ export const SettingsModal = ({
                       styles.formSegmentButton,
                       i18n.language.includes("en") &&
                         styles.formSegmentButtonActive,
-                      { paddingVertical: 6 },
+                      { paddingVertical: verticalScale(6) },
                     ]}
                     onPress={() => toggleLanguage("en")}
                   >
@@ -257,10 +279,12 @@ export const SettingsModal = ({
               <View
                 style={[
                   styles.settingRow,
-                  { paddingHorizontal: 0, paddingVertical: 10 },
+                  { paddingHorizontal: 0, paddingVertical: verticalScale(10) },
                 ]}
               >
-                <Text style={[styles.settingLabel, { fontSize: 16 }]}>
+                <Text
+                  style={[styles.settingLabel, { fontSize: moderateScale(16) }]}
+                >
                   {t("profile.darkMode")}
                 </Text>
                 <Switch
@@ -275,19 +299,23 @@ export const SettingsModal = ({
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  paddingVertical: 20,
-                  marginTop: 10,
+                  paddingVertical: verticalScale(20),
+                  marginTop: verticalScale(10),
                 }}
                 onPress={handleLogout}
               >
                 <AntDesign
                   name="logout"
-                  size={20}
+                  size={scale(20)}
                   color="#EF4444"
-                  style={{ marginRight: 15 }}
+                  style={{ marginRight: scale(15) }}
                 />
                 <Text
-                  style={{ color: "#EF4444", fontSize: 16, fontWeight: "600" }}
+                  style={{
+                    color: "#EF4444",
+                    fontSize: moderateScale(16),
+                    fontWeight: "600",
+                  }}
                 >
                   {t("profile.logout")}
                 </Text>
@@ -309,21 +337,25 @@ export const SettingsModal = ({
             style={{
               flexDirection: "row",
               alignItems: "center",
-              padding: 20,
+              padding: scale(20),
               paddingTop: safePaddingTop,
               borderBottomWidth: 1,
               borderColor: colors.border,
             }}
           >
             <TouchableOpacity onPress={() => setBlockedModalVisible(false)}>
-              <Feather name="arrow-left" size={26} color={colors.textPrimary} />
+              <Feather
+                name="arrow-left"
+                size={scale(26)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
             <Text
               style={{
-                fontSize: 20,
+                fontSize: moderateScale(20),
                 fontWeight: "bold",
                 color: colors.textPrimary,
-                marginLeft: 20,
+                marginLeft: scale(20),
               }}
             >
               {t("profile.blockedUsers")}
@@ -333,13 +365,13 @@ export const SettingsModal = ({
           <FlatList
             data={blockedUsers}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={{ padding: scale(20) }}
             ListEmptyComponent={() => (
               <Text
                 style={{
                   color: colors.textSecondary,
                   textAlign: "center",
-                  marginTop: 40,
+                  marginTop: verticalScale(40),
                 }}
               >
                 {t("profile.noBlockedUsers")}
@@ -351,7 +383,7 @@ export const SettingsModal = ({
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: 20,
+                  marginBottom: verticalScale(20),
                 }}
               >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -359,27 +391,27 @@ export const SettingsModal = ({
                     <Image
                       source={{ uri: item.profile_picture_url }}
                       style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        marginRight: 15,
+                        width: scale(40),
+                        height: scale(40),
+                        borderRadius: scale(20),
+                        marginRight: scale(15),
                       }}
                     />
                   ) : (
                     <View
                       style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
+                        width: scale(40),
+                        height: scale(40),
+                        borderRadius: scale(20),
                         backgroundColor: colors.surface,
                         justifyContent: "center",
                         alignItems: "center",
-                        marginRight: 15,
+                        marginRight: scale(15),
                       }}
                     >
                       <AntDesign
                         name="user"
-                        size={20}
+                        size={scale(20)}
                         color={colors.textSecondary}
                       />
                     </View>
@@ -387,7 +419,7 @@ export const SettingsModal = ({
                   <Text
                     style={{
                       color: colors.textPrimary,
-                      fontSize: 16,
+                      fontSize: moderateScale(16),
                       fontWeight: "bold",
                     }}
                   >
@@ -396,10 +428,10 @@ export const SettingsModal = ({
                 </View>
                 <TouchableOpacity
                   style={{
-                    paddingHorizontal: 15,
-                    paddingVertical: 8,
+                    paddingHorizontal: scale(15),
+                    paddingVertical: verticalScale(8),
                     backgroundColor: colors.surface,
-                    borderRadius: 8,
+                    borderRadius: scale(8),
                     borderWidth: 1,
                     borderColor: colors.border,
                   }}

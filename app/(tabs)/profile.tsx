@@ -14,6 +14,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateScale, verticalScale } from "../../src/utils/Responsive";
+
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { useUserActivity } from "../../hooks/useUserActivity";
 import { EditProfileModal } from "../../src/components/EditProfileModal";
@@ -42,10 +44,18 @@ const debugLog = (...args: any[]) => {
 const HeaderRightActions = ({ colors, styles, onShare, onSettings }: any) => (
   <View style={styles.headerRightActions}>
     <TouchableOpacity onPress={onShare}>
-      <Feather name="share" size={22} color={colors.textPrimary} />
+      <Feather
+        name="share"
+        size={moderateScale(22)}
+        color={colors.textPrimary}
+      />
     </TouchableOpacity>
     <TouchableOpacity onPress={onSettings}>
-      <AntDesign name="setting" size={24} color={colors.textPrimary} />
+      <AntDesign
+        name="setting"
+        size={moderateScale(24)}
+        color={colors.textPrimary}
+      />
     </TouchableOpacity>
   </View>
 );
@@ -73,7 +83,11 @@ const ProfileHeader = ({
         <Image source={{ uri: profilePic }} style={styles.avatarImage} />
       ) : (
         <View style={styles.avatarPlaceholder}>
-          <AntDesign name="user" size={45} color={colors.textSecondary} />
+          <AntDesign
+            name="user"
+            size={moderateScale(45)}
+            color={colors.textSecondary}
+          />
         </View>
       )}
     </View>
@@ -177,10 +191,12 @@ const WorkoutHistoryList = ({
             </Text>
             <View style={styles.historyStatsRow}>
               <Text style={styles.routineDetails}>
-                <Feather name="clock" size={12} /> {durationMins} min
+                <Feather name="clock" size={moderateScale(12)} /> {durationMins}{" "}
+                min
               </Text>
               <Text style={styles.routineDetails}>
-                <Feather name="activity" size={12} /> {totalVolume} {volumeUnit}
+                <Feather name="activity" size={moderateScale(12)} />{" "}
+                {totalVolume} {volumeUnit}
               </Text>
             </View>
           </TouchableOpacity>
@@ -342,7 +358,7 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom + verticalScale(20) },
         ]}
         refreshControl={
           <RefreshControl

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 export const getHomeStyles = (colors: any) =>
   StyleSheet.create({
@@ -13,17 +14,17 @@ export const getHomeStyles = (colors: any) =>
       backgroundColor: colors.background,
     },
     content: {
-      padding: 20,
-      paddingTop: 40,
-      paddingBottom: 100,
+      padding: scale(20),
+      paddingTop: verticalScale(40),
+      paddingBottom: verticalScale(100),
     },
 
     //Header
     headerRightContainer: {
       flexDirection: "row",
       alignItems: "center",
-      paddingRight: 20,
-      gap: 20,
+      paddingRight: scale(20),
+      gap: scale(20),
     },
     notificationIconContainer: {
       justifyContent: "center",
@@ -31,49 +32,49 @@ export const getHomeStyles = (colors: any) =>
     },
     notificationBadge: {
       position: "absolute",
-      top: -4,
-      right: -6,
+      top: verticalScale(-4),
+      right: scale(-6),
       backgroundColor: "#EF4444",
-      minWidth: 18,
-      height: 18,
-      borderRadius: 9,
+      minWidth: scale(18),
+      height: scale(18),
+      borderRadius: scale(9),
       justifyContent: "center",
       alignItems: "center",
     },
     notificationBadgeText: {
       color: "#FFF",
-      fontSize: 10,
+      fontSize: moderateScale(10),
       fontWeight: "bold",
     },
     dashboardPadding: {
-      paddingBottom: 15,
+      paddingBottom: verticalScale(15),
     },
 
     greetingContainer: {
       flexDirection: "row",
       alignItems: "center",
       flexWrap: "wrap",
-      marginTop: 10,
-      marginBottom: 25,
+      marginTop: verticalScale(10),
+      marginBottom: verticalScale(25),
     },
     greetingText: {
-      fontSize: 26,
+      fontSize: moderateScale(26),
       fontWeight: "900",
-      letterSpacing: -0.5,
+      letterSpacing: scale(-0.5),
       color: colors.primary,
     },
     usernameText: {
-      fontSize: 26,
+      fontSize: moderateScale(26),
       fontWeight: "900",
-      letterSpacing: -0.5,
+      letterSpacing: scale(-0.5),
       color: colors.textPrimary,
     },
 
     //Tarjetas de resumen semanal
     card: {
       backgroundColor: colors.surface,
-      padding: 20,
-      borderRadius: 15,
+      padding: scale(20),
+      borderRadius: scale(15),
       borderWidth: 1,
       borderColor: colors.border,
       shadowColor: "#000",
@@ -81,19 +82,19 @@ export const getHomeStyles = (colors: any) =>
       shadowOpacity: 0.1,
       shadowRadius: 4,
       elevation: 2,
-      marginBottom: 25,
+      marginBottom: verticalScale(25),
     },
     weeklySummaryHeader: {
       flexDirection: "row",
       alignItems: "center",
-      marginBottom: 15,
+      marginBottom: verticalScale(15),
     },
     weeklySummaryIcon: {
-      marginRight: 8,
+      marginRight: scale(8),
     },
     cardTitle: {
       color: colors.textPrimary,
-      fontSize: 18,
+      fontSize: moderateScale(18),
       fontWeight: "bold",
     },
     statsRow: {
@@ -118,44 +119,44 @@ export const getHomeStyles = (colors: any) =>
     },
     statNumber: {
       color: colors.primary,
-      fontSize: 26,
+      fontSize: moderateScale(26),
       fontWeight: "900",
       textAlign: "center",
     },
     statLabel: {
       color: colors.textSecondary,
-      fontSize: 14,
-      marginTop: 5,
+      fontSize: moderateScale(14),
+      marginTop: verticalScale(5),
       fontWeight: "500",
       textAlign: "center",
     },
     statLabelSmall: {
       color: colors.textSecondary,
-      fontSize: 12,
-      marginTop: 5,
+      fontSize: moderateScale(12),
+      marginTop: verticalScale(5),
       fontWeight: "500",
       textAlign: "center",
     },
     statLabelMarginBottom: {
-      marginBottom: 8,
+      marginBottom: verticalScale(8),
       marginTop: 0,
     },
 
     daysContainer: {
       flexDirection: "row",
-      gap: 4,
+      gap: scale(4),
       justifyContent: "center",
     },
     dayBadge: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+      width: scale(24),
+      height: scale(24),
+      borderRadius: scale(12),
       justifyContent: "center",
       alignItems: "center",
       borderWidth: 1,
     },
     dayBadgeText: {
-      fontSize: 10,
+      fontSize: moderateScale(10),
       fontWeight: "bold",
     },
 
@@ -167,76 +168,76 @@ export const getHomeStyles = (colors: any) =>
     feedbackContent: {
       backgroundColor: colors.background,
       flex: 1,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
+      borderTopLeftRadius: scale(20),
+      borderTopRightRadius: scale(20),
       overflow: "hidden",
     },
     feedbackScrollContent: {
-      paddingHorizontal: 20,
+      paddingHorizontal: scale(20),
       flexGrow: 1,
     },
     feedbackInputWrapper: {
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      borderRadius: scale(12),
       borderWidth: 1,
       borderColor: colors.border,
-      padding: 15,
-      marginBottom: 20,
+      padding: scale(15),
+      marginBottom: verticalScale(20),
     },
     feedbackInput: {
       color: colors.textPrimary,
-      minHeight: 120,
+      minHeight: verticalScale(120),
       textAlignVertical: "top",
-      fontSize: 15,
+      fontSize: moderateScale(15),
     },
     sendButton: {
       flexDirection: "row",
-      padding: 16,
-      borderRadius: 12,
+      padding: scale(16),
+      borderRadius: scale(12),
       alignItems: "center",
       justifyContent: "center",
-      marginTop: 10,
-      shadowOffset: { width: 0, height: 4 },
+      marginTop: verticalScale(10),
+      shadowOffset: { width: 0, height: verticalScale(4) },
       shadowOpacity: 0.3,
-      shadowRadius: 5,
+      shadowRadius: scale(5),
       elevation: 5,
     },
     sendButtonText: {
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: "bold",
       color: "#FFF",
     },
     sendButtonIcon: {
-      marginRight: 8,
+      marginRight: scale(8),
     },
 
     //Textos generales
     title: {
-      fontSize: 28,
+      fontSize: moderateScale(28),
       fontWeight: "900",
       color: colors.primary,
-      letterSpacing: -0.5,
+      letterSpacing: scale(-0.5),
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: moderateScale(16),
       color: colors.textSecondary,
-      marginTop: 5,
-      marginBottom: 25,
+      marginTop: verticalScale(5),
+      marginBottom: verticalScale(25),
     },
 
     //Botones de acción
     actionButton: {
       backgroundColor: colors.primary,
       flexDirection: "row",
-      padding: 16,
-      borderRadius: 12,
+      padding: scale(16),
+      borderRadius: scale(12),
       alignItems: "center",
       justifyContent: "center",
-      marginTop: 25,
+      marginTop: verticalScale(25),
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
+      shadowOffset: { width: 0, height: verticalScale(4) },
       shadowOpacity: 0.3,
-      shadowRadius: 5,
+      shadowRadius: scale(5),
       elevation: 5,
     },
     activeWorkoutButton: {
@@ -245,7 +246,7 @@ export const getHomeStyles = (colors: any) =>
     },
     actionButtonText: {
       color: colors.textPrimary,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: "bold",
     },
 
@@ -253,31 +254,31 @@ export const getHomeStyles = (colors: any) =>
     bookmarkContainer: {
       flexDirection: "row",
       alignItems: "center",
-      marginBottom: 8,
+      marginBottom: verticalScale(8),
     },
     bookmarkIcon: {
-      marginRight: 4,
+      marginRight: scale(4),
     },
     creatorText: {
-      fontSize: 11,
+      fontSize: moderateScale(11),
       color: colors.primary,
       fontWeight: "bold",
     },
     packDescription: {
       color: colors.textSecondary,
-      marginBottom: 12,
-      marginTop: 4,
+      marginBottom: verticalScale(12),
+      marginTop: verticalScale(4),
     },
     packRoutinesContainer: {
       flexDirection: "row",
       alignItems: "center",
     },
     packRoutinesIcon: {
-      marginRight: 6,
+      marginRight: scale(6),
     },
     packRoutinesText: {
       color: colors.primary,
       fontWeight: "bold",
-      fontSize: 13,
+      fontSize: moderateScale(13),
     },
   });

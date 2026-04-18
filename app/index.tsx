@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 import { useAuthForm } from "../hooks/useAuthForm";
 import { CustomInput } from "../src/components/CustomInput";
@@ -144,21 +145,21 @@ export default function LoginScreen() {
       <View
         style={{
           position: "absolute",
-          top: Platform.OS === "ios" ? 50 : 40,
-          right: 20,
+          top: Platform.OS === "ios" ? verticalScale(50) : verticalScale(40),
+          right: scale(20),
           zIndex: 100,
           flexDirection: "row",
-          gap: 10,
+          gap: scale(10),
         }}
       >
         <TouchableOpacity
           style={{
-            padding: 10,
+            padding: moderateScale(10),
             backgroundColor: colors.surface,
-            borderRadius: 20,
+            borderRadius: moderateScale(20),
             borderWidth: 1,
             borderColor: colors.border,
-            width: 46,
+            width: scale(46),
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -168,7 +169,7 @@ export default function LoginScreen() {
             style={{
               color: colors.textPrimary,
               fontWeight: "bold",
-              fontSize: 14,
+              fontSize: moderateScale(14),
             }}
           >
             {i18n.language.includes("es") ? "ES" : "EN"}
@@ -177,9 +178,9 @@ export default function LoginScreen() {
 
         <TouchableOpacity
           style={{
-            padding: 10,
+            padding: moderateScale(10),
             backgroundColor: colors.surface,
-            borderRadius: 20,
+            borderRadius: moderateScale(20),
             borderWidth: 1,
             borderColor: colors.border,
           }}
@@ -187,7 +188,7 @@ export default function LoginScreen() {
         >
           <Feather
             name={isDarkMode ? "sun" : "moon"}
-            size={24}
+            size={moderateScale(24)}
             color={colors.textPrimary}
           />
         </TouchableOpacity>
@@ -196,7 +197,7 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom + verticalScale(20) },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -231,21 +232,21 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!isPasswordVisible}
-                  style={{ paddingRight: 45 }}
+                  style={{ paddingRight: scale(45) }}
                 />
                 <TouchableOpacity
                   style={{
                     position: "absolute",
-                    right: 15,
+                    right: scale(15),
                     top: 0,
-                    bottom: 15,
+                    bottom: verticalScale(15),
                     justifyContent: "center",
                   }}
                   onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                 >
                   <Feather
                     name={isPasswordVisible ? "eye" : "eye-off"}
-                    size={20}
+                    size={moderateScale(20)}
                     color={colors.textSecondary}
                   />
                 </TouchableOpacity>
@@ -311,7 +312,12 @@ export default function LoginScreen() {
                   <Text style={styles.subtitle}>
                     {t("login.verifyCodeTitle")}
                   </Text>
-                  <Text style={[styles.infoText, { marginBottom: 15 }]}>
+                  <Text
+                    style={[
+                      styles.infoText,
+                      { marginBottom: verticalScale(15) },
+                    ]}
+                  >
                     {t("login.verifyCodeSubtitle")}
                   </Text>
 
@@ -329,21 +335,21 @@ export default function LoginScreen() {
                       value={newPasswordReset}
                       onChangeText={setNewPasswordReset}
                       secureTextEntry={!isPasswordVisible}
-                      style={{ paddingRight: 45 }}
+                      style={{ paddingRight: scale(45) }}
                     />
                     <TouchableOpacity
                       style={{
                         position: "absolute",
-                        right: 15,
+                        right: scale(15),
                         top: 0,
-                        bottom: 15,
+                        bottom: verticalScale(15),
                         justifyContent: "center",
                       }}
                       onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                     >
                       <Feather
                         name={isPasswordVisible ? "eye" : "eye-off"}
-                        size={20}
+                        size={moderateScale(20)}
                         color={colors.textSecondary}
                       />
                     </TouchableOpacity>
@@ -388,21 +394,21 @@ export default function LoginScreen() {
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!isPasswordVisible}
-                      style={{ paddingRight: 45 }}
+                      style={{ paddingRight: scale(45) }}
                     />
                     <TouchableOpacity
                       style={{
                         position: "absolute",
-                        right: 15,
+                        right: scale(15),
                         top: 0,
-                        bottom: 15,
+                        bottom: verticalScale(15),
                         justifyContent: "center",
                       }}
                       onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                     >
                       <Feather
                         name={isPasswordVisible ? "eye" : "eye-off"}
-                        size={20}
+                        size={moderateScale(20)}
                         color={colors.textSecondary}
                       />
                     </TouchableOpacity>
@@ -429,7 +435,7 @@ export default function LoginScreen() {
                       <View style={styles.avatarPlaceholder}>
                         <AntDesign
                           name="camera"
-                          size={32}
+                          size={moderateScale(32)}
                           color={colors.textSecondary}
                         />
                         <Text style={styles.avatarText}>
@@ -439,7 +445,11 @@ export default function LoginScreen() {
                     )}
                     {profilePic && (
                       <View style={styles.editBadge}>
-                        <AntDesign name="edit" size={14} color="#FFF" />
+                        <AntDesign
+                          name="edit"
+                          size={moderateScale(14)}
+                          color="#FFF"
+                        />
                       </View>
                     )}
                   </TouchableOpacity>
@@ -457,7 +467,10 @@ export default function LoginScreen() {
                     <PrimaryButton
                       title={t("common.next")}
                       onPress={nextStep}
-                      style={[styles.halfInput, { marginTop: 10 }]}
+                      style={[
+                        styles.halfInput,
+                        { marginTop: verticalScale(10) },
+                      ]}
                     />
                   </View>
                 </View>
@@ -476,7 +489,7 @@ export default function LoginScreen() {
                         color: birthDate
                           ? colors.textPrimary
                           : colors.textSecondary,
-                        fontSize: 16,
+                        fontSize: moderateScale(16),
                       }}
                     >
                       {birthDate || t("register.selectDate")}
@@ -497,9 +510,9 @@ export default function LoginScreen() {
                           title={t("register.confirmDate")}
                           onPress={() => setShowDatePicker(false)}
                           style={{
-                            padding: 10,
-                            marginTop: 5,
-                            marginBottom: 15,
+                            padding: moderateScale(10),
+                            marginTop: verticalScale(5),
+                            marginBottom: verticalScale(15),
                           }}
                         />
                       )}
@@ -546,12 +559,18 @@ export default function LoginScreen() {
                     <SecondaryButton
                       title={t("common.back")}
                       onPress={() => setStep(2)}
-                      style={[styles.halfInput, { marginTop: 20 }]}
+                      style={[
+                        styles.halfInput,
+                        { marginTop: verticalScale(20) },
+                      ]}
                     />
                     <PrimaryButton
                       title={t("common.next")}
                       onPress={nextStep}
-                      style={[styles.halfInput, { marginTop: 20 }]}
+                      style={[
+                        styles.halfInput,
+                        { marginTop: verticalScale(20) },
+                      ]}
                     />
                   </View>
                 </View>
@@ -561,7 +580,7 @@ export default function LoginScreen() {
                   <Text
                     style={[
                       styles.label,
-                      { textAlign: "center", marginBottom: 12 },
+                      { textAlign: "center", marginBottom: verticalScale(12) },
                     ]}
                   >
                     {t("register.systemLabel")}
@@ -638,7 +657,10 @@ export default function LoginScreen() {
                       title={t("common.finish")}
                       onPress={handleRegister}
                       loading={isLoading}
-                      style={[styles.halfInput, { marginTop: 10 }]}
+                      style={[
+                        styles.halfInput,
+                        { marginTop: verticalScale(10) },
+                      ]}
                     />
                   </View>
                 </View>
