@@ -26,17 +26,10 @@ async function sendPushNotificationViaEdgeFunction(
   body: string,
 ) {
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
     const { error } = await supabase.functions.invoke(
       "send-push-notification",
       {
         body: { recipientUserId, title, body },
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
       },
     );
 

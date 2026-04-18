@@ -67,7 +67,7 @@ export function usePushNotifications(userId: string | undefined) {
         .eq("id", uid);
 
       if (error) {
-        debugError("ERROR DE SUPABASE AL GUARDAR TOKEN:", error.message);
+        debugError("ERROR DE SUPABASE AL GUARDAR TOKEN/LOCALE:", error.message);
       } else {
         debugLog("Token e idioma guardados en Supabase con éxito!");
       }

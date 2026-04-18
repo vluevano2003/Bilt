@@ -67,6 +67,7 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
+const REST_NOTIFICATION_ID = "rest_timer_alert";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -90,9 +91,6 @@ export const ActiveWorkoutProvider = ({
   const isRestingRef = useRef(isResting);
   const restTimeRemainingRef = useRef(restTimeRemaining);
   const lastTickRef = useRef<number>(Date.now());
-
-  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const currentNotificationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     isPausedRef.current = isPaused;
@@ -133,18 +131,11 @@ export const ActiveWorkoutProvider = ({
 
   // Registramos el token de notificaciones al iniciar sesión y configuramos listeners
   const scheduleRestNotification = async (seconds: number) => {
-    if (currentNotificationIdRef.current) {
-      await Notifications.cancelScheduledNotificationAsync(
-        currentNotificationIdRef.current,
-      ).catch(debugError);
-    }
+    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
 
     if (seconds > 0) {
-      const newId = `rest_timer_${Date.now()}`;
-      currentNotificationIdRef.current = newId;
-
       await Notifications.scheduleNotificationAsync({
-        identifier: newId,
+        identifier: REST_NOTIFICATION_ID,
         content: {
           title: t(
             "activeWorkout.notificationTitle",
@@ -194,11 +185,9 @@ export const ActiveWorkoutProvider = ({
             } else {
               setRestTimeRemaining(0);
               setIsResting(false);
-              if (currentNotificationIdRef.current) {
-                Notifications.cancelScheduledNotificationAsync(
-                  currentNotificationIdRef.current,
-                );
-              }
+              Notifications.cancelScheduledNotificationAsync(
+                REST_NOTIFICATION_ID,
+              );
             }
           }
 
@@ -339,11 +328,7 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
     lastTickRef.current = Date.now();
-    if (currentNotificationIdRef.current) {
-      Notifications.cancelScheduledNotificationAsync(
-        currentNotificationIdRef.current,
-      );
-    }
+    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
   };
 
   const cancelWorkout = async () => {
@@ -354,11 +339,7 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
     await AsyncStorage.removeItem(STORAGE_KEY);
-    if (currentNotificationIdRef.current) {
-      await Notifications.cancelScheduledNotificationAsync(
-        currentNotificationIdRef.current,
-      );
-    }
+    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
   };
 
   const finishWorkout = async () => {
@@ -417,11 +398,7 @@ export const ActiveWorkoutProvider = ({
 
   const pauseWorkout = () => {
     setIsPaused(true);
-    if (currentNotificationIdRef.current) {
-      Notifications.cancelScheduledNotificationAsync(
-        currentNotificationIdRef.current,
-      );
-    }
+    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -520,38 +497,30 @@ export const ActiveWorkoutProvider = ({
     }
   };
 
-  const adjustRestTime = (secondsToAdd: number) => {
+  const adjustRestTime = async (secondsToAdd: number) => {
     if (restTimeRemainingRef.current === null) return;
 
     const newTime = Math.max(0, restTimeRemainingRef.current + secondsToAdd);
 
-    restTimeRemainingRef.current = newTime;
-    setRestTimeRemaining(newTime);
+    await Notifications.cancelScheduledNotificationAsync(
+      REST_NOTIFICATION_ID,
+    ).catch(debugError);
 
     if (newTime <= 0) {
       restTimeRemainingRef.current = null;
       isRestingRef.current = false;
       setIsResting(false);
       setRestTimeRemaining(null);
-
-      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-      if (currentNotificationIdRef.current) {
-        Notifications.cancelScheduledNotificationAsync(
-          currentNotificationIdRef.current,
-        ).catch(debugError);
-      }
-
       if (AppState.currentState === "active") {
         playTimerEndSound();
       }
       return;
     }
 
-    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+    restTimeRemainingRef.current = newTime;
+    setRestTimeRemaining(newTime);
 
-    debounceTimeoutRef.current = setTimeout(() => {
-      scheduleRestNotification(newTime);
-    }, 500);
+    await scheduleRestNotification(newTime);
   };
 
   const stopRestTimer = () => {
@@ -559,12 +528,9 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
     restTimeRemainingRef.current = null;
     isRestingRef.current = false;
-    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-    if (currentNotificationIdRef.current) {
-      Notifications.cancelScheduledNotificationAsync(
-        currentNotificationIdRef.current,
-      ).catch(debugError);
-    }
+    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
+      debugError,
+    );
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {
