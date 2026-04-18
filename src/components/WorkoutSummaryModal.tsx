@@ -13,6 +13,7 @@ import {
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
+import { verticalScale } from "../utils/Responsive";
 
 /**
  * Modal que muestra un resumen del entrenamiento al finalizar, incluyendo duración, volumen total, series completadas y distribución muscular.
@@ -44,7 +45,9 @@ export const WorkoutSummaryModal = ({
   >
     <SafeAreaView style={styles.summaryOverlay}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 160 + insets.bottom }}
+        contentContainerStyle={{
+          paddingBottom: verticalScale(160) + insets.bottom,
+        }}
       >
         <View style={styles.summaryHeader}>
           <Text style={styles.summaryHeaderTitle}>
@@ -120,7 +123,12 @@ export const WorkoutSummaryModal = ({
       <View
         style={[
           styles.summaryFooter,
-          { bottom: Math.max(35, insets.bottom + 15) },
+          {
+            bottom: Math.max(
+              verticalScale(35),
+              insets.bottom + verticalScale(15),
+            ),
+          },
         ]}
       >
         <View style={styles.adWrapper}>

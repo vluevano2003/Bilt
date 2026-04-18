@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
+import { scale, verticalScale } from "../utils/Responsive";
 
 /**
  * Componente que representa un ejercicio dentro de la lista de ejercicios activos, mostrando su nombre, sets, pesos, repeticiones y permitiendo marcar sets como completados, editar valores y acceder a detalles o temporizador de descanso.
@@ -38,16 +39,27 @@ export const ExerciseListItem = React.memo(
           >
             <Text style={styles.exerciseName}>
               {t(`exercises.${exercise.exerciseDetails.id}`)}{" "}
-              <Feather name="info" size={16} color={colors.textSecondary} />
+              <Feather
+                name="info"
+                size={scale(16)}
+                color={colors.textSecondary}
+              />
             </Text>
           </TouchableOpacity>
 
           {!isReadonly && (
             <TouchableOpacity
               onPressIn={drag}
-              style={{ paddingVertical: 4, paddingLeft: 12 }}
+              style={{
+                paddingVertical: verticalScale(4),
+                paddingLeft: scale(12),
+              }}
             >
-              <Feather name="menu" size={24} color={colors.textSecondary} />
+              <Feather
+                name="menu"
+                size={scale(24)}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -58,7 +70,7 @@ export const ExerciseListItem = React.memo(
             onOpenRest(exercise.id, exercise.restTimeSeconds || 90)
           }
         >
-          <Feather name="clock" size={14} color={colors.primary} />
+          <Feather name="clock" size={scale(14)} color={colors.primary} />
           <Text style={styles.exerciseRestText}>
             {t("activeWorkout.restTimer", "Rest Timer")}:{" "}
             {Math.floor((exercise.restTimeSeconds || 90) / 60)}:
@@ -87,7 +99,11 @@ export const ExerciseListItem = React.memo(
             </Text>
           </View>
           <View style={styles.colCheckHeader}>
-            <Feather name="check" size={14} color={colors.textSecondary} />
+            <Feather
+              name="check"
+              size={scale(14)}
+              color={colors.textSecondary}
+            />
           </View>
         </View>
 
@@ -102,7 +118,11 @@ export const ExerciseListItem = React.memo(
                   onPress={() => onRemoveSet(exercise.id, set.id)}
                   style={styles.deleteSetIcon}
                 >
-                  <Feather name="minus-circle" size={20} color="#EF4444" />
+                  <Feather
+                    name="minus-circle"
+                    size={scale(20)}
+                    color="#EF4444"
+                  />
                 </TouchableOpacity>
               )}
               <Text style={styles.setText}>{setIndex + 1}</Text>
@@ -160,7 +180,7 @@ export const ExerciseListItem = React.memo(
               >
                 <Feather
                   name="check"
-                  size={16}
+                  size={scale(16)}
                   color={set.completed ? "#FFF" : "transparent"}
                 />
               </TouchableOpacity>
@@ -173,19 +193,19 @@ export const ExerciseListItem = React.memo(
             style={{
               flexDirection: "row",
               alignItems: "center",
-              marginTop: 10,
+              marginTop: verticalScale(10),
             }}
           >
             <TouchableOpacity
               style={[
                 styles.addSetButton,
-                { flex: 1, marginTop: 0, marginRight: 10 },
+                { flex: 1, marginTop: 0, marginRight: scale(10) },
               ]}
               onPress={() => onAddSet(exercise.id)}
             >
               <Feather
                 name="plus"
-                size={16}
+                size={scale(16)}
                 color={colors.textPrimary}
                 style={styles.addSetIcon}
               />
@@ -198,14 +218,14 @@ export const ExerciseListItem = React.memo(
               onPress={() => onRemoveEx(exercise.id)}
               style={{
                 backgroundColor: "rgba(239, 68, 68, 0.1)",
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                borderRadius: 8,
+                paddingHorizontal: scale(15),
+                paddingVertical: verticalScale(10),
+                borderRadius: scale(8),
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Feather name="trash-2" size={18} color="#EF4444" />
+              <Feather name="trash-2" size={scale(18)} color="#EF4444" />
             </TouchableOpacity>
           </View>
         )}

@@ -1,6 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { scale, verticalScale } from "../utils/Responsive";
 
 /**
  * Componente de barra de navegación superior para el perfil de usuario. Incluye botones para volver, compartir y opciones adicionales.
@@ -19,20 +20,27 @@ export const TopNavigationBar = ({
   <View
     style={[
       styles.headerContainer,
-      { justifyContent: "space-between", paddingTop: insets.top + 10 },
+      {
+        justifyContent: "space-between",
+        paddingTop: insets.top + verticalScale(10),
+      },
     ]}
   >
     <TouchableOpacity onPress={onBack} style={styles.iconButton}>
-      <Feather name="arrow-left" size={28} color={colors.textPrimary} />
+      <Feather name="arrow-left" size={scale(28)} color={colors.textPrimary} />
     </TouchableOpacity>
     <View style={styles.headerRightIcons}>
       {showActions && (
         <TouchableOpacity style={styles.iconButton} onPress={onShare}>
-          <Feather name="share" size={24} color={colors.textPrimary} />
+          <Feather name="share" size={scale(24)} color={colors.textPrimary} />
         </TouchableOpacity>
       )}
       <TouchableOpacity style={styles.iconButton} onPress={onOptions}>
-        <Feather name="more-vertical" size={24} color={colors.textPrimary} />
+        <Feather
+          name="more-vertical"
+          size={scale(24)}
+          color={colors.textPrimary}
+        />
       </TouchableOpacity>
     </View>
   </View>
@@ -52,7 +60,7 @@ export const EmptyState = ({
   actionButton,
 }: any) => (
   <View style={styles.emptyStateContainer}>
-    <Feather name={icon} size={60} color={colors.textSecondary} />
+    <Feather name={icon} size={scale(60)} color={colors.textSecondary} />
     <Text style={styles.emptyStateTitle}>{title}</Text>
     <Text style={styles.emptyStateText}>{message}</Text>
     {actionButton}
@@ -82,7 +90,11 @@ export const UserInfoCard = ({
         />
       ) : (
         <View style={styles.avatarPlaceholder}>
-          <AntDesign name="user" size={45} color={colors.textSecondary} />
+          <AntDesign
+            name="user"
+            size={scale(45)}
+            color={colors.textSecondary}
+          />
         </View>
       )}
     </View>
@@ -203,7 +215,7 @@ export const SegmentedTabs = ({
     >
       <Feather
         name="grid"
-        size={22}
+        size={scale(22)}
         color={activeTab === "routines" ? colors.primary : colors.textSecondary}
       />
     </TouchableOpacity>
@@ -216,7 +228,7 @@ export const SegmentedTabs = ({
     >
       <Feather
         name="layers"
-        size={22}
+        size={scale(22)}
         color={activeTab === "packs" ? colors.primary : colors.textSecondary}
       />
     </TouchableOpacity>
@@ -229,7 +241,7 @@ export const SegmentedTabs = ({
     >
       <AntDesign
         name="calendar"
-        size={22}
+        size={scale(22)}
         color={activeTab === "history" ? colors.primary : colors.textSecondary}
       />
     </TouchableOpacity>

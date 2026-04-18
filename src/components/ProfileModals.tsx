@@ -22,6 +22,7 @@ import {
   formatDuration,
   getConvertedWeight,
 } from "../utils/profileHelpers";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 /**
  * Modal para mostrar la lista de seguidores o seguidos de un usuario
@@ -59,11 +60,19 @@ export const SocialListModal = ({
         />
       ) : (
         <View style={styles.socialListAvatarPlaceholder}>
-          <AntDesign name="user" size={20} color={colors.textSecondary} />
+          <AntDesign
+            name="user"
+            size={scale(20)}
+            color={colors.textSecondary}
+          />
         </View>
       )}
       <Text style={styles.socialListUsername}>@{item.username}</Text>
-      <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+      <Feather
+        name="chevron-right"
+        size={scale(20)}
+        color={colors.textSecondary}
+      />
     </TouchableOpacity>
   );
 
@@ -83,14 +92,18 @@ export const SocialListModal = ({
                 : t("profile.following")}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
           {loading ? (
             <ActivityIndicator
               size="large"
               color={colors.primary}
-              style={{ marginTop: 50 }}
+              style={{ marginTop: verticalScale(50) }}
             />
           ) : data.length > 0 ? (
             <FlatList
@@ -99,7 +112,10 @@ export const SocialListModal = ({
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingBottom: Math.max(60, insets.bottom + 20),
+                paddingBottom: Math.max(
+                  verticalScale(60),
+                  insets.bottom + verticalScale(20),
+                ),
               }}
             />
           ) : (
@@ -107,7 +123,7 @@ export const SocialListModal = ({
               style={{
                 color: colors.textSecondary,
                 textAlign: "center",
-                marginTop: 40,
+                marginTop: verticalScale(40),
               }}
             >
               {t("social.noResults")}
@@ -151,33 +167,40 @@ export const PackDetailsModal = ({
         <View
           style={[
             styles.modalContent,
-            { maxHeight: "85%", paddingHorizontal: 20 },
+            { maxHeight: "85%", paddingHorizontal: scale(20) },
           ]}
         >
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{pack.name}</Text>
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingBottom: Math.max(80, insets.bottom + 40),
+              paddingBottom: Math.max(
+                verticalScale(80),
+                insets.bottom + verticalScale(40),
+              ),
             }}
           >
             {pack.description ? (
               <Text
                 style={{
                   color: colors.textSecondary,
-                  marginBottom: 20,
-                  fontSize: 15,
+                  marginBottom: verticalScale(20),
+                  fontSize: moderateScale(15),
                 }}
               >
                 {pack.description}
               </Text>
             ) : null}
-            <Text style={[styles.label, { marginBottom: 15 }]}>
+            <Text style={[styles.label, { marginBottom: verticalScale(15) }]}>
               {t("weeklyPacks.routinesIncluded", "Rutinas en este Pack:")}
             </Text>
             {pack.routineIds.map((rId: string) => {
@@ -193,8 +216,8 @@ export const PackDetailsModal = ({
                   style={[
                     styles.routineCard,
                     {
-                      padding: 15,
-                      marginBottom: 15,
+                      padding: scale(15),
+                      marginBottom: verticalScale(15),
                       flexDirection: "column",
                       alignItems: "flex-start",
                     },
@@ -203,9 +226,9 @@ export const PackDetailsModal = ({
                   <Text style={styles.routineName}>{routine.name}</Text>
                   <Text
                     style={{
-                      fontSize: 14,
+                      fontSize: moderateScale(14),
                       color: colors.textSecondary,
-                      lineHeight: 20,
+                      lineHeight: moderateScale(20),
                     }}
                     numberOfLines={2}
                   >
@@ -214,7 +237,7 @@ export const PackDetailsModal = ({
                 </View>
               );
             })}
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: verticalScale(20) }}>
               <TouchableOpacity
                 style={[
                   styles.actionButton,
@@ -223,7 +246,7 @@ export const PackDetailsModal = ({
                     borderColor: isSaved ? colors.border : colors.primary,
                     flexDirection: "row",
                     justifyContent: "center",
-                    paddingVertical: 12,
+                    paddingVertical: verticalScale(12),
                   },
                 ]}
                 onPress={onToggleSave}
@@ -237,9 +260,9 @@ export const PackDetailsModal = ({
                   <>
                     <FontAwesome
                       name={isSaved ? "bookmark" : "bookmark-o"}
-                      size={18}
+                      size={scale(18)}
                       color={isSaved ? colors.textPrimary : "#FFF"}
-                      style={{ marginRight: 10 }}
+                      style={{ marginRight: scale(10) }}
                     />
                     <Text
                       style={[
@@ -299,7 +322,7 @@ export const ItemDetailsModal = ({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={[styles.modalHeader, { alignItems: "flex-start" }]}>
-            <View style={{ flex: 1, paddingRight: 15 }}>
+            <View style={{ flex: 1, paddingRight: scale(15) }}>
               <Text style={styles.modalTitle}>
                 {type === "routine" ? item.name : item.routineName}
               </Text>
@@ -308,8 +331,8 @@ export const ItemDetailsModal = ({
                 <Text
                   style={{
                     color: colors.textSecondary,
-                    fontSize: 14,
-                    marginTop: 4,
+                    fontSize: moderateScale(14),
+                    marginTop: verticalScale(4),
                   }}
                 >
                   {new Date(item.completedAt).toLocaleDateString(
@@ -328,15 +351,22 @@ export const ItemDetailsModal = ({
             </View>
             <TouchableOpacity
               onPress={onClose}
-              style={{ padding: 5, marginRight: -5 }}
+              style={{ padding: scale(5), marginRight: scale(-5) }}
             >
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingBottom: Math.max(80, insets.bottom + 40),
+              paddingBottom: Math.max(
+                verticalScale(80),
+                insets.bottom + verticalScale(40),
+              ),
             }}
           >
             {type === "history" && (
@@ -345,18 +375,26 @@ export const ItemDetailsModal = ({
                   flexDirection: "row",
                   justifyContent: "flex-start",
                   alignItems: "center",
-                  gap: 20,
-                  marginBottom: 25,
+                  gap: scale(20),
+                  marginBottom: verticalScale(25),
                 }}
               >
                 <View
-                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: scale(6),
+                  }}
                 >
-                  <Feather name="clock" size={16} color={colors.textPrimary} />
+                  <Feather
+                    name="clock"
+                    size={scale(16)}
+                    color={colors.textPrimary}
+                  />
                   <Text
                     style={{
                       color: colors.textPrimary,
-                      fontSize: 15,
+                      fontSize: moderateScale(15),
                       fontWeight: "500",
                     }}
                   >
@@ -364,17 +402,21 @@ export const ItemDetailsModal = ({
                   </Text>
                 </View>
                 <View
-                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: scale(6),
+                  }}
                 >
                   <Feather
                     name="activity"
-                    size={16}
+                    size={scale(16)}
                     color={colors.textPrimary}
                   />
                   <Text
                     style={{
                       color: colors.textPrimary,
-                      fontSize: 15,
+                      fontSize: moderateScale(15),
                       fontWeight: "500",
                     }}
                   >
@@ -388,7 +430,11 @@ export const ItemDetailsModal = ({
             <Text
               style={[
                 styles.label,
-                { marginBottom: 15, color: colors.textPrimary, fontSize: 16 },
+                {
+                  marginBottom: verticalScale(15),
+                  color: colors.textPrimary,
+                  fontSize: moderateScale(16),
+                },
               ]}
             >
               {t("routines.exercises", "Exercises")}:
@@ -401,13 +447,19 @@ export const ItemDetailsModal = ({
                   ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
                 "Ejercicio";
               return (
-                <View key={index} style={{ marginBottom: 25, paddingLeft: 5 }}>
+                <View
+                  key={index}
+                  style={{
+                    marginBottom: verticalScale(25),
+                    paddingLeft: scale(5),
+                  }}
+                >
                   <Text
                     style={{
                       color: colors.textPrimary,
-                      fontSize: 16,
+                      fontSize: moderateScale(16),
                       fontWeight: "bold",
-                      marginBottom: 10,
+                      marginBottom: verticalScale(10),
                     }}
                   >
                     • {exerciseName}
@@ -429,9 +481,9 @@ export const ItemDetailsModal = ({
                           key={setIdx}
                           style={{
                             color: colors.textSecondary,
-                            marginLeft: 15,
-                            fontSize: 14,
-                            marginBottom: 6,
+                            marginLeft: scale(15),
+                            fontSize: moderateScale(14),
+                            marginBottom: verticalScale(6),
                           }}
                         >
                           Set {setIdx + 1}: {set.reps} reps x {convertedWeight}{" "}
@@ -443,8 +495,8 @@ export const ItemDetailsModal = ({
                     <Text
                       style={{
                         color: colors.textSecondary,
-                        marginLeft: 15,
-                        fontSize: 14,
+                        marginLeft: scale(15),
+                        fontSize: moderateScale(14),
                       }}
                     >
                       {exercise.sets?.length || 0}{" "}
@@ -460,7 +512,7 @@ export const ItemDetailsModal = ({
                 style={[
                   styles.actionButton,
                   {
-                    marginTop: 30,
+                    marginTop: verticalScale(30),
                     backgroundColor: isSaved ? colors.surface : colors.primary,
                     borderColor: isSaved ? colors.border : colors.primary,
                     flexDirection: "row",
@@ -471,9 +523,9 @@ export const ItemDetailsModal = ({
               >
                 <FontAwesome
                   name={isSaved ? "bookmark" : "bookmark-o"}
-                  size={18}
+                  size={scale(18)}
                   color={isSaved ? colors.textPrimary : "#FFF"}
-                  style={{ marginRight: 10 }}
+                  style={{ marginRight: scale(10) }}
                 />
                 <Text
                   style={[

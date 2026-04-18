@@ -14,6 +14,8 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { moderateScale, verticalScale } from "../src/utils/Responsive";
+
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import {
   ExerciseType,
@@ -226,7 +228,11 @@ export default function ActiveWorkoutScreen() {
       {/*Header*/}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={handleMinimize}>
-          <AntDesign name="down" size={20} color={colors.textPrimary} />
+          <AntDesign
+            name="down"
+            size={moderateScale(20)}
+            color={colors.textPrimary}
+          />
           <Text style={styles.headerTitle}>
             {t("activeWorkout.logWorkout")}
           </Text>
@@ -271,7 +277,7 @@ export default function ActiveWorkoutScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 110 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? verticalScale(110) : 0}
       >
         <DraggableFlatList
           keyboardDismissMode="interactive"
@@ -279,8 +285,10 @@ export default function ActiveWorkoutScreen() {
           onDragEnd={({ data }) => reorderActiveExercises(data)}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{
-            padding: 15,
-            paddingBottom: isResting ? 100 + insets.bottom : 20 + insets.bottom,
+            padding: moderateScale(15),
+            paddingBottom: isResting
+              ? verticalScale(100) + insets.bottom
+              : verticalScale(20) + insets.bottom,
           }}
           showsVerticalScrollIndicator={false}
           renderItem={renderDraggableExercise}
@@ -294,7 +302,7 @@ export default function ActiveWorkoutScreen() {
                 >
                   <Feather
                     name="plus"
-                    size={20}
+                    size={moderateScale(20)}
                     color={colors.primary}
                     style={styles.addExerciseBtnIcon}
                   />
@@ -321,7 +329,12 @@ export default function ActiveWorkoutScreen() {
         <View
           style={[
             styles.floatingRestBanner,
-            { paddingBottom: Math.max(50, insets.bottom + 20) },
+            {
+              paddingBottom: Math.max(
+                verticalScale(50),
+                insets.bottom + verticalScale(20),
+              ),
+            },
           ]}
         >
           <TouchableOpacity

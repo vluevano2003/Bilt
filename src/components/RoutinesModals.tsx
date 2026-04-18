@@ -24,6 +24,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Routines.styles";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
@@ -66,17 +67,21 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
             {
               paddingHorizontal: 0,
               paddingBottom: 0,
-              paddingTop: 25,
+              paddingTop: verticalScale(25),
               maxHeight: "80%",
             },
           ]}
         >
-          <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+          <View style={[styles.modalHeader, { paddingHorizontal: scale(25) }]}>
             <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={2}>
               {name}
             </Text>
-            <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+            <TouchableOpacity onPress={onClose} style={{ padding: scale(5) }}>
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -84,8 +89,11 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
             style={{ flexShrink: 1 }}
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{
-              paddingHorizontal: 25,
-              paddingBottom: Math.max(80, insets.bottom + 40),
+              paddingHorizontal: scale(25),
+              paddingBottom: Math.max(
+                verticalScale(80),
+                insets.bottom + verticalScale(40),
+              ),
             }}
           >
             {exercise.imageUrl ? (
@@ -93,9 +101,9 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                 source={{ uri: exercise.imageUrl }}
                 style={{
                   width: "100%",
-                  height: 200,
-                  borderRadius: 15,
-                  marginBottom: 25,
+                  height: verticalScale(200),
+                  borderRadius: scale(15),
+                  marginBottom: verticalScale(25),
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
@@ -105,26 +113,26 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               <View
                 style={{
                   width: "100%",
-                  height: 200,
+                  height: verticalScale(200),
                   backgroundColor: colors.surface,
-                  borderRadius: 15,
+                  borderRadius: scale(15),
                   justifyContent: "center",
                   alignItems: "center",
-                  marginBottom: 25,
+                  marginBottom: verticalScale(25),
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
               >
                 <FontAwesome5
                   name="image"
-                  size={40}
+                  size={scale(40)}
                   color={colors.textSecondary}
                 />
                 <Text
                   style={{
                     color: colors.textSecondary,
-                    marginTop: 10,
-                    fontSize: 12,
+                    marginTop: verticalScale(10),
+                    fontSize: moderateScale(12),
                   }}
                 >
                   {t("routines.animationComingSoon", "Animación próximamente")}
@@ -132,13 +140,13 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               </View>
             )}
 
-            <View style={{ marginBottom: 20 }}>
+            <View style={{ marginBottom: verticalScale(20) }}>
               <Text
                 style={{
                   color: colors.textPrimary,
-                  fontSize: 18,
+                  fontSize: moderateScale(18),
                   fontWeight: "bold",
-                  marginBottom: 10,
+                  marginBottom: verticalScale(10),
                 }}
               >
                 {t("activeWorkout.musclesWorked", "Músculos trabajados")}
@@ -148,15 +156,15 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                   flexDirection: "row",
                   alignItems: "center",
                   flexWrap: "wrap",
-                  gap: 10,
+                  gap: scale(10),
                 }}
               >
                 <View
                   style={{
                     backgroundColor: "rgba(234, 88, 12, 0.1)",
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 20,
+                    paddingHorizontal: scale(12),
+                    paddingVertical: verticalScale(6),
+                    borderRadius: scale(20),
                     borderWidth: 1,
                     borderColor: colors.primary,
                   }}
@@ -165,7 +173,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                     style={{
                       color: colors.primary,
                       fontWeight: "bold",
-                      fontSize: 12,
+                      fontSize: moderateScale(12),
                     }}
                   >
                     {t("routines.synergists", "Sinérgicos")}
@@ -174,7 +182,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                 <Text
                   style={{
                     color: colors.textSecondary,
-                    fontSize: 14,
+                    fontSize: moderateScale(14),
                     flexShrink: 1,
                   }}
                 >
@@ -187,9 +195,9 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               <Text
                 style={{
                   color: colors.textPrimary,
-                  fontSize: 18,
+                  fontSize: moderateScale(18),
                   fontWeight: "bold",
-                  marginBottom: 10,
+                  marginBottom: verticalScale(10),
                 }}
               >
                 {t("routines.instructions", "Instrucciones")}
@@ -197,8 +205,8 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               <Text
                 style={{
                   color: colors.textSecondary,
-                  fontSize: 15,
-                  lineHeight: 24,
+                  fontSize: moderateScale(15),
+                  lineHeight: moderateScale(24),
                 }}
               >
                 {description}
@@ -260,9 +268,9 @@ export const CreatePackModal = ({
             flexDirection: "row",
             alignItems: "center",
             backgroundColor: isActive ? colors.background : colors.surface,
-            padding: 15,
-            borderRadius: 10,
-            marginBottom: 10,
+            padding: scale(15),
+            borderRadius: scale(10),
+            marginBottom: verticalScale(10),
             borderWidth: 1,
             borderColor: isActive ? colors.primary : colors.border,
             elevation: isActive ? 5 : 0,
@@ -270,22 +278,22 @@ export const CreatePackModal = ({
         >
           <TouchableOpacity
             onPress={() => toggleRoutineSelection(routine.id)}
-            style={{ marginRight: 15 }}
+            style={{ marginRight: scale(15) }}
           >
-            <Feather name="minus-circle" size={20} color="#EF4444" />
+            <Feather name="minus-circle" size={scale(20)} color="#EF4444" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text
               style={{
                 color: colors.textPrimary,
-                fontSize: 16,
+                fontSize: moderateScale(16),
                 fontWeight: "bold",
               }}
             >
               {t("common.day", "Día")} {index + 1}: {routine.name}
             </Text>
           </View>
-          <Feather name="menu" size={24} color={colors.textSecondary} />
+          <Feather name="menu" size={scale(24)} color={colors.textSecondary} />
         </TouchableOpacity>
       </ScaleDecorator>
     );
@@ -310,12 +318,14 @@ export const CreatePackModal = ({
                 {
                   paddingHorizontal: 0,
                   paddingBottom: 0,
-                  paddingTop: 25,
+                  paddingTop: verticalScale(25),
                   maxHeight: "85%",
                 },
               ]}
             >
-              <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+              <View
+                style={[styles.modalHeader, { paddingHorizontal: scale(25) }]}
+              >
                 <Text style={styles.modalTitle}>
                   {isEditing
                     ? t("weeklyPacks.edit", "Editar Pack Semanal")
@@ -324,7 +334,7 @@ export const CreatePackModal = ({
                 <TouchableOpacity onPress={onClose}>
                   <AntDesign
                     name="close"
-                    size={24}
+                    size={scale(24)}
                     color={colors.textPrimary}
                   />
                 </TouchableOpacity>
@@ -337,11 +347,14 @@ export const CreatePackModal = ({
                 onDragEnd={({ data }) => setReorderedRoutineIds(data)}
                 keyExtractor={(item) => item}
                 contentContainerStyle={{
-                  paddingHorizontal: 25,
-                  paddingBottom: Math.max(80, insets.bottom + 40),
+                  paddingHorizontal: scale(25),
+                  paddingBottom: Math.max(
+                    verticalScale(80),
+                    insets.bottom + verticalScale(40),
+                  ),
                 }}
                 ListHeaderComponent={
-                  <View style={{ paddingBottom: 15 }}>
+                  <View style={{ paddingBottom: verticalScale(15) }}>
                     <Text style={styles.label}>
                       {t("weeklyPacks.packName", "Nombre del Pack")}
                     </Text>
@@ -353,7 +366,9 @@ export const CreatePackModal = ({
                         "Ej. Semana de Hipertrofia",
                       )}
                     />
-                    <Text style={[styles.label, { marginTop: 15 }]}>
+                    <Text
+                      style={[styles.label, { marginTop: verticalScale(15) }]}
+                    >
                       {t("weeklyPacks.description", "Descripción")}
                     </Text>
                     <CustomInput
@@ -368,7 +383,10 @@ export const CreatePackModal = ({
                     <Text
                       style={[
                         styles.label,
-                        { marginTop: 25, marginBottom: 10 },
+                        {
+                          marginTop: verticalScale(25),
+                          marginBottom: verticalScale(10),
+                        },
                       ]}
                     >
                       {t(
@@ -382,7 +400,7 @@ export const CreatePackModal = ({
                         style={{
                           color: colors.textSecondary,
                           fontStyle: "italic",
-                          marginBottom: 10,
+                          marginBottom: verticalScale(10),
                         }}
                       >
                         {t(
@@ -399,9 +417,9 @@ export const CreatePackModal = ({
                         style={{
                           flexDirection: "row",
                           alignItems: "center",
-                          padding: 15,
-                          borderRadius: 10,
-                          marginBottom: 10,
+                          padding: scale(15),
+                          borderRadius: scale(10),
+                          marginBottom: verticalScale(10),
                           borderWidth: 1,
                           borderColor: colors.border,
                           backgroundColor: colors.surface,
@@ -409,12 +427,15 @@ export const CreatePackModal = ({
                       >
                         <Feather
                           name="plus-circle"
-                          size={20}
+                          size={scale(20)}
                           color={colors.primary}
-                          style={{ marginRight: 15 }}
+                          style={{ marginRight: scale(15) }}
                         />
                         <Text
-                          style={{ color: colors.textPrimary, fontSize: 16 }}
+                          style={{
+                            color: colors.textPrimary,
+                            fontSize: moderateScale(16),
+                          }}
                         >
                           {routine.name}
                         </Text>
@@ -426,11 +447,11 @@ export const CreatePackModal = ({
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        marginTop: 25,
-                        marginBottom: 15,
+                        marginTop: verticalScale(25),
+                        marginBottom: verticalScale(15),
                         borderTopWidth: 1,
                         borderTopColor: colors.border,
-                        paddingTop: 20,
+                        paddingTop: verticalScale(20),
                       }}
                     >
                       <Text style={styles.label}>
@@ -443,7 +464,7 @@ export const CreatePackModal = ({
                         style={{
                           color: colors.primary,
                           fontWeight: "bold",
-                          fontSize: 12,
+                          fontSize: moderateScale(12),
                         }}
                       >
                         {t("weeklyPacks.routinesSelected", {
@@ -469,7 +490,12 @@ export const CreatePackModal = ({
                 }
                 renderItem={renderDraggableSelectedRoutine}
                 ListFooterComponent={
-                  <View style={{ marginTop: 30, marginBottom: 20 }}>
+                  <View
+                    style={{
+                      marginTop: verticalScale(30),
+                      marginBottom: verticalScale(20),
+                    }}
+                  >
                     <PrimaryButton
                       title={
                         isEditing
@@ -527,25 +553,33 @@ export const PackDetailsModal = ({
             {
               paddingHorizontal: 0,
               paddingBottom: 0,
-              paddingTop: 25,
+              paddingTop: verticalScale(25),
               maxHeight: "85%",
             },
           ]}
         >
-          <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+          <View style={[styles.modalHeader, { paddingHorizontal: scale(25) }]}>
             <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={1}>
               {pack.name}
             </Text>
             {!pack.originalCreatorId && (
               <TouchableOpacity
                 onPress={() => onEditPack(pack)}
-                style={{ marginRight: 20 }}
+                style={{ marginRight: scale(20) }}
               >
-                <Feather name="edit-2" size={20} color={colors.primary} />
+                <Feather
+                  name="edit-2"
+                  size={scale(20)}
+                  color={colors.primary}
+                />
               </TouchableOpacity>
             )}
             <TouchableOpacity onPress={onClose}>
-              <AntDesign name="close" size={24} color={colors.textPrimary} />
+              <AntDesign
+                name="close"
+                size={scale(24)}
+                color={colors.textPrimary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -553,22 +587,25 @@ export const PackDetailsModal = ({
             style={{ flexShrink: 1 }}
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{
-              paddingHorizontal: 25,
-              paddingBottom: Math.max(40, insets.bottom + 20),
+              paddingHorizontal: scale(25),
+              paddingBottom: Math.max(
+                verticalScale(40),
+                insets.bottom + verticalScale(20),
+              ),
             }}
           >
             {pack.description && (
               <Text
                 style={{
                   color: colors.textSecondary,
-                  marginBottom: 20,
-                  fontSize: 15,
+                  marginBottom: verticalScale(20),
+                  fontSize: moderateScale(15),
                 }}
               >
                 {pack.description}
               </Text>
             )}
-            <Text style={[styles.label, { marginBottom: 15 }]}>
+            <Text style={[styles.label, { marginBottom: verticalScale(15) }]}>
               {t("weeklyPacks.routinesIncluded", "Rutinas en este Pack:")}
             </Text>
             {pack.routineIds.map((rId: string, idx: number) => {
@@ -583,7 +620,7 @@ export const PackDetailsModal = ({
                   key={routine.id + idx}
                   style={[
                     styles.routineCard,
-                    { padding: 15, marginBottom: 15 },
+                    { padding: scale(15), marginBottom: verticalScale(15) },
                   ]}
                 >
                   <View style={styles.cardHeader}>
@@ -609,7 +646,7 @@ export const PackDetailsModal = ({
               style={[
                 styles.actionButton,
                 {
-                  marginTop: 20,
+                  marginTop: verticalScale(20),
                   backgroundColor: "transparent",
                   borderColor: "#EF4444",
                   flexDirection: "row",
@@ -620,9 +657,9 @@ export const PackDetailsModal = ({
             >
               <Feather
                 name="trash-2"
-                size={18}
+                size={scale(18)}
                 color="#EF4444"
-                style={{ marginRight: 10 }}
+                style={{ marginRight: scale(10) }}
               />
               <Text style={[styles.actionButtonText, { color: "#EF4444" }]}>
                 {pack.originalCreatorId
@@ -671,17 +708,23 @@ export const ReadonlyRoutineModal = ({
               {
                 paddingHorizontal: 0,
                 paddingBottom: 0,
-                paddingTop: 25,
+                paddingTop: verticalScale(25),
                 maxHeight: "85%",
               },
             ]}
           >
-            <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+            <View
+              style={[styles.modalHeader, { paddingHorizontal: scale(25) }]}
+            >
               <Text style={[styles.modalTitle, { flex: 1 }]} numberOfLines={1}>
                 {routine.name}
               </Text>
               <TouchableOpacity onPress={onClose}>
-                <AntDesign name="close" size={24} color={colors.textPrimary} />
+                <AntDesign
+                  name="close"
+                  size={scale(24)}
+                  color={colors.textPrimary}
+                />
               </TouchableOpacity>
             </View>
 
@@ -689,18 +732,24 @@ export const ReadonlyRoutineModal = ({
               style={{ flexShrink: 1 }}
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{
-                paddingHorizontal: 25,
-                paddingBottom: Math.max(40, insets.bottom + 20),
+                paddingHorizontal: scale(25),
+                paddingBottom: Math.max(
+                  verticalScale(40),
+                  insets.bottom + verticalScale(20),
+                ),
               }}
             >
-              <Text style={[styles.label, { marginBottom: 10 }]}>
+              <Text style={[styles.label, { marginBottom: verticalScale(10) }]}>
                 {t("routines.exercises")}:
               </Text>
               {routine.exercises?.map((exercise: any, index: number) => {
                 return (
                   <View
                     key={index}
-                    style={{ marginBottom: 15, paddingLeft: 10 }}
+                    style={{
+                      marginBottom: verticalScale(15),
+                      paddingLeft: scale(10),
+                    }}
                   >
                     <TouchableOpacity
                       onPress={() =>
@@ -710,9 +759,9 @@ export const ReadonlyRoutineModal = ({
                       <Text
                         style={{
                           color: colors.primary,
-                          fontSize: 16,
+                          fontSize: moderateScale(16),
                           fontWeight: "bold",
-                          marginBottom: 5,
+                          marginBottom: verticalScale(5),
                         }}
                       >
                         • {t(`exercises.${exercise.exerciseDetails?.id}`)}
@@ -723,8 +772,8 @@ export const ReadonlyRoutineModal = ({
                       <Text
                         style={{
                           color: colors.textSecondary,
-                          marginLeft: 15,
-                          fontSize: 14,
+                          marginLeft: scale(15),
+                          fontSize: moderateScale(14),
                         }}
                       >
                         {t("routines.n_sets", {
@@ -745,7 +794,7 @@ export const ReadonlyRoutineModal = ({
                 style={[
                   styles.actionButton,
                   {
-                    marginTop: 30,
+                    marginTop: verticalScale(30),
                     backgroundColor: colors.surface,
                     borderColor: colors.border,
                     flexDirection: "row",
@@ -756,9 +805,9 @@ export const ReadonlyRoutineModal = ({
               >
                 <FontAwesome
                   name="bookmark"
-                  size={18}
+                  size={scale(18)}
                   color={colors.textPrimary}
-                  style={{ marginRight: 10 }}
+                  style={{ marginRight: scale(10) }}
                 />
                 <Text
                   style={[
@@ -806,11 +855,11 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
         <View
           style={{
             backgroundColor: isActive ? colors.background : colors.surface,
-            paddingVertical: 15,
-            paddingLeft: 15,
-            paddingRight: 5,
-            borderRadius: 10,
-            marginBottom: 15,
+            paddingVertical: verticalScale(15),
+            paddingLeft: scale(15),
+            paddingRight: scale(5),
+            borderRadius: scale(10),
+            marginBottom: verticalScale(15),
             borderWidth: 1,
             borderColor: isActive ? colors.primary : colors.border,
             elevation: isActive ? 10 : 0,
@@ -821,7 +870,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "flex-start",
-              marginBottom: 10,
+              marginBottom: verticalScale(10),
             }}
           >
             <View style={{ flex: 1 }}>
@@ -832,18 +881,22 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                   style={{
                     color: colors.textPrimary,
                     fontWeight: "bold",
-                    fontSize: 16,
+                    fontSize: moderateScale(16),
                   }}
                 >
                   {index + 1}. {t(`exercises.${routineEx.exerciseDetails.id}`)}{" "}
-                  <Feather name="info" size={14} color={colors.textSecondary} />
+                  <Feather
+                    name="info"
+                    size={scale(14)}
+                    color={colors.textSecondary}
+                  />
                 </Text>
               </TouchableOpacity>
               <Text
                 style={{
                   color: colors.textSecondary,
-                  fontSize: 13,
-                  marginTop: 4,
+                  fontSize: moderateScale(13),
+                  marginTop: verticalScale(4),
                 }}
               >
                 {t(`muscles.${routineEx.exerciseDetails.muscleGroup}`)}
@@ -852,16 +905,20 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <TouchableOpacity
                 onPress={() => editor.removeExercise(routineEx.id)}
-                style={{ padding: 8, marginRight: 2 }}
+                style={{ padding: scale(8), marginRight: scale(2) }}
               >
-                <Feather name="trash-2" size={20} color="#EF4444" />
+                <Feather name="trash-2" size={scale(20)} color="#EF4444" />
               </TouchableOpacity>
               <TouchableOpacity
                 onLongPress={drag}
                 delayLongPress={150}
-                style={{ padding: 8 }}
+                style={{ padding: scale(8) }}
               >
-                <Feather name="menu" size={24} color={colors.textSecondary} />
+                <Feather
+                  name="menu"
+                  size={scale(24)}
+                  color={colors.textSecondary}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -873,10 +930,10 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 backgroundColor: "rgba(0,0,0,0.02)",
-                padding: 8,
-                borderRadius: 6,
-                marginBottom: 5,
-                marginRight: 10,
+                padding: scale(8),
+                borderRadius: scale(6),
+                marginBottom: verticalScale(5),
+                marginRight: scale(10),
               }}
             >
               <Text style={{ color: colors.textPrimary, fontWeight: "500" }}>
@@ -886,11 +943,11 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                 onPress={() =>
                   editor.removeSetFromExercise(routineEx.id, set.id)
                 }
-                style={{ padding: 5 }}
+                style={{ padding: scale(5) }}
               >
                 <Feather
                   name="minus-circle"
-                  size={18}
+                  size={scale(18)}
                   color={colors.textSecondary}
                 />
               </TouchableOpacity>
@@ -898,7 +955,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
           ))}
           <TouchableOpacity
             style={{
-              marginTop: 10,
+              marginTop: verticalScale(10),
               flexDirection: "row",
               alignItems: "center",
               alignSelf: "flex-start",
@@ -907,9 +964,9 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
           >
             <Feather
               name="plus"
-              size={16}
+              size={scale(16)}
               color={colors.primary}
-              style={{ marginRight: 5 }}
+              style={{ marginRight: scale(5) }}
             />
             <Text style={{ color: colors.primary, fontWeight: "bold" }}>
               {t("routines.addSet", "Añadir Serie")}
@@ -940,12 +997,14 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                   {
                     paddingHorizontal: 0,
                     paddingBottom: 0,
-                    paddingTop: 25,
+                    paddingTop: verticalScale(25),
                     maxHeight: "85%",
                   },
                 ]}
               >
-                <View style={[styles.modalHeader, { paddingHorizontal: 25 }]}>
+                <View
+                  style={[styles.modalHeader, { paddingHorizontal: scale(25) }]}
+                >
                   <Text
                     style={[styles.modalTitle, { flex: 1 }]}
                     numberOfLines={1}
@@ -957,7 +1016,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                   <TouchableOpacity onPress={editor.closeRoutineModal}>
                     <AntDesign
                       name="close"
-                      size={24}
+                      size={scale(24)}
                       color={colors.textPrimary}
                     />
                   </TouchableOpacity>
@@ -971,11 +1030,14 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                   keyExtractor={(item) => item.id}
                   renderItem={renderDraggableExercise}
                   contentContainerStyle={{
-                    paddingHorizontal: 25,
-                    paddingBottom: Math.max(120, insets.bottom + 60),
+                    paddingHorizontal: scale(25),
+                    paddingBottom: Math.max(
+                      verticalScale(120),
+                      insets.bottom + verticalScale(60),
+                    ),
                   }}
                   ListHeaderComponent={
-                    <View style={{ marginBottom: 20 }}>
+                    <View style={{ marginBottom: verticalScale(20) }}>
                       <Text style={styles.label}>
                         {t("routines.routineName")}
                       </Text>
@@ -984,7 +1046,9 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                         onChangeText={editor.setRoutineName}
                         placeholder={t("routines.routineNamePlaceholder")}
                       />
-                      <Text style={[styles.label, { marginTop: 20 }]}>
+                      <Text
+                        style={[styles.label, { marginTop: verticalScale(20) }]}
+                      >
                         {t("routines.exercises")}
                       </Text>
                       {editor.routineExercises.length === 0 && (
@@ -992,7 +1056,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                           style={{
                             color: colors.textSecondary,
                             fontStyle: "italic",
-                            marginBottom: 15,
+                            marginBottom: verticalScale(15),
                           }}
                         >
                           {t("routines.noExercises")}
@@ -1007,28 +1071,28 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                           flexDirection: "row",
                           alignItems: "center",
                           justifyContent: "center",
-                          paddingVertical: 12,
+                          paddingVertical: verticalScale(12),
                           backgroundColor: "rgba(234, 88, 12, 0.1)",
-                          borderRadius: 8,
+                          borderRadius: scale(8),
                           borderWidth: 1,
                           borderColor: colors.primary,
                           borderStyle: "dashed",
-                          marginBottom: 20,
-                          marginTop: 10,
+                          marginBottom: verticalScale(20),
+                          marginTop: verticalScale(10),
                         }}
                         onPress={editor.openExerciseSelector}
                       >
                         <Feather
                           name="plus"
-                          size={20}
+                          size={scale(20)}
                           color={colors.primary}
-                          style={{ marginRight: 8 }}
+                          style={{ marginRight: scale(8) }}
                         />
                         <Text
                           style={{
                             color: colors.primary,
                             fontWeight: "bold",
-                            fontSize: 16,
+                            fontSize: moderateScale(16),
                           }}
                         >
                           {t("routines.addExercise")}
@@ -1036,7 +1100,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                       </TouchableOpacity>
                       <View style={styles.buttonsRow}>
                         {editor.editingRoutine && (
-                          <View style={{ flex: 1, marginRight: 10 }}>
+                          <View style={{ flex: 1, marginRight: scale(10) }}>
                             <SecondaryButton
                               title={t("routines.delete")}
                               onPress={() =>

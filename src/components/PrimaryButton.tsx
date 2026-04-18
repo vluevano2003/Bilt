@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 interface ButtonProps {
   title: string;
@@ -46,14 +47,14 @@ const getStyles = (colors: any) =>
   StyleSheet.create({
     buttonPrimary: {
       backgroundColor: colors.primary,
-      padding: 15,
-      borderRadius: 10,
+      padding: verticalScale(15),
+      borderRadius: scale(10),
       alignItems: "center",
-      marginTop: 10,
+      marginTop: verticalScale(10),
     },
     buttonTextPrimary: {
       color: colors.textPrimary,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: "bold",
     },
   });

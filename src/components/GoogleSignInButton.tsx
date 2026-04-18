@@ -5,16 +5,10 @@ import {
 } from "@react-native-google-signin/google-signin";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { supabase } from "../config/supabase";
 import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 interface GoogleSignInButtonProps {
   onRegisterRequired?: (userData: {
@@ -22,16 +16,12 @@ interface GoogleSignInButtonProps {
     name: string;
     photo: string;
   }) => void;
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
-/**
- * Componente de botón para iniciar sesión con Google
- * Maneja la lógica de autenticación con Google y Supabase, y notifica si se requiere registro adicional
- * @param param0
- * @returns
- */
 export const GoogleSignInButton = ({
   onRegisterRequired,
+  onLoadingChange,
 }: GoogleSignInButtonProps) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -48,6 +38,7 @@ export const GoogleSignInButton = ({
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    onLoadingChange?.(true);
     try {
       await GoogleSignin.hasPlayServices();
 
@@ -102,6 +93,7 @@ export const GoogleSignInButton = ({
       }
     } finally {
       setIsLoading(false);
+      onLoadingChange?.(false);
     }
   };
 
@@ -117,19 +109,12 @@ export const GoogleSignInButton = ({
         onPress={handleGoogleLogin}
         disabled={isLoading}
       >
-        {isLoading ? (
-          <ActivityIndicator
-            color={colors.textPrimary}
-            style={{ marginRight: 10 }}
-          />
-        ) : (
-          <AntDesign
-            name="google"
-            size={24}
-            color={colors.textPrimary}
-            style={{ marginRight: 10 }}
-          />
-        )}
+        <AntDesign
+          name="google"
+          size={scale(24)}
+          color={colors.textPrimary}
+          style={{ marginRight: scale(10) }}
+        />
         <Text style={styles.googleButtonText}>{t("google.continue")}</Text>
       </TouchableOpacity>
     </>
@@ -141,19 +126,23 @@ const getStyles = (colors: any) =>
     dividerContainer: {
       flexDirection: "row",
       alignItems: "center",
-      marginVertical: 20,
+      marginVertical: verticalScale(20),
     },
-    dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+    dividerLine: {
+      flex: 1,
+      height: verticalScale(1),
+      backgroundColor: colors.border,
+    },
     dividerText: {
       color: colors.textSecondary,
-      paddingHorizontal: 10,
-      fontSize: 14,
+      paddingHorizontal: scale(10),
+      fontSize: moderateScale(14),
     },
     googleButton: {
       flexDirection: "row",
       backgroundColor: colors.surface,
-      padding: 15,
-      borderRadius: 10,
+      padding: scale(15),
+      borderRadius: scale(10),
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 1,
@@ -161,7 +150,7 @@ const getStyles = (colors: any) =>
     },
     googleButtonText: {
       color: colors.textPrimary,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: "600",
     },
   });

@@ -6,6 +6,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../context/ActiveWorkoutContext";
 import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 export const MiniWorkoutPlayer = () => {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ export const MiniWorkoutPlayer = () => {
         <Text style={styles.time}>{formatTime(elapsedSeconds)}</Text>
       </View>
       <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-        <Feather name="x" size={20} color="#FFF" />
+        <Feather name="x" size={scale(20)} color="#FFF" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -65,20 +66,20 @@ const getStyles = (colors: any, bottomInset: number) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      bottom: 75 + bottomInset,
-      left: 15,
-      right: 15,
+      bottom: verticalScale(75) + bottomInset,
+      left: scale(15),
+      right: scale(15),
       backgroundColor: colors.primary,
-      borderRadius: 12,
+      borderRadius: scale(12),
       flexDirection: "row",
       alignItems: "center",
-      padding: 15,
+      padding: scale(15),
       elevation: 10,
       zIndex: 1000,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
+      shadowOffset: { width: 0, height: verticalScale(4) },
       shadowOpacity: 0.3,
-      shadowRadius: 5,
+      shadowRadius: scale(5),
     },
     info: {
       flex: 1,
@@ -86,18 +87,18 @@ const getStyles = (colors: any, bottomInset: number) =>
     title: {
       color: "#FFF",
       fontWeight: "bold",
-      fontSize: 15,
+      fontSize: moderateScale(15),
     },
     time: {
       color: "rgba(255, 255, 255, 0.8)",
-      fontSize: 13,
-      marginTop: 2,
+      fontSize: moderateScale(13),
+      marginTop: verticalScale(2),
       fontVariant: ["tabular-nums"],
     },
     cancelBtn: {
-      padding: 8,
+      padding: scale(8),
       backgroundColor: "rgba(0, 0, 0, 0.2)",
-      borderRadius: 20,
-      marginLeft: 10,
+      borderRadius: scale(20),
+      marginLeft: scale(10),
     },
   });
