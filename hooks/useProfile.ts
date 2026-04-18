@@ -17,35 +17,37 @@ export interface SocialUser {
 }
 
 /**
- * Función para enviar notificaciones push usando Expo Push API
+ * Envía notificación push a través de la Edge Function de Supabase.
+ * Más rápido que llamar directo a Expo desde el cliente.
  */
-async function sendPushNotification(
-  expoPushToken: string,
+async function sendPushNotificationViaEdgeFunction(
+  recipientUserId: string,
   title: string,
   body: string,
 ) {
-  const message = {
-    to: expoPushToken,
-    sound: "default",
-    title: title,
-    body: body,
-    data: { someData: "goes here" },
-  };
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Accept-encoding": "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
-  });
+    const { error } = await supabase.functions.invoke(
+      "send-push-notification",
+      {
+        body: { recipientUserId, title, body },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      },
+    );
+
+    if (error) {
+      console.log("Error enviando notificación via Edge Function:", error);
+    }
+  } catch (e) {
+    console.log("Error inesperado al invocar Edge Function:", e);
+  }
 }
 
-/**
- * Hook personalizado para manejar la lógica del perfil de usuario
- */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -68,6 +70,7 @@ export const useProfile = (profileUid?: string) => {
   const [measurementSystem, setMeasurementSystem] = useState<
     "metric" | "imperial"
   >("metric");
+  const [targetLocale, setTargetLocale] = useState("es");
 
   const [editUsername, setEditUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState<string | null>(null);
@@ -79,7 +82,6 @@ export const useProfile = (profileUid?: string) => {
   >("metric");
 
   const [isPrivate, setIsPrivate] = useState(false);
-
   const [followStatus, setFollowStatus] = useState<
     "none" | "pending" | "following"
   >("none");
@@ -88,7 +90,6 @@ export const useProfile = (profileUid?: string) => {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
 
@@ -101,23 +102,21 @@ export const useProfile = (profileUid?: string) => {
         .single();
 
       if (error || !data) {
-        debugLog("Perfil no encontrado o bloqueado por RLS");
         setHasBlockedMe(true);
         setIsLoading(false);
         return;
       }
 
-      if (data) {
-        setUsername(data.username || "");
-        setProfilePic(data.profile_picture_url || null);
-        setEmail(data.email || "");
-        setGender(data.gender || "");
-        setMeasurementSystem(data.measurement_system || "metric");
-        setHeight(data.height?.toString() || "");
-        setWeight(data.weight?.toString() || "");
-        setBio(data.bio || "");
-        setIsPrivate(data.is_private || false);
-      }
+      setUsername(data.username || "");
+      setProfilePic(data.profile_picture_url || null);
+      setEmail(data.email || "");
+      setGender(data.gender || "");
+      setMeasurementSystem(data.measurement_system || "metric");
+      setHeight(data.height?.toString() || "");
+      setWeight(data.weight?.toString() || "");
+      setBio(data.bio || "");
+      setTargetLocale(data.locale || "es");
+      setIsPrivate(data.is_private || false);
       setIsLoading(false);
     } catch (err) {
       setHasBlockedMe(true);
@@ -226,9 +225,7 @@ export const useProfile = (profileUid?: string) => {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "follows" },
-        () => {
-          fetchSocialStats();
-        },
+        () => fetchSocialStats(),
       )
       .subscribe();
 
@@ -318,8 +315,6 @@ export const useProfile = (profileUid?: string) => {
       setIsEditing(false);
       Alert.alert(t("profile.alerts.success"), t("profile.alerts.successSave"));
     } catch (error: any) {
-      debugLog("Error al guardar perfil:", error);
-
       if (error?.code === "23505") {
         Alert.alert(
           t("profile.alerts.usernameTakenTitle", "Nombre no disponible"),
@@ -371,7 +366,7 @@ export const useProfile = (profileUid?: string) => {
       } else {
         const { data: targetData } = await supabase
           .from("users")
-          .select("is_private, push_token")
+          .select("is_private")
           .eq("id", targetUid)
           .single();
 
@@ -394,19 +389,23 @@ export const useProfile = (profileUid?: string) => {
           .single();
         const myName = myUser?.username || "Alguien";
 
-        if (targetData?.push_token) {
-          const title =
-            finalStatus === "pending"
-              ? t("social.notifications.newRequestTitle")
-              : t("social.notifications.newFollowerTitle");
+        const title =
+          finalStatus === "pending"
+            ? t("social.notifications.newRequestTitle", { lng: targetLocale })
+            : t("social.notifications.newFollowerTitle", { lng: targetLocale });
 
-          const body =
-            finalStatus === "pending"
-              ? t("social.notifications.newRequestBody", { name: myName })
-              : t("social.notifications.newFollowerBody", { name: myName });
+        const body =
+          finalStatus === "pending"
+            ? t("social.notifications.newRequestBody", {
+                name: myName,
+                lng: targetLocale,
+              })
+            : t("social.notifications.newFollowerBody", {
+                name: myName,
+                lng: targetLocale,
+              });
 
-          await sendPushNotification(targetData.push_token, title, body);
-        }
+        await sendPushNotificationViaEdgeFunction(targetUid, title, body);
       }
     } catch (error) {
       Alert.alert(t("profile.alerts.error"), "No se pudo completar la acción.");
@@ -484,19 +483,24 @@ export const useProfile = (profileUid?: string) => {
           .single();
         const myName = myUser?.username || "Alguien";
 
-        const { data: followerUser } = await supabase
+        const { data: requestUser } = await supabase
           .from("users")
-          .select("push_token")
+          .select("locale")
           .eq("id", userIdToHandle)
           .single();
 
-        if (followerUser?.push_token) {
-          await sendPushNotification(
-            followerUser.push_token,
-            t("social.notifications.requestAcceptedTitle"),
-            t("social.notifications.requestAcceptedBody", { name: myName }),
-          );
-        }
+        const recipientLang = requestUser?.locale || "es";
+
+        await sendPushNotificationViaEdgeFunction(
+          userIdToHandle,
+          t("social.notifications.requestAcceptedTitle", {
+            lng: recipientLang,
+          }),
+          t("social.notifications.requestAcceptedBody", {
+            name: myName,
+            lng: recipientLang,
+          }),
+        );
       } else {
         await supabase
           .from("follows")
@@ -606,9 +610,7 @@ export const useProfile = (profileUid?: string) => {
     if (!currentUserId) return [];
     try {
       const { data, error } = await supabase.rpc("get_my_blocked_users");
-
       if (error) throw error;
-
       return data || [];
     } catch (error) {
       debugLog("Error al obtener bloqueados:", error);

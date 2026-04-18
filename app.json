@@ -21,7 +21,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["SCHEDULE_EXACT_ALARM"]
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "output": "static",
@@ -54,7 +60,8 @@
         "expo-notifications",
         {
           "icon": "./assets/images/logo_white_nobg.png",
-          "color": "#ea580c"
+          "color": "#ea580c",
+          "defaultChannel": "default"
         }
       ],
       "@react-native-google-signin/google-signin"

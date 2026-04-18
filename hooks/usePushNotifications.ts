@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
+import { getLocales } from "expo-localization";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -28,20 +29,12 @@ export function usePushNotifications(userId: string | undefined) {
   const responseListener = useRef<Notifications.Subscription | null>(null);
 
   useEffect(() => {
-    if (!userId) {
-      debugLog("No hay userId, esperando a que inicie sesión...");
-      return;
-    }
-
-    debugLog("Iniciando registro de notificaciones para el usuario:", userId);
+    if (!userId) return;
 
     registerForPushNotificationsAsync().then((token) => {
       if (token) {
-        debugLog("¡Token generado exitosamente! ->", token);
         setExpoPushToken(token);
         saveTokenToSupabase(userId, token);
-      } else {
-        debugLog("No se pudo generar el token de Expo.");
       }
     });
 
@@ -62,20 +55,24 @@ export function usePushNotifications(userId: string | undefined) {
   }, [userId]);
 
   const saveTokenToSupabase = async (uid: string, token: string) => {
-    debugLog("Intentando guardar token en Supabase...");
     try {
-      const { data, error } = await supabase
+      const currentLocale = getLocales()[0]?.languageCode ?? "es";
+
+      const { error } = await supabase
         .from("users")
-        .update({ push_token: token })
+        .update({
+          push_token: token,
+          locale: currentLocale,
+        })
         .eq("id", uid);
 
       if (error) {
-        debugError("❌ ERROR DE SUPABASE AL GUARDAR TOKEN:", error.message);
+        debugError("ERROR DE SUPABASE AL GUARDAR TOKEN:", error.message);
       } else {
-        debugLog("✅ ¡Token guardado en Supabase con éxito!");
+        debugLog("Token e idioma guardados en Supabase con éxito!");
       }
     } catch (error) {
-      debugError("❌ ERROR DESCONOCIDO AL GUARDAR:", error);
+      debugError("ERROR DESCONOCIDO AL GUARDAR:", error);
     }
   };
 
@@ -84,10 +81,14 @@ export function usePushNotifications(userId: string | undefined) {
 
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
+        name: "General",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
+        lightColor: "#ea580c",
+        lockscreenVisibility:
+          Notifications.AndroidNotificationVisibility.PUBLIC,
+        bypassDnd: false,
+        showBadge: true,
       });
     }
 
@@ -97,28 +98,22 @@ export function usePushNotifications(userId: string | undefined) {
       let finalStatus = existingStatus;
 
       if (existingStatus !== "granted") {
-        debugLog("Pidiendo permisos al usuario...");
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
 
       if (finalStatus !== "granted") {
-        debugLog("❌ El usuario denegó los permisos de notificaciones.");
+        debugLog("El usuario denegó los permisos de notificaciones.");
         return;
       }
 
       try {
-        debugLog(
-          "Permisos concedidos, solicitando token a los servidores de Expo...",
-        );
         const projectId =
           Constants?.expoConfig?.extra?.eas?.projectId ??
           Constants?.easConfig?.projectId;
 
         if (!projectId) {
-          debugWarn(
-            "⚠️ Advertencia: No se encontró projectId. Si da error, necesitas ponerlo manual.",
-          );
+          debugWarn("No se encontró projectId.");
         }
 
         token = (
@@ -126,11 +121,13 @@ export function usePushNotifications(userId: string | undefined) {
             projectId: projectId,
           })
         ).data;
+
+        debugLog("Token generado:", token);
       } catch (e: any) {
-        debugError("❌ ERROR AL PEDIR TOKEN A EXPO:", e);
+        debugError("ERROR AL PEDIR TOKEN A EXPO:", e);
       }
     } else {
-      debugLog("❌ Estás en un emulador. Usa un celular físico.");
+      debugLog("Estás en un emulador. Usa un celular físico.");
     }
 
     return token;

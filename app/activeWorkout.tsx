@@ -334,24 +334,15 @@ export default function ActiveWorkoutScreen() {
                 verticalScale(50),
                 insets.bottom + verticalScale(20),
               ),
+              justifyContent: "space-between",
+              paddingHorizontal: moderateScale(20),
             },
           ]}
         >
-          <TouchableOpacity
-            style={styles.floatingRestAdjustBtn}
-            onPress={() => adjustRestTime(-15)}
-          >
-            <Text style={styles.floatingRestAdjustText}>-15</Text>
-          </TouchableOpacity>
           <Text style={styles.floatingRestTime}>
             {formatRestTimeStr(restTimeRemaining)}
           </Text>
-          <TouchableOpacity
-            style={styles.floatingRestAdjustBtn}
-            onPress={() => adjustRestTime(15)}
-          >
-            <Text style={styles.floatingRestAdjustText}>+15</Text>
-          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.floatingRestSkipBtn}
             onPress={stopRestTimer}

@@ -20,16 +20,6 @@ import {
 import { supabase } from "../config/supabase";
 import { useAuth } from "./AuthContext";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
@@ -77,7 +67,6 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
-const REST_NOTIFICATION_ID = "rest_timer_alert";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -102,13 +91,15 @@ export const ActiveWorkoutProvider = ({
   const restTimeRemainingRef = useRef(restTimeRemaining);
   const lastTickRef = useRef<number>(Date.now());
 
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentNotificationIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     isPausedRef.current = isPaused;
     isRestingRef.current = isResting;
     restTimeRemainingRef.current = restTimeRemaining;
   }, [isPaused, isResting, restTimeRemaining]);
 
-  // Configuración inicial del sistema de audio y notificaciones
   useEffect(() => {
     const setupSystem = async () => {
       await Audio.setAudioModeAsync({
@@ -131,6 +122,9 @@ export const ActiveWorkoutProvider = ({
           lockscreenVisibility:
             Notifications.AndroidNotificationVisibility.PUBLIC,
           bypassDnd: true,
+          enableLights: true,
+          lightColor: "#ea580c",
+          showBadge: false,
         });
       }
     };
@@ -139,11 +133,18 @@ export const ActiveWorkoutProvider = ({
 
   // Registramos el token de notificaciones al iniciar sesión y configuramos listeners
   const scheduleRestNotification = async (seconds: number) => {
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    if (currentNotificationIdRef.current) {
+      await Notifications.cancelScheduledNotificationAsync(
+        currentNotificationIdRef.current,
+      ).catch(debugError);
+    }
 
     if (seconds > 0) {
+      const newId = `rest_timer_${Date.now()}`;
+      currentNotificationIdRef.current = newId;
+
       await Notifications.scheduleNotificationAsync({
-        identifier: REST_NOTIFICATION_ID,
+        identifier: newId,
         content: {
           title: t(
             "activeWorkout.notificationTitle",
@@ -153,7 +154,7 @@ export const ActiveWorkoutProvider = ({
             "activeWorkout.notificationBody",
             "Es hora de tu siguiente serie. ¡A darle!",
           ),
-          sound: true,
+          sound: "default",
           priority: Notifications.AndroidNotificationPriority.MAX,
         },
         trigger: {
@@ -193,9 +194,11 @@ export const ActiveWorkoutProvider = ({
             } else {
               setRestTimeRemaining(0);
               setIsResting(false);
-              Notifications.cancelScheduledNotificationAsync(
-                REST_NOTIFICATION_ID,
-              );
+              if (currentNotificationIdRef.current) {
+                Notifications.cancelScheduledNotificationAsync(
+                  currentNotificationIdRef.current,
+                );
+              }
             }
           }
 
@@ -240,9 +243,7 @@ export const ActiveWorkoutProvider = ({
       }
     });
 
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [isWorkoutActive]);
 
   // Reloj Maestro Autocorrectivo
@@ -338,7 +339,11 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
     lastTickRef.current = Date.now();
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    if (currentNotificationIdRef.current) {
+      Notifications.cancelScheduledNotificationAsync(
+        currentNotificationIdRef.current,
+      );
+    }
   };
 
   const cancelWorkout = async () => {
@@ -349,7 +354,11 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
     await AsyncStorage.removeItem(STORAGE_KEY);
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    if (currentNotificationIdRef.current) {
+      await Notifications.cancelScheduledNotificationAsync(
+        currentNotificationIdRef.current,
+      );
+    }
   };
 
   const finishWorkout = async () => {
@@ -408,7 +417,11 @@ export const ActiveWorkoutProvider = ({
 
   const pauseWorkout = () => {
     setIsPaused(true);
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    if (currentNotificationIdRef.current) {
+      Notifications.cancelScheduledNotificationAsync(
+        currentNotificationIdRef.current,
+      );
+    }
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -507,23 +520,51 @@ export const ActiveWorkoutProvider = ({
     }
   };
 
-  const adjustRestTime = async (secondsToAdd: number) => {
+  const adjustRestTime = (secondsToAdd: number) => {
     if (restTimeRemainingRef.current === null) return;
 
     const newTime = Math.max(0, restTimeRemainingRef.current + secondsToAdd);
-    setRestTimeRemaining(newTime > 0 ? newTime : 0);
 
-    if (newTime > 0) {
-      scheduleRestNotification(newTime);
-    } else {
-      stopRestTimer();
+    restTimeRemainingRef.current = newTime;
+    setRestTimeRemaining(newTime);
+
+    if (newTime <= 0) {
+      restTimeRemainingRef.current = null;
+      isRestingRef.current = false;
+      setIsResting(false);
+      setRestTimeRemaining(null);
+
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+      if (currentNotificationIdRef.current) {
+        Notifications.cancelScheduledNotificationAsync(
+          currentNotificationIdRef.current,
+        ).catch(debugError);
+      }
+
+      if (AppState.currentState === "active") {
+        playTimerEndSound();
+      }
+      return;
     }
+
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      scheduleRestNotification(newTime);
+    }, 500);
   };
 
-  const stopRestTimer = async () => {
+  const stopRestTimer = () => {
     setIsResting(false);
     setRestTimeRemaining(null);
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    restTimeRemainingRef.current = null;
+    isRestingRef.current = false;
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+    if (currentNotificationIdRef.current) {
+      Notifications.cancelScheduledNotificationAsync(
+        currentNotificationIdRef.current,
+      ).catch(debugError);
+    }
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {
