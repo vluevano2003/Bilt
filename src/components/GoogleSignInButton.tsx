@@ -5,14 +5,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { supabase } from "../config/supabase";
 import { useTheme } from "../context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
@@ -23,16 +16,12 @@ interface GoogleSignInButtonProps {
     name: string;
     photo: string;
   }) => void;
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
-/**
- * Componente de botón para iniciar sesión con Google
- * Maneja la lógica de autenticación con Google y Supabase, y notifica si se requiere registro adicional
- * @param param0
- * @returns
- */
 export const GoogleSignInButton = ({
   onRegisterRequired,
+  onLoadingChange,
 }: GoogleSignInButtonProps) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -49,6 +38,7 @@ export const GoogleSignInButton = ({
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    onLoadingChange?.(true);
     try {
       await GoogleSignin.hasPlayServices();
 
@@ -103,6 +93,7 @@ export const GoogleSignInButton = ({
       }
     } finally {
       setIsLoading(false);
+      onLoadingChange?.(false);
     }
   };
 
@@ -118,19 +109,12 @@ export const GoogleSignInButton = ({
         onPress={handleGoogleLogin}
         disabled={isLoading}
       >
-        {isLoading ? (
-          <ActivityIndicator
-            color={colors.textPrimary}
-            style={{ marginRight: scale(10) }}
-          />
-        ) : (
-          <AntDesign
-            name="google"
-            size={scale(24)}
-            color={colors.textPrimary}
-            style={{ marginRight: scale(10) }}
-          />
-        )}
+        <AntDesign
+          name="google"
+          size={scale(24)}
+          color={colors.textPrimary}
+          style={{ marginRight: scale(10) }}
+        />
         <Text style={styles.googleButtonText}>{t("google.continue")}</Text>
       </TouchableOpacity>
     </>

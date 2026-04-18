@@ -5,11 +5,13 @@ import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   BackHandler,
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   ToastAndroid,
   TouchableOpacity,
@@ -35,7 +37,9 @@ export default function LoginScreen() {
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -136,6 +140,8 @@ export default function LoginScreen() {
       debugError("Error saving language", error);
     }
   };
+
+  const showOverlay = isLoading || isGoogleLoading;
 
   return (
     <KeyboardAvoidingView
@@ -263,9 +269,11 @@ export default function LoginScreen() {
               <PrimaryButton
                 title={t("login.loginButton")}
                 onPress={handleLogin}
-                loading={isLoading}
               />
-              <GoogleSignInButton onRegisterRequired={handleGoogleRegister} />
+              <GoogleSignInButton
+                onRegisterRequired={handleGoogleRegister}
+                onLoadingChange={setIsGoogleLoading}
+              />
               <TouchableOpacity
                 style={styles.toggleButton}
                 onPress={() => {
@@ -296,7 +304,6 @@ export default function LoginScreen() {
                   <PrimaryButton
                     title={t("login.sendLink")}
                     onPress={handleForgotPassword}
-                    loading={isLoading}
                   />
                   <TouchableOpacity
                     style={styles.toggleButton}
@@ -358,7 +365,6 @@ export default function LoginScreen() {
                   <PrimaryButton
                     title={t("login.updatePasswordBtn")}
                     onPress={handleVerifyResetCode}
-                    loading={isLoading}
                   />
                   <TouchableOpacity
                     style={styles.toggleButton}
@@ -415,8 +421,10 @@ export default function LoginScreen() {
                   </View>
 
                   <PrimaryButton title={t("common.next")} onPress={nextStep} />
+
                   <GoogleSignInButton
                     onRegisterRequired={handleGoogleRegister}
+                    onLoadingChange={setIsGoogleLoading}
                   />
                 </View>
               )}
@@ -656,7 +664,6 @@ export default function LoginScreen() {
                     <PrimaryButton
                       title={t("common.finish")}
                       onPress={handleRegister}
-                      loading={isLoading}
                       style={[
                         styles.halfInput,
                         { marginTop: verticalScale(10) },
@@ -675,6 +682,24 @@ export default function LoginScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* OVERLAY DE CARGA SIMPLIFICADO */}
+      {showOverlay && (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: "rgba(0,0,0,0.6)",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1000,
+              elevation: 10,
+            },
+          ]}
+        >
+          <ActivityIndicator size="large" color="#FFFFFF" />
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }

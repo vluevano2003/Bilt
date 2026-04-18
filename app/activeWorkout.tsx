@@ -233,6 +233,9 @@ export default function ActiveWorkoutScreen() {
             size={moderateScale(20)}
             color={colors.textPrimary}
           />
+          <Text style={styles.headerTitle}>
+            {t("activeWorkout.logWorkout")}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.finishBtn}
