@@ -5,7 +5,7 @@ import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -25,7 +25,8 @@ import {
   verticalScale,
 } from "../../src/utils/Responsive";
 
-import { SocialUser, useProfile } from "../../hooks/useProfile";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
 import { useRoutineEditor } from "../../hooks/useRoutineEditor";
 import { useRoutines } from "../../hooks/useRoutines";
@@ -48,15 +49,12 @@ import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
 /**
- * Componentes para acciones del header (feedback y notificaciones) y el header del dashboard (saludo, resumen semanal y tabs de rutinas). Se definen fuera del componente principal para evitar re-renderizados innecesarios al cambiar de tab o al abrir modales.
- * @param param0
- * @returns
+ * Componentes para acciones del header (feedback y notificaciones)
  */
 const HeaderRightActions = ({
   colors,
   styles,
-  isPrivate,
-  pendingRequestsCount,
+  hasNewNotifications,
   onOpenFeedback,
   onOpenNotifications,
 }: any) => (
@@ -78,22 +76,25 @@ const HeaderRightActions = ({
         size={moderateScale(24)}
         color={colors.textPrimary}
       />
-      {isPrivate && pendingRequestsCount > 0 && (
-        <View style={styles.notificationBadge}>
-          <Text style={styles.notificationBadgeText}>
-            {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
-          </Text>
-        </View>
+      {hasNewNotifications && (
+        <View
+          style={{
+            position: "absolute",
+            top: -scale(2),
+            right: -scale(2),
+            width: scale(10),
+            height: scale(10),
+            borderRadius: scale(5),
+            backgroundColor: "#EF4444",
+            borderWidth: 2,
+            borderColor: colors.background,
+          }}
+        />
       )}
     </TouchableOpacity>
   </View>
 );
 
-/**
- * Componente del header del dashboard, con saludo personalizado, resumen semanal y tabs para cambiar entre rutinas propias, guardadas y packs semanales. Se define fuera del componente principal para evitar re-renderizados innecesarios al cambiar de tab o al abrir modales.
- * @param param0
- * @returns
- */
 const DashboardHeader = ({
   t,
   i18n,
@@ -182,7 +183,6 @@ const DashboardHeader = ({
       </View>
 
       <View style={routineStyles.tabsContainer}>
-        {/* ... TABS INTACTOS ... */}
         <TouchableOpacity
           style={[
             routineStyles.tab,
@@ -272,10 +272,6 @@ const DashboardHeader = ({
   );
 };
 
-/**
- * Pantalla principal del tab de entrenamiento, con dashboard personalizado, lista de rutinas y packs semanales, y acceso a modales de detalles, edición, creación de packs, feedback y notificaciones. Maneja la lógica de inicio de workout, cambio entre tabs y carga de datos iniciales.
- * @returns
- */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -322,19 +318,42 @@ export default function HomeScreen() {
     }, [t]),
   );
 
+  const { isPrivate, username } = useProfile();
+
   const {
-    isPrivate,
-    pendingRequestsCount,
-    getSocialList,
-    handleFollowRequest,
-    username,
-  } = useProfile();
+    loading: notificationsLoading,
+    requests,
+    history,
+    handleRequest,
+  } = useNotifications();
+
   const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
 
   const [notificationsVisible, setNotificationsVisible] = useState(false);
-  const [requestsList, setRequestsList] = useState<SocialUser[]>([]);
-  const [loadingRequests, setLoadingRequests] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const lastHistoryId = useRef<string | null>(null);
+  const lastRequestsCount = useRef<number>(0);
+
+  useEffect(() => {
+    const currentHistoryId = history.length > 0 ? history[0].id : null;
+    const currentRequestsCount = requests.length;
+
+    if (notificationsVisible) {
+      lastHistoryId.current = currentHistoryId;
+      lastRequestsCount.current = currentRequestsCount;
+      setHasNewNotifications(false);
+    } else {
+      const historyChanged =
+        currentHistoryId !== null && currentHistoryId !== lastHistoryId.current;
+      const requestsIncreased =
+        currentRequestsCount > lastRequestsCount.current;
+
+      if (historyChanged || requestsIncreased) {
+        setHasNewNotifications(true);
+      }
+    }
+  }, [history, requests, notificationsVisible]);
 
   const {
     routines,
@@ -365,18 +384,10 @@ export default function HomeScreen() {
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
 
   useEffect(() => {
-    if (params.openNotifications === "true") openNotifications();
+    if (params.openNotifications === "true") setNotificationsVisible(true);
   }, [params.openNotifications]);
 
   const totalWorkouts = userHistory?.length || 0;
-
-  const openNotifications = async () => {
-    setNotificationsVisible(true);
-    setLoadingRequests(true);
-    const users = await getSocialList("requests");
-    setRequestsList(users);
-    setLoadingRequests(false);
-  };
 
   const handleStartWorkout = (routine: any) => {
     if (activeRoutine && activeRoutine.id === routine.id) {
@@ -451,10 +462,9 @@ export default function HomeScreen() {
             <HeaderRightActions
               colors={colors}
               styles={homeStyles}
-              isPrivate={isPrivate}
-              pendingRequestsCount={pendingRequestsCount}
+              hasNewNotifications={hasNewNotifications}
               onOpenFeedback={() => setFeedbackModalVisible(true)}
-              onOpenNotifications={openNotifications}
+              onOpenNotifications={() => setNotificationsVisible(true)}
             />
           ),
         }}
@@ -653,7 +663,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Modales y resto de código... */}
       <FeedbackModal
         visible={feedbackModalVisible}
         onClose={() => setFeedbackModalVisible(false)}
@@ -667,13 +676,12 @@ export default function HomeScreen() {
       <NotificationModal
         visible={notificationsVisible}
         onClose={() => setNotificationsVisible(false)}
-        loading={loadingRequests}
-        requestsList={requestsList}
-        onHandleRequest={(id: string, accept: boolean) => {
-          handleFollowRequest(id, accept);
-          setRequestsList((prev) => prev.filter((u) => u.id !== id));
-        }}
+        loading={notificationsLoading}
+        requestsList={requests}
+        historyList={history}
+        onHandleRequest={handleRequest}
       />
+
       <CreatePackModal
         visible={actions.packModalVisible}
         onClose={() => actions.setPackModalVisible(false)}

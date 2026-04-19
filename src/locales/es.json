@@ -66,6 +66,7 @@
     "continue": "Continuar con Google"
   },
   "social": {
+    "activity": "Historial",
     "feed": "Novedades",
     "findFriends": "Buscar",
     "searchPlaceholder": "Buscar usuarios...",
@@ -91,14 +92,18 @@
     "createdRoutine": "Creó una nueva rutina",
     "emptyFeed": "Sigue a otros usuarios para ver su actividad aquí.",
     "defaultWorkout": "Entrenamiento",
+    "startedFollowing": "comenzó a seguirte.",
+    "acceptedRequest": "aceptó tu solicitud.",
     "notifications": {
+      "interactedWithProfile": "Alguien interactuó con tu perfil.",
       "newRequestTitle": "Nueva solicitud",
       "newRequestBody": "@{{name}} te ha enviado una solicitud de seguimiento.",
       "newFollowerTitle": "Nuevo seguidor",
       "newFollowerBody": "@{{name}} ha comenzado a seguirte.",
       "requestAcceptedTitle": "Solicitud aceptada",
       "requestAcceptedBody": "@{{name}} ha aceptado tu solicitud de seguimiento."
-    }
+    },
+    "notificationsTitle": "Notificaciones"
   },
   "profile": {
     "title": "Mi Perfil",

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
 import { SocialUser } from "./useProfile";
@@ -11,10 +12,12 @@ export interface NotificationItem {
     id: string;
     username: string;
     profilePictureUrl?: string;
+    isPrivate?: boolean;
   };
 }
 
 export const useNotifications = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState<SocialUser[]>([]);
@@ -51,21 +54,22 @@ export const useNotifications = () => {
         setRequests([]);
       }
 
-      const { data: notifData, error: notifError } = await supabase
+      const { data: notifData } = await supabase
         .from("notifications")
         .select(
           `
           id, type, created_at,
-          actor:users!actor_id (id, username, profile_picture_url)
+          actor:users!actor_id (id, username, profile_picture_url, is_private)
         `,
         )
         .eq("recipient_id", user.id)
         .neq("type", "follow_request")
         .order("created_at", { ascending: false })
-        .limit(30);
+        .limit(40);
 
       if (notifData) {
         const validHistory: NotificationItem[] = [];
+        const seenDuplicates = new Set();
 
         notifData.forEach((n: any) => {
           let actorData = null;
@@ -76,23 +80,60 @@ export const useNotifications = () => {
           }
 
           if (actorData && actorData.id) {
-            validHistory.push({
-              id: n.id,
-              type: n.type as
-                | "new_follower"
-                | "follow_request"
-                | "request_accepted",
-              createdAt: n.created_at,
-              actor: {
-                id: actorData.id,
-                username: actorData.username || "Usuario",
-                profilePictureUrl: actorData.profile_picture_url,
-              },
-            });
+            const uniqueKey = `${n.type}-${actorData.id}`;
+            if (!seenDuplicates.has(uniqueKey)) {
+              seenDuplicates.add(uniqueKey);
+
+              validHistory.push({
+                id: n.id,
+                type: n.type as
+                  | "new_follower"
+                  | "follow_request"
+                  | "request_accepted",
+                createdAt: n.created_at,
+                actor: {
+                  id: actorData.id,
+                  username: actorData.username || "Usuario",
+                  profilePictureUrl: actorData.profile_picture_url,
+                  isPrivate: actorData.is_private || false,
+                },
+              });
+            }
           }
         });
 
-        setHistory(validHistory);
+        const actorIds = validHistory.map((h) => h.actor.id);
+        if (actorIds.length > 0) {
+          const { data: incoming } = await supabase
+            .from("follows")
+            .select("follower_id")
+            .eq("following_id", user.id)
+            .eq("status", "accepted");
+
+          const { data: outgoing } = await supabase
+            .from("follows")
+            .select("following_id")
+            .eq("follower_id", user.id)
+            .eq("status", "accepted");
+
+          const incomingSet = new Set(
+            incoming?.map((f) => f.follower_id) || [],
+          );
+          const outgoingSet = new Set(
+            outgoing?.map((f) => f.following_id) || [],
+          );
+
+          const strictHistory = validHistory.filter((h) => {
+            if (h.type === "new_follower") return incomingSet.has(h.actor.id);
+            if (h.type === "request_accepted")
+              return outgoingSet.has(h.actor.id);
+            return true;
+          });
+
+          setHistory(strictHistory);
+        } else {
+          setHistory([]);
+        }
       }
     } catch (error) {
       console.log("Error inesperado fetching notifications:", error);
@@ -116,21 +157,12 @@ export const useNotifications = () => {
           table: "notifications",
           filter: `recipient_id=eq.${user.id}`,
         },
-        () => {
-          fetchNotifications();
-        },
+        () => fetchNotifications(),
       )
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "follows",
-          filter: `following_id=eq.${user.id}`,
-        },
-        () => {
-          fetchNotifications();
-        },
+        { event: "*", schema: "public", table: "follows" },
+        () => fetchNotifications(),
       )
       .subscribe();
 
@@ -139,11 +171,75 @@ export const useNotifications = () => {
     };
   }, [user?.id, fetchNotifications]);
 
+  const handleRequest = async (userIdToHandle: string, accept: boolean) => {
+    if (!user?.id) return;
+
+    const requestUser = requests.find((r) => r.id === userIdToHandle);
+
+    setRequests((prev) => prev.filter((r) => r.id !== userIdToHandle));
+    if (accept && requestUser) {
+      const newHistoryItem: NotificationItem = {
+        id: `temp-${Date.now()}`,
+        type: "new_follower",
+        createdAt: new Date().toISOString(),
+        actor: {
+          id: requestUser.id,
+          username: requestUser.username,
+          profilePictureUrl: requestUser.profilePictureUrl,
+          isPrivate: false,
+        },
+      };
+      setHistory((prev) => [newHistoryItem, ...prev]);
+    }
+
+    try {
+      if (accept) {
+        await supabase
+          .from("follows")
+          .update({ status: "accepted" })
+          .eq("follower_id", userIdToHandle)
+          .eq("following_id", user.id);
+
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", user.id)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+        await supabase.from("notifications").insert({
+          recipient_id: user.id,
+          actor_id: userIdToHandle,
+          type: "new_follower",
+        });
+        await supabase.from("notifications").insert({
+          recipient_id: userIdToHandle,
+          actor_id: user.id,
+          type: "request_accepted",
+        });
+      } else {
+        await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", userIdToHandle)
+          .eq("following_id", user.id);
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", user.id)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+      }
+    } catch (e) {
+      console.log("Error handling request", e);
+      fetchNotifications();
+    }
+  };
+
   return {
     loading,
     requests,
     history,
     refetch: fetchNotifications,
-    setRequests,
+    handleRequest,
   };
 };

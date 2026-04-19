@@ -18,9 +18,9 @@ export interface SocialUser {
 
 /**
  * Envía notificación push a través de la Edge Function de Supabase.
- * Más rápido que llamar directo a Expo desde el cliente.
+ * Exportada para poder reutilizarla en otros hooks (ej. useNotifications)
  */
-async function sendPushNotificationViaEdgeFunction(
+export async function sendPushNotificationViaEdgeFunction(
   recipientUserId: string,
   title: string,
   body: string,
@@ -357,6 +357,14 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", currentUserId)
           .eq("following_id", targetUid);
+
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("actor_id", currentUserId)
+          .eq("recipient_id", targetUid)
+          .in("type", ["follow_request", "new_follower"]);
+
         setFollowStatus("none");
       } else {
         const { data: targetData } = await supabase
@@ -375,6 +383,13 @@ export const useProfile = (profileUid?: string) => {
             status: finalStatus,
           },
         ]);
+
+        await supabase.from("notifications").insert({
+          recipient_id: targetUid,
+          actor_id: currentUserId,
+          type: finalStatus === "pending" ? "follow_request" : "new_follower",
+        });
+
         setFollowStatus(finalStatus === "accepted" ? "following" : "pending");
 
         const { data: myUser } = await supabase
@@ -471,6 +486,25 @@ export const useProfile = (profileUid?: string) => {
           .eq("following_id", currentUserId);
         setHasPendingRequestFromThem(false);
 
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", currentUserId)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+
+        await supabase.from("notifications").insert({
+          recipient_id: currentUserId,
+          actor_id: userIdToHandle,
+          type: "new_follower",
+        });
+
+        await supabase.from("notifications").insert({
+          recipient_id: userIdToHandle,
+          actor_id: currentUserId,
+          type: "request_accepted",
+        });
+
         const { data: myUser } = await supabase
           .from("users")
           .select("username")
@@ -502,6 +536,14 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", userIdToHandle)
           .eq("following_id", currentUserId);
+
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", currentUserId)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+
         setHasPendingRequestFromThem(false);
       }
     } catch (e) {
