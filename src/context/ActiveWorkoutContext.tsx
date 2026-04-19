@@ -147,8 +147,8 @@ export const ActiveWorkoutProvider = ({
 
       await notifee.displayNotification({
         id: FOREGROUND_ID,
-        title: t("activeWorkout.trainingLabel", "Descanso Activo"),
-        body: t("activeWorkout.restTimer", "Tiempo restante..."),
+        title: t("activeWorkout.trainingLabel"),
+        body: t("activeWorkout.restTimer"),
         android: {
           channelId: "rest-timer",
           asForegroundService: true,
@@ -176,14 +176,8 @@ export const ActiveWorkoutProvider = ({
       await notifee.createTriggerNotification(
         {
           id: REST_BEEP_ID,
-          title: t(
-            "activeWorkout.notificationTitle",
-            "¡Descanso terminado! 🏋️‍♂️",
-          ),
-          body: t(
-            "activeWorkout.notificationBody",
-            "Es hora de tu siguiente serie. ¡A darle!",
-          ),
+          title: t("activeWorkout.notificationTitle"),
+          body: t("activeWorkout.notificationBody"),
           android: {
             channelId: "rest-timer",
             importance: AndroidImportance.HIGH,
@@ -199,21 +193,14 @@ export const ActiveWorkoutProvider = ({
     } catch (error) {
       debugError("Fallo al programar Notifee:", error);
       if (Platform.OS === "android") {
-        Alert.alert(
-          t("alerts.exactAlarmTitle", "Precisión del Cronómetro"),
-          t(
-            "alerts.exactAlarmMsg",
-            "Por favor, asegúrate de darnos permisos de Alarmas y Notificaciones en los ajustes.",
-          ),
-          [
-            { text: t("common.cancel", "Cancelar"), style: "cancel" },
-            {
-              text: t("common.settings", "Ajustes"),
-              style: "default",
-              onPress: () => Linking.openSettings(),
-            },
-          ],
-        );
+        Alert.alert(t("alerts.exactAlarmTitle"), t("alerts.exactAlarmMsg"), [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.settings"),
+            style: "default",
+            onPress: () => Linking.openSettings(),
+          },
+        ]);
       }
     }
   };

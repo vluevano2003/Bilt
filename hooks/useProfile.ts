@@ -315,11 +315,8 @@ export const useProfile = (profileUid?: string) => {
     } catch (error: any) {
       if (error?.code === "23505") {
         Alert.alert(
-          t("profile.alerts.usernameTakenTitle", "Nombre no disponible"),
-          t(
-            "profile.alerts.usernameTakenMsg",
-            "Este nombre de usuario ya está en uso. Por favor, elige otro distinto.",
-          ),
+          t("profile.alerts.usernameTakenTitle"),
+          t("profile.alerts.usernameTakenMsg"),
         );
       } else {
         Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorSave"));
@@ -421,7 +418,7 @@ export const useProfile = (profileUid?: string) => {
         await sendPushNotificationViaEdgeFunction(targetUid, title, body);
       }
     } catch (error) {
-      Alert.alert(t("profile.alerts.error"), "No se pudo completar la acción.");
+      Alert.alert(t("profile.alerts.error"));
     }
   };
 
@@ -567,10 +564,7 @@ export const useProfile = (profileUid?: string) => {
       }
     } catch (e) {
       setPendingRequestsCount((prev) => prev + 1);
-      Alert.alert(
-        t("profile.alerts.error"),
-        "Ocurrió un problema procesando la solicitud.",
-      );
+      Alert.alert(t("profile.alerts.error"));
     }
   };
 
@@ -635,10 +629,7 @@ export const useProfile = (profileUid?: string) => {
         setTheyFollowMe(false);
       }
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t("errors.unexpected", "No se pudo procesar la solicitud."),
-      );
+      Alert.alert("Error", t("errors.unexpected"));
     }
   };
 
@@ -650,18 +641,9 @@ export const useProfile = (profileUid?: string) => {
         reported_id: targetUid,
         reason: reasonText || "Sin motivo especificado",
       });
-      Alert.alert(
-        t("profile.reportedTitle", "Usuario Reportado"),
-        t(
-          "profile.reportedMsg",
-          "Gracias por avisarnos. Revisaremos este perfil.",
-        ),
-      );
+      Alert.alert(t("profile.reportedTitle"), t("profile.reportedMsg"));
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t("errors.unexpected", "No se pudo reportar al usuario."),
-      );
+      Alert.alert("Error", t("errors.unexpected"));
     }
   };
 
@@ -692,13 +674,7 @@ export const useProfile = (profileUid?: string) => {
       await supabase.rpc("delete_user_account");
       await supabase.auth.signOut();
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t(
-          "profile.deleteAccountError",
-          "No se pudo eliminar la cuenta. Por favor contacta soporte.",
-        ),
-      );
+      Alert.alert("Error", t("profile.deleteAccountError"));
     }
   };
 

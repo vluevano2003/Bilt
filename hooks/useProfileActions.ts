@@ -136,12 +136,12 @@ export const useProfileActions = (
         }
 
         Alert.alert(
-          t("profile.alerts.success", "Éxito"),
-          t("weeklyPacks.successRemoved", "Pack removido de tu perfil."),
+          t("profile.alerts.success"),
+          t("weeklyPacks.successRemoved"),
         );
         if (onComplete) onComplete();
       } catch (error) {
-        Alert.alert(t("alerts.error", "Error"), t("errors.unexpected"));
+        Alert.alert(t("alerts.error"), t("errors.unexpected"));
       } finally {
         setIsSavingFullPack(false);
       }
@@ -187,16 +187,10 @@ export const useProfileActions = (
           selectedPack.id,
         );
 
-        Alert.alert(
-          t("profile.alerts.success", "Éxito"),
-          t(
-            "weeklyPacks.successSaved",
-            "¡Pack y rutinas guardados en tu perfil!",
-          ),
-        );
+        Alert.alert(t("profile.alerts.success"), t("weeklyPacks.successSaved"));
         if (onComplete) onComplete();
       } catch (error) {
-        Alert.alert(t("alerts.error", "Error"), t("errors.unexpected"));
+        Alert.alert(t("alerts.error"), t("errors.unexpected"));
       } finally {
         setIsSavingFullPack(false);
       }

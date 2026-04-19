@@ -111,9 +111,9 @@ const DashboardHeader = ({
 }: any) => {
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return t("home.morning", "Buenos días");
-    if (hour < 19) return t("home.afternoon", "Buenas tardes");
-    return t("home.evening", "Buenas noches");
+    if (hour < 12) return t("home.morning");
+    if (hour < 19) return t("home.afternoon");
+    return t("home.evening");
   };
 
   const daysLabel = i18n.language.includes("es")
@@ -125,7 +125,7 @@ const DashboardHeader = ({
       <View style={homeStyles.greetingContainer}>
         <Text style={homeStyles.greetingText}>{getGreeting()}, </Text>
         <Text style={homeStyles.usernameText}>
-          {username || t("home.defaultName", "Atleta")}!
+          {username || t("home.defaultName")}!
         </Text>
       </View>
 
@@ -149,7 +149,7 @@ const DashboardHeader = ({
             <Text
               style={[homeStyles.statLabel, homeStyles.statLabelMarginBottom]}
             >
-              {t("home.thisWeek", "Esta semana")}
+              {t("home.thisWeek")}
             </Text>
             <View style={homeStyles.daysContainer}>
               {daysLabel.map((day, idx) => {
@@ -213,7 +213,7 @@ const DashboardHeader = ({
               activeTab === "packs" && routineStyles.activeTabText,
             ]}
           >
-            {t("weeklyPacks.tabPacks", "Packs")}
+            {t("weeklyPacks.tabPacks")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -229,7 +229,7 @@ const DashboardHeader = ({
               activeTab === "saved" && routineStyles.activeTabText,
             ]}
           >
-            {t("routines.savedRoutines", "Guardadas")}
+            {t("routines.savedRoutines")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -264,7 +264,7 @@ const DashboardHeader = ({
                   ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
               }}
             >
-              {ownRoutinesCount} / 10 {t("routines.createdLabel", "creadas")}
+              {ownRoutinesCount} / 10 {t("routines.createdLabel")}
             </Text>
           </View>
         </View>
@@ -298,10 +298,7 @@ export default function HomeScreen() {
         }
 
         backPressCount = 1;
-        ToastAndroid.show(
-          t("common.pressBackAgain", "Presiona atrás de nuevo para salir"),
-          ToastAndroid.SHORT,
-        );
+        ToastAndroid.show(t("common.pressBackAgain"), ToastAndroid.SHORT);
 
         setTimeout(() => {
           backPressCount = 0;
@@ -497,8 +494,8 @@ export default function HomeScreen() {
     <View style={homeStyles.container}>
       <Tabs.Screen
         options={{
-          title: t("tabs.workout", "Entrenar"),
-          headerTitle: t("tabs.workout", "Entrenar"),
+          title: t("tabs.workout"),
+          headerTitle: t("tabs.workout"),
           headerRight: () => (
             <HeaderRightActions
               colors={colors}
@@ -547,10 +544,7 @@ export default function HomeScreen() {
             />
             <Text style={routineStyles.emptyText}>
               {activeTab === "packs"
-                ? t(
-                    "weeklyPacks.emptyMessage",
-                    "Aún no tienes packs semanales.",
-                  )
+                ? t("weeklyPacks.emptyMessage")
                 : t("routines.emptyMessage")}
             </Text>
           </View>
@@ -604,7 +598,7 @@ export default function HomeScreen() {
                   />
                   <Text style={homeStyles.packRoutinesText}>
                     {packItem.routineIds.length}{" "}
-                    {t("weeklyPacks.routinesCount", "Rutinas")}
+                    {t("weeklyPacks.routinesCount")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -688,11 +682,8 @@ export default function HomeScreen() {
               const ownRoutines = routines.filter((r) => !r.originalCreatorId);
               if (ownRoutines.length >= 10) {
                 Alert.alert(
-                  t("alerts.limitReached", "Límite alcanzado"),
-                  t(
-                    "routines.limitReached",
-                    "Solo puedes crear un máximo de 10 rutinas.",
-                  ),
+                  t("alerts.limitReached"),
+                  t("routines.limitReached"),
                 );
               } else {
                 editor.openRoutineModal();

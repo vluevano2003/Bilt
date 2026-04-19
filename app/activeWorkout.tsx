@@ -236,33 +236,27 @@ export default function ActiveWorkoutScreen() {
           style={styles.finishBtn}
           onPress={handleFinishWorkout}
         >
-          <Text style={styles.finishBtnText}>
-            {t("activeWorkout.finish", "Finish")}
-          </Text>
+          <Text style={styles.finishBtnText}>{t("activeWorkout.finish")}</Text>
         </TouchableOpacity>
       </View>
 
       {/*Estadísticas*/}
       <View style={styles.statsStrip}>
         <View style={styles.statBox}>
-          <Text style={styles.statLabel}>
-            {t("activeWorkout.duration", "Duration")}
-          </Text>
+          <Text style={styles.statLabel}>{t("activeWorkout.duration")}</Text>
           <Text style={[styles.statValue, styles.statValuePrimary]}>
             {formatTime(elapsedSeconds)}
           </Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statLabel}>
-            {t("activeWorkout.totalVolume", "Volume")}
-          </Text>
+          <Text style={styles.statLabel}>{t("activeWorkout.totalVolume")}</Text>
           <Text style={styles.statValue}>
             {stats.volume.toLocaleString()} {volumeUnitText}
           </Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>
-            {t("activeWorkout.completedSets", "Sets")}
+            {t("activeWorkout.completedSets")}
           </Text>
           <Text style={styles.statValue}>{stats.sets}</Text>
         </View>
@@ -302,7 +296,7 @@ export default function ActiveWorkoutScreen() {
                     style={styles.addExerciseBtnIcon}
                   />
                   <Text style={styles.addExerciseBtnText}>
-                    {t("routines.addExercise", "Añadir Ejercicio")}
+                    {t("routines.addExercise")}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -358,16 +352,14 @@ export default function ActiveWorkoutScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
-            <Text style={styles.editRestTitle}>
-              {t("unitSelection.title", "Seleccionar Unidad")}
-            </Text>
+            <Text style={styles.editRestTitle}>{t("unitSelection.title")}</Text>
 
             <TouchableOpacity
               style={styles.unitOptionBtn}
               onPress={() => handleUnitSelect("kg")}
             >
               <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.kg", "Kilogramos (kg)")}
+                {t("unitSelection.kg")}
               </Text>
               <Text style={styles.unitOptionDesc}>
                 {t("unitSelection.kg_desc")}
@@ -379,7 +371,7 @@ export default function ActiveWorkoutScreen() {
               onPress={() => handleUnitSelect("lbs")}
             >
               <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.lbs", "Libras (lbs)")}
+                {t("unitSelection.lbs")}
               </Text>
               <Text style={styles.unitOptionDesc}>
                 {t("unitSelection.lbs_desc")}
@@ -391,7 +383,7 @@ export default function ActiveWorkoutScreen() {
               onPress={() => handleUnitSelect("bodyweight")}
             >
               <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bodyweight", "Peso Corporal")}
+                {t("unitSelection.bodyweight")}
               </Text>
               <Text style={styles.unitOptionDesc}>
                 {t("unitSelection.bodyweight_desc")}
@@ -403,7 +395,7 @@ export default function ActiveWorkoutScreen() {
               onPress={() => handleUnitSelect("bars")}
             >
               <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bars", "Barras / Bloques")}
+                {t("unitSelection.bars")}
               </Text>
               <Text style={styles.unitOptionDesc}>
                 {t("unitSelection.bars_desc")}
@@ -415,7 +407,7 @@ export default function ActiveWorkoutScreen() {
               onPress={() => handleUnitSelect("plates")}
             >
               <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.plates", "Discos")}
+                {t("unitSelection.plates")}
               </Text>
               <Text style={styles.unitOptionDesc}>
                 {t("unitSelection.plates_desc")}
@@ -433,7 +425,7 @@ export default function ActiveWorkoutScreen() {
                     styles.editRestBtnTextSecondary,
                   ]}
                 >
-                  {t("common.cancel", "Cancelar")}
+                  {t("common.cancel")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -451,7 +443,7 @@ export default function ActiveWorkoutScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>
-              {t("activeWorkout.restTimer", "Tiempo de Descanso")}
+              {t("activeWorkout.restTimer")}
             </Text>
             <View style={styles.editRestControls}>
               <TouchableOpacity
@@ -481,16 +473,14 @@ export default function ActiveWorkoutScreen() {
                     styles.editRestBtnTextSecondary,
                   ]}
                 >
-                  {t("common.cancel", "Cancelar")}
+                  {t("common.cancel")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.editRestBtn, styles.editRestBtnPrimary]}
                 onPress={saveRestTime}
               >
-                <Text style={styles.editRestBtnText}>
-                  {t("routines.save", "Guardar")}
-                </Text>
+                <Text style={styles.editRestBtnText}>{t("routines.save")}</Text>
               </TouchableOpacity>
             </View>
           </View>

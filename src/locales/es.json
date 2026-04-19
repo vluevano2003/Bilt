@@ -266,7 +266,10 @@
     "n_sets_other": "{{count}} Series",
     "createdLabel": "creadas",
     "limitReached": "Solo puedes crear un máximo de 10 rutinas.",
-    "addSet": "Añadir Serie"
+    "addSet": "Añadir Serie",
+    "deleteError": "No se pudo eliminar la rutina. Inténtalo de nuevo.",
+    "unsaveError": "No se pudo remover la rutina de tu perfil. Inténtalo de nuevo.",
+    "unspecifiedSubmuscles": "Músculos secundarios no especificados."
   },
   "activeWorkout": {
     "finish": "Finalizar",

@@ -266,7 +266,10 @@
     "n_sets_other": "{{count}} Sets",
     "createdLabel": "created",
     "limitReached": "You can only create a maximum of 10 routines.",
-    "addSet": "Add Set"
+    "addSet": "Add Set",
+    "deleteError": "Could not delete the routine. Please try again.",
+    "unsaveError": "Could not remove the routine from your profile. Please try again.",
+    "unspecifiedSubmuscles": "Unspecified secondary muscles."
   },
   "activeWorkout": {
     "finish": "Finish",

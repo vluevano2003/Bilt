@@ -46,7 +46,7 @@ interface SearchResult {
  */
 const getTimeAgo = (timestamp: number, t: any) => {
   const diffInSeconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (diffInSeconds < 60) return t("social.time.justNow", "Justo ahora");
+  if (diffInSeconds < 60) return t("social.time.justNow");
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60)
     return t("social.time.minsAgo", {
@@ -156,8 +156,7 @@ const FeedActivityCard = React.memo(
               ) : (
                 <Text style={styles.feedStatText}>
                   <Feather name="list" size={moderateScale(12)} />{" "}
-                  {item.details.exerciseCount}{" "}
-                  {t("routines.exercises", "ejercicios")}
+                  {item.details.exerciseCount} {t("routines.exercises")}
                 </Text>
               )}
             </View>
@@ -214,7 +213,7 @@ export default function SocialScreen() {
   const searchUsers = async (text: string) => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
-      Alert.alert(t("alerts.error", "Error"), t("errors.networkFailed"));
+      Alert.alert(t("alerts.error"), t("errors.networkFailed"));
       return;
     }
 
@@ -403,7 +402,7 @@ export default function SocialScreen() {
                         onPress={() => setPage((prev) => prev + 1)}
                       >
                         <Text style={styles.loadMoreText}>
-                          {t("profile.loadMore", "Cargar más")}
+                          {t("profile.loadMore")}
                         </Text>
                       </TouchableOpacity>
                     );

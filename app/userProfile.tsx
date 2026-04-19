@@ -124,18 +124,13 @@ export default function UserProfileScreen() {
     setOptionsModalVisible(false);
     Alert.alert(
       profile.isBlocked
-        ? t("profile.unblockConfirmTitle", "Desbloquear")
-        : t("profile.blockConfirmTitle", "Bloquear"),
-      profile.isBlocked
-        ? t("profile.unblockMsg", "¿Quieres desbloquear a este usuario?")
-        : t(
-            "profile.blockMsg",
-            "¿Estás seguro de bloquear a este usuario? Se dejarán de seguir mutuamente y no podrá ver tu perfil ni interactuar contigo.",
-          ),
+        ? t("profile.unblockConfirmTitle")
+        : t("profile.blockConfirmTitle"),
+      profile.isBlocked ? t("profile.unblockMsg") : t("profile.blockMsg"),
       [
-        { text: t("common.cancel", "Cancelar"), style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: t("common.confirm", "Confirmar"),
+          text: t("common.confirm"),
           style: "destructive",
           onPress: profile.toggleBlock,
         },
@@ -146,15 +141,12 @@ export default function UserProfileScreen() {
   const handleRemoveFollower = () => {
     setOptionsModalVisible(false);
     Alert.alert(
-      t("profile.removeFollowerTitle", "¿Eliminar seguidor?"),
-      t(
-        "profile.removeFollowerMsg",
-        "No le avisaremos a este usuario que lo has eliminado de tus seguidores.",
-      ),
+      t("profile.removeFollowerTitle"),
+      t("profile.removeFollowerMsg"),
       [
-        { text: t("common.cancel", "Cancelar"), style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: t("profile.remove", "Eliminar"),
+          text: t("profile.remove"),
           style: "destructive",
           onPress: profile.removeFollower,
         },
@@ -221,18 +213,15 @@ export default function UserProfileScreen() {
           styles={styles}
           colors={colors}
           icon="user-x"
-          title={t("profile.userNotFoundTitle", "Usuario no encontrado")}
-          message={t(
-            "profile.userNotFoundMsg",
-            "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
-          )}
+          title={t("profile.userNotFoundTitle")}
+          message={t("profile.userNotFoundMsg")}
           actionButton={
             <TouchableOpacity
               style={[styles.actionButton, styles.emptyStateActionBtn]}
               onPress={handleGoBack}
             >
               <Text style={[styles.actionButtonText, styles.buttonTextWhite]}>
-                {t("common.backToHome", "Volver al inicio")}
+                {t("common.backToHome")}
               </Text>
             </TouchableOpacity>
           }
@@ -285,11 +274,8 @@ export default function UserProfileScreen() {
               styles={styles}
               colors={colors}
               icon="user-x"
-              title={t("profile.userBlockedTitle", "Usuario no disponible")}
-              message={t(
-                "profile.userNotFoundMsg",
-                "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
-              )}
+              title={t("profile.userBlockedTitle")}
+              message={t("profile.userNotFoundMsg")}
             />
           ) : (
             <>
@@ -389,7 +375,7 @@ export default function UserProfileScreen() {
                               </Text>
                               <Text style={styles.routineDetails}>
                                 {pack.routineIds.length}{" "}
-                                {t("routines.exercises", "Rutinas")}
+                                {t("routines.exercises")}
                               </Text>
                             </View>
                             <Feather
@@ -401,10 +387,7 @@ export default function UserProfileScreen() {
                         ))
                       ) : (
                         <Text style={styles.emptyHistoryText}>
-                          {t(
-                            "weeklyPacks.noPublicPacks",
-                            "Este usuario aún no tiene Packs Semanales.",
-                          )}
+                          {t("weeklyPacks.noPublicPacks")}
                         </Text>
                       )
                     ) : userHistory.length > 0 ? (
@@ -469,10 +452,7 @@ export default function UserProfileScreen() {
                             onPress={() => setHistoryLimit((prev) => prev + 10)}
                           >
                             <Text style={styles.loadMoreText}>
-                              {t(
-                                "profile.loadMore",
-                                "Cargar más entrenamientos",
-                              )}
+                              {t("profile.loadMore")}
                             </Text>
                           </TouchableOpacity>
                         )}
@@ -525,7 +505,7 @@ export default function UserProfileScreen() {
                       style={styles.optionsModalIcon}
                     />
                     <Text style={styles.optionsModalTextDanger}>
-                      {t("profile.removeFollower", "Eliminar seguidor")}
+                      {t("profile.removeFollower")}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -544,7 +524,7 @@ export default function UserProfileScreen() {
                     style={styles.optionsModalIcon}
                   />
                   <Text style={styles.optionsModalTextDanger}>
-                    {t("profile.report", "Reportar usuario")}
+                    {t("profile.report")}
                   </Text>
                 </TouchableOpacity>
 
@@ -560,8 +540,8 @@ export default function UserProfileScreen() {
                   />
                   <Text style={styles.optionsModalTextDanger}>
                     {profile.isBlocked
-                      ? t("profile.unblock", "Desbloquear usuario")
-                      : t("profile.block", "Bloquear usuario")}
+                      ? t("profile.unblock")
+                      : t("profile.block")}
                   </Text>
                 </TouchableOpacity>
 
@@ -576,7 +556,7 @@ export default function UserProfileScreen() {
                     style={styles.optionsModalIcon}
                   />
                   <Text style={styles.optionsModalText}>
-                    {t("common.cancel", "Cancelar")}
+                    {t("common.cancel")}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -600,7 +580,7 @@ export default function UserProfileScreen() {
             <View style={styles.reportModalContent}>
               <View style={styles.reportModalHeader}>
                 <Text style={styles.reportModalTitle}>
-                  {t("profile.reportConfirmTitle", "Reportar Usuario")}
+                  {t("profile.reportConfirmTitle")}
                 </Text>
                 <TouchableOpacity onPress={() => setReportModalVisible(false)}>
                   <AntDesign
@@ -612,19 +592,13 @@ export default function UserProfileScreen() {
               </View>
 
               <Text style={styles.reportReasonPrompt}>
-                {t(
-                  "profile.reportReasonPrompt",
-                  "¿Por qué quieres reportar a este usuario? Por favor detalla el motivo.",
-                )}
+                {t("profile.reportReasonPrompt")}
               </Text>
 
               <TextInput
                 style={styles.reportInput}
                 placeholderTextColor={colors.textSecondary}
-                placeholder={t(
-                  "profile.reportReasonPlaceholder",
-                  "Escribe el motivo...",
-                )}
+                placeholder={t("profile.reportReasonPlaceholder")}
                 multiline
                 value={reportReason}
                 onChangeText={setReportReason}
@@ -644,7 +618,7 @@ export default function UserProfileScreen() {
                 onPress={handleSendReport}
               >
                 <Text style={styles.reportSubmitText}>
-                  {t("profile.sendReport", "Enviar Reporte")}
+                  {t("profile.sendReport")}
                 </Text>
               </TouchableOpacity>
             </View>

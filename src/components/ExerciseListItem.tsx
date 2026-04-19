@@ -72,7 +72,7 @@ export const ExerciseListItem = React.memo(
         >
           <Feather name="clock" size={scale(14)} color={colors.primary} />
           <Text style={styles.exerciseRestText}>
-            {t("activeWorkout.restTimer", "Rest Timer")}:{" "}
+            {t("activeWorkout.restTimer")}:{" "}
             {Math.floor((exercise.restTimeSeconds || 90) / 60)}:
             {((exercise.restTimeSeconds || 90) % 60)
               .toString()
@@ -81,11 +81,9 @@ export const ExerciseListItem = React.memo(
         </TouchableOpacity>
 
         <View style={styles.tableHeader}>
-          <Text style={styles.colSetHeader}>
-            {t("activeWorkout.set", "SET")}
-          </Text>
+          <Text style={styles.colSetHeader}>{t("activeWorkout.set")}</Text>
           <Text style={styles.colPrevHeader}>
-            {t("activeWorkout.previous", "ANTERIOR").toUpperCase()}
+            {t("activeWorkout.previous").toUpperCase()}
           </Text>
           <TouchableOpacity
             style={styles.colInputHeader}
@@ -95,7 +93,7 @@ export const ExerciseListItem = React.memo(
           </TouchableOpacity>
           <View style={styles.colInputHeader}>
             <Text style={styles.tableHeaderText}>
-              {t("activeWorkout.reps", "REPS")}
+              {t("activeWorkout.reps")}
             </Text>
           </View>
           <View style={styles.colCheckHeader}>
@@ -209,9 +207,7 @@ export const ExerciseListItem = React.memo(
                 color={colors.textPrimary}
                 style={styles.addSetIcon}
               />
-              <Text style={styles.addSetText}>
-                {t("activeWorkout.addSet", "Añadir Serie")}
-              </Text>
+              <Text style={styles.addSetText}>{t("activeWorkout.addSet")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

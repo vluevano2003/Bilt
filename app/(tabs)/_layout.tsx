@@ -31,7 +31,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: t("tabs.workout", "Entrenar"),
+          title: t("tabs.workout"),
           tabBarIcon: ({ color }) => (
             <FontAwesome5
               name="dumbbell"

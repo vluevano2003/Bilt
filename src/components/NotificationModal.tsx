@@ -63,7 +63,7 @@ export function NotificationModal({
     const date = new Date(dateString);
     const diffMins = Math.floor((now.getTime() - date.getTime()) / 60000);
 
-    if (diffMins < 1) return t("social.time.justNow", "Justo ahora");
+    if (diffMins < 1) return t("social.time.justNow");
     if (diffMins < 60)
       return t("social.time.minsAgo", {
         count: diffMins,
@@ -95,7 +95,7 @@ export function NotificationModal({
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
-              {t("social.notificationsTitle", "Notificaciones")}
+              {t("social.notificationsTitle")}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <AntDesign
@@ -113,9 +113,7 @@ export function NotificationModal({
               style={{ marginTop: verticalScale(50) }}
             />
           ) : requestsList.length === 0 && historyList.length === 0 ? (
-            <Text style={styles.emptyText}>
-              {t("social.noNotifications", "No hay notificaciones")}
-            </Text>
+            <Text style={styles.emptyText}>{t("social.noNotifications")}</Text>
           ) : (
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -124,7 +122,7 @@ export function NotificationModal({
               {requestsList.length > 0 && (
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>
-                    {t("social.requests", "Solicitudes de seguimiento")}
+                    {t("social.requests")}
                   </Text>
                   {requestsList.map((item) => (
                     <View key={`req-${item.id}`} style={styles.socialListItem}>
@@ -150,7 +148,7 @@ export function NotificationModal({
                           onPress={() => onHandleRequest(item.id, true)}
                         >
                           <Text style={styles.acceptText}>
-                            {t("social.accept", "Aceptar")}
+                            {t("social.accept")}
                           </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -168,13 +166,13 @@ export function NotificationModal({
               {historyList.length > 0 && (
                 <View style={styles.sectionContainer}>
                   <Text style={styles.sectionTitle}>
-                    {t("social.activity", "Historial")}
+                    {t("social.activity")}
                   </Text>
                   {historyList.map((item) => {
                     const actionText =
                       item.type === "new_follower"
-                        ? t("social.startedFollowing", "comenzó a seguirte.")
-                        : t("social.acceptedRequest", "aceptó tu solicitud.");
+                        ? t("social.startedFollowing")
+                        : t("social.acceptedRequest");
 
                     return (
                       <View

@@ -55,23 +55,11 @@ export const FeedbackModal = ({
 
       if (error) throw error;
 
-      Alert.alert(
-        t("profile.alerts.success", "¡Gracias!"),
-        t(
-          "feedback.successMsg",
-          "Tu comentario ha sido enviado. ¡Lo revisaremos pronto!",
-        ),
-      );
+      Alert.alert(t("profile.alerts.success"), t("feedback.successMsg"));
       setFeedbackText("");
       onClose();
     } catch (error) {
-      Alert.alert(
-        t("alerts.error", "Error"),
-        t(
-          "feedback.errorMsg",
-          "No se pudo enviar el comentario. Intenta de nuevo más tarde.",
-        ),
-      );
+      Alert.alert(t("alerts.error", "Error"), t("feedback.errorMsg"));
     } finally {
       setIsSendingFeedback(false);
     }
@@ -106,9 +94,7 @@ export const FeedbackModal = ({
               },
             ]}
           >
-            <Text style={routineStyles.modalTitle}>
-              {t("feedback.title", "Reportar / Sugerencias")}
-            </Text>
+            <Text style={routineStyles.modalTitle}>{t("feedback.title")}</Text>
             <TouchableOpacity onPress={onClose}>
               <AntDesign
                 name="close"
@@ -140,17 +126,14 @@ export const FeedbackModal = ({
                   { marginBottom: verticalScale(15) },
                 ]}
               >
-                {t("feedback.description", "¿Encontraste un error...?")}
+                {t("feedback.description")}
               </Text>
 
               <View style={homeStyles.feedbackInputWrapper}>
                 <TextInput
                   style={homeStyles.feedbackInput}
                   multiline
-                  placeholder={t(
-                    "feedback.placeholder",
-                    "Escribe tu comentario aquí...",
-                  )}
+                  placeholder={t("feedback.placeholder")}
                   placeholderTextColor={colors.textSecondary}
                   value={feedbackText}
                   onChangeText={setFeedbackText}
@@ -181,7 +164,7 @@ export const FeedbackModal = ({
                       style={homeStyles.sendButtonIcon}
                     />
                     <Text style={homeStyles.sendButtonText}>
-                      {t("feedback.send", "Enviar Comentario")}
+                      {t("feedback.send")}
                     </Text>
                   </>
                 )}

@@ -201,7 +201,7 @@ export const PackDetailsModal = ({
               </Text>
             ) : null}
             <Text style={[styles.label, { marginBottom: verticalScale(15) }]}>
-              {t("weeklyPacks.routinesIncluded", "Rutinas en este Pack:")}
+              {t("weeklyPacks.routinesIncluded")}
             </Text>
             {pack.routineIds.map((rId: string) => {
               const routine = userRoutines.find((r: any) => r.id === rId);
@@ -209,7 +209,7 @@ export const PackDetailsModal = ({
               const exercisesPreview =
                 routine.exercises
                   ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
-                  .join(", ") || t("routines.noExercises", "Sin ejercicios");
+                  .join(", ") || t("routines.noExercises");
               return (
                 <View
                   key={routine.id}
@@ -271,14 +271,8 @@ export const PackDetailsModal = ({
                       ]}
                     >
                       {isSaved
-                        ? t(
-                            "routines.removeFromProfile",
-                            "Remover de mi perfil",
-                          )
-                        : t(
-                            "weeklyPacks.savePackToProfile",
-                            "Guardar Pack en mi Perfil",
-                          )}
+                        ? t("routines.removeFromProfile")
+                        : t("weeklyPacks.savePackToProfile")}
                     </Text>
                   </>
                 )}
@@ -437,7 +431,7 @@ export const ItemDetailsModal = ({
                 },
               ]}
             >
-              {t("routines.exercises", "Exercises")}:
+              {t("routines.exercises")}:
             </Text>
 
             {item.exercises?.map((exercise: any, index: number) => {

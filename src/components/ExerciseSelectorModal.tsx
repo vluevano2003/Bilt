@@ -133,7 +133,7 @@ export const ExerciseSelectorModal = ({
                     fontSize: moderateScale(14),
                   }}
                 >
-                  {t("routines.allMuscles", "Todos")}
+                  {t("routines.allMuscles")}
                 </Text>
               </TouchableOpacity>
 

@@ -27,15 +27,12 @@ export const MiniWorkoutPlayer = () => {
 
   const handleCancel = () => {
     Alert.alert(
-      t("activeWorkout.cancelAlertTitle", "Cancelar entrenamiento"),
-      t(
-        "activeWorkout.cancelAlertMsg",
-        "¿Seguro que deseas cancelar el entrenamiento actual? Perderás el progreso de esta sesión.",
-      ),
+      t("activeWorkout.cancelAlertTitle"),
+      t("activeWorkout.cancelAlertMsg"),
       [
-        { text: t("common.back", "Volver"), style: "cancel" },
+        { text: t("common.back"), style: "cancel" },
         {
-          text: t("activeWorkout.yesCancel", "Sí, cancelar"),
+          text: t("activeWorkout.yesCancel"),
           style: "destructive",
           onPress: () => cancelWorkout(),
         },

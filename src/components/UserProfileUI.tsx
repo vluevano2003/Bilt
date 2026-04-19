@@ -127,12 +127,7 @@ export const UserInfoCard = ({
           },
         ]}
       >
-        {profile.bio
-          ? profile.bio
-          : t(
-              "profile.defaultBio",
-              "Este usuario aún no ha agregado una presentación.",
-            )}
+        {profile.bio ? profile.bio : t("profile.defaultBio")}
       </Text>
     </View>
 

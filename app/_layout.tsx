@@ -79,13 +79,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (netInfo.isConnected === false && !offlineAlertShown) {
-      Alert.alert(
-        t("alerts.error", "Error"),
-        t(
-          "errors.networkFailed",
-          "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
-        ),
-      );
+      Alert.alert(t("alerts.error"), t("errors.networkFailed"));
       setOfflineAlertShown(true);
     }
   }, [netInfo.isConnected, offlineAlertShown, t]);
@@ -159,7 +153,7 @@ function RootLayoutNav() {
             textAlign: "center",
           }}
         >
-          {t("errors.connectionTitle", "Problema de conexión")}
+          {t("errors.connectionTitle")}
         </Text>
         <Text
           style={{
@@ -169,10 +163,7 @@ function RootLayoutNav() {
             textAlign: "center",
           }}
         >
-          {t(
-            "errors.connectionMsg",
-            "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
-          )}
+          {t("errors.connectionMsg")}
         </Text>
         <TouchableOpacity
           style={{
@@ -190,7 +181,7 @@ function RootLayoutNav() {
               fontSize: moderateScale(16),
             }}
           >
-            {t("common.retry", "Reintentar")}
+            {t("common.retry")}
           </Text>
         </TouchableOpacity>
       </View>

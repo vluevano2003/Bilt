@@ -51,10 +51,10 @@ export const WorkoutSummaryModal = ({
       >
         <View style={styles.summaryHeader}>
           <Text style={styles.summaryHeaderTitle}>
-            {t("activeWorkout.goodJob", "¡Buen trabajo!")}
+            {t("activeWorkout.goodJob")}
           </Text>
           <Text style={styles.summaryHeaderSub}>
-            {t("activeWorkout.workoutCompleted", "Entrenamiento completado")}
+            {t("activeWorkout.workoutCompleted")}
           </Text>
         </View>
 
@@ -62,7 +62,7 @@ export const WorkoutSummaryModal = ({
           <View style={styles.summaryStatsRow}>
             <View style={styles.summaryStatCol}>
               <Text style={styles.summaryStatLabel}>
-                {t("activeWorkout.duration", "Duración")}
+                {t("activeWorkout.duration")}
               </Text>
               <Text style={styles.summaryStatValue}>
                 {formatTime(elapsedSeconds)}
@@ -70,7 +70,7 @@ export const WorkoutSummaryModal = ({
             </View>
             <View style={styles.summaryStatCol}>
               <Text style={styles.summaryStatLabel}>
-                {t("activeWorkout.totalVolume", "Volumen")}
+                {t("activeWorkout.totalVolume")}
               </Text>
               <Text style={styles.summaryStatValue}>
                 {stats.volume.toLocaleString()}{" "}
@@ -79,14 +79,14 @@ export const WorkoutSummaryModal = ({
             </View>
             <View style={styles.summaryStatCol}>
               <Text style={styles.summaryStatLabel}>
-                {t("activeWorkout.completedSets", "Series")}
+                {t("activeWorkout.completedSets")}
               </Text>
               <Text style={styles.summaryStatValue}>{stats.sets}</Text>
             </View>
           </View>
 
           <Text style={styles.summaryMusclesTitle}>
-            {t("activeWorkout.musclesWorked", "Músculos trabajados")}
+            {t("activeWorkout.musclesWorked")}
           </Text>
           {muscleDistribution.length > 0 ? (
             muscleDistribution.map((muscle: any) => (
@@ -111,10 +111,7 @@ export const WorkoutSummaryModal = ({
             ))
           ) : (
             <Text style={styles.noSetsValid}>
-              {t(
-                "activeWorkout.noSetsValid",
-                "No completaste ninguna serie válida.",
-              )}
+              {t("activeWorkout.noSetsValid")}
             </Text>
           )}
         </View>
@@ -151,9 +148,7 @@ export const WorkoutSummaryModal = ({
             <ActivityIndicator color="#FFF" style={styles.summaryLoadingIcon} />
           )}
           <Text style={styles.summaryFinishBtnText}>
-            {isSavingHistory
-              ? t("common.saving", "Guardando...")
-              : t("common.finish", "Terminar")}
+            {isSavingHistory ? t("common.saving") : t("common.finish")}
           </Text>
         </TouchableOpacity>
       </View>

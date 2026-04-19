@@ -212,16 +212,13 @@ export const EditProfileModal = ({
                   },
                 ]}
               >
-                {t("profile.bio", "Presentación")}
+                {t("profile.bio")}
               </Text>
               <TextInput
                 value={editBio}
                 onChangeText={setEditBio}
                 multiline
-                placeholder={t(
-                  "profile.bioPlaceholder",
-                  "Escribe una breve presentación sobre ti...",
-                )}
+                placeholder={t("profile.bioPlaceholder")}
                 placeholderTextColor={colors.textSecondary}
                 maxLength={150}
                 style={{
