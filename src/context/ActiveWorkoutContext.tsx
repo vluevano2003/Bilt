@@ -1,7 +1,13 @@
+import notifee, {
+  AndroidImportance,
+  AndroidVisibility,
+  TimestampTrigger,
+  TriggerType,
+} from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { Audio } from "expo-av";
-import * as Notifications from "expo-notifications";
+import * as Linking from "expo-linking";
 import React, {
   createContext,
   useContext,
@@ -18,6 +24,7 @@ import {
   WeightUnit,
 } from "../../hooks/useRoutines";
 import { supabase } from "../config/supabase";
+import { lightColors } from "../constants/theme";
 import { useAuth } from "./AuthContext";
 
 const debugLog = (...args: any[]) => {
@@ -27,6 +34,10 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
+
+notifee.registerForegroundService((notification) => {
+  return new Promise(() => {});
+});
 
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
@@ -66,7 +77,8 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
-const REST_NOTIFICATION_ID = "rest_timer_alert";
+const REST_BEEP_ID = "rest_timer_beep";
+const FOREGROUND_ID = "rest_timer_ongoing";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -99,20 +111,19 @@ export const ActiveWorkoutProvider = ({
     isRestingRef.current = isResting;
   }, [isResting]);
 
-  //Configuración inicial del sistema de notificaciones y audio para el timer de descanso
   useEffect(() => {
     const setupSystem = async () => {
+      await notifee.requestPermission();
+
       if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("rest-timer", {
+        await notifee.createChannel({
+          id: "rest-timer",
           name: "Cronómetro de Descanso",
-          importance: Notifications.AndroidImportance.MAX,
+          importance: AndroidImportance.HIGH,
+          vibration: true,
           vibrationPattern: [0, 500, 250, 500],
-          lockscreenVisibility:
-            Notifications.AndroidNotificationVisibility.PUBLIC,
-          bypassDnd: true,
-          enableLights: true,
-          lightColor: "#ea580c",
-          showBadge: false,
+          lights: true,
+          lightColor: lightColors.primary,
         });
       }
 
@@ -122,46 +133,100 @@ export const ActiveWorkoutProvider = ({
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
       });
-
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        debugLog("Permisos de notificación denegados");
-      }
     };
     setupSystem();
   }, []);
 
-  // Manejador de notificaciones para controlar el comportamiento de las alertas según el estado de la app y el tipo de notificación
   const scheduleRestNotification = async (endTimestampMs: number) => {
-    await Notifications.cancelScheduledNotificationAsync(
-      REST_NOTIFICATION_ID,
-    ).catch(() => {});
+    try {
+      await notifee.stopForegroundService();
+      await notifee.cancelNotification(FOREGROUND_ID);
 
-    const remainingMs = endTimestampMs - Date.now();
-    if (remainingMs <= 0) return;
+      const remainingMs = endTimestampMs - Date.now();
+      if (remainingMs <= 0) return;
 
-    const fireDate = new Date(endTimestampMs);
+      await notifee.displayNotification({
+        id: FOREGROUND_ID,
+        title: t("activeWorkout.trainingLabel", "Descanso Activo"),
+        body: t("activeWorkout.restTimer", "Tiempo restante..."),
+        android: {
+          channelId: "rest-timer",
+          asForegroundService: true,
+          ongoing: true,
+          color: lightColors.primary,
+          smallIcon: "notification_icon",
+          showChronometer: true,
+          chronometerDirection: "down",
+          timestamp: endTimestampMs,
+          visibility: AndroidVisibility.PUBLIC,
+          pressAction: {
+            id: "default",
+          },
+        },
+      });
 
-    await Notifications.scheduleNotificationAsync({
-      identifier: REST_NOTIFICATION_ID,
-      content: {
-        title: t("activeWorkout.notificationTitle", "¡Descanso terminado! 🏋️‍♂️"),
-        body: t(
-          "activeWorkout.notificationBody",
-          "Es hora de tu siguiente serie. ¡A darle!",
-        ),
-        sound: "default",
-        priority: Notifications.AndroidNotificationPriority.MAX,
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: fireDate,
-        ...(Platform.OS === "android" ? { channelId: "rest-timer" } : {}),
-      },
-    });
+      const trigger: TimestampTrigger = {
+        type: TriggerType.TIMESTAMP,
+        timestamp: endTimestampMs,
+        alarmManager: {
+          allowWhileIdle: true,
+        },
+      };
+
+      await notifee.createTriggerNotification(
+        {
+          id: REST_BEEP_ID,
+          title: t(
+            "activeWorkout.notificationTitle",
+            "¡Descanso terminado! 🏋️‍♂️",
+          ),
+          body: t(
+            "activeWorkout.notificationBody",
+            "Es hora de tu siguiente serie. ¡A darle!",
+          ),
+          android: {
+            channelId: "rest-timer",
+            importance: AndroidImportance.HIGH,
+            smallIcon: "notification_icon",
+            color: lightColors.primary,
+            pressAction: {
+              id: "default",
+            },
+          },
+        },
+        trigger,
+      );
+    } catch (error) {
+      debugError("Fallo al programar Notifee:", error);
+      if (Platform.OS === "android") {
+        Alert.alert(
+          t("alerts.exactAlarmTitle", "Precisión del Cronómetro"),
+          t(
+            "alerts.exactAlarmMsg",
+            "Por favor, asegúrate de darnos permisos de Alarmas y Notificaciones en los ajustes.",
+          ),
+          [
+            { text: t("common.cancel", "Cancelar"), style: "cancel" },
+            {
+              text: t("common.settings", "Ajustes"),
+              style: "default",
+              onPress: () => Linking.openSettings(),
+            },
+          ],
+        );
+      }
+    }
   };
 
-  // Estado para controlar si se está guardando el historial, para evitar acciones concurrentes que puedan causar errores o datos inconsistentes
+  const stopRestNotifications = async () => {
+    try {
+      await notifee.stopForegroundService();
+      await notifee.cancelNotification(FOREGROUND_ID);
+    } catch (e) {
+      debugLog("Error cancelando notificaciones", e);
+    }
+  };
+
   useEffect(() => {
     const loadSavedWorkout = async () => {
       try {
@@ -199,9 +264,7 @@ export const ActiveWorkoutProvider = ({
               isRestingRef.current = false;
               setRestTimeRemaining(0);
               restEndTimeRef.current = null;
-              Notifications.cancelScheduledNotificationAsync(
-                REST_NOTIFICATION_ID,
-              ).catch(() => {});
+              stopRestNotifications();
             }
           }
         }
@@ -217,7 +280,6 @@ export const ActiveWorkoutProvider = ({
 
   const isWorkoutActive = !!activeRoutine;
 
-  // Detectar cuando la app vuelve a primer plano para corregir el tiempo transcurrido durante el descanso, incluso si el timer de JS se pausó o retrasó por estar en background
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState === "active" && isWorkoutActive) {
@@ -239,7 +301,6 @@ export const ActiveWorkoutProvider = ({
     return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Intervalo para actualizar el tiempo transcurrido y el tiempo de descanso restante en tiempo real, incluso si el JS se ralentiza o pausa por estar en background, siempre basándose en la fecha absoluta para mayor precisión
   useEffect(() => {
     if (!isWorkoutActive) return;
 
@@ -263,7 +324,6 @@ export const ActiveWorkoutProvider = ({
     return () => clearInterval(interval);
   }, [isWorkoutActive]);
 
-  // Detectar cuando el descanso termina para actualizar el estado y reproducir el sonido de alerta, incluso si el JS se ralentizó o pausó por estar en background
   useEffect(() => {
     if (isResting && restTimeRemaining === 0) {
       setIsResting(false);
@@ -271,13 +331,14 @@ export const ActiveWorkoutProvider = ({
       setRestTimeRemaining(null);
       restEndTimeRef.current = null;
 
+      stopRestNotifications();
+
       if (AppState.currentState === "active") {
         playTimerEndSound();
       }
     }
   }, [isResting, restTimeRemaining]);
 
-  // Guardar el estado del entrenamiento en AsyncStorage cada vez que cambia, para poder restaurarlo si el usuario cierra la app o se cierra inesperadamente, incluyendo la fecha absoluta de fin de descanso para mayor precisión al restaurar
   useEffect(() => {
     if (!isLoaded) return;
     const saveWorkoutState = async () => {
@@ -307,7 +368,6 @@ export const ActiveWorkoutProvider = ({
     isLoaded,
   ]);
 
-  // Función para reproducir un sonido de alerta cuando el timer de descanso termina, utilizando vibración y un sonido mp3 incluido en los assets, con manejo de errores para evitar crashes si el sonido falla
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate(500);
@@ -323,7 +383,6 @@ export const ActiveWorkoutProvider = ({
     }
   };
 
-  // Función para iniciar un nuevo entrenamiento con una rutina seleccionada, reseteando todos los estados relacionados y cancelando cualquier notificación de descanso pendiente
   const startWorkout = (routine: Routine) => {
     setActiveRoutine(JSON.parse(JSON.stringify(routine)));
     setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
@@ -334,9 +393,6 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
     lastTickRef.current = Date.now();
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
-      () => {},
-    );
   };
 
   const cancelWorkout = async () => {
@@ -346,13 +402,11 @@ export const ActiveWorkoutProvider = ({
     setIsPaused(false);
     setIsResting(false);
     isRestingRef.current = false;
-    isPausedRef.current = false;
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
     await AsyncStorage.removeItem(STORAGE_KEY);
-    await Notifications.cancelScheduledNotificationAsync(
-      REST_NOTIFICATION_ID,
-    ).catch(() => {});
+    await stopRestNotifications();
+    await notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const finishWorkout = async () => {
@@ -363,10 +417,7 @@ export const ActiveWorkoutProvider = ({
 
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
-      Alert.alert(
-        "Sin conexión",
-        "Tu entrenamiento está a salvo localmente, pero necesitas internet para guardarlo.",
-      );
+      Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
       setIsPaused(true);
       return;
     }
@@ -396,7 +447,7 @@ export const ActiveWorkoutProvider = ({
 
       if (error) throw error;
     } catch (error) {
-      debugError("Error al guardar el entrenamiento:", error);
+      debugError("Error al guardar:", error);
     } finally {
       cancelWorkout();
     }
@@ -414,9 +465,8 @@ export const ActiveWorkoutProvider = ({
   const pauseWorkout = () => {
     setIsPaused(true);
     isPausedRef.current = true;
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
-      () => {},
-    );
+    stopRestNotifications();
+    notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -425,7 +475,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   const handleSetChange = (
-    exerciseId: string,
+    exId: string,
     setId: string,
     field: "weight" | "reps",
     value: string,
@@ -433,7 +483,7 @@ export const ActiveWorkoutProvider = ({
     if (!activeRoutine) return;
     const numValue = value === "" ? 0 : Number(value.replace(/[^0-9.]/g, ""));
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) =>
           s.id === setId ? { ...s, [field]: numValue } : s,
         );
@@ -444,10 +494,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const changeExerciseUnit = (exerciseId: string, newUnit: WeightUnit) => {
+  const changeExerciseUnit = (exId: string, newUnit: WeightUnit) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) => ({ ...s, weightUnit: newUnit }));
         return { ...ex, sets: updatedSets };
       }
@@ -456,10 +506,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const addSetToExercise = (exerciseId: string) => {
+  const addSetToExercise = (exId: string) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const lastSet = ex.sets[ex.sets.length - 1];
         const newSet: ExerciseSet = {
           id: Math.random().toString(36).substring(2, 9),
@@ -476,10 +526,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const removeSetFromExercise = (exerciseId: string, setId: string) => {
+  const removeSetFromExercise = (exId: string, setId: string) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId)
+      if (ex.id === exId)
         return { ...ex, sets: ex.sets.filter((s) => s.id !== setId) };
       return ex;
     });
@@ -487,15 +537,15 @@ export const ActiveWorkoutProvider = ({
   };
 
   const toggleSetCompletion = (
-    exerciseId: string,
+    exId: string,
     setId: string,
-    defaultRestSeconds: number,
+    defaultRest: number,
   ) => {
     if (!activeRoutine) return;
     let isMarkingAsComplete = false;
 
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) => {
           if (s.id === setId) {
             isMarkingAsComplete = !s.completed;
@@ -510,11 +560,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
 
     if (isMarkingAsComplete) {
-      const endTimestamp = Date.now() + defaultRestSeconds * 1000;
+      const endTimestamp = Date.now() + defaultRest * 1000;
       restEndTimeRef.current = endTimestamp;
       isRestingRef.current = true;
-
-      setRestTimeRemaining(defaultRestSeconds);
+      setRestTimeRemaining(defaultRest);
       setIsResting(true);
 
       scheduleRestNotification(endTimestamp);
@@ -526,9 +575,9 @@ export const ActiveWorkoutProvider = ({
     isRestingRef.current = false;
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
-      debugError,
-    );
+
+    stopRestNotifications();
+    notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {

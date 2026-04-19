@@ -26,8 +26,13 @@
         "android.permission.USE_EXACT_ALARM",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
-        "android.permission.POST_NOTIFICATIONS"
-      ]
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.FOREGROUND_SERVICE"
+      ],
+      "notification": {
+        "icon": "./assets/images/logo_white_nobg.png",
+        "color": "#CC5500"
+      }
     },
     "web": {
       "output": "static",
@@ -60,7 +65,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/logo_white_nobg.png",
-          "color": "#ea580c",
+          "color": "#CC5500",
           "defaultChannel": "default"
         }
       ],
