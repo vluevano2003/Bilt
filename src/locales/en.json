@@ -158,7 +158,6 @@
     "block": "Block user",
     "blockConfirmTitle": "Block",
     "unblockConfirmTitle": "Unblock",
-    "blockMsg": "Are you sure you want to block this user? They won't be able to see your profile or interact with you.",
     "unblockMsg": "Do you want to unblock this user?",
     "userBlockedTitle": "User unavailable",
     "report": "Report user",
@@ -169,7 +168,12 @@
     "reportedTitle": "User Reported",
     "reportedMsg": "Thanks for letting us know. We will review this profile.",
     "userNotFoundTitle": "User not found",
-    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account."
+    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account.",
+    "blockMsg": "Are you sure you want to block this user? You will unfollow each other, and they won't be able to see your profile or interact with you.",
+    "removeFollower": "Remove follower",
+    "removeFollowerTitle": "Remove Follower?",
+    "removeFollowerMsg": "We won't tell them they've been removed from your followers.",
+    "remove": "Remove"
   },
   "alerts": {
     "missingData": "Missing data",

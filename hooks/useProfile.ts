@@ -82,6 +82,8 @@ export const useProfile = (profileUid?: string) => {
   >("none");
   const [hasPendingRequestFromThem, setHasPendingRequestFromThem] =
     useState(false);
+  const [theyFollowMe, setTheyFollowMe] = useState(false);
+
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
@@ -183,6 +185,7 @@ export const useProfile = (profileUid?: string) => {
         .single();
 
       setHasPendingRequestFromThem(theirRequest?.status === "pending");
+      setTheyFollowMe(theirRequest?.status === "accepted");
     }
   }, [targetUid, currentUserId, isOwnProfile]);
 
@@ -422,6 +425,22 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  const removeFollower = async () => {
+    if (!currentUserId || !targetUid || isOwnProfile) return;
+    try {
+      await supabase
+        .from("follows")
+        .delete()
+        .eq("follower_id", targetUid)
+        .eq("following_id", currentUserId);
+
+      setTheyFollowMe(false);
+      setFollowingCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      Alert.alert(t("profile.alerts.error"), t("errors.unexpected"));
+    }
+  };
+
   const getSocialList = async (
     type: "followers" | "following" | "requests",
   ): Promise<SocialUser[]> => {
@@ -599,6 +618,7 @@ export const useProfile = (profileUid?: string) => {
         await supabase
           .from("blocks")
           .insert({ blocker_id: currentUserId, blocked_id: targetUid });
+
         await supabase
           .from("follows")
           .delete()
@@ -609,8 +629,10 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", targetUid)
           .eq("following_id", currentUserId);
+
         setIsBlocked(true);
         setFollowStatus("none");
+        setTheyFollowMe(false);
       }
     } catch (error) {
       Alert.alert(
@@ -711,6 +733,8 @@ export const useProfile = (profileUid?: string) => {
     targetUid,
     followStatus,
     toggleFollow,
+    theyFollowMe,
+    removeFollower,
     followersCount,
     followingCount,
     pendingRequestsCount,

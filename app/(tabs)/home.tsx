@@ -1,4 +1,5 @@
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Tabs,
   useFocusEffect,
@@ -332,10 +333,35 @@ export default function HomeScreen() {
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [hasNewNotifications, setHasNewNotifications] = useState(false);
+
   const lastHistoryId = useRef<string | null>(null);
   const lastRequestsCount = useRef<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    const loadNotificationState = async () => {
+      try {
+        const savedHistoryId = await AsyncStorage.getItem("@last_history_id");
+        const savedRequestsCount = await AsyncStorage.getItem(
+          "@last_requests_count",
+        );
+
+        if (savedHistoryId !== null) lastHistoryId.current = savedHistoryId;
+        if (savedRequestsCount !== null)
+          lastRequestsCount.current = parseInt(savedRequestsCount, 10);
+      } catch (e) {
+        console.error("Error al cargar el estado de las notificaciones", e);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    loadNotificationState();
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
     const currentHistoryId = history.length > 0 ? history[0].id : null;
     const currentRequestsCount = requests.length;
 
@@ -343,6 +369,21 @@ export default function HomeScreen() {
       lastHistoryId.current = currentHistoryId;
       lastRequestsCount.current = currentRequestsCount;
       setHasNewNotifications(false);
+
+      const saveNotificationState = async () => {
+        try {
+          if (currentHistoryId) {
+            await AsyncStorage.setItem("@last_history_id", currentHistoryId);
+          }
+          await AsyncStorage.setItem(
+            "@last_requests_count",
+            currentRequestsCount.toString(),
+          );
+        } catch (e) {
+          console.error("Error al guardar el estado de las notificaciones", e);
+        }
+      };
+      saveNotificationState();
     } else {
       const historyChanged =
         currentHistoryId !== null && currentHistoryId !== lastHistoryId.current;
@@ -353,7 +394,7 @@ export default function HomeScreen() {
         setHasNewNotifications(true);
       }
     }
-  }, [history, requests, notificationsVisible]);
+  }, [history, requests, notificationsVisible, isInitialized]);
 
   const {
     routines,

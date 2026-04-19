@@ -130,7 +130,7 @@ export default function UserProfileScreen() {
         ? t("profile.unblockMsg", "¿Quieres desbloquear a este usuario?")
         : t(
             "profile.blockMsg",
-            "¿Estás seguro de bloquear a este usuario? No podrán ver tu perfil ni interactuar.",
+            "¿Estás seguro de bloquear a este usuario? Se dejarán de seguir mutuamente y no podrá ver tu perfil ni interactuar contigo.",
           ),
       [
         { text: t("common.cancel", "Cancelar"), style: "cancel" },
@@ -138,6 +138,25 @@ export default function UserProfileScreen() {
           text: t("common.confirm", "Confirmar"),
           style: "destructive",
           onPress: profile.toggleBlock,
+        },
+      ],
+    );
+  };
+
+  const handleRemoveFollower = () => {
+    setOptionsModalVisible(false);
+    Alert.alert(
+      t("profile.removeFollowerTitle", "¿Eliminar seguidor?"),
+      t(
+        "profile.removeFollowerMsg",
+        "No le avisaremos a este usuario que lo has eliminado de tus seguidores.",
+      ),
+      [
+        { text: t("common.cancel", "Cancelar"), style: "cancel" },
+        {
+          text: t("profile.remove", "Eliminar"),
+          style: "destructive",
+          onPress: profile.removeFollower,
         },
       ],
     );
@@ -493,6 +512,23 @@ export default function UserProfileScreen() {
                 ]}
               >
                 <View style={styles.optionsModalHandle} />
+
+                {profile.theyFollowMe && (
+                  <TouchableOpacity
+                    style={styles.optionsModalRow}
+                    onPress={handleRemoveFollower}
+                  >
+                    <Feather
+                      name="user-minus"
+                      size={moderateScale(22)}
+                      color="#EF4444"
+                      style={styles.optionsModalIcon}
+                    />
+                    <Text style={styles.optionsModalTextDanger}>
+                      {t("profile.removeFollower", "Eliminar seguidor")}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={styles.optionsModalRow}

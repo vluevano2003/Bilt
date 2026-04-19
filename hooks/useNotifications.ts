@@ -194,43 +194,66 @@ export const useNotifications = () => {
 
     try {
       if (accept) {
-        await supabase
+        const { error: followError } = await supabase
           .from("follows")
           .update({ status: "accepted" })
           .eq("follower_id", userIdToHandle)
           .eq("following_id", user.id);
 
-        await supabase
+        if (followError)
+          throw new Error(`Error en follows: ${followError.message}`);
+
+        const { error: updateError } = await supabase
           .from("notifications")
-          .delete()
+          .update({
+            type: "new_follower",
+            created_at: new Date().toISOString(),
+          })
           .eq("recipient_id", user.id)
           .eq("actor_id", userIdToHandle)
           .eq("type", "follow_request");
-        await supabase.from("notifications").insert({
-          recipient_id: user.id,
-          actor_id: userIdToHandle,
-          type: "new_follower",
-        });
-        await supabase.from("notifications").insert({
-          recipient_id: userIdToHandle,
-          actor_id: user.id,
-          type: "request_accepted",
-        });
+
+        if (updateError)
+          throw new Error(
+            `Error actualizando notificación: ${updateError.message}`,
+          );
+
+        const { error: insertError } = await supabase
+          .from("notifications")
+          .insert({
+            recipient_id: userIdToHandle,
+            actor_id: user.id,
+            type: "request_accepted",
+          });
+
+        if (insertError)
+          throw new Error(`Error insertando accepted: ${insertError.message}`);
       } else {
-        await supabase
+        const { error: deleteFollowError } = await supabase
           .from("follows")
           .delete()
           .eq("follower_id", userIdToHandle)
           .eq("following_id", user.id);
-        await supabase
+
+        if (deleteFollowError)
+          throw new Error(
+            `Error borrando follow: ${deleteFollowError.message}`,
+          );
+
+        const { error: deleteNotifError } = await supabase
           .from("notifications")
           .delete()
           .eq("recipient_id", user.id)
           .eq("actor_id", userIdToHandle)
           .eq("type", "follow_request");
+
+        if (deleteNotifError)
+          throw new Error(
+            `Error borrando notificación: ${deleteNotifError.message}`,
+          );
       }
     } catch (e) {
-      console.log("Error handling request", e);
+      console.error("Fallo crítico en handleRequest:", e);
       fetchNotifications();
     }
   };

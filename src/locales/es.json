@@ -158,7 +158,6 @@
     "block": "Bloquear usuario",
     "blockConfirmTitle": "Bloquear",
     "unblockConfirmTitle": "Desbloquear",
-    "blockMsg": "¿Estás seguro de bloquear a este usuario? No podrán ver tu perfil ni interactuar.",
     "unblockMsg": "¿Quieres desbloquear a este usuario?",
     "userBlockedTitle": "Usuario no disponible",
     "report": "Reportar usuario",
@@ -169,7 +168,12 @@
     "reportedTitle": "Usuario Reportado",
     "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil.",
     "userNotFoundTitle": "Usuario no encontrado",
-    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta."
+    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
+    "blockMsg": "¿Estás seguro de bloquear a este usuario? Se dejarán de seguir mutuamente y no podrá ver tu perfil ni interactuar contigo.",
+    "removeFollower": "Eliminar seguidor",
+    "removeFollowerTitle": "¿Eliminar seguidor?",
+    "removeFollowerMsg": "No le avisaremos a este usuario que lo has eliminado de tus seguidores.",
+    "remove": "Eliminar"
   },
   "alerts": {
     "missingData": "Faltan datos",
