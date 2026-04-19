@@ -9,7 +9,8 @@
     "backToHome": "Back to home",
     "retry": "Retry",
     "pressBackAgain": "Press back again to exit",
-    "day": "Day"
+    "day": "Day",
+    "settings": "Settings"
   },
   "tabs": {
     "workout": "Workout",
@@ -194,7 +195,9 @@
     "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
     "invalidOtpCode": "Please enter a valid 8-digit code.",
     "noNegative": "Values must be greater than zero.",
-    "limitReached": "Limit reached"
+    "limitReached": "Limit reached",
+    "exactAlarmTitle": "Timer Accuracy",
+    "exactAlarmMsg": "To ensure your rest timers ring precisely even when the screen is off, we need Exact Alarms permission. Please enable it in the app settings."
   },
   "errors": {
     "invalidEmail": "The email format is invalid. Check for trailing spaces.",

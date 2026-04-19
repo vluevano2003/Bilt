@@ -54,10 +54,6 @@ const formatRestTimeStr = (seconds: number) => {
   return `${m}:${s < 10 ? "0" : ""}${s}`;
 };
 
-/**
- * Pantalla principal del entrenamiento activo. Muestra la lista de ejercicios, estadísticas en tiempo real, y maneja toda la lógica de interacción durante el entrenamiento
- * @returns
- */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -79,7 +75,6 @@ export default function ActiveWorkoutScreen() {
     addSetToExercise,
     removeSetFromExercise,
     toggleSetCompletion,
-    adjustRestTime,
     stopRestTimer,
     reorderActiveExercises,
     formatTime,
@@ -446,7 +441,7 @@ export default function ActiveWorkoutScreen() {
         </View>
       </Modal>
 
-      {/*Modal de edición de tiempo de descanso*/}
+      {/*Modal de edición de tiempo de descanso (Antes de iniciar)*/}
       <Modal
         visible={!!restEditExId}
         animationType="fade"

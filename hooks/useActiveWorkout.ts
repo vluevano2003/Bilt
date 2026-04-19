@@ -14,7 +14,6 @@ import { useUserActivity } from "./useUserActivity";
  * - Formateo de tiempos y pesos
  * - Manejo de acciones del usuario (finalizar, cancelar, minimizar)
  * - Comparación con el historial para mostrar el último set realizado
- * @returns
  */
 export const useActiveWorkoutScreen = () => {
   const { t } = useTranslation();
@@ -33,8 +32,6 @@ export const useActiveWorkoutScreen = () => {
     setIsPaused,
     cancelWorkout,
     finishWorkout,
-    updateExerciseRestTime,
-    changeExerciseUnit,
   } = activeWorkoutCtx;
 
   /**
@@ -127,12 +124,10 @@ export const useActiveWorkoutScreen = () => {
   stats.volume = Math.round(stats.volume);
 
   const muscleDistribution = Object.keys(muscleCounts)
-    .map((key) => {
-      return {
-        name: key,
-        percentage: (muscleCounts[key] / stats.sets) * 100,
-      };
-    })
+    .map((key) => ({
+      name: key,
+      percentage: (muscleCounts[key] / stats.sets) * 100,
+    }))
     .sort((a, b) => b.percentage - a.percentage);
 
   const [showSummary, setShowSummary] = useState(false);

@@ -54,7 +54,6 @@ interface ActiveWorkoutContextProps {
     setId: string,
     defaultRest: number,
   ) => void;
-  adjustRestTime: (secs: number) => void;
   stopRestTimer: () => void;
   reorderActiveExercises: (newExercises: RoutineExercise[]) => void;
   setIsPaused: (val: boolean) => void;
@@ -89,29 +88,20 @@ export const ActiveWorkoutProvider = ({
 
   const isPausedRef = useRef(isPaused);
   const isRestingRef = useRef(isResting);
-  const restTimeRemainingRef = useRef(restTimeRemaining);
   const lastTickRef = useRef<number>(Date.now());
+  const restEndTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     isPausedRef.current = isPaused;
-    isRestingRef.current = isResting;
-    restTimeRemainingRef.current = restTimeRemaining;
-  }, [isPaused, isResting, restTimeRemaining]);
+  }, [isPaused]);
 
   useEffect(() => {
+    isRestingRef.current = isResting;
+  }, [isResting]);
+
+  //Configuración inicial del sistema de notificaciones y audio para el timer de descanso
+  useEffect(() => {
     const setupSystem = async () => {
-      await Audio.setAudioModeAsync({
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
-
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        debugLog("Permisos de notificación denegados");
-      }
-
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("rest-timer", {
           name: "Cronómetro de Descanso",
@@ -125,38 +115,53 @@ export const ActiveWorkoutProvider = ({
           showBadge: false,
         });
       }
+
+      await Audio.setAudioModeAsync({
+        staysActiveInBackground: true,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        debugLog("Permisos de notificación denegados");
+      }
     };
     setupSystem();
   }, []);
 
-  // Registramos el token de notificaciones al iniciar sesión y configuramos listeners
-  const scheduleRestNotification = async (seconds: number) => {
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+  // Manejador de notificaciones para controlar el comportamiento de las alertas según el estado de la app y el tipo de notificación
+  const scheduleRestNotification = async (endTimestampMs: number) => {
+    await Notifications.cancelScheduledNotificationAsync(
+      REST_NOTIFICATION_ID,
+    ).catch(() => {});
 
-    if (seconds > 0) {
-      await Notifications.scheduleNotificationAsync({
-        identifier: REST_NOTIFICATION_ID,
-        content: {
-          title: t(
-            "activeWorkout.notificationTitle",
-            "¡Descanso terminado! 🏋️‍♂️",
-          ),
-          body: t(
-            "activeWorkout.notificationBody",
-            "Es hora de tu siguiente serie. ¡A darle!",
-          ),
-          sound: "default",
-          priority: Notifications.AndroidNotificationPriority.MAX,
-        },
-        trigger: {
-          seconds: seconds,
-          channelId: "rest-timer",
-        },
-      });
-    }
+    const remainingMs = endTimestampMs - Date.now();
+    if (remainingMs <= 0) return;
+
+    const fireDate = new Date(endTimestampMs);
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: REST_NOTIFICATION_ID,
+      content: {
+        title: t("activeWorkout.notificationTitle", "¡Descanso terminado! 🏋️‍♂️"),
+        body: t(
+          "activeWorkout.notificationBody",
+          "Es hora de tu siguiente serie. ¡A darle!",
+        ),
+        sound: "default",
+        priority: Notifications.AndroidNotificationPriority.MAX,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: fireDate,
+        ...(Platform.OS === "android" ? { channelId: "rest-timer" } : {}),
+      },
+    });
   };
 
-  // Carga del estado guardado al abrir la app
+  // Estado para controlar si se está guardando el historial, para evitar acciones concurrentes que puedan causar errores o datos inconsistentes
   useEffect(() => {
     const loadSavedWorkout = async () => {
       try {
@@ -165,37 +170,39 @@ export const ActiveWorkoutProvider = ({
           const parsedState = JSON.parse(savedState);
           setActiveRoutine(parsedState.activeRoutine);
           setOriginalRoutine(parsedState.originalRoutine);
-          setElapsedSeconds(parsedState.elapsedSeconds);
           setIsPaused(parsedState.isPaused);
-          setRestTimeRemaining(parsedState.restTimeRemaining);
-          setIsResting(parsedState.isResting);
-
-          if (
-            parsedState.lastSavedTime &&
-            parsedState.isResting &&
-            parsedState.restTimeRemaining > 0
-          ) {
-            const secondsPassed = Math.floor(
-              (Date.now() - parsedState.lastSavedTime) / 1000,
-            );
-            const newRestTime = parsedState.restTimeRemaining - secondsPassed;
-            if (newRestTime > 0) {
-              setRestTimeRemaining(newRestTime);
-              scheduleRestNotification(newRestTime);
-            } else {
-              setRestTimeRemaining(0);
-              setIsResting(false);
-              Notifications.cancelScheduledNotificationAsync(
-                REST_NOTIFICATION_ID,
-              );
-            }
-          }
 
           if (parsedState.lastSavedTime && !parsedState.isPaused) {
             const secondsPassed = Math.floor(
               (Date.now() - parsedState.lastSavedTime) / 1000,
             );
-            setElapsedSeconds((prev) => prev + secondsPassed);
+            setElapsedSeconds(
+              (parsedState.elapsedSeconds || 0) + secondsPassed,
+            );
+          } else {
+            setElapsedSeconds(parsedState.elapsedSeconds || 0);
+          }
+
+          if (parsedState.restEndTime) {
+            restEndTimeRef.current = parsedState.restEndTime;
+            const remaining = Math.ceil(
+              (parsedState.restEndTime - Date.now()) / 1000,
+            );
+
+            if (remaining > 0) {
+              setIsResting(true);
+              isRestingRef.current = true;
+              setRestTimeRemaining(remaining);
+              scheduleRestNotification(parsedState.restEndTime);
+            } else {
+              setIsResting(false);
+              isRestingRef.current = false;
+              setRestTimeRemaining(0);
+              restEndTimeRef.current = null;
+              Notifications.cancelScheduledNotificationAsync(
+                REST_NOTIFICATION_ID,
+              ).catch(() => {});
+            }
           }
         }
       } catch (e) {
@@ -210,7 +217,7 @@ export const ActiveWorkoutProvider = ({
 
   const isWorkoutActive = !!activeRoutine;
 
-  // Sincronización cuando la app regresa del segundo plano o se enciende la pantalla
+  // Detectar cuando la app vuelve a primer plano para corregir el tiempo transcurrido durante el descanso, incluso si el timer de JS se pausó o retrasó por estar en background
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState === "active" && isWorkoutActive) {
@@ -218,15 +225,12 @@ export const ActiveWorkoutProvider = ({
         const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
 
         if (deltaSeconds > 0 && !isPausedRef.current) {
-          lastTickRef.current += deltaSeconds * 1000;
+          lastTickRef.current = now;
           setElapsedSeconds((prev) => prev + deltaSeconds);
 
-          if (isRestingRef.current && restTimeRemainingRef.current !== null) {
-            setRestTimeRemaining((prev) => {
-              if (prev === null) return null;
-              const newRest = prev - deltaSeconds;
-              return newRest > 0 ? newRest : 0;
-            });
+          if (isRestingRef.current && restEndTimeRef.current !== null) {
+            const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
+            setRestTimeRemaining(Math.max(0, remaining));
           }
         }
       }
@@ -235,55 +239,37 @@ export const ActiveWorkoutProvider = ({
     return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Reloj Maestro Autocorrectivo
+  // Intervalo para actualizar el tiempo transcurrido y el tiempo de descanso restante en tiempo real, incluso si el JS se ralentiza o pausa por estar en background, siempre basándose en la fecha absoluta para mayor precisión
   useEffect(() => {
     if (!isWorkoutActive) return;
 
     const interval = setInterval(() => {
+      if (isPausedRef.current) return;
+
       const now = Date.now();
       const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
 
       if (deltaSeconds >= 1) {
         lastTickRef.current += deltaSeconds * 1000;
-
-        if (!isPausedRef.current) {
-          setElapsedSeconds((prev) => prev + deltaSeconds);
-
-          if (isRestingRef.current && restTimeRemainingRef.current !== null) {
-            setRestTimeRemaining((prev) => {
-              if (prev === null) return null;
-              const newRest = prev - deltaSeconds;
-              return newRest > 0 ? newRest : 0;
-            });
-          }
-        }
+        setElapsedSeconds((prev) => prev + deltaSeconds);
       }
-    }, 1000);
+
+      if (isRestingRef.current && restEndTimeRef.current !== null) {
+        const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
+        setRestTimeRemaining(Math.max(0, remaining));
+      }
+    }, 500);
 
     return () => clearInterval(interval);
   }, [isWorkoutActive]);
 
-  // Sonido de la app
-  const playTimerEndSound = async () => {
-    try {
-      Vibration.vibrate(500);
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/beep.mp3"),
-      );
-      await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) sound.unloadAsync();
-      });
-    } catch (error) {
-      debugLog("Error de sonido mp3", error);
-    }
-  };
-
-  // Cuando el descanso llega a 0, se detiene y suena el MP3 personalizado
+  // Detectar cuando el descanso termina para actualizar el estado y reproducir el sonido de alerta, incluso si el JS se ralentizó o pausó por estar en background
   useEffect(() => {
     if (isResting && restTimeRemaining === 0) {
       setIsResting(false);
+      isRestingRef.current = false;
       setRestTimeRemaining(null);
+      restEndTimeRef.current = null;
 
       if (AppState.currentState === "active") {
         playTimerEndSound();
@@ -291,7 +277,7 @@ export const ActiveWorkoutProvider = ({
     }
   }, [isResting, restTimeRemaining]);
 
-  // Guardado Automático Local
+  // Guardar el estado del entrenamiento en AsyncStorage cada vez que cambia, para poder restaurarlo si el usuario cierra la app o se cierra inesperadamente, incluyendo la fecha absoluta de fin de descanso para mayor precisión al restaurar
   useEffect(() => {
     if (!isLoaded) return;
     const saveWorkoutState = async () => {
@@ -302,6 +288,7 @@ export const ActiveWorkoutProvider = ({
           elapsedSeconds,
           isPaused,
           restTimeRemaining,
+          restEndTime: restEndTimeRef.current,
           isResting,
           lastSavedTime: Date.now(),
         };
@@ -320,15 +307,36 @@ export const ActiveWorkoutProvider = ({
     isLoaded,
   ]);
 
+  // Función para reproducir un sonido de alerta cuando el timer de descanso termina, utilizando vibración y un sonido mp3 incluido en los assets, con manejo de errores para evitar crashes si el sonido falla
+  const playTimerEndSound = async () => {
+    try {
+      Vibration.vibrate(500);
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../assets/sounds/beep.mp3"),
+      );
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) sound.unloadAsync();
+      });
+    } catch (error) {
+      debugLog("Error de sonido mp3", error);
+    }
+  };
+
+  // Función para iniciar un nuevo entrenamiento con una rutina seleccionada, reseteando todos los estados relacionados y cancelando cualquier notificación de descanso pendiente
   const startWorkout = (routine: Routine) => {
     setActiveRoutine(JSON.parse(JSON.stringify(routine)));
     setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
     setElapsedSeconds(0);
     setIsPaused(false);
     setIsResting(false);
+    isRestingRef.current = false;
     setRestTimeRemaining(null);
+    restEndTimeRef.current = null;
     lastTickRef.current = Date.now();
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
+      () => {},
+    );
   };
 
   const cancelWorkout = async () => {
@@ -337,9 +345,14 @@ export const ActiveWorkoutProvider = ({
     setElapsedSeconds(0);
     setIsPaused(false);
     setIsResting(false);
+    isRestingRef.current = false;
+    isPausedRef.current = false;
     setRestTimeRemaining(null);
+    restEndTimeRef.current = null;
     await AsyncStorage.removeItem(STORAGE_KEY);
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    await Notifications.cancelScheduledNotificationAsync(
+      REST_NOTIFICATION_ID,
+    ).catch(() => {});
   };
 
   const finishWorkout = async () => {
@@ -390,15 +403,20 @@ export const ActiveWorkoutProvider = ({
   };
 
   const resumeWorkout = () => {
+    lastTickRef.current = Date.now();
     setIsPaused(false);
-    if (isRestingRef.current && restTimeRemainingRef.current) {
-      scheduleRestNotification(restTimeRemainingRef.current);
+    isPausedRef.current = false;
+    if (isRestingRef.current && restEndTimeRef.current) {
+      scheduleRestNotification(restEndTimeRef.current);
     }
   };
 
   const pauseWorkout = () => {
     setIsPaused(true);
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    isPausedRef.current = true;
+    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
+      () => {},
+    );
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -475,6 +493,7 @@ export const ActiveWorkoutProvider = ({
   ) => {
     if (!activeRoutine) return;
     let isMarkingAsComplete = false;
+
     const updatedExercises = activeRoutine.exercises.map((ex) => {
       if (ex.id === exerciseId) {
         const updatedSets = ex.sets.map((s) => {
@@ -490,44 +509,23 @@ export const ActiveWorkoutProvider = ({
     });
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
 
-    if (isMarkingAsComplete && !isResting) {
+    if (isMarkingAsComplete) {
+      const endTimestamp = Date.now() + defaultRestSeconds * 1000;
+      restEndTimeRef.current = endTimestamp;
+      isRestingRef.current = true;
+
       setRestTimeRemaining(defaultRestSeconds);
       setIsResting(true);
-      scheduleRestNotification(defaultRestSeconds);
+
+      scheduleRestNotification(endTimestamp);
     }
-  };
-
-  const adjustRestTime = async (secondsToAdd: number) => {
-    if (restTimeRemainingRef.current === null) return;
-
-    const newTime = Math.max(0, restTimeRemainingRef.current + secondsToAdd);
-
-    await Notifications.cancelScheduledNotificationAsync(
-      REST_NOTIFICATION_ID,
-    ).catch(debugError);
-
-    if (newTime <= 0) {
-      restTimeRemainingRef.current = null;
-      isRestingRef.current = false;
-      setIsResting(false);
-      setRestTimeRemaining(null);
-      if (AppState.currentState === "active") {
-        playTimerEndSound();
-      }
-      return;
-    }
-
-    restTimeRemainingRef.current = newTime;
-    setRestTimeRemaining(newTime);
-
-    await scheduleRestNotification(newTime);
   };
 
   const stopRestTimer = () => {
     setIsResting(false);
-    setRestTimeRemaining(null);
-    restTimeRemainingRef.current = null;
     isRestingRef.current = false;
+    setRestTimeRemaining(null);
+    restEndTimeRef.current = null;
     Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(
       debugError,
     );
@@ -576,7 +574,6 @@ export const ActiveWorkoutProvider = ({
         addSetToExercise,
         removeSetFromExercise,
         toggleSetCompletion,
-        adjustRestTime,
         stopRestTimer,
         reorderActiveExercises,
         setIsPaused,

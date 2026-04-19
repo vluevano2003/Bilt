@@ -26,18 +26,20 @@ async function sendPushNotificationViaEdgeFunction(
   body: string,
 ) {
   try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
     const { error } = await supabase.functions.invoke(
       "send-push-notification",
       {
         body: { recipientUserId, title, body },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
     );
 
-    if (error) {
-      console.log("Error enviando notificación via Edge Function:", error);
-    }
+    if (error) console.log("Error enviando notificación:", error);
   } catch (e) {
-    console.log("Error inesperado al invocar Edge Function:", e);
+    console.log("Error inesperado:", e);
   }
 }
 

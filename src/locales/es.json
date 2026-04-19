@@ -9,7 +9,8 @@
     "backToHome": "Volver al inicio",
     "retry": "Reintentar",
     "pressBackAgain": "Presiona atrás de nuevo para salir",
-    "day": "Día"
+    "day": "Día",
+    "settings": "Ajustes"
   },
   "tabs": {
     "workout": "Workout",
@@ -194,7 +195,9 @@
     "sentOtpCode": "Revisa tu correo. Te hemos enviado un código de 8 dígitos.",
     "invalidOtpCode": "Ingresa un código de 8 dígitos válido.",
     "noNegative": "Los valores deben ser mayores a cero.",
-    "limitReached": "Límite alcanzado"
+    "limitReached": "Límite alcanzado",
+    "exactAlarmTitle": "Precisión del Cronómetro",
+    "exactAlarmMsg": "Para que tus descansos suenen a tiempo con la pantalla apagada, necesitamos permiso de Alarmas Exactas. Por favor, actívalo en los ajustes de la app."
   },
   "errors": {
     "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
