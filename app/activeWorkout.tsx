@@ -34,11 +34,11 @@ import { getStyles } from "../src/styles/ActiveWorkout.styles";
  * @param param0
  * @returns
  */
-const EmptyWorkoutView = ({ router, styles }: any) => (
+const EmptyWorkoutView = ({ router, styles, t }: any) => (
   <View style={[styles.container, styles.emptyContainer]}>
-    <Text style={styles.emptyText}>No hay rutina activa</Text>
+    <Text style={styles.emptyText}>{t("activeWorkout.noActiveRoutine")}</Text>
     <TouchableOpacity onPress={() => router.back()} style={styles.emptyBtn}>
-      <Text style={styles.emptyBtnText}>Volver</Text>
+      <Text style={styles.emptyBtnText}>{t("common.back")}</Text>
     </TouchableOpacity>
   </View>
 );
@@ -106,7 +106,7 @@ export default function ActiveWorkoutScreen() {
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
   if (!activeRoutine)
-    return <EmptyWorkoutView router={router} styles={styles} />;
+    return <EmptyWorkoutView router={router} styles={styles} t={t} />;
 
   const isReadonly = !!activeRoutine.originalCreatorId;
 

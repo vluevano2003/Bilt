@@ -1,6 +1,7 @@
 import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
 
@@ -32,6 +33,7 @@ export const useSocialFeed = () => {
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const fetchFeed = useCallback(async () => {
     if (!user?.id) return;
@@ -106,7 +108,7 @@ export const useSocialFeed = () => {
             id: `hist_${d.id}`,
             type: "history",
             userId: d.user_id,
-            username: userMap[d.user_id]?.username || "Usuario",
+            username: userMap[d.user_id]?.username || t("social.user"),
             userAvatar: userMap[d.user_id]?.profile_picture_url,
             timestamp: new Date(d.completed_at).getTime(),
             title: d.routine_name || "",
@@ -132,7 +134,7 @@ export const useSocialFeed = () => {
               id: `rout_${d.id}`,
               type: "routine",
               userId: d.user_id,
-              username: userMap[d.user_id]?.username || "Usuario",
+              username: userMap[d.user_id]?.username || t("social.user"),
               userAvatar: userMap[d.user_id]?.profile_picture_url,
               timestamp: new Date(d.created_at).getTime(),
               title: d.name,

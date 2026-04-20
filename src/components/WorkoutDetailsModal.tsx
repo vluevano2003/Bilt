@@ -132,7 +132,7 @@ export const WorkoutDetailsModal = ({
                 exercise.exerciseDetails?.id
                   ?.replace(/_/g, " ")
                   .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-                "Ejercicio";
+                t("routines.exercise");
 
               return (
                 <View

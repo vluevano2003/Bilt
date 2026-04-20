@@ -118,7 +118,7 @@ export const ActiveWorkoutProvider = ({
       if (Platform.OS === "android") {
         await notifee.createChannel({
           id: "rest-timer",
-          name: "Cronómetro de Descanso",
+          name: t("activeWorkout.restTimer"),
           importance: AndroidImportance.HIGH,
           vibration: true,
           vibrationPattern: [0, 500, 250, 500],

@@ -397,7 +397,7 @@ export const useProfile = (profileUid?: string) => {
           .select("username")
           .eq("id", currentUserId)
           .single();
-        const myName = myUser?.username || "Alguien";
+        const myName = myUser?.username || t("social.someone");
 
         const title =
           finalStatus === "pending"
@@ -418,7 +418,7 @@ export const useProfile = (profileUid?: string) => {
         await sendPushNotificationViaEdgeFunction(targetUid, title, body);
       }
     } catch (error) {
-      Alert.alert(t("profile.alerts.error"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -434,7 +434,7 @@ export const useProfile = (profileUid?: string) => {
       setTheyFollowMe(false);
       setFollowingCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      Alert.alert(t("profile.alerts.error"), t("errors.unexpected"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -564,7 +564,7 @@ export const useProfile = (profileUid?: string) => {
       }
     } catch (e) {
       setPendingRequestsCount((prev) => prev + 1);
-      Alert.alert(t("profile.alerts.error"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -629,7 +629,7 @@ export const useProfile = (profileUid?: string) => {
         setTheyFollowMe(false);
       }
     } catch (error) {
-      Alert.alert("Error", t("errors.unexpected"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -643,7 +643,7 @@ export const useProfile = (profileUid?: string) => {
       });
       Alert.alert(t("profile.reportedTitle"), t("profile.reportedMsg"));
     } catch (error) {
-      Alert.alert("Error", t("errors.unexpected"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -674,7 +674,7 @@ export const useProfile = (profileUid?: string) => {
       await supabase.rpc("delete_user_account");
       await supabase.auth.signOut();
     } catch (error) {
-      Alert.alert("Error", t("profile.deleteAccountError"));
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 

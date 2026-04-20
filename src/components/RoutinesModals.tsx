@@ -766,7 +766,7 @@ export const ReadonlyRoutineModal = ({
               })}
               {(!routine.exercises || routine.exercises.length === 0) && (
                 <Text style={{ color: colors.textSecondary }}>
-                  No hay ejercicios en esta rutina.
+                  {t("routines.noExercises")}
                 </Text>
               )}
               <TouchableOpacity

@@ -44,7 +44,7 @@ export const useNotifications = () => {
         if (usersData) {
           const reqs: SocialUser[] = usersData.map((u: any) => ({
             id: u.id,
-            username: u.username || "Usuario",
+            username: u.username || t("social.user"),
             profilePictureUrl: u.profile_picture_url,
             status: "pending" as const,
           }));
@@ -93,7 +93,7 @@ export const useNotifications = () => {
                 createdAt: n.created_at,
                 actor: {
                   id: actorData.id,
-                  username: actorData.username || "Usuario",
+                  username: actorData.username || t("social.user"),
                   profilePictureUrl: actorData.profile_picture_url,
                   isPrivate: actorData.is_private || false,
                 },
@@ -184,7 +184,7 @@ export const useNotifications = () => {
         createdAt: new Date().toISOString(),
         actor: {
           id: requestUser.id,
-          username: requestUser.username,
+          username: requestUser.username || t("social.user"),
           profilePictureUrl: requestUser.profilePictureUrl,
           isPrivate: false,
         },

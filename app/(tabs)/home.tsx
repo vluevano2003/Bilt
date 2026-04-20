@@ -108,6 +108,7 @@ const DashboardHeader = ({
   activeTab,
   setActiveTab,
   ownRoutinesCount,
+  ownPacksCount,
 }: any) => {
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -265,6 +266,39 @@ const DashboardHeader = ({
               }}
             >
               {ownRoutinesCount} / 10 {t("routines.createdLabel")}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {activeTab === "packs" && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: verticalScale(15),
+            paddingHorizontal: scale(5),
+          }}
+        >
+          <View
+            style={{
+              backgroundColor:
+                ownPacksCount >= 6 ? "rgba(239, 68, 68, 0.1)" : colors.surface,
+              paddingHorizontal: scale(12),
+              paddingVertical: verticalScale(5),
+              borderRadius: moderateScale(15),
+              borderWidth: 1,
+              borderColor: ownPacksCount >= 6 ? "#EF4444" : colors.border,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: moderateScale(12),
+                fontWeight: "bold",
+                color: ownPacksCount >= 6 ? "#EF4444" : colors.textSecondary,
+              }}
+            >
+              {ownPacksCount} / 6 {t("weeklyPacks.createdLabel")}
             </Text>
           </View>
         </View>
@@ -524,6 +558,7 @@ export default function HomeScreen() {
             ownRoutinesCount={
               routines.filter((r) => !r.originalCreatorId).length
             }
+            ownPacksCount={packs.filter((p) => !p.originalCreatorId).length}
           />
         }
         data={activeTab === "packs" ? packs : displayedRoutines}
@@ -677,7 +712,15 @@ export default function HomeScreen() {
           ]}
           onPress={() => {
             if (activeTab === "packs") {
-              actions.openPackModal();
+              const ownPacks = packs.filter((p) => !p.originalCreatorId);
+              if (ownPacks.length >= 6) {
+                Alert.alert(
+                  t("alerts.limitReached"),
+                  t("weeklyPacks.limitReached"),
+                );
+              } else {
+                actions.openPackModal();
+              }
             } else {
               const ownRoutines = routines.filter((r) => !r.originalCreatorId);
               if (ownRoutines.length >= 10) {

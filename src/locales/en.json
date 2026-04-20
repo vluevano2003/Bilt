@@ -103,7 +103,9 @@
       "requestAcceptedTitle": "Request accepted",
       "requestAcceptedBody": "@{{name}} accepted your follow request."
     },
-    "notificationsTitle": "Notifications"
+    "notificationsTitle": "Notifications",
+    "someone": "Someone",
+    "user": "User"
   },
   "profile": {
     "title": "My Profile",
@@ -173,7 +175,8 @@
     "removeFollower": "Remove follower",
     "removeFollowerTitle": "Remove Follower?",
     "removeFollowerMsg": "We won't tell them they've been removed from your followers.",
-    "remove": "Remove"
+    "remove": "Remove",
+    "deleteAccountError": "Could not delete account. Please try again."
   },
   "alerts": {
     "missingData": "Missing data",
@@ -221,7 +224,9 @@
     "invalidLink": "The link is invalid or has expired.",
     "connectionTitle": "Connection Problem",
     "connectionMsg": "We couldn't load your session. Please check your internet connection and try again.",
-    "userCreation": "Could not create user account."
+    "userCreation": "Could not create user account.",
+    "googleSignInProgress": "Sign-in is already in progress.",
+    "playServicesMissing": "Google Play Services is not available on this device."
   },
   "routines": {
     "title": "Your Routines",
@@ -269,7 +274,8 @@
     "addSet": "Add Set",
     "deleteError": "Could not delete the routine. Please try again.",
     "unsaveError": "Could not remove the routine from your profile. Please try again.",
-    "unspecifiedSubmuscles": "Unspecified secondary muscles."
+    "unspecifiedSubmuscles": "Unspecified secondary muscles.",
+    "exercise": "Exercise"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -317,7 +323,8 @@
     "noSetsValid": "You haven't completed any valid sets.",
     "previous": "PREV",
     "notificationTitle": "Rest finished! 🏋️‍♂️",
-    "notificationBody": "It's time for your next set. Let's go!"
+    "notificationBody": "It's time for your next set. Let's go!",
+    "noActiveRoutine": "No active routine"
   },
   "muscles": {
     "chest": "Chest",
@@ -480,7 +487,9 @@
     "noPublicPacks": "This user doesn't have any Weekly Packs yet.",
     "routinesCount": "Routines",
     "successSaved": "Pack and routines saved to your profile!",
-    "successRemoved": "Pack removed from your profile."
+    "successRemoved": "Pack removed from your profile.",
+    "createdLabel": "created",
+    "limitReached": "You can only create a maximum of 6 weekly packs."
   },
   "exerciseDetails": {
     "bench_press_barbell": {
