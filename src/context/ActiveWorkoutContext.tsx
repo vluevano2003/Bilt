@@ -1,13 +1,7 @@
-import notifee, {
-  AndroidImportance,
-  AndroidVisibility,
-  TimestampTrigger,
-  TriggerType,
-} from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { Audio } from "expo-av";
-import * as Linking from "expo-linking";
+import * as Notifications from "expo-notifications";
 import React, {
   createContext,
   useContext,
@@ -16,7 +10,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AppState, Platform, Vibration } from "react-native";
+import { Alert, AppState, Vibration } from "react-native";
 import {
   ExerciseSet,
   Routine,
@@ -24,7 +18,6 @@ import {
   WeightUnit,
 } from "../../hooks/useRoutines";
 import { supabase } from "../config/supabase";
-import { lightColors } from "../constants/theme";
 import { useAuth } from "./AuthContext";
 
 const debugLog = (...args: any[]) => {
@@ -34,10 +27,6 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
-
-notifee.registerForegroundService((notification) => {
-  return new Promise(() => {});
-});
 
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
@@ -77,8 +66,6 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
-const REST_BEEP_ID = "rest_timer_beep";
-const FOREGROUND_ID = "rest_timer_ongoing";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -113,20 +100,6 @@ export const ActiveWorkoutProvider = ({
 
   useEffect(() => {
     const setupSystem = async () => {
-      await notifee.requestPermission();
-
-      if (Platform.OS === "android") {
-        await notifee.createChannel({
-          id: "rest-timer",
-          name: t("activeWorkout.restTimer"),
-          importance: AndroidImportance.HIGH,
-          vibration: true,
-          vibrationPattern: [0, 500, 250, 500],
-          lights: true,
-          lightColor: lightColors.primary,
-        });
-      }
-
       await Audio.setAudioModeAsync({
         staysActiveInBackground: true,
         playsInSilentModeIOS: true,
@@ -139,76 +112,35 @@ export const ActiveWorkoutProvider = ({
 
   const scheduleRestNotification = async (endTimestampMs: number) => {
     try {
-      await notifee.stopForegroundService();
-      await notifee.cancelNotification(FOREGROUND_ID);
+      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
 
       const remainingMs = endTimestampMs - Date.now();
       if (remainingMs <= 0) return;
 
-      await notifee.displayNotification({
-        id: FOREGROUND_ID,
-        title: t("activeWorkout.trainingLabel"),
-        body: t("activeWorkout.restTimer"),
-        android: {
-          channelId: "rest-timer",
-          asForegroundService: true,
-          ongoing: true,
-          color: lightColors.primary,
-          smallIcon: "notification_icon",
-          showChronometer: true,
-          chronometerDirection: "down",
-          timestamp: endTimestampMs,
-          visibility: AndroidVisibility.PUBLIC,
-          pressAction: {
-            id: "default",
-          },
-        },
-      });
+      const remainingSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
 
-      const trigger: TimestampTrigger = {
-        type: TriggerType.TIMESTAMP,
-        timestamp: endTimestampMs,
-        alarmManager: {
-          allowWhileIdle: true,
-        },
-      };
-
-      await notifee.createTriggerNotification(
-        {
-          id: REST_BEEP_ID,
+      await Notifications.scheduleNotificationAsync({
+        identifier: "rest_timer_alert",
+        content: {
           title: t("activeWorkout.notificationTitle"),
           body: t("activeWorkout.notificationBody"),
-          android: {
-            channelId: "rest-timer",
-            importance: AndroidImportance.HIGH,
-            smallIcon: "notification_icon",
-            color: lightColors.primary,
-            pressAction: {
-              id: "default",
-            },
-          },
+          sound: true,
+          color: "#CC5500",
+          vibrate: [0, 500, 250, 500],
         },
-        trigger,
-      );
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: remainingSeconds,
+        },
+      });
     } catch (error) {
-      debugError("Fallo al programar Notifee:", error);
-      if (Platform.OS === "android") {
-        Alert.alert(t("alerts.exactAlarmTitle"), t("alerts.exactAlarmMsg"), [
-          { text: t("common.cancel"), style: "cancel" },
-          {
-            text: t("common.settings"),
-            style: "default",
-            onPress: () => Linking.openSettings(),
-          },
-        ]);
-      }
+      debugError("Fallo al programar alerta:", error);
     }
   };
 
   const stopRestNotifications = async () => {
     try {
-      await notifee.stopForegroundService();
-      await notifee.cancelNotification(FOREGROUND_ID);
+      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
     } catch (e) {
       debugLog("Error cancelando notificaciones", e);
     }
@@ -393,7 +325,6 @@ export const ActiveWorkoutProvider = ({
     restEndTimeRef.current = null;
     await AsyncStorage.removeItem(STORAGE_KEY);
     await stopRestNotifications();
-    await notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const finishWorkout = async () => {
@@ -453,7 +384,6 @@ export const ActiveWorkoutProvider = ({
     setIsPaused(true);
     isPausedRef.current = true;
     stopRestNotifications();
-    notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -564,7 +494,6 @@ export const ActiveWorkoutProvider = ({
     restEndTimeRef.current = null;
 
     stopRestNotifications();
-    notifee.cancelNotification(REST_BEEP_ID);
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {
