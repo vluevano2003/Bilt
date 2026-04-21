@@ -120,12 +120,7 @@ const ProfileHeader = ({
           },
         ]}
       >
-        {bio
-          ? bio
-          : t(
-              "profile.addBioPrompt",
-              "Agrega una breve presentación sobre ti.",
-            )}
+        {bio ? bio : t("profile.addBioPrompt")}
       </Text>
     </View>
 
@@ -207,9 +202,7 @@ const WorkoutHistoryList = ({
           style={styles.loadMoreBtn}
           onPress={() => setHistoryLimit((prev: number) => prev + 10)}
         >
-          <Text style={styles.loadMoreText}>
-            {t("profile.loadMore", "Cargar más entrenamientos")}
-          </Text>
+          <Text style={styles.loadMoreText}>{t("profile.loadMore")}</Text>
         </TouchableOpacity>
       )}
     </>
@@ -293,15 +286,12 @@ export default function ProfileScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      t("profile.deleteAccountTitle", "Eliminar Cuenta"),
-      t(
-        "profile.deleteAccountMsg",
-        "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es permanente y no se puede deshacer.",
-      ),
+      t("profile.deleteAccountTitle"),
+      t("profile.deleteAccountMsg"),
       [
-        { text: t("common.cancel", "Cancelar"), style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: t("profile.deleteAccount", "Eliminar"),
+          text: t("profile.deleteAccount"),
           style: "destructive",
           onPress: deleteAccount,
         },

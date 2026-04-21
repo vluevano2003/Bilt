@@ -9,7 +9,8 @@
     "backToHome": "Volver al inicio",
     "retry": "Reintentar",
     "pressBackAgain": "Presiona atrás de nuevo para salir",
-    "day": "Día"
+    "day": "Día",
+    "settings": "Ajustes"
   },
   "tabs": {
     "workout": "Workout",
@@ -65,6 +66,7 @@
     "continue": "Continuar con Google"
   },
   "social": {
+    "activity": "Historial",
     "feed": "Novedades",
     "findFriends": "Buscar",
     "searchPlaceholder": "Buscar usuarios...",
@@ -90,14 +92,20 @@
     "createdRoutine": "Creó una nueva rutina",
     "emptyFeed": "Sigue a otros usuarios para ver su actividad aquí.",
     "defaultWorkout": "Entrenamiento",
+    "startedFollowing": "comenzó a seguirte.",
+    "acceptedRequest": "aceptó tu solicitud.",
     "notifications": {
+      "interactedWithProfile": "Alguien interactuó con tu perfil.",
       "newRequestTitle": "Nueva solicitud",
       "newRequestBody": "@{{name}} te ha enviado una solicitud de seguimiento.",
       "newFollowerTitle": "Nuevo seguidor",
       "newFollowerBody": "@{{name}} ha comenzado a seguirte.",
       "requestAcceptedTitle": "Solicitud aceptada",
       "requestAcceptedBody": "@{{name}} ha aceptado tu solicitud de seguimiento."
-    }
+    },
+    "notificationsTitle": "Notificaciones",
+    "someone": "Alguien",
+    "user": "Usuario"
   },
   "profile": {
     "title": "Mi Perfil",
@@ -152,7 +160,6 @@
     "block": "Bloquear usuario",
     "blockConfirmTitle": "Bloquear",
     "unblockConfirmTitle": "Desbloquear",
-    "blockMsg": "¿Estás seguro de bloquear a este usuario? No podrán ver tu perfil ni interactuar.",
     "unblockMsg": "¿Quieres desbloquear a este usuario?",
     "userBlockedTitle": "Usuario no disponible",
     "report": "Reportar usuario",
@@ -163,7 +170,13 @@
     "reportedTitle": "Usuario Reportado",
     "reportedMsg": "Gracias por avisarnos. Revisaremos este perfil.",
     "userNotFoundTitle": "Usuario no encontrado",
-    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta."
+    "userNotFoundMsg": "Es posible que el enlace sea incorrecto o que el usuario haya eliminado su cuenta.",
+    "blockMsg": "¿Estás seguro de bloquear a este usuario? Se dejarán de seguir mutuamente y no podrá ver tu perfil ni interactuar contigo.",
+    "removeFollower": "Eliminar seguidor",
+    "removeFollowerTitle": "¿Eliminar seguidor?",
+    "removeFollowerMsg": "No le avisaremos a este usuario que lo has eliminado de tus seguidores.",
+    "remove": "Eliminar",
+    "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo."
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -194,7 +207,9 @@
     "sentOtpCode": "Revisa tu correo. Te hemos enviado un código de 8 dígitos.",
     "invalidOtpCode": "Ingresa un código de 8 dígitos válido.",
     "noNegative": "Los valores deben ser mayores a cero.",
-    "limitReached": "Límite alcanzado"
+    "limitReached": "Límite alcanzado",
+    "exactAlarmTitle": "Precisión del Cronómetro",
+    "exactAlarmMsg": "Para que tus descansos suenen a tiempo con la pantalla apagada, necesitamos permiso de Alarmas Exactas. Por favor, actívalo en los ajustes de la app."
   },
   "errors": {
     "invalidEmail": "El formato del correo electrónico no es válido. Revisa que no tenga espacios al final.",
@@ -209,7 +224,9 @@
     "invalidLink": "El enlace no es válido o ya ha expirado.",
     "connectionTitle": "Problema de conexión",
     "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
-    "userCreation": "No se pudo crear el usuario."
+    "userCreation": "No se pudo crear el usuario.",
+    "googleSignInProgress": "El inicio de sesión ya está en curso.",
+    "playServicesMissing": "Google Play Services no está disponible en este dispositivo."
   },
   "routines": {
     "title": "Tus Rutinas",
@@ -254,7 +271,11 @@
     "n_sets_other": "{{count}} Series",
     "createdLabel": "creadas",
     "limitReached": "Solo puedes crear un máximo de 10 rutinas.",
-    "addSet": "Añadir Serie"
+    "addSet": "Añadir Serie",
+    "deleteError": "No se pudo eliminar la rutina. Inténtalo de nuevo.",
+    "unsaveError": "No se pudo remover la rutina de tu perfil. Inténtalo de nuevo.",
+    "unspecifiedSubmuscles": "Músculos secundarios no especificados.",
+    "exercise": "Ejercicio"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -302,7 +323,8 @@
     "noSetsValid": "No completaste ninguna serie válida.",
     "previous": "ANTERIOR",
     "notificationTitle": "¡Descanso terminado! 🏋️‍♂️",
-    "notificationBody": "Es hora de tu siguiente serie. ¡A darle!"
+    "notificationBody": "Es hora de tu siguiente serie. ¡A darle!",
+    "noActiveRoutine": "No hay rutina activa"
   },
   "muscles": {
     "chest": "Pecho",
@@ -465,7 +487,9 @@
     "noPublicPacks": "Este usuario aún no tiene Packs Semanales.",
     "routinesCount": "Rutinas",
     "successSaved": "¡Pack y rutinas guardados en tu perfil!",
-    "successRemoved": "Pack removido de tu perfil."
+    "successRemoved": "Pack removido de tu perfil.",
+    "createdLabel": "creados",
+    "limitReached": "Solo puedes crear un máximo de 6 packs semanales."
   },
   "exerciseDetails": {
     "bench_press_barbell": {

@@ -14,13 +14,14 @@ import { useTranslation } from "react-i18next";
 import { Alert, AppState, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
-import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
+import { usePushNotifications } from "../hooks/usePushNotifications";
 import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
@@ -29,12 +30,13 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
-    const isForeground = AppState.currentState === "active";
     const isTimerAlert = notification.request.identifier === "rest_timer_alert";
+    const isForeground = AppState.currentState === "active";
 
     if (isTimerAlert && isForeground) {
       return {
@@ -70,18 +72,14 @@ function RootLayoutNav() {
   const url = Linking.useURL();
   const [hasHandledInitialLink, setHasHandledInitialLink] = useState(false);
 
+  usePushNotifications(user?.id);
+
   const firstSegment = segments[0] as string | undefined;
   const inIndex = !firstSegment || firstSegment === "index";
 
   useEffect(() => {
     if (netInfo.isConnected === false && !offlineAlertShown) {
-      Alert.alert(
-        t("alerts.error", "Error"),
-        t(
-          "errors.networkFailed",
-          "Parece que no hay conexión a internet. Revisa tu red e inténtalo de nuevo.",
-        ),
-      );
+      Alert.alert(t("alerts.error"), t("errors.networkFailed"));
       setOfflineAlertShown(true);
     }
   }, [netInfo.isConnected, offlineAlertShown, t]);
@@ -155,7 +153,7 @@ function RootLayoutNav() {
             textAlign: "center",
           }}
         >
-          {t("errors.connectionTitle", "Problema de conexión")}
+          {t("errors.connectionTitle")}
         </Text>
         <Text
           style={{
@@ -165,10 +163,7 @@ function RootLayoutNav() {
             textAlign: "center",
           }}
         >
-          {t(
-            "errors.connectionMsg",
-            "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
-          )}
+          {t("errors.connectionMsg")}
         </Text>
         <TouchableOpacity
           style={{
@@ -186,7 +181,7 @@ function RootLayoutNav() {
               fontSize: moderateScale(16),
             }}
           >
-            {t("common.retry", "Reintentar")}
+            {t("common.retry")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -209,8 +204,8 @@ export default function RootLayout() {
   useEffect(() => {
     mobileAds()
       .initialize()
-      .then((adapterStatuses) => {
-        debugLog("¡AdMob Inicializado correctamente!");
+      .then(() => {
+        debugLog("AdMob Inicializado correctamente!");
       })
       .catch((error) => {
         debugError("Error inicializando AdMob:", error);

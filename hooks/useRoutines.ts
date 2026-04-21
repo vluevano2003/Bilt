@@ -1,6 +1,7 @@
 import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { supabase } from "../src/config/supabase";
 import { useAuth } from "../src/context/AuthContext";
@@ -66,6 +67,7 @@ export const useRoutines = () => {
   const [exercisesDb, setExercisesDb] = useState<ExerciseType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { t } = useTranslation();
 
   const { user } = useAuth();
   const currentUserId = user?.id;
@@ -181,10 +183,7 @@ export const useRoutines = () => {
     if (!routineId) {
       const ownRoutines = routines.filter((r) => !r.originalCreatorId);
       if (ownRoutines.length >= 10) {
-        Alert.alert(
-          "Límite alcanzado",
-          "Has alcanzado el límite máximo de 10 rutinas creadas.",
-        );
+        Alert.alert(t("alerts.limitReached"), t("routines.limitReached"));
         return;
       }
     }

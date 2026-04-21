@@ -79,17 +79,11 @@ export const GoogleSignInButton = ({
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert("Error", "El inicio de sesión ya está en curso");
+        Alert.alert(t("alerts.error"), t("errors.googleSignInProgress"));
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert(
-          "Error",
-          "Google Play Services no está disponible en este dispositivo",
-        );
+        Alert.alert(t("alerts.error"), t("errors.playServicesMissing"));
       } else {
-        Alert.alert(
-          "Error",
-          error.message || "Ocurrió un error al iniciar sesión con Google",
-        );
+        Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
       }
     } finally {
       setIsLoading(false);

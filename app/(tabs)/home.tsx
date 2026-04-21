@@ -1,11 +1,12 @@
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Tabs,
   useFocusEffect,
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -25,7 +26,8 @@ import {
   verticalScale,
 } from "../../src/utils/Responsive";
 
-import { SocialUser, useProfile } from "../../hooks/useProfile";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
 import { useRoutineEditor } from "../../hooks/useRoutineEditor";
 import { useRoutines } from "../../hooks/useRoutines";
@@ -48,15 +50,12 @@ import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
 /**
- * Componentes para acciones del header (feedback y notificaciones) y el header del dashboard (saludo, resumen semanal y tabs de rutinas). Se definen fuera del componente principal para evitar re-renderizados innecesarios al cambiar de tab o al abrir modales.
- * @param param0
- * @returns
+ * Componentes para acciones del header (feedback y notificaciones)
  */
 const HeaderRightActions = ({
   colors,
   styles,
-  isPrivate,
-  pendingRequestsCount,
+  hasNewNotifications,
   onOpenFeedback,
   onOpenNotifications,
 }: any) => (
@@ -78,22 +77,25 @@ const HeaderRightActions = ({
         size={moderateScale(24)}
         color={colors.textPrimary}
       />
-      {isPrivate && pendingRequestsCount > 0 && (
-        <View style={styles.notificationBadge}>
-          <Text style={styles.notificationBadgeText}>
-            {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
-          </Text>
-        </View>
+      {hasNewNotifications && (
+        <View
+          style={{
+            position: "absolute",
+            top: -scale(2),
+            right: -scale(2),
+            width: scale(10),
+            height: scale(10),
+            borderRadius: scale(5),
+            backgroundColor: "#EF4444",
+            borderWidth: 2,
+            borderColor: colors.background,
+          }}
+        />
       )}
     </TouchableOpacity>
   </View>
 );
 
-/**
- * Componente del header del dashboard, con saludo personalizado, resumen semanal y tabs para cambiar entre rutinas propias, guardadas y packs semanales. Se define fuera del componente principal para evitar re-renderizados innecesarios al cambiar de tab o al abrir modales.
- * @param param0
- * @returns
- */
 const DashboardHeader = ({
   t,
   i18n,
@@ -106,12 +108,13 @@ const DashboardHeader = ({
   activeTab,
   setActiveTab,
   ownRoutinesCount,
+  ownPacksCount,
 }: any) => {
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return t("home.morning", "Buenos días");
-    if (hour < 19) return t("home.afternoon", "Buenas tardes");
-    return t("home.evening", "Buenas noches");
+    if (hour < 12) return t("home.morning");
+    if (hour < 19) return t("home.afternoon");
+    return t("home.evening");
   };
 
   const daysLabel = i18n.language.includes("es")
@@ -123,7 +126,7 @@ const DashboardHeader = ({
       <View style={homeStyles.greetingContainer}>
         <Text style={homeStyles.greetingText}>{getGreeting()}, </Text>
         <Text style={homeStyles.usernameText}>
-          {username || t("home.defaultName", "Atleta")}!
+          {username || t("home.defaultName")}!
         </Text>
       </View>
 
@@ -147,7 +150,7 @@ const DashboardHeader = ({
             <Text
               style={[homeStyles.statLabel, homeStyles.statLabelMarginBottom]}
             >
-              {t("home.thisWeek", "Esta semana")}
+              {t("home.thisWeek")}
             </Text>
             <View style={homeStyles.daysContainer}>
               {daysLabel.map((day, idx) => {
@@ -182,7 +185,6 @@ const DashboardHeader = ({
       </View>
 
       <View style={routineStyles.tabsContainer}>
-        {/* ... TABS INTACTOS ... */}
         <TouchableOpacity
           style={[
             routineStyles.tab,
@@ -212,7 +214,7 @@ const DashboardHeader = ({
               activeTab === "packs" && routineStyles.activeTabText,
             ]}
           >
-            {t("weeklyPacks.tabPacks", "Packs")}
+            {t("weeklyPacks.tabPacks")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -228,7 +230,7 @@ const DashboardHeader = ({
               activeTab === "saved" && routineStyles.activeTabText,
             ]}
           >
-            {t("routines.savedRoutines", "Guardadas")}
+            {t("routines.savedRoutines")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -263,7 +265,40 @@ const DashboardHeader = ({
                   ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
               }}
             >
-              {ownRoutinesCount} / 10 {t("routines.createdLabel", "creadas")}
+              {ownRoutinesCount} / 10 {t("routines.createdLabel")}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {activeTab === "packs" && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: verticalScale(15),
+            paddingHorizontal: scale(5),
+          }}
+        >
+          <View
+            style={{
+              backgroundColor:
+                ownPacksCount >= 6 ? "rgba(239, 68, 68, 0.1)" : colors.surface,
+              paddingHorizontal: scale(12),
+              paddingVertical: verticalScale(5),
+              borderRadius: moderateScale(15),
+              borderWidth: 1,
+              borderColor: ownPacksCount >= 6 ? "#EF4444" : colors.border,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: moderateScale(12),
+                fontWeight: "bold",
+                color: ownPacksCount >= 6 ? "#EF4444" : colors.textSecondary,
+              }}
+            >
+              {ownPacksCount} / 6 {t("weeklyPacks.createdLabel")}
             </Text>
           </View>
         </View>
@@ -272,10 +307,6 @@ const DashboardHeader = ({
   );
 };
 
-/**
- * Pantalla principal del tab de entrenamiento, con dashboard personalizado, lista de rutinas y packs semanales, y acceso a modales de detalles, edición, creación de packs, feedback y notificaciones. Maneja la lógica de inicio de workout, cambio entre tabs y carga de datos iniciales.
- * @returns
- */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -301,10 +332,7 @@ export default function HomeScreen() {
         }
 
         backPressCount = 1;
-        ToastAndroid.show(
-          t("common.pressBackAgain", "Presiona atrás de nuevo para salir"),
-          ToastAndroid.SHORT,
-        );
+        ToastAndroid.show(t("common.pressBackAgain"), ToastAndroid.SHORT);
 
         setTimeout(() => {
           backPressCount = 0;
@@ -322,19 +350,82 @@ export default function HomeScreen() {
     }, [t]),
   );
 
+  const { isPrivate, username } = useProfile();
+
   const {
-    isPrivate,
-    pendingRequestsCount,
-    getSocialList,
-    handleFollowRequest,
-    username,
-  } = useProfile();
+    loading: notificationsLoading,
+    requests,
+    history,
+    handleRequest,
+  } = useNotifications();
+
   const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
 
   const [notificationsVisible, setNotificationsVisible] = useState(false);
-  const [requestsList, setRequestsList] = useState<SocialUser[]>([]);
-  const [loadingRequests, setLoadingRequests] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+
+  const lastHistoryId = useRef<string | null>(null);
+  const lastRequestsCount = useRef<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const loadNotificationState = async () => {
+      try {
+        const savedHistoryId = await AsyncStorage.getItem("@last_history_id");
+        const savedRequestsCount = await AsyncStorage.getItem(
+          "@last_requests_count",
+        );
+
+        if (savedHistoryId !== null) lastHistoryId.current = savedHistoryId;
+        if (savedRequestsCount !== null)
+          lastRequestsCount.current = parseInt(savedRequestsCount, 10);
+      } catch (e) {
+        console.error("Error al cargar el estado de las notificaciones", e);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    loadNotificationState();
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const currentHistoryId = history.length > 0 ? history[0].id : null;
+    const currentRequestsCount = requests.length;
+
+    if (notificationsVisible) {
+      lastHistoryId.current = currentHistoryId;
+      lastRequestsCount.current = currentRequestsCount;
+      setHasNewNotifications(false);
+
+      const saveNotificationState = async () => {
+        try {
+          if (currentHistoryId) {
+            await AsyncStorage.setItem("@last_history_id", currentHistoryId);
+          }
+          await AsyncStorage.setItem(
+            "@last_requests_count",
+            currentRequestsCount.toString(),
+          );
+        } catch (e) {
+          console.error("Error al guardar el estado de las notificaciones", e);
+        }
+      };
+      saveNotificationState();
+    } else {
+      const historyChanged =
+        currentHistoryId !== null && currentHistoryId !== lastHistoryId.current;
+      const requestsIncreased =
+        currentRequestsCount > lastRequestsCount.current;
+
+      if (historyChanged || requestsIncreased) {
+        setHasNewNotifications(true);
+      }
+    }
+  }, [history, requests, notificationsVisible, isInitialized]);
 
   const {
     routines,
@@ -365,18 +456,10 @@ export default function HomeScreen() {
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
 
   useEffect(() => {
-    if (params.openNotifications === "true") openNotifications();
+    if (params.openNotifications === "true") setNotificationsVisible(true);
   }, [params.openNotifications]);
 
   const totalWorkouts = userHistory?.length || 0;
-
-  const openNotifications = async () => {
-    setNotificationsVisible(true);
-    setLoadingRequests(true);
-    const users = await getSocialList("requests");
-    setRequestsList(users);
-    setLoadingRequests(false);
-  };
 
   const handleStartWorkout = (routine: any) => {
     if (activeRoutine && activeRoutine.id === routine.id) {
@@ -445,16 +528,15 @@ export default function HomeScreen() {
     <View style={homeStyles.container}>
       <Tabs.Screen
         options={{
-          title: t("tabs.workout", "Entrenar"),
-          headerTitle: t("tabs.workout", "Entrenar"),
+          title: t("tabs.workout"),
+          headerTitle: t("tabs.workout"),
           headerRight: () => (
             <HeaderRightActions
               colors={colors}
               styles={homeStyles}
-              isPrivate={isPrivate}
-              pendingRequestsCount={pendingRequestsCount}
+              hasNewNotifications={hasNewNotifications}
               onOpenFeedback={() => setFeedbackModalVisible(true)}
-              onOpenNotifications={openNotifications}
+              onOpenNotifications={() => setNotificationsVisible(true)}
             />
           ),
         }}
@@ -476,6 +558,7 @@ export default function HomeScreen() {
             ownRoutinesCount={
               routines.filter((r) => !r.originalCreatorId).length
             }
+            ownPacksCount={packs.filter((p) => !p.originalCreatorId).length}
           />
         }
         data={activeTab === "packs" ? packs : displayedRoutines}
@@ -496,10 +579,7 @@ export default function HomeScreen() {
             />
             <Text style={routineStyles.emptyText}>
               {activeTab === "packs"
-                ? t(
-                    "weeklyPacks.emptyMessage",
-                    "Aún no tienes packs semanales.",
-                  )
+                ? t("weeklyPacks.emptyMessage")
                 : t("routines.emptyMessage")}
             </Text>
           </View>
@@ -553,7 +633,7 @@ export default function HomeScreen() {
                   />
                   <Text style={homeStyles.packRoutinesText}>
                     {packItem.routineIds.length}{" "}
-                    {t("weeklyPacks.routinesCount", "Rutinas")}
+                    {t("weeklyPacks.routinesCount")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -632,16 +712,21 @@ export default function HomeScreen() {
           ]}
           onPress={() => {
             if (activeTab === "packs") {
-              actions.openPackModal();
+              const ownPacks = packs.filter((p) => !p.originalCreatorId);
+              if (ownPacks.length >= 6) {
+                Alert.alert(
+                  t("alerts.limitReached"),
+                  t("weeklyPacks.limitReached"),
+                );
+              } else {
+                actions.openPackModal();
+              }
             } else {
               const ownRoutines = routines.filter((r) => !r.originalCreatorId);
               if (ownRoutines.length >= 10) {
                 Alert.alert(
-                  t("alerts.limitReached", "Límite alcanzado"),
-                  t(
-                    "routines.limitReached",
-                    "Solo puedes crear un máximo de 10 rutinas.",
-                  ),
+                  t("alerts.limitReached"),
+                  t("routines.limitReached"),
                 );
               } else {
                 editor.openRoutineModal();
@@ -653,7 +738,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Modales y resto de código... */}
       <FeedbackModal
         visible={feedbackModalVisible}
         onClose={() => setFeedbackModalVisible(false)}
@@ -667,13 +751,12 @@ export default function HomeScreen() {
       <NotificationModal
         visible={notificationsVisible}
         onClose={() => setNotificationsVisible(false)}
-        loading={loadingRequests}
-        requestsList={requestsList}
-        onHandleRequest={(id: string, accept: boolean) => {
-          handleFollowRequest(id, accept);
-          setRequestsList((prev) => prev.filter((u) => u.id !== id));
-        }}
+        loading={notificationsLoading}
+        requestsList={requests}
+        historyList={history}
+        onHandleRequest={handleRequest}
       />
+
       <CreatePackModal
         visible={actions.packModalVisible}
         onClose={() => actions.setPackModalVisible(false)}

@@ -54,10 +54,7 @@ export default function LoginScreen() {
         }
 
         backPressCount = 1;
-        ToastAndroid.show(
-          t("common.pressBackAgain", "Presiona atrás de nuevo para salir"),
-          ToastAndroid.SHORT,
-        );
+        ToastAndroid.show(t("common.pressBackAgain"), ToastAndroid.SHORT);
 
         setTimeout(() => {
           backPressCount = 0;

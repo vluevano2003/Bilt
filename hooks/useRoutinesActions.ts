@@ -73,8 +73,8 @@ export const useRoutinesActions = (
     } else {
       if (selectedRoutineIds.length >= 6) {
         Alert.alert(
-          t("alerts.limitReached", "Límite alcanzado"),
-          t("weeklyPacks.maxRoutinesAlert", "Máximo 6 rutinas."),
+          t("alerts.limitReached"),
+          t("weeklyPacks.maxRoutinesAlert"),
         );
         return;
       }
@@ -92,23 +92,17 @@ export const useRoutinesActions = (
     );
 
     if (isRoutineInPack) {
-      Alert.alert(
-        t("alerts.error", "Atención"),
-        t(
-          "routines.cannotDeleteInPack",
-          "No puedes eliminar una rutina que está en un pack.",
-        ),
-      );
+      Alert.alert(t("alerts.error"), t("routines.cannotDeleteInPack"));
       return;
     }
 
     Alert.alert(
-      t("routines.deleteConfirmTitle", "Eliminar Rutina"),
-      t("routines.deleteConfirmMsg", "¿Seguro que deseas eliminarla?"),
+      t("routines.deleteConfirmTitle"),
+      t("routines.deleteConfirmMsg"),
       [
-        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
+        { text: t("routines.cancel"), style: "cancel" },
         {
-          text: t("routines.yesDelete", "Sí, eliminar"),
+          text: t("routines.yesDelete"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -117,8 +111,8 @@ export const useRoutinesActions = (
               onSuccess();
             } catch (error: any) {
               Alert.alert(
-                "Error",
-                error.message || "No se pudo eliminar la rutina.",
+                t("alerts.error"),
+                error.message || t("routines.deleteError"),
               );
             }
           },
@@ -140,12 +134,12 @@ export const useRoutinesActions = (
 
     if (linkedPack) {
       Alert.alert(
-        t("routines.unsaveConfirmTitle", "Desguardar"),
+        t("routines.unsaveConfirmTitle"),
         t("routines.unsavePackWarning", { packName: linkedPack.name }),
         [
-          { text: t("routines.cancel", "Cancelar"), style: "cancel" },
+          { text: t("routines.cancel"), style: "cancel" },
           {
-            text: t("routines.removeFromProfile", "Remover"),
+            text: t("routines.removeFromProfile"),
             style: "destructive",
             onPress: async () => {
               try {
@@ -155,11 +149,14 @@ export const useRoutinesActions = (
                 }
                 onSuccess();
                 Alert.alert(
-                  t("profile.alerts.success", "Éxito"),
-                  t("routines.successRemoved", "Removido de tu perfil."),
+                  t("profile.alerts.success"),
+                  t("routines.successRemoved"),
                 );
               } catch (error: any) {
-                Alert.alert("Error", error.message || "Fallo al desguardar.");
+                Alert.alert(
+                  t("alerts.error"),
+                  error.message || t("routines.unsaveError"),
+                );
               }
             },
           },
@@ -169,23 +166,26 @@ export const useRoutinesActions = (
     }
 
     Alert.alert(
-      t("routines.unsaveConfirmTitle", "Desguardar"),
-      t("routines.unsaveConfirmMsg", "¿Seguro?"),
+      t("routines.unsaveConfirmTitle"),
+      t("routines.unsaveConfirmMsg"),
       [
-        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
+        { text: t("routines.cancel"), style: "cancel" },
         {
-          text: t("routines.removeFromProfile", "Remover"),
+          text: t("routines.removeFromProfile"),
           style: "destructive",
           onPress: async () => {
             try {
               await deleteRoutine(routineId);
               onSuccess();
               Alert.alert(
-                t("profile.alerts.success", "Éxito"),
-                t("routines.successRemoved", "Removido de tu perfil."),
+                t("profile.alerts.success"),
+                t("routines.successRemoved"),
               );
             } catch (error: any) {
-              Alert.alert("Error", error.message || "Fallo al desguardar.");
+              Alert.alert(
+                t("alerts.error"),
+                error.message || t("routines.unsaveError"),
+              );
             }
           },
         },
@@ -195,15 +195,13 @@ export const useRoutinesActions = (
 
   const handleDeletePack = (packId: string, onSuccess: () => void) => {
     Alert.alert(
-      t("routines.deleteConfirmTitle", "Eliminar Pack"),
-      t(
-        "routines.deleteConfirmMsg",
-        "¿Estás seguro de que deseas eliminar este pack?",
-      ),
+      t("routines.deleteConfirmTitle"),
+
+      t("routines.deleteConfirmMsg"),
       [
-        { text: t("routines.cancel", "Cancelar"), style: "cancel" },
+        { text: t("routines.cancel"), style: "cancel" },
         {
-          text: t("routines.yesDelete", "Sí, eliminar"),
+          text: t("routines.yesDelete"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -218,8 +216,8 @@ export const useRoutinesActions = (
               onSuccess();
             } catch (error: any) {
               Alert.alert(
-                "Error",
-                error.message || "No se pudo eliminar el pack.",
+                t("alerts.error"),
+                error.message || t("routines.deleteError"),
               );
             }
           },

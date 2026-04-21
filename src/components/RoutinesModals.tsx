@@ -44,13 +44,10 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
 
   const name = t(`exercises.${exercise.id}`);
   const description = t(`exerciseDetails.${exercise.id}.description`, {
-    defaultValue: t(
-      "routines.noExercises",
-      "Descripción detallada próximamente...",
-    ),
+    defaultValue: t("routines.noExercises"),
   });
   const submuscles = t(`exerciseDetails.${exercise.id}.submuscles`, {
-    defaultValue: "Músculos secundarios no especificados.",
+    defaultValue: t("routines.unspecifiedSubmuscles"),
   });
 
   return (
@@ -135,7 +132,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                     fontSize: moderateScale(12),
                   }}
                 >
-                  {t("routines.animationComingSoon", "Animación próximamente")}
+                  {t("routines.animationComingSoon")}
                 </Text>
               </View>
             )}
@@ -149,7 +146,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                   marginBottom: verticalScale(10),
                 }}
               >
-                {t("activeWorkout.musclesWorked", "Músculos trabajados")}
+                {t("activeWorkout.musclesWorked")}
               </Text>
               <View
                 style={{
@@ -176,7 +173,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                       fontSize: moderateScale(12),
                     }}
                   >
-                    {t("routines.synergists", "Sinérgicos")}
+                    {t("routines.synergists")}
                   </Text>
                 </View>
                 <Text
@@ -200,7 +197,7 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                   marginBottom: verticalScale(10),
                 }}
               >
-                {t("routines.instructions", "Instrucciones")}
+                {t("routines.instructions")}
               </Text>
               <Text
                 style={{
@@ -290,7 +287,7 @@ export const CreatePackModal = ({
                 fontWeight: "bold",
               }}
             >
-              {t("common.day", "Día")} {index + 1}: {routine.name}
+              {t("common.day")} {index + 1}: {routine.name}
             </Text>
           </View>
           <Feather name="menu" size={scale(24)} color={colors.textSecondary} />
@@ -328,8 +325,8 @@ export const CreatePackModal = ({
               >
                 <Text style={styles.modalTitle}>
                   {isEditing
-                    ? t("weeklyPacks.edit", "Editar Pack Semanal")
-                    : t("weeklyPacks.createNew", "Crear Pack Semanal")}
+                    ? t("weeklyPacks.edit")
+                    : t("weeklyPacks.createNew")}
                 </Text>
                 <TouchableOpacity onPress={onClose}>
                   <AntDesign
@@ -356,28 +353,22 @@ export const CreatePackModal = ({
                 ListHeaderComponent={
                   <View style={{ paddingBottom: verticalScale(15) }}>
                     <Text style={styles.label}>
-                      {t("weeklyPacks.packName", "Nombre del Pack")}
+                      {t("weeklyPacks.packName")}
                     </Text>
                     <CustomInput
                       value={packName}
                       onChangeText={setPackName}
-                      placeholder={t(
-                        "weeklyPacks.packNamePlaceholder",
-                        "Ej. Semana de Hipertrofia",
-                      )}
+                      placeholder={t("weeklyPacks.packNamePlaceholder")}
                     />
                     <Text
                       style={[styles.label, { marginTop: verticalScale(15) }]}
                     >
-                      {t("weeklyPacks.description", "Descripción")}
+                      {t("weeklyPacks.description")}
                     </Text>
                     <CustomInput
                       value={packDescription}
                       onChangeText={setPackDescription}
-                      placeholder={t(
-                        "weeklyPacks.descriptionPlaceholder",
-                        "Ej. Rutina de 5 días...",
-                      )}
+                      placeholder={t("weeklyPacks.descriptionPlaceholder")}
                     />
 
                     <Text
@@ -389,10 +380,7 @@ export const CreatePackModal = ({
                         },
                       ]}
                     >
-                      {t(
-                        "weeklyPacks.availableRoutines",
-                        "Rutinas Disponibles para Añadir",
-                      )}
+                      {t("weeklyPacks.availableRoutines")}
                     </Text>
 
                     {availableRoutines.length === 0 && (
@@ -403,10 +391,7 @@ export const CreatePackModal = ({
                           marginBottom: verticalScale(10),
                         }}
                       >
-                        {t(
-                          "weeklyPacks.noMoreRoutines",
-                          "No hay más rutinas disponibles o llegaste al límite.",
-                        )}
+                        {t("weeklyPacks.noMoreRoutines")}
                       </Text>
                     )}
 
@@ -455,10 +440,7 @@ export const CreatePackModal = ({
                       }}
                     >
                       <Text style={styles.label}>
-                        {t(
-                          "weeklyPacks.selectedRoutinesTitle",
-                          "Días de Entrenamiento",
-                        )}
+                        {t("weeklyPacks.selectedRoutinesTitle")}
                       </Text>
                       <Text
                         style={{
@@ -480,10 +462,7 @@ export const CreatePackModal = ({
                           fontStyle: "italic",
                         }}
                       >
-                        {t(
-                          "weeklyPacks.dragHint",
-                          "Añade rutinas para ordenar tus días de entrenamiento.",
-                        )}
+                        {t("weeklyPacks.dragHint")}
                       </Text>
                     )}
                   </View>
@@ -499,8 +478,8 @@ export const CreatePackModal = ({
                     <PrimaryButton
                       title={
                         isEditing
-                          ? t("common.saveChanges", "Guardar Cambios")
-                          : t("weeklyPacks.savePack", "Crear Pack")
+                          ? t("common.saveChanges")
+                          : t("weeklyPacks.savePack")
                       }
                       onPress={handleCreatePack}
                       loading={isSavingPack}
@@ -606,7 +585,7 @@ export const PackDetailsModal = ({
               </Text>
             )}
             <Text style={[styles.label, { marginBottom: verticalScale(15) }]}>
-              {t("weeklyPacks.routinesIncluded", "Rutinas en este Pack:")}
+              {t("weeklyPacks.routinesIncluded")}
             </Text>
             {pack.routineIds.map((rId: string, idx: number) => {
               const routine = routines.find((r: any) => r.id === rId);
@@ -614,7 +593,7 @@ export const PackDetailsModal = ({
               const exercisesPreview =
                 routine.exercises
                   ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
-                  .join(", ") || t("routines.noExercises", "Sin ejercicios");
+                  .join(", ") || t("routines.noExercises");
               return (
                 <View
                   key={routine.id + idx}
@@ -625,7 +604,7 @@ export const PackDetailsModal = ({
                 >
                   <View style={styles.cardHeader}>
                     <Text style={styles.routineName}>
-                      {t("common.day", "Día")} {idx + 1}: {routine.name}
+                      {t("common.day")} {idx + 1}: {routine.name}
                     </Text>
                   </View>
                   <Text style={styles.exercisePreview} numberOfLines={2}>
@@ -663,8 +642,8 @@ export const PackDetailsModal = ({
               />
               <Text style={[styles.actionButtonText, { color: "#EF4444" }]}>
                 {pack.originalCreatorId
-                  ? t("routines.removeFromProfile", "Remover de mi perfil")
-                  : t("routines.delete", "Eliminar")}{" "}
+                  ? t("routines.removeFromProfile")
+                  : t("routines.delete")}{" "}
                 Pack
               </Text>
             </TouchableOpacity>
@@ -787,7 +766,7 @@ export const ReadonlyRoutineModal = ({
               })}
               {(!routine.exercises || routine.exercises.length === 0) && (
                 <Text style={{ color: colors.textSecondary }}>
-                  No hay ejercicios en esta rutina.
+                  {t("routines.noExercises")}
                 </Text>
               )}
               <TouchableOpacity
@@ -937,7 +916,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               }}
             >
               <Text style={{ color: colors.textPrimary, fontWeight: "500" }}>
-                {t("routines.set", "Serie")} {setIndex + 1}
+                {t("routines.set")} {setIndex + 1}
               </Text>
               <TouchableOpacity
                 onPress={() =>
@@ -969,7 +948,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               style={{ marginRight: scale(5) }}
             />
             <Text style={{ color: colors.primary, fontWeight: "bold" }}>
-              {t("routines.addSet", "Añadir Serie")}
+              {t("routines.addSet")}
             </Text>
           </TouchableOpacity>
         </View>

@@ -9,7 +9,8 @@
     "backToHome": "Back to home",
     "retry": "Retry",
     "pressBackAgain": "Press back again to exit",
-    "day": "Day"
+    "day": "Day",
+    "settings": "Settings"
   },
   "tabs": {
     "workout": "Workout",
@@ -65,6 +66,7 @@
     "continue": "Continue with Google"
   },
   "social": {
+    "activity": "History",
     "feed": "Activity",
     "findFriends": "Search",
     "searchPlaceholder": "Search users...",
@@ -90,14 +92,20 @@
     "createdRoutine": "Created a new routine",
     "emptyFeed": "Follow other users to see their activity here.",
     "defaultWorkout": "Workout",
+    "startedFollowing": "started following you.",
+    "acceptedRequest": "accepted your request.",
     "notifications": {
+      "interactedWithProfile": "Someone interacted with your profile.",
       "newRequestTitle": "New request",
       "newRequestBody": "@{{name}} sent you a follow request.",
       "newFollowerTitle": "New follower",
       "newFollowerBody": "@{{name}} started following you.",
       "requestAcceptedTitle": "Request accepted",
       "requestAcceptedBody": "@{{name}} accepted your follow request."
-    }
+    },
+    "notificationsTitle": "Notifications",
+    "someone": "Someone",
+    "user": "User"
   },
   "profile": {
     "title": "My Profile",
@@ -152,7 +160,6 @@
     "block": "Block user",
     "blockConfirmTitle": "Block",
     "unblockConfirmTitle": "Unblock",
-    "blockMsg": "Are you sure you want to block this user? They won't be able to see your profile or interact with you.",
     "unblockMsg": "Do you want to unblock this user?",
     "userBlockedTitle": "User unavailable",
     "report": "Report user",
@@ -163,7 +170,13 @@
     "reportedTitle": "User Reported",
     "reportedMsg": "Thanks for letting us know. We will review this profile.",
     "userNotFoundTitle": "User not found",
-    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account."
+    "userNotFoundMsg": "The link might be incorrect or the user may have deleted their account.",
+    "blockMsg": "Are you sure you want to block this user? You will unfollow each other, and they won't be able to see your profile or interact with you.",
+    "removeFollower": "Remove follower",
+    "removeFollowerTitle": "Remove Follower?",
+    "removeFollowerMsg": "We won't tell them they've been removed from your followers.",
+    "remove": "Remove",
+    "deleteAccountError": "Could not delete account. Please try again."
   },
   "alerts": {
     "missingData": "Missing data",
@@ -194,7 +207,9 @@
     "sentOtpCode": "Check your email. We've sent you an 8-digit code.",
     "invalidOtpCode": "Please enter a valid 8-digit code.",
     "noNegative": "Values must be greater than zero.",
-    "limitReached": "Limit reached"
+    "limitReached": "Limit reached",
+    "exactAlarmTitle": "Timer Accuracy",
+    "exactAlarmMsg": "To ensure your rest timers ring precisely even when the screen is off, we need Exact Alarms permission. Please enable it in the app settings."
   },
   "errors": {
     "invalidEmail": "The email format is invalid. Check for trailing spaces.",
@@ -209,7 +224,9 @@
     "invalidLink": "The link is invalid or has expired.",
     "connectionTitle": "Connection Problem",
     "connectionMsg": "We couldn't load your session. Please check your internet connection and try again.",
-    "userCreation": "Could not create user account."
+    "userCreation": "Could not create user account.",
+    "googleSignInProgress": "Sign-in is already in progress.",
+    "playServicesMissing": "Google Play Services is not available on this device."
   },
   "routines": {
     "title": "Your Routines",
@@ -254,7 +271,11 @@
     "n_sets_other": "{{count}} Sets",
     "createdLabel": "created",
     "limitReached": "You can only create a maximum of 10 routines.",
-    "addSet": "Add Set"
+    "addSet": "Add Set",
+    "deleteError": "Could not delete the routine. Please try again.",
+    "unsaveError": "Could not remove the routine from your profile. Please try again.",
+    "unspecifiedSubmuscles": "Unspecified secondary muscles.",
+    "exercise": "Exercise"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -302,7 +323,8 @@
     "noSetsValid": "You haven't completed any valid sets.",
     "previous": "PREV",
     "notificationTitle": "Rest finished! 🏋️‍♂️",
-    "notificationBody": "It's time for your next set. Let's go!"
+    "notificationBody": "It's time for your next set. Let's go!",
+    "noActiveRoutine": "No active routine"
   },
   "muscles": {
     "chest": "Chest",
@@ -465,7 +487,9 @@
     "noPublicPacks": "This user doesn't have any Weekly Packs yet.",
     "routinesCount": "Routines",
     "successSaved": "Pack and routines saved to your profile!",
-    "successRemoved": "Pack removed from your profile."
+    "successRemoved": "Pack removed from your profile.",
+    "createdLabel": "created",
+    "limitReached": "You can only create a maximum of 6 weekly packs."
   },
   "exerciseDetails": {
     "bench_press_barbell": {

@@ -17,35 +17,32 @@ export interface SocialUser {
 }
 
 /**
- * Función para enviar notificaciones push usando Expo Push API
+ * Envía notificación push a través de la Edge Function de Supabase.
+ * Exportada para poder reutilizarla en otros hooks (ej. useNotifications)
  */
-async function sendPushNotification(
-  expoPushToken: string,
+export async function sendPushNotificationViaEdgeFunction(
+  recipientUserId: string,
   title: string,
   body: string,
 ) {
-  const message = {
-    to: expoPushToken,
-    sound: "default",
-    title: title,
-    body: body,
-    data: { someData: "goes here" },
-  };
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Accept-encoding": "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
-  });
+    const { error } = await supabase.functions.invoke(
+      "send-push-notification",
+      {
+        body: { recipientUserId, title, body },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      },
+    );
+
+    if (error) console.log("Error enviando notificación:", error);
+  } catch (e) {
+    console.log("Error inesperado:", e);
+  }
 }
 
-/**
- * Hook personalizado para manejar la lógica del perfil de usuario
- */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -68,6 +65,7 @@ export const useProfile = (profileUid?: string) => {
   const [measurementSystem, setMeasurementSystem] = useState<
     "metric" | "imperial"
   >("metric");
+  const [targetLocale, setTargetLocale] = useState("es");
 
   const [editUsername, setEditUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState<string | null>(null);
@@ -79,16 +77,16 @@ export const useProfile = (profileUid?: string) => {
   >("metric");
 
   const [isPrivate, setIsPrivate] = useState(false);
-
   const [followStatus, setFollowStatus] = useState<
     "none" | "pending" | "following"
   >("none");
   const [hasPendingRequestFromThem, setHasPendingRequestFromThem] =
     useState(false);
+  const [theyFollowMe, setTheyFollowMe] = useState(false);
+
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
 
@@ -101,23 +99,21 @@ export const useProfile = (profileUid?: string) => {
         .single();
 
       if (error || !data) {
-        debugLog("Perfil no encontrado o bloqueado por RLS");
         setHasBlockedMe(true);
         setIsLoading(false);
         return;
       }
 
-      if (data) {
-        setUsername(data.username || "");
-        setProfilePic(data.profile_picture_url || null);
-        setEmail(data.email || "");
-        setGender(data.gender || "");
-        setMeasurementSystem(data.measurement_system || "metric");
-        setHeight(data.height?.toString() || "");
-        setWeight(data.weight?.toString() || "");
-        setBio(data.bio || "");
-        setIsPrivate(data.is_private || false);
-      }
+      setUsername(data.username || "");
+      setProfilePic(data.profile_picture_url || null);
+      setEmail(data.email || "");
+      setGender(data.gender || "");
+      setMeasurementSystem(data.measurement_system || "metric");
+      setHeight(data.height?.toString() || "");
+      setWeight(data.weight?.toString() || "");
+      setBio(data.bio || "");
+      setTargetLocale(data.locale || "es");
+      setIsPrivate(data.is_private || false);
       setIsLoading(false);
     } catch (err) {
       setHasBlockedMe(true);
@@ -189,6 +185,7 @@ export const useProfile = (profileUid?: string) => {
         .single();
 
       setHasPendingRequestFromThem(theirRequest?.status === "pending");
+      setTheyFollowMe(theirRequest?.status === "accepted");
     }
   }, [targetUid, currentUserId, isOwnProfile]);
 
@@ -226,9 +223,7 @@ export const useProfile = (profileUid?: string) => {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "follows" },
-        () => {
-          fetchSocialStats();
-        },
+        () => fetchSocialStats(),
       )
       .subscribe();
 
@@ -318,15 +313,10 @@ export const useProfile = (profileUid?: string) => {
       setIsEditing(false);
       Alert.alert(t("profile.alerts.success"), t("profile.alerts.successSave"));
     } catch (error: any) {
-      debugLog("Error al guardar perfil:", error);
-
       if (error?.code === "23505") {
         Alert.alert(
-          t("profile.alerts.usernameTakenTitle", "Nombre no disponible"),
-          t(
-            "profile.alerts.usernameTakenMsg",
-            "Este nombre de usuario ya está en uso. Por favor, elige otro distinto.",
-          ),
+          t("profile.alerts.usernameTakenTitle"),
+          t("profile.alerts.usernameTakenMsg"),
         );
       } else {
         Alert.alert(t("profile.alerts.error"), t("profile.alerts.errorSave"));
@@ -367,11 +357,19 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", currentUserId)
           .eq("following_id", targetUid);
+
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("actor_id", currentUserId)
+          .eq("recipient_id", targetUid)
+          .in("type", ["follow_request", "new_follower"]);
+
         setFollowStatus("none");
       } else {
         const { data: targetData } = await supabase
           .from("users")
-          .select("is_private, push_token")
+          .select("is_private")
           .eq("id", targetUid)
           .single();
 
@@ -385,6 +383,13 @@ export const useProfile = (profileUid?: string) => {
             status: finalStatus,
           },
         ]);
+
+        await supabase.from("notifications").insert({
+          recipient_id: targetUid,
+          actor_id: currentUserId,
+          type: finalStatus === "pending" ? "follow_request" : "new_follower",
+        });
+
         setFollowStatus(finalStatus === "accepted" ? "following" : "pending");
 
         const { data: myUser } = await supabase
@@ -392,24 +397,44 @@ export const useProfile = (profileUid?: string) => {
           .select("username")
           .eq("id", currentUserId)
           .single();
-        const myName = myUser?.username || "Alguien";
+        const myName = myUser?.username || t("social.someone");
 
-        if (targetData?.push_token) {
-          const title =
-            finalStatus === "pending"
-              ? t("social.notifications.newRequestTitle")
-              : t("social.notifications.newFollowerTitle");
+        const title =
+          finalStatus === "pending"
+            ? t("social.notifications.newRequestTitle", { lng: targetLocale })
+            : t("social.notifications.newFollowerTitle", { lng: targetLocale });
 
-          const body =
-            finalStatus === "pending"
-              ? t("social.notifications.newRequestBody", { name: myName })
-              : t("social.notifications.newFollowerBody", { name: myName });
+        const body =
+          finalStatus === "pending"
+            ? t("social.notifications.newRequestBody", {
+                name: myName,
+                lng: targetLocale,
+              })
+            : t("social.notifications.newFollowerBody", {
+                name: myName,
+                lng: targetLocale,
+              });
 
-          await sendPushNotification(targetData.push_token, title, body);
-        }
+        await sendPushNotificationViaEdgeFunction(targetUid, title, body);
       }
     } catch (error) {
-      Alert.alert(t("profile.alerts.error"), "No se pudo completar la acción.");
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
+    }
+  };
+
+  const removeFollower = async () => {
+    if (!currentUserId || !targetUid || isOwnProfile) return;
+    try {
+      await supabase
+        .from("follows")
+        .delete()
+        .eq("follower_id", targetUid)
+        .eq("following_id", currentUserId);
+
+      setTheyFollowMe(false);
+      setFollowingCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -477,6 +502,25 @@ export const useProfile = (profileUid?: string) => {
           .eq("following_id", currentUserId);
         setHasPendingRequestFromThem(false);
 
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", currentUserId)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+
+        await supabase.from("notifications").insert({
+          recipient_id: currentUserId,
+          actor_id: userIdToHandle,
+          type: "new_follower",
+        });
+
+        await supabase.from("notifications").insert({
+          recipient_id: userIdToHandle,
+          actor_id: currentUserId,
+          type: "request_accepted",
+        });
+
         const { data: myUser } = await supabase
           .from("users")
           .select("username")
@@ -484,33 +528,43 @@ export const useProfile = (profileUid?: string) => {
           .single();
         const myName = myUser?.username || "Alguien";
 
-        const { data: followerUser } = await supabase
+        const { data: requestUser } = await supabase
           .from("users")
-          .select("push_token")
+          .select("locale")
           .eq("id", userIdToHandle)
           .single();
 
-        if (followerUser?.push_token) {
-          await sendPushNotification(
-            followerUser.push_token,
-            t("social.notifications.requestAcceptedTitle"),
-            t("social.notifications.requestAcceptedBody", { name: myName }),
-          );
-        }
+        const recipientLang = requestUser?.locale || "es";
+
+        await sendPushNotificationViaEdgeFunction(
+          userIdToHandle,
+          t("social.notifications.requestAcceptedTitle", {
+            lng: recipientLang,
+          }),
+          t("social.notifications.requestAcceptedBody", {
+            name: myName,
+            lng: recipientLang,
+          }),
+        );
       } else {
         await supabase
           .from("follows")
           .delete()
           .eq("follower_id", userIdToHandle)
           .eq("following_id", currentUserId);
+
+        await supabase
+          .from("notifications")
+          .delete()
+          .eq("recipient_id", currentUserId)
+          .eq("actor_id", userIdToHandle)
+          .eq("type", "follow_request");
+
         setHasPendingRequestFromThem(false);
       }
     } catch (e) {
       setPendingRequestsCount((prev) => prev + 1);
-      Alert.alert(
-        t("profile.alerts.error"),
-        "Ocurrió un problema procesando la solicitud.",
-      );
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -558,6 +612,7 @@ export const useProfile = (profileUid?: string) => {
         await supabase
           .from("blocks")
           .insert({ blocker_id: currentUserId, blocked_id: targetUid });
+
         await supabase
           .from("follows")
           .delete()
@@ -568,14 +623,13 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", targetUid)
           .eq("following_id", currentUserId);
+
         setIsBlocked(true);
         setFollowStatus("none");
+        setTheyFollowMe(false);
       }
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t("errors.unexpected", "No se pudo procesar la solicitud."),
-      );
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -587,18 +641,9 @@ export const useProfile = (profileUid?: string) => {
         reported_id: targetUid,
         reason: reasonText || "Sin motivo especificado",
       });
-      Alert.alert(
-        t("profile.reportedTitle", "Usuario Reportado"),
-        t(
-          "profile.reportedMsg",
-          "Gracias por avisarnos. Revisaremos este perfil.",
-        ),
-      );
+      Alert.alert(t("profile.reportedTitle"), t("profile.reportedMsg"));
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t("errors.unexpected", "No se pudo reportar al usuario."),
-      );
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -606,9 +651,7 @@ export const useProfile = (profileUid?: string) => {
     if (!currentUserId) return [];
     try {
       const { data, error } = await supabase.rpc("get_my_blocked_users");
-
       if (error) throw error;
-
       return data || [];
     } catch (error) {
       debugLog("Error al obtener bloqueados:", error);
@@ -631,13 +674,7 @@ export const useProfile = (profileUid?: string) => {
       await supabase.rpc("delete_user_account");
       await supabase.auth.signOut();
     } catch (error) {
-      Alert.alert(
-        "Error",
-        t(
-          "profile.deleteAccountError",
-          "No se pudo eliminar la cuenta. Por favor contacta soporte.",
-        ),
-      );
+      Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
   };
 
@@ -672,6 +709,8 @@ export const useProfile = (profileUid?: string) => {
     targetUid,
     followStatus,
     toggleFollow,
+    theyFollowMe,
+    removeFollower,
     followersCount,
     followingCount,
     pendingRequestsCount,

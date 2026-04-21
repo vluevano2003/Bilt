@@ -10,7 +10,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AppState, Platform, Vibration } from "react-native";
+import { Alert, AppState, Vibration } from "react-native";
 import {
   ExerciseSet,
   Routine,
@@ -19,16 +19,6 @@ import {
 } from "../../hooks/useRoutines";
 import { supabase } from "../config/supabase";
 import { useAuth } from "./AuthContext";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
 
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
@@ -64,7 +54,6 @@ interface ActiveWorkoutContextProps {
     setId: string,
     defaultRest: number,
   ) => void;
-  adjustRestTime: (secs: number) => void;
   stopRestTimer: () => void;
   reorderActiveExercises: (newExercises: RoutineExercise[]) => void;
   setIsPaused: (val: boolean) => void;
@@ -77,7 +66,6 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
-const REST_NOTIFICATION_ID = "rest_timer_alert";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -99,16 +87,17 @@ export const ActiveWorkoutProvider = ({
 
   const isPausedRef = useRef(isPaused);
   const isRestingRef = useRef(isResting);
-  const restTimeRemainingRef = useRef(restTimeRemaining);
   const lastTickRef = useRef<number>(Date.now());
+  const restEndTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     isPausedRef.current = isPaused;
-    isRestingRef.current = isResting;
-    restTimeRemainingRef.current = restTimeRemaining;
-  }, [isPaused, isResting, restTimeRemaining]);
+  }, [isPaused]);
 
-  // Configuración inicial del sistema de audio y notificaciones
+  useEffect(() => {
+    isRestingRef.current = isResting;
+  }, [isResting]);
+
   useEffect(() => {
     const setupSystem = async () => {
       await Audio.setAudioModeAsync({
@@ -117,54 +106,46 @@ export const ActiveWorkoutProvider = ({
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
       });
-
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        debugLog("Permisos de notificación denegados");
-      }
-
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("rest-timer", {
-          name: "Cronómetro de Descanso",
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 500, 250, 500],
-          lockscreenVisibility:
-            Notifications.AndroidNotificationVisibility.PUBLIC,
-          bypassDnd: true,
-        });
-      }
     };
     setupSystem();
   }, []);
 
-  // Registramos el token de notificaciones al iniciar sesión y configuramos listeners
-  const scheduleRestNotification = async (seconds: number) => {
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+  const scheduleRestNotification = async (endTimestampMs: number) => {
+    try {
+      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
 
-    if (seconds > 0) {
+      const remainingMs = endTimestampMs - Date.now();
+      if (remainingMs <= 0) return;
+
+      const remainingSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
+
       await Notifications.scheduleNotificationAsync({
-        identifier: REST_NOTIFICATION_ID,
+        identifier: "rest_timer_alert",
         content: {
-          title: t(
-            "activeWorkout.notificationTitle",
-            "¡Descanso terminado! 🏋️‍♂️",
-          ),
-          body: t(
-            "activeWorkout.notificationBody",
-            "Es hora de tu siguiente serie. ¡A darle!",
-          ),
+          title: t("activeWorkout.notificationTitle"),
+          body: t("activeWorkout.notificationBody"),
           sound: true,
-          priority: Notifications.AndroidNotificationPriority.MAX,
+          color: "#CC5500",
+          vibrate: [0, 500, 250, 500],
         },
         trigger: {
-          seconds: seconds,
-          channelId: "rest-timer",
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: remainingSeconds,
         },
       });
+    } catch (error) {
+      debugError("Fallo al programar alerta:", error);
     }
   };
 
-  // Carga del estado guardado al abrir la app
+  const stopRestNotifications = async () => {
+    try {
+      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
+    } catch (e) {
+      debugLog("Error cancelando notificaciones", e);
+    }
+  };
+
   useEffect(() => {
     const loadSavedWorkout = async () => {
       try {
@@ -173,37 +154,37 @@ export const ActiveWorkoutProvider = ({
           const parsedState = JSON.parse(savedState);
           setActiveRoutine(parsedState.activeRoutine);
           setOriginalRoutine(parsedState.originalRoutine);
-          setElapsedSeconds(parsedState.elapsedSeconds);
           setIsPaused(parsedState.isPaused);
-          setRestTimeRemaining(parsedState.restTimeRemaining);
-          setIsResting(parsedState.isResting);
-
-          if (
-            parsedState.lastSavedTime &&
-            parsedState.isResting &&
-            parsedState.restTimeRemaining > 0
-          ) {
-            const secondsPassed = Math.floor(
-              (Date.now() - parsedState.lastSavedTime) / 1000,
-            );
-            const newRestTime = parsedState.restTimeRemaining - secondsPassed;
-            if (newRestTime > 0) {
-              setRestTimeRemaining(newRestTime);
-              scheduleRestNotification(newRestTime);
-            } else {
-              setRestTimeRemaining(0);
-              setIsResting(false);
-              Notifications.cancelScheduledNotificationAsync(
-                REST_NOTIFICATION_ID,
-              );
-            }
-          }
 
           if (parsedState.lastSavedTime && !parsedState.isPaused) {
             const secondsPassed = Math.floor(
               (Date.now() - parsedState.lastSavedTime) / 1000,
             );
-            setElapsedSeconds((prev) => prev + secondsPassed);
+            setElapsedSeconds(
+              (parsedState.elapsedSeconds || 0) + secondsPassed,
+            );
+          } else {
+            setElapsedSeconds(parsedState.elapsedSeconds || 0);
+          }
+
+          if (parsedState.restEndTime) {
+            restEndTimeRef.current = parsedState.restEndTime;
+            const remaining = Math.ceil(
+              (parsedState.restEndTime - Date.now()) / 1000,
+            );
+
+            if (remaining > 0) {
+              setIsResting(true);
+              isRestingRef.current = true;
+              setRestTimeRemaining(remaining);
+              scheduleRestNotification(parsedState.restEndTime);
+            } else {
+              setIsResting(false);
+              isRestingRef.current = false;
+              setRestTimeRemaining(0);
+              restEndTimeRef.current = null;
+              stopRestNotifications();
+            }
           }
         }
       } catch (e) {
@@ -218,7 +199,6 @@ export const ActiveWorkoutProvider = ({
 
   const isWorkoutActive = !!activeRoutine;
 
-  // Sincronización cuando la app regresa del segundo plano o se enciende la pantalla
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState === "active" && isWorkoutActive) {
@@ -226,74 +206,51 @@ export const ActiveWorkoutProvider = ({
         const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
 
         if (deltaSeconds > 0 && !isPausedRef.current) {
-          lastTickRef.current += deltaSeconds * 1000;
+          lastTickRef.current = now;
           setElapsedSeconds((prev) => prev + deltaSeconds);
 
-          if (isRestingRef.current && restTimeRemainingRef.current !== null) {
-            setRestTimeRemaining((prev) => {
-              if (prev === null) return null;
-              const newRest = prev - deltaSeconds;
-              return newRest > 0 ? newRest : 0;
-            });
+          if (isRestingRef.current && restEndTimeRef.current !== null) {
+            const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
+            setRestTimeRemaining(Math.max(0, remaining));
           }
         }
       }
     });
 
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Reloj Maestro Autocorrectivo
   useEffect(() => {
     if (!isWorkoutActive) return;
 
     const interval = setInterval(() => {
+      if (isPausedRef.current) return;
+
       const now = Date.now();
       const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
 
       if (deltaSeconds >= 1) {
         lastTickRef.current += deltaSeconds * 1000;
-
-        if (!isPausedRef.current) {
-          setElapsedSeconds((prev) => prev + deltaSeconds);
-
-          if (isRestingRef.current && restTimeRemainingRef.current !== null) {
-            setRestTimeRemaining((prev) => {
-              if (prev === null) return null;
-              const newRest = prev - deltaSeconds;
-              return newRest > 0 ? newRest : 0;
-            });
-          }
-        }
+        setElapsedSeconds((prev) => prev + deltaSeconds);
       }
-    }, 1000);
+
+      if (isRestingRef.current && restEndTimeRef.current !== null) {
+        const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
+        setRestTimeRemaining(Math.max(0, remaining));
+      }
+    }, 500);
 
     return () => clearInterval(interval);
   }, [isWorkoutActive]);
 
-  // Sonido de la app
-  const playTimerEndSound = async () => {
-    try {
-      Vibration.vibrate(500);
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/beep.mp3"),
-      );
-      await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) sound.unloadAsync();
-      });
-    } catch (error) {
-      debugLog("Error de sonido mp3", error);
-    }
-  };
-
-  // Cuando el descanso llega a 0, se detiene y suena el MP3 personalizado
   useEffect(() => {
     if (isResting && restTimeRemaining === 0) {
       setIsResting(false);
+      isRestingRef.current = false;
       setRestTimeRemaining(null);
+      restEndTimeRef.current = null;
+
+      stopRestNotifications();
 
       if (AppState.currentState === "active") {
         playTimerEndSound();
@@ -301,7 +258,6 @@ export const ActiveWorkoutProvider = ({
     }
   }, [isResting, restTimeRemaining]);
 
-  // Guardado Automático Local
   useEffect(() => {
     if (!isLoaded) return;
     const saveWorkoutState = async () => {
@@ -312,6 +268,7 @@ export const ActiveWorkoutProvider = ({
           elapsedSeconds,
           isPaused,
           restTimeRemaining,
+          restEndTime: restEndTimeRef.current,
           isResting,
           lastSavedTime: Date.now(),
         };
@@ -330,15 +287,31 @@ export const ActiveWorkoutProvider = ({
     isLoaded,
   ]);
 
+  const playTimerEndSound = async () => {
+    try {
+      Vibration.vibrate(500);
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../assets/sounds/beep.mp3"),
+      );
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) sound.unloadAsync();
+      });
+    } catch (error) {
+      debugLog("Error de sonido mp3", error);
+    }
+  };
+
   const startWorkout = (routine: Routine) => {
     setActiveRoutine(JSON.parse(JSON.stringify(routine)));
     setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
     setElapsedSeconds(0);
     setIsPaused(false);
     setIsResting(false);
+    isRestingRef.current = false;
     setRestTimeRemaining(null);
+    restEndTimeRef.current = null;
     lastTickRef.current = Date.now();
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
   };
 
   const cancelWorkout = async () => {
@@ -347,9 +320,11 @@ export const ActiveWorkoutProvider = ({
     setElapsedSeconds(0);
     setIsPaused(false);
     setIsResting(false);
+    isRestingRef.current = false;
     setRestTimeRemaining(null);
+    restEndTimeRef.current = null;
     await AsyncStorage.removeItem(STORAGE_KEY);
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    await stopRestNotifications();
   };
 
   const finishWorkout = async () => {
@@ -360,10 +335,7 @@ export const ActiveWorkoutProvider = ({
 
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
-      Alert.alert(
-        "Sin conexión",
-        "Tu entrenamiento está a salvo localmente, pero necesitas internet para guardarlo.",
-      );
+      Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
       setIsPaused(true);
       return;
     }
@@ -393,22 +365,25 @@ export const ActiveWorkoutProvider = ({
 
       if (error) throw error;
     } catch (error) {
-      debugError("Error al guardar el entrenamiento:", error);
+      debugError("Error al guardar:", error);
     } finally {
       cancelWorkout();
     }
   };
 
   const resumeWorkout = () => {
+    lastTickRef.current = Date.now();
     setIsPaused(false);
-    if (isRestingRef.current && restTimeRemainingRef.current) {
-      scheduleRestNotification(restTimeRemainingRef.current);
+    isPausedRef.current = false;
+    if (isRestingRef.current && restEndTimeRef.current) {
+      scheduleRestNotification(restEndTimeRef.current);
     }
   };
 
   const pauseWorkout = () => {
     setIsPaused(true);
-    Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    isPausedRef.current = true;
+    stopRestNotifications();
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -417,7 +392,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   const handleSetChange = (
-    exerciseId: string,
+    exId: string,
     setId: string,
     field: "weight" | "reps",
     value: string,
@@ -425,7 +400,7 @@ export const ActiveWorkoutProvider = ({
     if (!activeRoutine) return;
     const numValue = value === "" ? 0 : Number(value.replace(/[^0-9.]/g, ""));
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) =>
           s.id === setId ? { ...s, [field]: numValue } : s,
         );
@@ -436,10 +411,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const changeExerciseUnit = (exerciseId: string, newUnit: WeightUnit) => {
+  const changeExerciseUnit = (exId: string, newUnit: WeightUnit) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) => ({ ...s, weightUnit: newUnit }));
         return { ...ex, sets: updatedSets };
       }
@@ -448,10 +423,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const addSetToExercise = (exerciseId: string) => {
+  const addSetToExercise = (exId: string) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const lastSet = ex.sets[ex.sets.length - 1];
         const newSet: ExerciseSet = {
           id: Math.random().toString(36).substring(2, 9),
@@ -468,10 +443,10 @@ export const ActiveWorkoutProvider = ({
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
   };
 
-  const removeSetFromExercise = (exerciseId: string, setId: string) => {
+  const removeSetFromExercise = (exId: string, setId: string) => {
     if (!activeRoutine) return;
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId)
+      if (ex.id === exId)
         return { ...ex, sets: ex.sets.filter((s) => s.id !== setId) };
       return ex;
     });
@@ -479,14 +454,15 @@ export const ActiveWorkoutProvider = ({
   };
 
   const toggleSetCompletion = (
-    exerciseId: string,
+    exId: string,
     setId: string,
-    defaultRestSeconds: number,
+    defaultRest: number,
   ) => {
     if (!activeRoutine) return;
     let isMarkingAsComplete = false;
+
     const updatedExercises = activeRoutine.exercises.map((ex) => {
-      if (ex.id === exerciseId) {
+      if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) => {
           if (s.id === setId) {
             isMarkingAsComplete = !s.completed;
@@ -500,30 +476,24 @@ export const ActiveWorkoutProvider = ({
     });
     setActiveRoutine({ ...activeRoutine, exercises: updatedExercises });
 
-    if (isMarkingAsComplete && !isResting) {
-      setRestTimeRemaining(defaultRestSeconds);
+    if (isMarkingAsComplete) {
+      const endTimestamp = Date.now() + defaultRest * 1000;
+      restEndTimeRef.current = endTimestamp;
+      isRestingRef.current = true;
+      setRestTimeRemaining(defaultRest);
       setIsResting(true);
-      scheduleRestNotification(defaultRestSeconds);
+
+      scheduleRestNotification(endTimestamp);
     }
   };
 
-  const adjustRestTime = async (secondsToAdd: number) => {
-    if (restTimeRemainingRef.current === null) return;
-
-    const newTime = Math.max(0, restTimeRemainingRef.current + secondsToAdd);
-    setRestTimeRemaining(newTime > 0 ? newTime : 0);
-
-    if (newTime > 0) {
-      scheduleRestNotification(newTime);
-    } else {
-      stopRestTimer();
-    }
-  };
-
-  const stopRestTimer = async () => {
+  const stopRestTimer = () => {
     setIsResting(false);
+    isRestingRef.current = false;
     setRestTimeRemaining(null);
-    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+    restEndTimeRef.current = null;
+
+    stopRestNotifications();
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {
@@ -569,7 +539,6 @@ export const ActiveWorkoutProvider = ({
         addSetToExercise,
         removeSetFromExercise,
         toggleSetCompletion,
-        adjustRestTime,
         stopRestTimer,
         reorderActiveExercises,
         setIsPaused,
