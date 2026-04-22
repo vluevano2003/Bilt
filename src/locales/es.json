@@ -328,7 +328,10 @@
     "notificationTitle": "¡Descanso terminado! 🏋️‍♂️",
     "notificationBody": "Es hora de tu siguiente serie. ¡A darle!",
     "noActiveRoutine": "No hay rutina activa",
-    "restInProgress": "Descanso en progreso..."
+    "restInProgress": "Descanso en progreso...",
+    "notificationChannelName": "Estado de Entrenamiento",
+    "notificationActiveTitle": "Entrenamiento en curso",
+    "notificationActiveBody": "Entrenamiento Activo"
   },
   "muscles": {
     "chest": "Pecho",

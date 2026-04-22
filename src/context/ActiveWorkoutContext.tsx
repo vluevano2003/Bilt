@@ -70,14 +70,15 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
-const CHANNEL_ID = "rest_timer_channel";
+const WORKOUT_CHANNEL_ID = "workout_status_channel";
+const NOTIFICATION_ID = "workout_status_alert";
 
 export const ActiveWorkoutProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { t } = useTranslation();
 
   const [activeRoutine, setActiveRoutine] = useState<Routine | null>(null);
@@ -113,8 +114,8 @@ export const ActiveWorkoutProvider = ({
       });
 
       await notifee.createChannel({
-        id: CHANNEL_ID,
-        name: "Descansos",
+        id: WORKOUT_CHANNEL_ID,
+        name: t("activeWorkout.notificationChannelName"),
         importance: AndroidImportance.LOW,
       });
     };
@@ -127,37 +128,38 @@ export const ActiveWorkoutProvider = ({
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  const startForegroundService = async (endTimestampMs: number) => {
-    const remainingSeconds = Math.ceil((endTimestampMs - Date.now()) / 1000);
-    if (remainingSeconds <= 0) return;
-
+  const showActiveWorkoutNotification = async (
+    routineName: string | undefined,
+    currentElapsedSeconds: number = 0,
+  ) => {
     try {
       await notifee.displayNotification({
-        id: "rest_timer_alert",
-        title: t("activeWorkout.restInProgress"),
-        body: `⏱ ${formatRestTimeStr(remainingSeconds)}`,
+        id: NOTIFICATION_ID,
+        title: t("activeWorkout.notificationActiveTitle"),
+        body: routineName || t("activeWorkout.notificationActiveBody"),
         android: {
-          channelId: CHANNEL_ID,
+          channelId: WORKOUT_CHANNEL_ID,
           asForegroundService: true,
           color: "#CC5500",
           ongoing: true,
-          onlyAlertOnce: true,
           smallIcon: "notification_icon",
+          showChronometer: true,
+          timestamp: Date.now() - currentElapsedSeconds * 1000,
         },
       });
     } catch (error) {
-      debugError("Fallo al iniciar Foreground Service:", error);
+      debugError("Fallo al iniciar Foreground Service activo:", error);
     }
   };
 
-  const updateForegroundService = async (remainingSeconds: number) => {
+  const updateRestNotification = async (remainingSeconds: number) => {
     try {
       await notifee.displayNotification({
-        id: "rest_timer_alert",
+        id: NOTIFICATION_ID,
         title: t("activeWorkout.restInProgress"),
         body: `⏱ ${formatRestTimeStr(remainingSeconds)}`,
         android: {
-          channelId: CHANNEL_ID,
+          channelId: WORKOUT_CHANNEL_ID,
           asForegroundService: true,
           color: "#CC5500",
           ongoing: true,
@@ -168,10 +170,10 @@ export const ActiveWorkoutProvider = ({
     } catch (e) {}
   };
 
-  const stopRestNotifications = async () => {
+  const stopAllNotifications = async () => {
     try {
       await notifee.stopForegroundService();
-      await notifee.cancelNotification("rest_timer_alert");
+      await notifee.cancelNotification(NOTIFICATION_ID);
     } catch (e) {
       debugLog("Error cancelando notificaciones", e);
     }
@@ -187,15 +189,16 @@ export const ActiveWorkoutProvider = ({
           setOriginalRoutine(parsedState.originalRoutine);
           setIsPaused(parsedState.isPaused);
 
+          let currentElapsed = parsedState.elapsedSeconds || 0;
+
           if (parsedState.lastSavedTime && !parsedState.isPaused) {
             const secondsPassed = Math.floor(
               (Date.now() - parsedState.lastSavedTime) / 1000,
             );
-            setElapsedSeconds(
-              (parsedState.elapsedSeconds || 0) + secondsPassed,
-            );
+            currentElapsed += secondsPassed;
+            setElapsedSeconds(currentElapsed);
           } else {
-            setElapsedSeconds(parsedState.elapsedSeconds || 0);
+            setElapsedSeconds(currentElapsed);
           }
 
           if (parsedState.restEndTime) {
@@ -208,14 +211,22 @@ export const ActiveWorkoutProvider = ({
               setIsResting(true);
               isRestingRef.current = true;
               setRestTimeRemaining(remaining);
-              startForegroundService(parsedState.restEndTime);
+              updateRestNotification(remaining);
             } else {
               setIsResting(false);
               isRestingRef.current = false;
               setRestTimeRemaining(0);
               restEndTimeRef.current = null;
-              stopRestNotifications();
+              showActiveWorkoutNotification(
+                parsedState.activeRoutine?.name,
+                currentElapsed,
+              );
             }
+          } else {
+            showActiveWorkoutNotification(
+              parsedState.activeRoutine?.name,
+              currentElapsed,
+            );
           }
         }
       } catch (e) {
@@ -270,7 +281,7 @@ export const ActiveWorkoutProvider = ({
         setRestTimeRemaining(Math.max(0, remaining));
 
         if (remaining > 0) {
-          updateForegroundService(remaining);
+          updateRestNotification(remaining);
         }
       }
     }, 1000);
@@ -287,9 +298,7 @@ export const ActiveWorkoutProvider = ({
 
       playTimerEndSound();
 
-      setTimeout(() => {
-        stopRestNotifications();
-      }, 3000);
+      showActiveWorkoutNotification(activeRoutine?.name, elapsedSeconds);
     }
   }, [isResting, restTimeRemaining]);
 
@@ -358,6 +367,7 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
     lastTickRef.current = Date.now();
+    showActiveWorkoutNotification(routine.name, 0);
   };
 
   const cancelWorkout = async () => {
@@ -370,14 +380,14 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
     await AsyncStorage.removeItem(STORAGE_KEY);
-    await stopRestNotifications();
+    await stopAllNotifications();
   };
 
   useEffect(() => {
-    if (!user && activeRoutine) {
+    if (!isLoading && !user && activeRoutine) {
       cancelWorkout();
     }
-  }, [user, activeRoutine]);
+  }, [user, isLoading, activeRoutine]);
 
   const finishWorkout = async () => {
     if (!activeRoutine || !user?.id) {
@@ -428,14 +438,17 @@ export const ActiveWorkoutProvider = ({
     setIsPaused(false);
     isPausedRef.current = false;
     if (isRestingRef.current && restEndTimeRef.current) {
-      startForegroundService(restEndTimeRef.current);
+      const remaining = Math.ceil((restEndTimeRef.current - Date.now()) / 1000);
+      updateRestNotification(remaining);
+    } else {
+      showActiveWorkoutNotification(activeRoutine?.name, elapsedSeconds);
     }
   };
 
   const pauseWorkout = () => {
     setIsPaused(true);
     isPausedRef.current = true;
-    stopRestNotifications();
+    stopAllNotifications();
   };
 
   const reorderActiveExercises = (newExercises: RoutineExercise[]) => {
@@ -534,8 +547,7 @@ export const ActiveWorkoutProvider = ({
       isRestingRef.current = true;
       setRestTimeRemaining(defaultRest);
       setIsResting(true);
-
-      startForegroundService(endTimestamp);
+      updateRestNotification(defaultRest);
     }
   };
 
@@ -545,7 +557,7 @@ export const ActiveWorkoutProvider = ({
     setRestTimeRemaining(null);
     restEndTimeRef.current = null;
 
-    stopRestNotifications();
+    showActiveWorkoutNotification(activeRoutine?.name, elapsedSeconds);
   };
 
   const updateExerciseRestTime = (exId: string, newTime: number) => {

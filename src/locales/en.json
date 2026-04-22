@@ -328,7 +328,10 @@
     "notificationTitle": "Rest finished! 🏋️‍♂️",
     "notificationBody": "It's time for your next set. Let's go!",
     "noActiveRoutine": "No active routine",
-    "restInProgress": "Resting..."
+    "restInProgress": "Resting...",
+    "notificationChannelName": "Workout Status",
+    "notificationActiveTitle": "Workout in progress",
+    "notificationActiveBody": "Active Workout"
   },
   "muscles": {
     "chest": "Chest",
