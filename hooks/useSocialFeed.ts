@@ -35,9 +35,15 @@ export const useSocialFeed = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
 
+  /**
+   * Función para obtener el feed social del usuario. Primero verifica la conexión a internet, luego obtiene la lista de usuarios que sigue, y finalmente obtiene las rutinas creadas y entrenamientos completados por esos usuarios para construir el feed. El feed se ordena por fecha de creación/completado, mostrando los más recientes primero.
+   */
   const fetchFeed = useCallback(async () => {
     if (!user?.id) return;
 
+    /**
+     * Verificar la conexión a internet antes de intentar obtener el feed. Si no hay conexión, se detiene la carga y se muestra un mensaje de error. Esto es importante para evitar intentos fallidos de obtener datos y para mejorar la experiencia del usuario en situaciones de conectividad limitada.
+     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       setLoadingFeed(false);
@@ -58,6 +64,7 @@ export const useSocialFeed = () => {
 
       const followedIds = followingData.map((f) => f.following_id);
 
+      // Obtener información de los usuarios seguidos para mostrar su nombre y avatar en el feed
       const { data: usersData } = await supabase
         .from("users")
         .select("id, username, profile_picture_url, measurement_system, weight")
@@ -153,17 +160,22 @@ export const useSocialFeed = () => {
     }
   }, [user?.id]);
 
+  // Refrescar el feed cada vez que la pantalla gana foco, para mostrar las actualizaciones más recientes de los usuarios seguidos
   useFocusEffect(
     useCallback(() => {
       fetchFeed();
     }, [fetchFeed]),
   );
 
+  // Cargar el feed inicialmente al montar el hook
   useEffect(() => {
     setLoadingFeed(true);
     fetchFeed().then(() => setLoadingFeed(false));
   }, [fetchFeed]);
 
+  /**
+   * Función para manejar la acción de refrescar el feed. Se activa al hacer pull-to-refresh en la pantalla del feed social. Establece el estado de refreshing a true, llama a fetchFeed para obtener los datos más recientes, y luego establece refreshing a false una vez que se completa la carga. Esto permite a los usuarios actualizar manualmente su feed para ver las últimas actividades de sus amigos.
+   */
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchFeed();

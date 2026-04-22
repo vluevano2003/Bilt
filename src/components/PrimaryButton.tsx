@@ -18,6 +18,11 @@ interface ButtonProps {
   loading?: boolean;
 }
 
+/**
+ * Componente de botón primario que se adapta al tema actual. Muestra un indicador de carga cuando `loading` es verdadero y deshabilita el botón cuando `disabled` es verdadero o `loading` es verdadero.
+ * @param param0
+ * @returns
+ */
 export const PrimaryButton = ({
   title,
   onPress,

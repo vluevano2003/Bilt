@@ -202,6 +202,7 @@ export default function SocialScreen() {
   const [page, setPage] = useState(1);
   const displayedFeed = feed.slice(0, page * ITEMS_PER_PAGE);
 
+  // Efecto para manejar la búsqueda de usuarios con debounce, evitando llamadas excesivas a la API mientras el usuario escribe.
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.trim().length >= 2) searchUsers(searchQuery.trim());
@@ -210,6 +211,11 @@ export default function SocialScreen() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
+  /**
+   * Función para buscar usuarios en la base de datos de Supabase, aplicando un filtro de búsqueda que ignora acentos y vocales, y excluyendo usuarios bloqueados por el usuario actual.
+   * @param text
+   * @returns
+   */
   const searchUsers = async (text: string) => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
@@ -262,11 +268,17 @@ export default function SocialScreen() {
     }
   };
 
+  /**
+   * Función para manejar la acción de refrescar el feed, reiniciando la paginación y llamando a la función de refresco proporcionada por el hook useSocialFeed.
+   */
   const handleRefresh = () => {
     setPage(1);
     onRefresh();
   };
 
+  /**
+   * Función para manejar la acción de presionar un usuario, navegando a su perfil mediante el router de Expo Router.
+   */
   const handleUserPress = useCallback(
     (userId: string) => {
       router.push({ pathname: "/userProfile", params: { id: userId } });

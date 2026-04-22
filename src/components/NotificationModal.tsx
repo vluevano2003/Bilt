@@ -27,6 +27,11 @@ interface Props {
   onHandleRequest: (id: string, accept: boolean) => void;
 }
 
+/**
+ * Modal para mostrar notificaciones de solicitudes y actividad social.
+ * @param param0
+ * @returns
+ */
 export function NotificationModal({
   visible,
   onClose,
@@ -41,6 +46,10 @@ export function NotificationModal({
   const styles = getStyles(colors);
   const { user } = useAuth();
 
+  /**
+   * Navega al perfil del usuario que generó la notificación, si no es el propio usuario.
+   * @param id
+   */
   const handleNavigate = (id: string) => {
     onClose();
     if (id !== user?.id) {
@@ -48,6 +57,11 @@ export function NotificationModal({
     }
   };
 
+  /**
+   * Renderiza el avatar del usuario, o un placeholder si no tiene.
+   * @param url
+   * @returns
+   */
   const renderAvatar = (url?: string) => {
     return url ? (
       <Image source={{ uri: url }} style={styles.socialListAvatar} />
@@ -58,6 +72,11 @@ export function NotificationModal({
     );
   };
 
+  /**
+   * Calcula el tiempo transcurrido desde la fecha dada y lo formatea en un texto legible.
+   * @param dateString
+   * @returns
+   */
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const date = new Date(dateString);

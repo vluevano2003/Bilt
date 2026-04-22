@@ -6,6 +6,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../src/context/ThemeContext";
 import { moderateScale, verticalScale } from "../../src/utils/Responsive";
 
+/**
+ * Layout principal para las pestañas de navegación. Define la apariencia y el comportamiento de las pestañas.
+ * @returns
+ */
 export default function TabsLayout() {
   const { t } = useTranslation();
   const { colors } = useTheme();

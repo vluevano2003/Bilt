@@ -28,6 +28,7 @@ export function usePushNotifications(userId: string | undefined) {
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
 
+  // Registrar y manejar notificaciones push
   useEffect(() => {
     if (!userId) return;
 
@@ -54,6 +55,11 @@ export function usePushNotifications(userId: string | undefined) {
     };
   }, [userId]);
 
+  /**
+   * Función para guardar el token de notificaciones y el idioma en Supabase
+   * @param uid
+   * @param token
+   */
   const saveTokenToSupabase = async (uid: string, token: string) => {
     try {
       const currentLocale = getLocales()[0]?.languageCode ?? "es";
@@ -76,6 +82,10 @@ export function usePushNotifications(userId: string | undefined) {
     }
   };
 
+  /**
+   * Función para registrar el dispositivo para notificaciones push y obtener el token
+   * @returns
+   */
   async function registerForPushNotificationsAsync() {
     let token;
 

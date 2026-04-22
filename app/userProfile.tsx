@@ -84,12 +84,14 @@ export default function UserProfileScreen() {
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Redirige al perfil propio si el usuario accede a su propio perfil a través de la URL
   useEffect(() => {
     if (!profile.isLoading && profile.isOwnProfile) {
       router.replace("/(tabs)/profile");
     }
   }, [profile.isLoading, profile.isOwnProfile]);
 
+  // Maneja el botón de retroceso en Android para cerrar modales o volver a la pantalla anterior
   useEffect(() => {
     const onBackPress = () => {
       handleGoBack();
@@ -102,6 +104,9 @@ export default function UserProfileScreen() {
     return () => backHandler.remove();
   }, []);
 
+  /**
+   * Función para manejar la navegación hacia atrás. Si se puede volver a la pantalla anterior, lo hace. De lo contrario, redirige a la pantalla de inicio.
+   */
   const handleGoBack = () => {
     if (router.canGoBack()) {
       router.back();
@@ -110,6 +115,9 @@ export default function UserProfileScreen() {
     }
   };
 
+  /**
+   * Función para manejar la acción de refrescar la pantalla. Simula una recarga de datos con un retraso de 1.5 segundos.
+   */
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -120,6 +128,9 @@ export default function UserProfileScreen() {
     }
   }, []);
 
+  /**
+   * Función para manejar el bloqueo o desbloqueo de un usuario. Muestra una alerta de confirmación antes de realizar la acción.
+   */
   const handleToggleBlock = () => {
     setOptionsModalVisible(false);
     Alert.alert(
@@ -138,6 +149,9 @@ export default function UserProfileScreen() {
     );
   };
 
+  /**
+   * Función para manejar la eliminación de un seguidor. Muestra una alerta de confirmación antes de realizar la acción.
+   */
   const handleRemoveFollower = () => {
     setOptionsModalVisible(false);
     Alert.alert(
@@ -154,12 +168,20 @@ export default function UserProfileScreen() {
     );
   };
 
+  /**
+   * Función para manejar el envío de un reporte contra un usuario. Llama a la función de reporte del perfil y cierra el modal de reporte. También limpia la razón del reporte después de enviarlo.
+   */
   const handleSendReport = () => {
     profile.reportUser(reportReason);
     setReportModalVisible(false);
     setReportReason("");
   };
 
+  /**
+   * Función para abrir el modal de seguidores o seguidos. Carga la lista de usuarios correspondiente y muestra el modal.
+   * @param type
+   * @returns
+   */
   const openSocialModal = async (type: "followers" | "following") => {
     if (!showContent) return;
     setSocialModalType(type);
@@ -170,6 +192,9 @@ export default function UserProfileScreen() {
     setLoadingSocial(false);
   };
 
+  /**
+   * Función para manejar el seguimiento o dejar de seguir a un usuario. Si el perfil es privado y ya se está siguiendo, muestra una alerta de confirmación antes de dejar de seguir. De lo contrario, simplemente alterna el estado de seguimiento.
+   */
   const handleToggleFollow = () => {
     if (profile.isPrivate && profile.followStatus === "following") {
       Alert.alert(
@@ -189,6 +214,7 @@ export default function UserProfileScreen() {
     }
   };
 
+  // Muestra un indicador de carga mientras se obtiene la información del perfil o si el usuario está viendo su propio perfil a través de la URL (lo que redirigirá automáticamente al perfil principal).
   if (profile.isLoading || profile.isOwnProfile) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
@@ -199,6 +225,7 @@ export default function UserProfileScreen() {
 
   const isProfileNotFound = !profile.isLoading && !profile.username;
 
+  // Si no se encuentra el perfil (es decir, no se está cargando y no tiene un nombre de usuario), muestra un estado vacío indicando que el usuario no fue encontrado, con una opción para volver a la pantalla de inicio.
   if (isProfileNotFound) {
     return (
       <View style={styles.container}>

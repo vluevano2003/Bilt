@@ -50,7 +50,9 @@ import { getHomeStyles } from "../../src/styles/Home.styles";
 import { getStyles as getRoutineStyles } from "../../src/styles/Routines.styles";
 
 /**
- * Componentes para acciones del header (feedback y notificaciones)
+ * Acciones del header para abrir feedback y notificaciones, mostrando un badge si hay nuevas notificaciones
+ * @param param0
+ * @returns
  */
 const HeaderRightActions = ({
   colors,
@@ -96,6 +98,11 @@ const HeaderRightActions = ({
   </View>
 );
 
+/**
+ * Header del dashboard con saludo, resumen semanal y tabs para rutinas y packs
+ * @param param0
+ * @returns
+ */
 const DashboardHeader = ({
   t,
   i18n,
@@ -110,6 +117,10 @@ const DashboardHeader = ({
   ownRoutinesCount,
   ownPacksCount,
 }: any) => {
+  /**
+   * Genera un saludo dinámico basado en la hora del día
+   * @returns
+   */
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return t("home.morning");
@@ -307,6 +318,10 @@ const DashboardHeader = ({
   );
 };
 
+/**
+ * Pantalla principal del tab de workout, mostrando el dashboard con saludo y resumen semanal, y una lista de rutinas o packs según el tab seleccionado. Permite iniciar entrenamientos, crear nuevas rutinas/pack, y acceder a notificaciones y feedback.
+ * @returns
+ */
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -319,6 +334,7 @@ export default function HomeScreen() {
   const homeStyles = getHomeStyles(colors);
   const routineStyles = getRoutineStyles(colors);
 
+  // Manejo del botón de retroceso en Android para salir de la app desde el home, mostrando un mensaje de confirmación
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== "android") return;
@@ -369,6 +385,7 @@ export default function HomeScreen() {
   const lastRequestsCount = useRef<number>(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Al cargar la pantalla, se recupera el último estado conocido de notificaciones (último ID de historia y cantidad de solicitudes) desde AsyncStorage para poder comparar con el estado actual y determinar si hay nuevas notificaciones. Esto se hace solo una vez al montar el componente.
   useEffect(() => {
     const loadNotificationState = async () => {
       try {
@@ -390,6 +407,7 @@ export default function HomeScreen() {
     loadNotificationState();
   }, []);
 
+  // Cada vez que cambian las solicitudes, la historia, o la visibilidad de las notificaciones, se compara el estado actual con el último estado conocido para determinar si hay nuevas notificaciones. Si las notificaciones están abiertas, se actualiza el último estado conocido y se guarda en AsyncStorage. Si están cerradas, se verifica si hubo cambios en la historia o un aumento en las solicitudes para mostrar un badge de nuevas notificaciones.
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -455,12 +473,17 @@ export default function HomeScreen() {
   const [packDetailsModalVisible, setPackDetailsModalVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
 
+  // Si la pantalla se abre con el parámetro openNotifications=true, se abre automáticamente el modal de notificaciones para mostrar las nuevas notificaciones al usuario. Esto permite redirigir al usuario directamente a las notificaciones desde otras partes de la app o desde una notificación push.
   useEffect(() => {
     if (params.openNotifications === "true") setNotificationsVisible(true);
   }, [params.openNotifications]);
 
   const totalWorkouts = userHistory?.length || 0;
 
+  /**
+   * Maneja el inicio de un entrenamiento al presionar el botón "Iniciar" en una rutina. Si ya hay un entrenamiento activo que no es la rutina seleccionada, muestra una alerta. Si no hay entrenamiento activo o es la misma rutina, inicia el entrenamiento y navega a la pantalla de entrenamiento activo.
+   * @param routine
+   */
   const handleStartWorkout = (routine: any) => {
     if (activeRoutine && activeRoutine.id === routine.id) {
       router.push("/activeWorkout");
@@ -489,6 +512,9 @@ export default function HomeScreen() {
     }
   };
 
+  /**
+   * Calcula los días entrenados en la semana actual a partir del historial de entrenamientos del usuario. Compara las fechas de los entrenamientos con el inicio de la semana para determinar qué días han sido entrenados y devuelve un conjunto con los índices de los días entrenados (0-6). Esto se utiliza para mostrar el resumen semanal en el dashboard.
+   */
   const getTrainingDaysThisWeek = useCallback(() => {
     const now = new Date();
     const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
@@ -519,6 +545,9 @@ export default function HomeScreen() {
     );
   }
 
+  /**
+   * Determina qué rutinas mostrar en la lista según el tab activo. Si el tab es "own", muestra solo las rutinas creadas por el usuario (sin originalCreatorId). Si el tab es "saved", muestra solo las rutinas guardadas de otros creadores (con originalCreatorId). Esto permite filtrar la lista de rutinas para mostrar solo las relevantes según la selección del usuario.
+   */
   const displayedRoutines =
     activeTab === "own"
       ? routines.filter((r) => !r.originalCreatorId)

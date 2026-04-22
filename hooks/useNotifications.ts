@@ -16,6 +16,11 @@ export interface NotificationItem {
   };
 }
 
+/**
+ * Hook para manejar notificaciones de seguidores y solicitudes de seguimiento.
+ * Proporciona la lista de solicitudes pendientes, el historial de notificaciones y una función para aceptar/rechazar solicitudes.
+ * @returns
+ */
 export const useNotifications = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -23,6 +28,12 @@ export const useNotifications = () => {
   const [requests, setRequests] = useState<SocialUser[]>([]);
   const [history, setHistory] = useState<NotificationItem[]>([]);
 
+  /**
+   * Función para obtener las notificaciones y solicitudes pendientes del usuario actual.
+   * Realiza varias consultas a la base de datos para obtener la información necesaria y filtra duplicados.
+   * Se llama al montar el componente y cada vez que se detecta un cambio relevante en la base de datos.
+   * Maneja errores de forma robusta y asegura que el estado se actualice correctamente.
+   */
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
@@ -102,6 +113,7 @@ export const useNotifications = () => {
           }
         });
 
+        // Filtrar el historial para mostrar solo seguidores reales en "new_follower" y "request_accepted"
         const actorIds = validHistory.map((h) => h.actor.id);
         if (actorIds.length > 0) {
           const { data: incoming } = await supabase
@@ -142,6 +154,7 @@ export const useNotifications = () => {
     }
   }, [user?.id]);
 
+  // Configurar suscripción a cambios en la base de datos para actualizar notificaciones en tiempo real
   useEffect(() => {
     fetchNotifications();
 
@@ -171,6 +184,16 @@ export const useNotifications = () => {
     };
   }, [user?.id, fetchNotifications]);
 
+  /**
+   * Función para manejar la aceptación o rechazo de una solicitud de seguimiento.
+   * Actualiza el estado local para reflejar la acción del usuario y realiza las operaciones necesarias en la base de datos.
+   * En caso de aceptar, actualiza el estado del follow a "accepted" y crea una notificación de "request_accepted".
+   * En caso de rechazar, elimina el follow pendiente y la notificación de "follow_request".
+   * Maneja errores de forma robusta y asegura que el estado se mantenga consistente incluso si ocurre un error.
+   * @param userIdToHandle
+   * @param accept
+   * @returns
+   */
   const handleRequest = async (userIdToHandle: string, accept: boolean) => {
     if (!user?.id) return;
 

@@ -19,6 +19,11 @@ interface GoogleSignInButtonProps {
   onLoadingChange?: (isLoading: boolean) => void;
 }
 
+/**
+ * Componente de botón para iniciar sesión con Google. Maneja la autenticación y registra al usuario si es necesario.
+ * @param param0
+ * @returns
+ */
 export const GoogleSignInButton = ({
   onRegisterRequired,
   onLoadingChange,
@@ -28,6 +33,7 @@ export const GoogleSignInButton = ({
   const styles = getStyles(colors);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Configura Google Sign-In al montar el componente
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -36,6 +42,10 @@ export const GoogleSignInButton = ({
     });
   }, []);
 
+  /**
+   * Maneja el proceso de inicio de sesión con Google, incluyendo la autenticación con Supabase y la verificación de registro del usuario.
+   * Si el usuario no está registrado, llama a onRegisterRequired con los datos del usuario.
+   */
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     onLoadingChange?.(true);

@@ -11,6 +11,10 @@ const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
 
+/**
+ * Custom hook para manejar la lógica de los formularios de autenticación (login, registro y recuperación de contraseña).
+ * @returns
+ */
 export const useAuthForm = () => {
   const { t } = useTranslation();
   const { checkProfileStatus } = useAuth();
@@ -38,6 +42,9 @@ export const useAuthForm = () => {
   const [otpCode, setOtpCode] = useState("");
   const [newPasswordReset, setNewPasswordReset] = useState("");
 
+  /**
+   * Función para seleccionar una imagen de la galería del dispositivo y establecerla como foto de perfil.
+   */
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -50,6 +57,11 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Función para manejar el cambio de fecha en el DatePicker. Establece la fecha seleccionada y formatea la fecha de nacimiento.
+   * @param event
+   * @param selectedDate
+   */
   const onChangeDate = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") setShowDatePicker(false);
     if (selectedDate) {
@@ -66,14 +78,26 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Funciones para manejar el cambio en los campos de altura y peso, permitiendo solo números, puntos y comas. Esto asegura que los datos ingresados sean válidos para su posterior procesamiento.
+   * @param text
+   */
   const handleHeightChange = (text: string) => {
     setHeight(text.replace(/[^0-9.,]/g, ""));
   };
 
+  /**
+   * Función para manejar el cambio en el campo de peso, permitiendo solo números, puntos y comas. Esto asegura que los datos ingresados sean válidos para su posterior procesamiento.
+   * @param text
+   */
   const handleWeightChange = (text: string) => {
     setWeight(text.replace(/[^0-9.,]/g, ""));
   };
 
+  /**
+   * Función para manejar el registro de un nuevo usuario. Valida la conexión a internet, los datos ingresados (altura, peso, formato de email, etc.) y luego procede a crear la cuenta en Supabase. Si el usuario ya existe, se muestra un mensaje de error específico. También maneja la subida de la foto de perfil si se ha seleccionado una.
+   * @returns
+   */
   const handleRegister = async () => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
@@ -183,6 +207,10 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Función para manejar el login de un usuario existente. Valida la conexión a internet, los datos ingresados (formato de email, campos vacíos, etc.) y luego procede a autenticar al usuario en Supabase. Si ocurre algún error durante el proceso, se muestra un mensaje de error específico.
+   * @returns
+   */
   const handleLogin = async () => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
@@ -213,6 +241,10 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Función para manejar el proceso de recuperación de contraseña. Valida la conexión a internet, el formato del email y luego envía una solicitud a Supabase para enviar un código OTP al correo del usuario. Si el proceso es exitoso, se muestra un mensaje indicando que el código ha sido enviado y se avanza al siguiente paso del proceso de recuperación. Si ocurre algún error, se muestra un mensaje de error específico.
+   * @returns
+   */
   const handleForgotPassword = async () => {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
@@ -238,6 +270,10 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Función para manejar la verificación del código OTP enviado al correo del usuario y el restablecimiento de la contraseña. Valida el formato del código OTP y la nueva contraseña, luego verifica el código con Supabase y, si es correcto, actualiza la contraseña del usuario. Si el proceso es exitoso, se muestra un mensaje indicando que la contraseña ha sido actualizada y se regresa a la pantalla de login. Si ocurre algún error, se muestra un mensaje de error específico.
+   * @returns
+   */
   const handleVerifyResetCode = async () => {
     if (!otpCode || otpCode.length !== 8)
       return Alert.alert(t("alerts.error"), t("alerts.invalidOtpCode"));
@@ -272,6 +308,10 @@ export const useAuthForm = () => {
     }
   };
 
+  /**
+   * Función para avanzar al siguiente paso del proceso de registro. Valida los datos ingresados en cada paso (email, contraseña, username, fecha de nacimiento, género, etc.) y muestra mensajes de error específicos si los datos no cumplen con los requisitos. Si todos los datos son válidos, avanza al siguiente paso del formulario.
+   * @returns
+   */
   const nextStep = async () => {
     if (step === 1) {
       if (!email || !password)

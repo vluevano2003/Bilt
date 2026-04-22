@@ -32,6 +32,10 @@ const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
 
+/**
+ * Pantalla de login y registro con manejo de estado para cada paso del proceso, integración con Google Sign-In, selección de idioma y tema, y protección contra salidas accidentales en Android.
+ * @returns
+ */
 export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const { colors, isDarkMode, toggleTheme } = useTheme();
@@ -41,6 +45,7 @@ export default function LoginScreen() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  // Manejo del botón de retroceso en Android para evitar salidas accidentales
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== "android") return;
@@ -113,6 +118,10 @@ export default function LoginScreen() {
     nextStep,
   } = useAuthForm();
 
+  /**
+   * Maneja el registro a través de Google Sign-In, prellenando los campos de email, nombre de usuario y foto de perfil si están disponibles, y avanzando al paso 2 del registro.
+   * @param userData
+   */
   const handleGoogleRegister = (userData: {
     email: string;
     name: string;
@@ -128,6 +137,9 @@ export default function LoginScreen() {
     setStep(2);
   };
 
+  /**
+   * Alterna el idioma de la aplicación entre inglés y español, actualizando la configuración de i18n y guardando la selección en AsyncStorage para persistencia.
+   */
   const toggleLanguage = async () => {
     const newLang = i18n.language.includes("es") ? "en" : "es";
     i18n.changeLanguage(newLang);
@@ -140,6 +152,7 @@ export default function LoginScreen() {
 
   const showOverlay = isLoading || isGoogleLoading;
 
+  // Resto del código de renderizado de la pantalla, incluyendo el formulario de login/registro, selección de idioma y tema, y el overlay de carga
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "padding"}
@@ -680,7 +693,6 @@ export default function LoginScreen() {
         </View>
       </ScrollView>
 
-      {/* OVERLAY DE CARGA SIMPLIFICADO */}
       {showOverlay && (
         <View
           style={[

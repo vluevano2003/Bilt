@@ -45,6 +45,10 @@ export const FeedbackModal = ({
   const [feedbackText, setFeedbackText] = useState("");
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
+  /**
+   * Maneja el envío del feedback. Valida que el texto no esté vacío y que haya un userId antes de intentar enviar. Muestra alertas de éxito o error según corresponda.
+   * @returns
+   */
   const handleSendFeedback = async () => {
     if (!feedbackText.trim() || !userId) return;
     setIsSendingFeedback(true);
