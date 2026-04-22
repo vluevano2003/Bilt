@@ -10,7 +10,9 @@
     "retry": "Retry",
     "pressBackAgain": "Press back again to exit",
     "day": "Day",
-    "settings": "Settings"
+    "settings": "Settings",
+    "saveChanges": "Save Changes",
+    "confirm": "Confirm"
   },
   "tabs": {
     "workout": "Workout",
@@ -275,7 +277,8 @@
     "deleteError": "Could not delete the routine. Please try again.",
     "unsaveError": "Could not remove the routine from your profile. Please try again.",
     "unspecifiedSubmuscles": "Unspecified secondary muscles.",
-    "exercise": "Exercise"
+    "exercise": "Exercise",
+    "set": "Set"
   },
   "activeWorkout": {
     "finish": "Finish",
@@ -324,7 +327,8 @@
     "previous": "PREV",
     "notificationTitle": "Rest finished! 🏋️‍♂️",
     "notificationBody": "It's time for your next set. Let's go!",
-    "noActiveRoutine": "No active routine"
+    "noActiveRoutine": "No active routine",
+    "restInProgress": "Resting..."
   },
   "muscles": {
     "chest": "Chest",

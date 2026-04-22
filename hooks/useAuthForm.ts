@@ -170,7 +170,14 @@ export const useAuthForm = () => {
 
       await checkProfileStatus(userId);
     } catch (error: any) {
-      Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
+      if (error?.code === "23505") {
+        Alert.alert(
+          t("profile.alerts.usernameTakenTitle"),
+          t("profile.alerts.usernameTakenMsg"),
+        );
+      } else {
+        Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -265,7 +272,7 @@ export const useAuthForm = () => {
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (step === 1) {
       if (!email || !password)
         return Alert.alert(
@@ -277,8 +284,32 @@ export const useAuthForm = () => {
       if (password.length < 6)
         return Alert.alert(t("alerts.error"), t("alerts.minChars"));
     }
-    if (step === 2 && !username)
-      return Alert.alert(t("alerts.error"), t("alerts.missingNickname"));
+
+    if (step === 2) {
+      if (!username)
+        return Alert.alert(t("alerts.error"), t("alerts.missingNickname"));
+
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("id")
+          .eq("username", username.trim())
+          .maybeSingle();
+
+        if (data) {
+          setIsLoading(false);
+          return Alert.alert(
+            t("profile.alerts.usernameTakenTitle"),
+            t("profile.alerts.usernameTakenMsg"),
+          );
+        }
+      } catch (error) {
+        debugLog("Error verificando disponibilidad del username:", error);
+      }
+      setIsLoading(false);
+    }
+
     if (step === 3) {
       if (!birthDate || !gender)
         return Alert.alert(t("alerts.error"), t("alerts.missingDateGender"));
@@ -287,6 +318,7 @@ export const useAuthForm = () => {
       if (age > 100)
         return Alert.alert(t("alerts.error"), t("alerts.checkYear"));
     }
+
     setStep(step + 1);
   };
 

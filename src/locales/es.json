@@ -10,7 +10,9 @@
     "retry": "Reintentar",
     "pressBackAgain": "Presiona atrás de nuevo para salir",
     "day": "Día",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "saveChanges": "Guardar Cambios",
+    "confirm": "Confirmar"
   },
   "tabs": {
     "workout": "Workout",
@@ -275,7 +277,8 @@
     "deleteError": "No se pudo eliminar la rutina. Inténtalo de nuevo.",
     "unsaveError": "No se pudo remover la rutina de tu perfil. Inténtalo de nuevo.",
     "unspecifiedSubmuscles": "Músculos secundarios no especificados.",
-    "exercise": "Ejercicio"
+    "exercise": "Ejercicio",
+    "set": "Serie"
   },
   "activeWorkout": {
     "finish": "Finalizar",
@@ -324,7 +327,8 @@
     "previous": "ANTERIOR",
     "notificationTitle": "¡Descanso terminado! 🏋️‍♂️",
     "notificationBody": "Es hora de tu siguiente serie. ¡A darle!",
-    "noActiveRoutine": "No hay rutina activa"
+    "noActiveRoutine": "No hay rutina activa",
+    "restInProgress": "Descanso en progreso..."
   },
   "muscles": {
     "chest": "Pecho",
