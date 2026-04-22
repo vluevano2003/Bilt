@@ -373,6 +373,12 @@ export const ActiveWorkoutProvider = ({
     await stopRestNotifications();
   };
 
+  useEffect(() => {
+    if (!user && activeRoutine) {
+      cancelWorkout();
+    }
+  }, [user, activeRoutine]);
+
   const finishWorkout = async () => {
     if (!activeRoutine || !user?.id) {
       cancelWorkout();
@@ -441,10 +447,10 @@ export const ActiveWorkoutProvider = ({
     exId: string,
     setId: string,
     field: "weight" | "reps",
-    value: string,
+    val: string,
   ) => {
     if (!activeRoutine) return;
-    const numValue = value === "" ? 0 : Number(value.replace(/[^0-9.]/g, ""));
+    const numValue = val === "" ? 0 : Number(val.replace(/[^0-9.]/g, ""));
     const updatedExercises = activeRoutine.exercises.map((ex) => {
       if (ex.id === exId) {
         const updatedSets = ex.sets.map((s) =>

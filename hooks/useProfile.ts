@@ -612,7 +612,6 @@ export const useProfile = (profileUid?: string) => {
         await supabase
           .from("blocks")
           .insert({ blocker_id: currentUserId, blocked_id: targetUid });
-
         await supabase
           .from("follows")
           .delete()
@@ -623,6 +622,26 @@ export const useProfile = (profileUid?: string) => {
           .delete()
           .eq("follower_id", targetUid)
           .eq("following_id", currentUserId);
+        await supabase
+          .from("routines")
+          .delete()
+          .eq("user_id", currentUserId)
+          .eq("original_creator_id", targetUid);
+        await supabase
+          .from("routines")
+          .delete()
+          .eq("user_id", targetUid)
+          .eq("original_creator_id", currentUserId);
+        await supabase
+          .from("weekly_packs")
+          .delete()
+          .eq("user_id", currentUserId)
+          .eq("original_creator_id", targetUid);
+        await supabase
+          .from("weekly_packs")
+          .delete()
+          .eq("user_id", targetUid)
+          .eq("original_creator_id", currentUserId);
 
         setIsBlocked(true);
         setFollowStatus("none");
