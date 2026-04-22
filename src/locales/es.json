@@ -275,7 +275,8 @@
     "deleteError": "No se pudo eliminar la rutina. Inténtalo de nuevo.",
     "unsaveError": "No se pudo remover la rutina de tu perfil. Inténtalo de nuevo.",
     "unspecifiedSubmuscles": "Músculos secundarios no especificados.",
-    "exercise": "Ejercicio"
+    "exercise": "Ejercicio",
+    "set": "Serie"
   },
   "activeWorkout": {
     "finish": "Finalizar",
