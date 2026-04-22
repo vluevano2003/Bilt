@@ -1,7 +1,7 @@
+import notifee, { AndroidImportance } from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { Audio } from "expo-av";
-import * as Notifications from "expo-notifications";
 import React, {
   createContext,
   useContext,
@@ -27,6 +27,10 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
+
+notifee.registerForegroundService((notification) => {
+  return new Promise(() => {});
+});
 
 interface ActiveWorkoutContextProps {
   activeRoutine: Routine | null;
@@ -66,6 +70,7 @@ export const ActiveWorkoutContext =
   createContext<ActiveWorkoutContextProps | null>(null);
 
 const STORAGE_KEY = "active_workout_state";
+const CHANNEL_ID = "rest_timer_channel";
 
 export const ActiveWorkoutProvider = ({
   children,
@@ -106,41 +111,67 @@ export const ActiveWorkoutProvider = ({
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
       });
+
+      await notifee.createChannel({
+        id: CHANNEL_ID,
+        name: "Descansos",
+        importance: AndroidImportance.LOW,
+      });
     };
     setupSystem();
   }, []);
 
-  const scheduleRestNotification = async (endTimestampMs: number) => {
+  const formatRestTimeStr = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const startForegroundService = async (endTimestampMs: number) => {
+    const remainingSeconds = Math.ceil((endTimestampMs - Date.now()) / 1000);
+    if (remainingSeconds <= 0) return;
+
     try {
-      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
-
-      const remainingMs = endTimestampMs - Date.now();
-      if (remainingMs <= 0) return;
-
-      const remainingSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
-
-      await Notifications.scheduleNotificationAsync({
-        identifier: "rest_timer_alert",
-        content: {
-          title: t("activeWorkout.notificationTitle"),
-          body: t("activeWorkout.notificationBody"),
-          sound: true,
+      await notifee.displayNotification({
+        id: "rest_timer_alert",
+        title: t("activeWorkout.restInProgress"),
+        body: `⏱ ${formatRestTimeStr(remainingSeconds)}`,
+        android: {
+          channelId: CHANNEL_ID,
+          asForegroundService: true,
           color: "#CC5500",
-          vibrate: [0, 500, 250, 500],
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-          seconds: remainingSeconds,
+          ongoing: true,
+          onlyAlertOnce: true,
+          smallIcon: "notification_icon",
         },
       });
     } catch (error) {
-      debugError("Fallo al programar alerta:", error);
+      debugError("Fallo al iniciar Foreground Service:", error);
     }
+  };
+
+  const updateForegroundService = async (remainingSeconds: number) => {
+    try {
+      await notifee.displayNotification({
+        id: "rest_timer_alert",
+        title: t("activeWorkout.restInProgress"),
+        body: `⏱ ${formatRestTimeStr(remainingSeconds)}`,
+        android: {
+          channelId: CHANNEL_ID,
+          asForegroundService: true,
+          color: "#CC5500",
+          ongoing: true,
+          onlyAlertOnce: true,
+          smallIcon: "notification_icon",
+        },
+      });
+    } catch (e) {}
   };
 
   const stopRestNotifications = async () => {
     try {
-      await Notifications.cancelScheduledNotificationAsync("rest_timer_alert");
+      await notifee.stopForegroundService();
+      await notifee.cancelNotification("rest_timer_alert");
     } catch (e) {
       debugLog("Error cancelando notificaciones", e);
     }
@@ -177,7 +208,7 @@ export const ActiveWorkoutProvider = ({
               setIsResting(true);
               isRestingRef.current = true;
               setRestTimeRemaining(remaining);
-              scheduleRestNotification(parsedState.restEndTime);
+              startForegroundService(parsedState.restEndTime);
             } else {
               setIsResting(false);
               isRestingRef.current = false;
@@ -237,8 +268,12 @@ export const ActiveWorkoutProvider = ({
       if (isRestingRef.current && restEndTimeRef.current !== null) {
         const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
         setRestTimeRemaining(Math.max(0, remaining));
+
+        if (remaining > 0) {
+          updateForegroundService(remaining);
+        }
       }
-    }, 500);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [isWorkoutActive]);
@@ -250,11 +285,11 @@ export const ActiveWorkoutProvider = ({
       setRestTimeRemaining(null);
       restEndTimeRef.current = null;
 
-      stopRestNotifications();
+      playTimerEndSound();
 
-      if (AppState.currentState === "active") {
-        playTimerEndSound();
-      }
+      setTimeout(() => {
+        stopRestNotifications();
+      }, 3000);
     }
   }, [isResting, restTimeRemaining]);
 
@@ -289,13 +324,24 @@ export const ActiveWorkoutProvider = ({
 
   const playTimerEndSound = async () => {
     try {
-      Vibration.vibrate(500);
+      Vibration.vibrate([0, 500, 250, 500]);
+
+      await Audio.setAudioModeAsync({
+        staysActiveInBackground: true,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+
       const { sound } = await Audio.Sound.createAsync(
         require("../../assets/sounds/beep.mp3"),
+        { shouldPlay: true, volume: 1.0 },
       );
-      await sound.playAsync();
+
       sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) sound.unloadAsync();
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
       });
     } catch (error) {
       debugLog("Error de sonido mp3", error);
@@ -376,7 +422,7 @@ export const ActiveWorkoutProvider = ({
     setIsPaused(false);
     isPausedRef.current = false;
     if (isRestingRef.current && restEndTimeRef.current) {
-      scheduleRestNotification(restEndTimeRef.current);
+      startForegroundService(restEndTimeRef.current);
     }
   };
 
@@ -483,7 +529,7 @@ export const ActiveWorkoutProvider = ({
       setRestTimeRemaining(defaultRest);
       setIsResting(true);
 
-      scheduleRestNotification(endTimestamp);
+      startForegroundService(endTimestamp);
     }
   };
 

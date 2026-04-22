@@ -10,7 +10,8 @@
     "retry": "Reintentar",
     "pressBackAgain": "Presiona atrás de nuevo para salir",
     "day": "Día",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "saveChanges": "Guardar Cambios"
   },
   "tabs": {
     "workout": "Workout",
@@ -325,7 +326,8 @@
     "previous": "ANTERIOR",
     "notificationTitle": "¡Descanso terminado! 🏋️‍♂️",
     "notificationBody": "Es hora de tu siguiente serie. ¡A darle!",
-    "noActiveRoutine": "No hay rutina activa"
+    "noActiveRoutine": "No hay rutina activa",
+    "restInProgress": "Descanso en progreso..."
   },
   "muscles": {
     "chest": "Pecho",
