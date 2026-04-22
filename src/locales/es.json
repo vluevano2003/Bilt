@@ -11,7 +11,8 @@
     "pressBackAgain": "Presiona atrás de nuevo para salir",
     "day": "Día",
     "settings": "Ajustes",
-    "saveChanges": "Guardar Cambios"
+    "saveChanges": "Guardar Cambios",
+    "confirm": "Confirmar"
   },
   "tabs": {
     "workout": "Workout",

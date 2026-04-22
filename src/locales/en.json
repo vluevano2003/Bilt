@@ -11,7 +11,8 @@
     "pressBackAgain": "Press back again to exit",
     "day": "Day",
     "settings": "Settings",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "confirm": "Confirm"
   },
   "tabs": {
     "workout": "Workout",
