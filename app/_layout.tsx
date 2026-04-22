@@ -33,6 +33,12 @@ const debugError = (...args: any[]) => {
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+/**
+ * Manejador de notificaciones para controlar el comportamiento de las alertas.
+ * Si la notificación es una alerta de temporizador de descanso y la app está en primer plano,
+ * no se muestra la alerta ni se reproduce el sonido.
+ * Para otras notificaciones, se muestran normalmente.
+ */
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     const isTimerAlert = notification.request.identifier === "rest_timer_alert";
@@ -58,6 +64,11 @@ Notifications.setNotificationHandler({
   },
 });
 
+/**
+ * Componente de navegación raíz que controla la lógica de autenticación, manejo de enlaces profundos,
+ * y estado de la conexión a internet. Muestra diferentes pantallas según el estado del usuario y la red.
+ * @returns
+ */
 function RootLayoutNav() {
   const { user, isLoading, hasProfile, isError, retryInit } = useAuth();
   const router = useRouter();
@@ -77,6 +88,7 @@ function RootLayoutNav() {
   const firstSegment = segments[0] as string | undefined;
   const inIndex = !firstSegment || firstSegment === "index";
 
+  // Alertar al usuario si no hay conexión a internet al iniciar la app
   useEffect(() => {
     if (netInfo.isConnected === false && !offlineAlertShown) {
       Alert.alert(t("alerts.error"), t("errors.networkFailed"));
@@ -84,6 +96,7 @@ function RootLayoutNav() {
     }
   }, [netInfo.isConnected, offlineAlertShown, t]);
 
+  // Controlar la navegación según el estado de autenticación, perfil del usuario, y la pantalla actual.
   useEffect(() => {
     if (isLoading || !rootNavigationState?.key || isError) return;
 
@@ -92,12 +105,16 @@ function RootLayoutNav() {
     const inActiveWorkout = firstSegment === "activeWorkout";
     const isProtectedScreen = inTabsGroup || inUserProfile || inActiveWorkout;
 
+    /**
+     * Función para ocultar la pantalla de carga después de un breve retraso, asegurando una transición suave.
+     */
     const hideSplash = () => {
       setTimeout(() => {
         SplashScreen.hideAsync().catch(debugError);
       }, 50);
     };
 
+    // Lógica de navegación basada en el estado del usuario y la pantalla actual
     if (!user && isProtectedScreen) {
       router.replace("/");
       hideSplash();
@@ -126,6 +143,7 @@ function RootLayoutNav() {
     isError,
   ]);
 
+  // Si hay un error de conexión, mostrar una pantalla de error con opción para reintentar
   if (isError) {
     SplashScreen.hideAsync().catch(debugError);
     return (
@@ -200,6 +218,11 @@ function RootLayoutNav() {
   );
 }
 
+/**
+ * Componente raíz de la aplicación que envuelve toda la navegación y lógica de estado global.
+ * Inicializa AdMob al montar el componente y maneja la configuración de notificaciones.
+ * @returns
+ */
 export default function RootLayout() {
   useEffect(() => {
     mobileAds()

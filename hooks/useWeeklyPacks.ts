@@ -33,9 +33,15 @@ export const useWeeklyPacks = () => {
   const { user } = useAuth();
   const currentUserId = user?.id;
 
+  /**
+   * Función para obtener los Weekly Packs del usuario actual desde Supabase. Verifica la conexión a internet antes de intentar la consulta y maneja los estados de carga y error adecuadamente
+   */
   const fetchPacks = useCallback(async () => {
     if (!currentUserId) return;
 
+    /**
+     * Verificar la conexión a internet antes de intentar obtener los packs. Si no hay conexión, se establece isLoadingPacks en false y se retorna sin hacer la consulta a Supabase
+     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       setIsLoadingPacks(false);
@@ -67,12 +73,14 @@ export const useWeeklyPacks = () => {
     setIsLoadingPacks(false);
   }, [currentUserId]);
 
+  // Usar useFocusEffect para asegurarse de que los packs se actualicen cada vez que la pantalla que usa este hook gane foco, además de configurar la suscripción a cambios en Supabase para mantener los datos sincronizados en tiempo real
   useFocusEffect(
     useCallback(() => {
       fetchPacks();
     }, [fetchPacks]),
   );
 
+  // Configurar la suscripción a cambios en Supabase para mantener los packs sincronizados en tiempo real. Se crea un canal único para este hook y se escucha cualquier cambio en la tabla weekly_packs que afecte al usuario actual. Al desmontar el componente, se elimina la suscripción para evitar fugas de memoria
   useEffect(() => {
     fetchPacks();
 

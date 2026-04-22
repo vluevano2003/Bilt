@@ -43,6 +43,11 @@ export const SocialListModal = ({
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
+  /**
+   * Renderiza cada usuario en la lista de seguidores/seguidos, mostrando su avatar (o un placeholder), su username, y permitiendo navegar a su perfil al hacer tap (excepto si es el usuario actual)
+   * @param param0
+   * @returns
+   */
   const renderItem = ({ item }: { item: SocialUser }) => (
     <TouchableOpacity
       style={styles.socialListItem}

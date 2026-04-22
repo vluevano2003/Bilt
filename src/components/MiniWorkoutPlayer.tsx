@@ -8,6 +8,10 @@ import { useActiveWorkout } from "../context/ActiveWorkoutContext";
 import { useTheme } from "../context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
+/**
+ * Componente que muestra un mini reproductor de entrenamiento activo en la parte inferior de la pantalla, permitiendo al usuario ver el nombre del entrenamiento, el tiempo transcurrido y cancelar el entrenamiento si lo desea.
+ * @returns
+ */
 export const MiniWorkoutPlayer = () => {
   const { t } = useTranslation();
   const { activeRoutine, elapsedSeconds, cancelWorkout } = useActiveWorkout();
@@ -19,12 +23,21 @@ export const MiniWorkoutPlayer = () => {
 
   if (!activeRoutine || pathname === "/activeWorkout") return null;
 
+  /**
+   * Función que formatea el tiempo transcurrido en minutos y segundos, asegurándose de que siempre se muestren dos dígitos para cada unidad de tiempo.
+   * @param totalSeconds
+   * @returns
+   */
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  /**
+   * Función que muestra una alerta de confirmación antes de cancelar el entrenamiento activo, permitiendo al usuario decidir si realmente desea cancelar o no.
+   * Si el usuario confirma la cancelación, se llama a la función `cancelWorkout` para finalizar el entrenamiento activo.
+   */
   const handleCancel = () => {
     Alert.alert(
       t("activeWorkout.cancelAlertTitle"),

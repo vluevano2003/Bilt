@@ -55,6 +55,9 @@ export const useRoutineEditor = (
     setModalVisible(true);
   };
 
+  /**
+   * Cierra el modal de edición de rutina y resetea el estado relacionado para evitar que datos anteriores persistan al abrir el modal para una nueva rutina
+   */
   const closeRoutineModal = () => {
     setModalVisible(false);
     setEditingRoutine(null);
@@ -62,6 +65,10 @@ export const useRoutineEditor = (
     setRoutineExercises([]);
   };
 
+  /**
+   * Maneja la lógica de guardado de la rutina, validando que el nombre no esté vacío y utilizando la función proporcionada para guardar los cambios. En caso de error, muestra una alerta al usuario
+   * @returns
+   */
   const handleSaveRoutine = async () => {
     if (!routineName.trim()) return;
     try {
@@ -76,14 +83,26 @@ export const useRoutineEditor = (
     }
   };
 
+  /**
+   * Elimina un ejercicio de la rutina basado en su ID, actualizando el estado de los ejercicios de la rutina para reflejar el cambio
+   * @param exerciseId
+   */
   const removeExercise = (exerciseId: string) => {
     setRoutineExercises((prev) => prev.filter((e) => e.id !== exerciseId));
   };
 
+  /**
+   * Reordena los ejercicios de la rutina según el nuevo orden proporcionado, actualizando el estado de los ejercicios de la rutina para reflejar el nuevo orden
+   * @param newExercises
+   */
   const reorderExercises = (newExercises: RoutineExercise[]) => {
     setRoutineExercises(newExercises);
   };
 
+  /**
+   * Agrega un nuevo set a un ejercicio específico de la rutina, identificando el ejercicio por su ID y actualizando el estado de los ejercicios de la rutina para incluir el nuevo set
+   * @param routineExId
+   */
   const addSetToExercise = (routineExId: string) => {
     setRoutineExercises((prev) =>
       prev.map((ex) => {
@@ -103,6 +122,11 @@ export const useRoutineEditor = (
     );
   };
 
+  /**
+   * Elimina un set específico de un ejercicio de la rutina, identificando el ejercicio y el set por sus IDs y actualizando el estado de los ejercicios de la rutina para reflejar la eliminación del set
+   * @param routineExId
+   * @param setId
+   */
   const removeSetFromExercise = (routineExId: string, setId: string) => {
     setRoutineExercises((prev) =>
       prev.map((ex) => {
@@ -124,6 +148,10 @@ export const useRoutineEditor = (
     setExerciseModalVisible(true);
   };
 
+  /**
+   * Agrega o elimina un ejercicio de la selección temporal basada en si ya está seleccionado o no, permitiendo al usuario seleccionar múltiples ejercicios antes de confirmar su adición a la rutina
+   * @param exercise
+   */
   const toggleExerciseSelection = (exercise: ExerciseType) => {
     setTempSelectedExercises((prev) => {
       const exists = prev.find((e) => e.id === exercise.id);
@@ -132,6 +160,9 @@ export const useRoutineEditor = (
     });
   };
 
+  /**
+   * Confirma la selección de ejercicios, creando nuevas entradas de ejercicios de rutina basadas en los ejercicios seleccionados temporalmente y agregándolos a la rutina actual, luego cierra el modal de selección de ejercicios
+   */
   const confirmSelectedExercises = () => {
     const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
       id: Math.random().toString(36).substr(2, 9),
@@ -153,6 +184,9 @@ export const useRoutineEditor = (
     setExerciseModalVisible(false);
   };
 
+  /**
+   * Filtra la base de datos de ejercicios según el término de búsqueda y el grupo muscular seleccionado, devolviendo solo los ejercicios que coinciden con ambos criterios para mostrar en el modal de selección de ejercicios
+   */
   const filteredExercises = useMemo(() => {
     return exercisesDb.filter((ex) => {
       const exerciseName = t(`exercises.${ex.id}`).toLowerCase();
@@ -164,6 +198,9 @@ export const useRoutineEditor = (
     });
   }, [searchQuery, selectedMuscle, t, exercisesDb]);
 
+  /**
+   * Calcula la lista de grupos musculares únicos presentes en la base de datos de ejercicios, utilizando useMemo para evitar cálculos innecesarios en cada renderizado, lo que permite mostrar opciones de filtrado por grupo muscular en el modal de selección de ejercicios
+   */
   const uniqueMuscles = useMemo(() => {
     const muscles = exercisesDb.map((ex) => ex.muscleGroup);
     return [...new Set(muscles)];

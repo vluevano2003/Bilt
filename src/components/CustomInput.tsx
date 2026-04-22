@@ -16,6 +16,11 @@ interface CustomInputProps extends TextInputProps {
   isPassword?: boolean;
 }
 
+/**
+ * Componente de entrada personalizada que admite campos de texto normales y campos de contraseña con un ícono para mostrar/ocultar la contraseña.
+ * @param param0
+ * @returns
+ */
 export const CustomInput = ({
   style,
   containerStyle,

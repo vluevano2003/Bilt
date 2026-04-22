@@ -24,6 +24,11 @@ export const useProfileActions = (
   const { packs: myPacks, saveWeeklyPack, deletePack } = useWeeklyPacks();
   const [isSavingFullPack, setIsSavingFullPack] = useState(false);
 
+  /**
+   * Obtiene el ID local de una rutina guardada en el perfil del usuario a partir del ID original de la rutina, o null si no está guardada
+   * @param originalRoutineId
+   * @returns
+   */
   const getSavedRoutineId = (originalRoutineId: string) => {
     const found = myRoutines.find(
       (r) => r.originalRoutineId === originalRoutineId,
@@ -31,6 +36,11 @@ export const useProfileActions = (
     return found ? found.id : null;
   };
 
+  /**
+   * Obtiene el ID local de un pack guardado en el perfil del usuario a partir del ID original del pack, o null si no está guardado
+   * @param originalPackId
+   * @returns
+   */
   const getSavedPackId = (originalPackId: string) => {
     const found = myPacks.find((p) => p.originalPackId === originalPackId);
     return found ? found.id : null;

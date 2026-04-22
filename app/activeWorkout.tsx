@@ -54,6 +54,10 @@ const formatRestTimeStr = (seconds: number) => {
   return `${m}:${s < 10 ? "0" : ""}${s}`;
 };
 
+/**
+ * Pantalla principal del entrenamiento activo. Muestra la lista de ejercicios, estadísticas en tiempo real, y maneja toda la lógica de interacción durante el entrenamiento
+ * @returns
+ */
 export default function ActiveWorkoutScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -110,21 +114,34 @@ export default function ActiveWorkoutScreen() {
 
   const isReadonly = !!activeRoutine.originalCreatorId;
 
+  /**
+   * Abre el modal para editar el tiempo de descanso de un ejercicio específico. Guarda temporalmente el ID del ejercicio y el tiempo de descanso actual para su edición.
+   */
   const openRestEditor = useCallback((exId: string, currentRest: number) => {
     setRestEditExId(exId);
     setTempRest(currentRest);
   }, []);
 
+  /**
+   * Guarda el nuevo tiempo de descanso editado para el ejercicio correspondiente. Llama a la función de actualización del tiempo de descanso y cierra el modal de edición.
+   */
   const saveRestTime = () => {
     if (restEditExId) updateExerciseRestTime(restEditExId, tempRest);
     setRestEditExId(null);
   };
 
+  /**
+   * Abre el modal para seleccionar la unidad de peso de un ejercicio específico. Guarda temporalmente el ID del ejercicio para su edición.
+   * @param unit
+   */
   const handleUnitSelect = (unit: any) => {
     if (unitModalExId) changeExerciseUnit(unitModalExId, unit);
     setUnitModalExId(null);
   };
 
+  /**
+   * Abre el modal para seleccionar ejercicios y agregarlos a la rutina activa. Resetea los estados relacionados con la búsqueda y selección de ejercicios para asegurar una experiencia limpia cada vez que se abre el modal.
+   */
   const openExerciseSelector = () => {
     setSearchQuery("");
     setSelectedMuscle(null);
@@ -132,6 +149,10 @@ export default function ActiveWorkoutScreen() {
     setExerciseModalVisible(true);
   };
 
+  /**
+   * Agrega o remueve un ejercicio de la selección temporal dependiendo de si ya está seleccionado o no. Esto permite al usuario seleccionar múltiples ejercicios antes de confirmar su adición a la rutina activa.
+   * @param exercise
+   */
   const toggleExerciseSelection = (exercise: ExerciseType) => {
     setTempSelectedExercises((prev) => {
       const exists = prev.find((e) => e.id === exercise.id);
@@ -140,6 +161,9 @@ export default function ActiveWorkoutScreen() {
     });
   };
 
+  /**
+   * Confirma la selección de ejercicios y los agrega a la rutina activa. Convierte los ejercicios seleccionados en el formato requerido por la rutina activa, asignándoles IDs únicos, tiempos de descanso predeterminados, y una configuración inicial de sets. Luego llama a la función para agregar estos ejercicios a la rutina activa y cierra el modal de selección.
+   */
   const confirmSelectedExercises = () => {
     const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
       id: Math.random().toString(36).substr(2, 9),
@@ -160,6 +184,9 @@ export default function ActiveWorkoutScreen() {
     setExerciseModalVisible(false);
   };
 
+  /**
+   * Filtra la base de datos de ejercicios según la consulta de búsqueda y el grupo muscular seleccionado. Utiliza useMemo para optimizar el rendimiento, evitando cálculos innecesarios en cada renderizado a menos que los parámetros de búsqueda o selección cambien.
+   */
   const filteredExercises = useMemo(() => {
     return exercisesDb.filter((ex) => {
       const exerciseName = t(`exercises.${ex.id}`).toLowerCase();
@@ -171,11 +198,17 @@ export default function ActiveWorkoutScreen() {
     });
   }, [searchQuery, selectedMuscle, t, exercisesDb]);
 
+  /**
+   * Calcula la lista de grupos musculares únicos presentes en la base de datos de ejercicios. Esto se utiliza para mostrar opciones de filtrado por grupo muscular en el modal de selección de ejercicios. Utiliza useMemo para evitar cálculos innecesarios en cada renderizado, recalculando solo cuando la base de datos de ejercicios cambia.
+   */
   const uniqueMuscles = useMemo(
     () => [...new Set(exercisesDb.map((ex) => ex.muscleGroup))],
     [exercisesDb],
   );
 
+  /**
+   * Renderiza cada ejercicio en la lista de ejercicios activos como un componente ExerciseListItem, pasando todas las props necesarias para su correcta visualización e interacción. Esto incluye funciones para manejar cambios en los sets, toggling de completado, edición de descanso, selección de unidad, y más. Utiliza useCallback para evitar recrear esta función en cada renderizado, mejorando el rendimiento al mantener la misma referencia a menos que las dependencias cambien.
+   */
   const renderDraggableExercise = useCallback(
     ({ item: exercise, drag, isActive }: RenderItemParams<RoutineExercise>) => {
       const unitText = exercise.sets[0]

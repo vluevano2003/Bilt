@@ -15,15 +15,22 @@ export const useUserActivity = (userId?: string) => {
   const [userPacks, setUserPacks] = useState<WeeklyPack[]>([]);
   const [isLoadingActivity, setIsLoadingActivity] = useState(true);
 
+  /**
+   * Función para fetch de la actividad del usuario (rutinas, historial y packs)
+   */
   const fetchActivity = useCallback(async () => {
     if (!userId) return;
 
+    /**
+     * Antes de hacer cualquier fetch, verificamos el estado de la red. Si no hay conexión, evitamos hacer llamadas a la API y simplemente dejamos el estado de carga en false para que la UI pueda manejarlo adecuadamente. Esto es especialmente importante en dispositivos móviles donde la conectividad puede ser intermitente.
+     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       setIsLoadingActivity(false);
       return;
     }
 
+    // Fetch de rutinas, historial y packs del usuario desde Supabase
     const { data: routinesData } = await supabase
       .from("routines")
       .select("*")
@@ -41,6 +48,7 @@ export const useUserActivity = (userId?: string) => {
       );
     }
 
+    // El fetch del historial y packs se hace después del de rutinas para asegurar que cualquier rutina referenciada en el historial o packs ya esté cargada en el estado, lo que facilita la asociación de datos si es necesario.
     const { data: historyData } = await supabase
       .from("history")
       .select("*")
@@ -59,6 +67,7 @@ export const useUserActivity = (userId?: string) => {
       );
     }
 
+    // El fetch de packs se hace al final para asegurar que cualquier pack que haga referencia a rutinas ya tenga esas rutinas cargadas en el estado, lo que facilita la asociación de datos si es necesario.
     const { data: packsData } = await supabase
       .from("weekly_packs")
       .select("*")
@@ -82,20 +91,22 @@ export const useUserActivity = (userId?: string) => {
     setIsLoadingActivity(false);
   }, [userId]);
 
-  /**
-   * Refetch de la actividad cada vez que la pantalla gana foco, para asegurar datos actualizados
-   */
+  // Refetch de la actividad cada vez que el usuario vuelve a la pantalla para asegurar que siempre tenga los datos más recientes, especialmente si ha estado inactivo por un tiempo o ha hecho cambios desde otra parte de la app.
   useFocusEffect(
     useCallback(() => {
       fetchActivity();
     }, [fetchActivity]),
   );
 
+  // Suscripción a cambios en las tablas de rutinas, historial y packs para refetch automático cuando haya cambios relevantes para el usuario
   useEffect(() => {
     if (!userId) return;
     setIsLoadingActivity(true);
     fetchActivity();
 
+    /**
+     * La suscripción a cambios en Supabase se configura para escuchar cualquier cambio (inserciones, actualizaciones o eliminaciones) en las tablas de rutinas, historial y packs que estén relacionados con el usuario actual. Esto asegura que la actividad del usuario se mantenga actualizada en tiempo real sin necesidad de que el usuario tenga que refrescar manualmente la pantalla. Cada vez que se detecta un cambio relevante, se llama a la función fetchActivity para refetch los datos y actualizar el estado de la UI en consecuencia.
+     */
     const channel = supabase
       .channel(`user-activity-${userId}`)
       .on(

@@ -23,6 +23,11 @@ interface AuthContextType {
   checkProfileStatus: (userId?: string) => Promise<void>;
 }
 
+/**
+ * Contexto de autenticación que maneja el estado del usuario, sesión, carga y errores.
+ * Proporciona funciones para inicializar la autenticación y verificar el estado del perfil.
+ * Se asegura de manejar correctamente los estados de carga y errores, especialmente en situaciones de red inestable.
+ */
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
@@ -35,6 +40,11 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+/**
+ * Proveedor de autenticación que envuelve la aplicación y proporciona el contexto de autenticación a sus hijos.
+ * @param param0
+ * @returns
+ */
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -42,6 +52,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasProfile, setHasProfile] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  /**
+   * Verifica el estado del perfil del usuario consultando la base de datos.
+   * Si el usuario no tiene un perfil completo, se establece hasProfile en false.
+   * Si no hay conexión a internet, se asume que el perfil existe para evitar bloqueos.
+   * @param userId
+   * @returns
+   */
   const checkProfileStatus = async (userId?: string) => {
     const idToCheck = userId || user?.id;
     if (!idToCheck) {
@@ -49,6 +66,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    /**
+     * Verificar el estado de la red antes de intentar consultar la base de datos.
+     * Si no hay conexión, asumimos que el perfil existe para evitar bloquear al usuario.
+     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       setHasProfile(true);
@@ -72,10 +93,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  /**
+   * Inicializa la autenticación verificando la sesión actual y configurando el estado del usuario.
+   * Maneja un timeout de seguridad para evitar bloqueos prolongados en caso de problemas de red.
+   * Si la sesión es válida, verifica el estado del perfil del usuario.
+   * Si ocurre un error durante la inicialización, se establece isError en true.
+   */
   const initializeAuth = useCallback(async () => {
     setIsError(false);
     setIsLoading(true);
 
+    /**
+     * Timeout de seguridad para evitar bloqueos prolongados en caso de problemas de red o respuestas lentas del servidor.
+     * Si la conexión tarda más de 6 segundos, se asume que hay un problema y se muestra un error.
+     */
     const fallbackTimeout = setTimeout(() => {
       debugError("Timeout de seguridad: La conexión tardó demasiado.");
       setIsError(true);
@@ -104,6 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  // Efecto para inicializar la autenticación y configurar el listener de cambios de estado de autenticación.
   useEffect(() => {
     let mounted = true;
 

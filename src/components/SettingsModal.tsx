@@ -33,6 +33,11 @@ interface SettingsModalProps {
   colors: any;
 }
 
+/**
+ * Modal de configuración del perfil, con opciones para privacidad, tema, idioma, gestión de usuarios bloqueados, etc.
+ * @param param0
+ * @returns
+ */
 export const SettingsModal = ({
   visible,
   onClose,
@@ -54,16 +59,27 @@ export const SettingsModal = ({
   const [blockedModalVisible, setBlockedModalVisible] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
 
+  /**
+   * Carga la lista de usuarios bloqueados para mostrarla en el modal correspondiente.
+   */
   const loadBlockedUsers = async () => {
     const list = await getBlockedUsersList();
     setBlockedUsers(list);
   };
 
+  /**
+   * Desbloquea a un usuario de la lista de bloqueados y recarga la lista para reflejar el cambio.
+   * @param blockedId
+   */
   const handleUnblock = async (blockedId: string) => {
     await unblockUserFromList(blockedId);
     loadBlockedUsers();
   };
 
+  /**
+   * Calcula un padding top seguro para el header del modal, considerando la barra de estado en Android y un valor fijo en iOS.
+   * Esto asegura que el contenido no quede oculto detrás de la barra de estado, especialmente en dispositivos con notch o barras de estado altas.
+   */
   const safePaddingTop =
     Platform.OS === "android"
       ? (StatusBar.currentHeight || verticalScale(20)) + verticalScale(15)

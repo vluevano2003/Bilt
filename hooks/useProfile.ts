@@ -43,6 +43,11 @@ export async function sendPushNotificationViaEdgeFunction(
   }
 }
 
+/**
+ * Hook para manejar toda la lógica relacionada con el perfil de usuario, tanto el propio como el de otros usuarios.
+ * @param profileUid
+ * @returns
+ */
 export const useProfile = (profileUid?: string) => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -90,6 +95,9 @@ export const useProfile = (profileUid?: string) => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
 
+  /**
+   * Función para obtener los datos del perfil. Se llama al cargar el hook y cada vez que se recibe una actualización en el perfil a través de Supabase Realtime.
+   */
   const fetchProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -121,6 +129,9 @@ export const useProfile = (profileUid?: string) => {
     }
   }, [targetUid]);
 
+  /**
+   * Función para obtener los datos sociales relacionados con el perfil (seguidores, siguiendo, estado de seguimiento, bloqueos). Se llama al cargar el hook y cada vez que se recibe una actualización en las tablas relacionadas a través de Supabase Realtime.
+   */
   const fetchSocialStats = useCallback(async () => {
     if (!isOwnProfile) {
       const { data: myBlock } = await supabase
@@ -131,6 +142,7 @@ export const useProfile = (profileUid?: string) => {
         .single();
       setIsBlocked(!!myBlock);
 
+      // Si yo no los tengo bloqueados, reviso si ellos me tienen bloqueado
       const { data: theirBlock } = await supabase
         .from("blocks")
         .select("*")
@@ -140,6 +152,7 @@ export const useProfile = (profileUid?: string) => {
       setHasBlockedMe(!!theirBlock);
     }
 
+    // Si hay bloqueo de por medio, no tiene sentido seguir consultando datos sociales
     const { count: fCount } = await supabase
       .from("follows")
       .select("*", { count: "exact", head: true })
@@ -147,6 +160,7 @@ export const useProfile = (profileUid?: string) => {
       .eq("status", "accepted");
     setFollowersCount(fCount || 0);
 
+    // Si el perfil es privado y no es mi perfil, no consulto a quién sigue
     const { count: followingC } = await supabase
       .from("follows")
       .select("*", { count: "exact", head: true })
@@ -154,6 +168,7 @@ export const useProfile = (profileUid?: string) => {
       .eq("status", "accepted");
     setFollowingCount(followingC || 0);
 
+    // Si es mi perfil, consulto también cuántas solicitudes pendientes tengo y si ellos me siguen o tienen solicitud pendiente
     if (isOwnProfile) {
       const { count: pCount } = await supabase
         .from("follows")
@@ -177,6 +192,7 @@ export const useProfile = (profileUid?: string) => {
           : "none",
       );
 
+      // Si no los sigo, reviso si ellos me siguen o tienen solicitud pendiente
       const { data: theirRequest } = await supabase
         .from("follows")
         .select("status")
@@ -189,11 +205,15 @@ export const useProfile = (profileUid?: string) => {
     }
   }, [targetUid, currentUserId, isOwnProfile]);
 
+  // Efecto para cargar datos del perfil y escuchar cambios en el perfil a través de Supabase Realtime
   useEffect(() => {
     if (!targetUid) return;
 
     fetchProfile();
 
+    /**
+     * Suscripción a cambios en la tabla de usuarios para actualizar el perfil en tiempo real si hay cambios. Solo se suscribe al perfil que se está visualizando (targetUid) para evitar recibir eventos innecesarios.
+     */
     const channel = supabase
       .channel(`public:users:id=eq.${targetUid}`)
       .on(
@@ -218,6 +238,9 @@ export const useProfile = (profileUid?: string) => {
 
     fetchSocialStats();
 
+    /**
+     * Suscripción a cambios en la tabla de follows para actualizar los datos sociales en tiempo real. Se suscribe a cualquier cambio que involucre al usuario objetivo (ya sea como seguidor o seguido) para mantener actualizados los contadores y estados de seguimiento.
+     */
     const followsChannel = supabase
       .channel(`follows-changes-${targetUid}`)
       .on(
@@ -232,10 +255,16 @@ export const useProfile = (profileUid?: string) => {
     };
   }, [targetUid, currentUserId, isOwnProfile, fetchSocialStats]);
 
+  /**
+   * Función para refrescar manualmente los datos del perfil y sociales, útil para pasar a las pantallas de seguidores/seguidos y forzar una actualización al volver, o para cualquier otro caso donde queramos asegurarnos de tener los datos más recientes sin esperar a la actualización en tiempo real.
+   */
   const refetchData = async () => {
     await Promise.all([fetchProfile(), fetchSocialStats()]);
   };
 
+  /**
+   * Función para abrir el modal de edición de perfil, que precarga los datos actuales del perfil en los campos de edición. Solo se activa si es el propio perfil (isOwnProfile) para evitar que otros usuarios puedan editar perfiles ajenos.
+   */
   const openEditModal = () => {
     setEditUsername(username);
     setEditHeight(height);
@@ -246,6 +275,10 @@ export const useProfile = (profileUid?: string) => {
     setIsEditing(true);
   };
 
+  /**
+   * Función para abrir el selector de imágenes y permitir al usuario elegir una nueva foto de perfil. Solo se activa si es el propio perfil (isOwnProfile) para evitar que otros usuarios puedan cambiar la foto de perfil ajena.
+   * @returns
+   */
   const pickImage = async () => {
     if (!isOwnProfile) return;
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -259,6 +292,10 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para guardar los cambios realizados en el perfil. Si se ha seleccionado una nueva foto de perfil, primero la sube a Supabase Storage y obtiene la URL pública para guardarla en el perfil. Luego actualiza los datos del usuario en la tabla "users" y maneja los estados de carga y edición. Solo se activa si es el propio perfil (isOwnProfile) para evitar que otros usuarios puedan guardar cambios en perfiles ajenos.
+   * @returns
+   */
   const handleSave = async () => {
     if (!currentUserId || !isOwnProfile) return;
     setIsSaving(true);
@@ -422,6 +459,10 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para eliminar a un seguidor. Solo se activa si el usuario objetivo es el propio perfil (isOwnProfile) y el usuario a eliminar es un seguidor (theyFollowMe) para evitar que otros usuarios puedan eliminar seguidores ajenos o eliminar usuarios que no son seguidores.
+   * @returns
+   */
   const removeFollower = async () => {
     if (!currentUserId || !targetUid || isOwnProfile) return;
     try {
@@ -438,6 +479,11 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para obtener la lista de seguidores, siguiendo o solicitudes dependiendo del tipo solicitado. Solo se activa si hay un usuario objetivo (targetUid) para evitar consultas innecesarias.
+   * @param type
+   * @returns
+   */
   const getSocialList = async (
     type: "followers" | "following" | "requests",
   ): Promise<SocialUser[]> => {
@@ -485,6 +531,12 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para manejar la aceptación o rechazo de una solicitud de seguimiento. Solo se activa si el usuario objetivo es el propio perfil (isOwnProfile) y la solicitud proviene de otro usuario (userIdToHandle) para evitar que otros usuarios puedan aceptar/rechazar solicitudes ajenas o aceptar/rechazar solicitudes inexistentes.
+   * @param userIdToHandle
+   * @param accept
+   * @returns
+   */
   const handleFollowRequest = async (
     userIdToHandle: string,
     accept: boolean,
@@ -568,6 +620,11 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para cambiar el sistema de medición entre métrico e imperial. Convierte los valores de peso y altura al nuevo sistema seleccionado para mantener la coherencia de los datos. Solo se activa si es el propio perfil (isOwnProfile) para evitar que otros usuarios puedan cambiar el sistema de medición ajeno.
+   * @param newSystem
+   * @returns
+   */
   const changeMeasurementSystem = (newSystem: "metric" | "imperial") => {
     if (newSystem === editMeasurementSystem) return;
 
@@ -598,6 +655,10 @@ export const useProfile = (profileUid?: string) => {
     setEditMeasurementSystem(newSystem);
   };
 
+  /**
+   * Función para bloquear o desbloquear a un usuario. Si se bloquea, se eliminan las relaciones de seguimiento y cualquier rutina o weekly pack compartido entre ambos usuarios para evitar que el usuario bloqueado tenga acceso a contenido del bloqueador. Solo se activa si no es el propio perfil (isOwnProfile) para evitar que los usuarios puedan bloquearse a sí mismos.
+   * @returns
+   */
   const toggleBlock = async () => {
     if (!currentUserId || !targetUid) return;
     try {
@@ -652,6 +713,11 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para reportar a un usuario por comportamiento inapropiado. Inserta un nuevo reporte en la tabla "reports" con el ID del reportero, el ID del usuario reportado y el motivo del reporte. Solo se activa si hay un usuario objetivo (targetUid) para evitar reportes sin sentido.
+   * @param reasonText
+   * @returns
+   */
   const reportUser = async (reasonText: string) => {
     if (!currentUserId || !targetUid) return;
     try {
@@ -666,6 +732,10 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para obtener la lista de usuarios bloqueados por el usuario actual. Llama a una función RPC personalizada en Supabase que devuelve los usuarios bloqueados para el usuario autenticado. Solo se activa si hay un usuario autenticado (currentUserId) para evitar consultas innecesarias.
+   * @returns
+   */
   const getBlockedUsersList = async () => {
     if (!currentUserId) return [];
     try {
@@ -678,6 +748,11 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Función para desbloquear a un usuario desde la lista de bloqueados. Elimina el registro de bloqueo entre el usuario actual y el usuario a desbloquear. Solo se activa si hay un usuario autenticado (currentUserId) para evitar acciones sin sentido.
+   * @param blockedId
+   * @returns
+   */
   const unblockUserFromList = async (blockedId: string) => {
     if (!currentUserId) return;
     await supabase
@@ -687,6 +762,10 @@ export const useProfile = (profileUid?: string) => {
       .eq("blocked_id", blockedId);
   };
 
+  /**
+   * Función para eliminar la cuenta del usuario. Llama a una función RPC personalizada en Supabase que elimina el usuario autenticado y toda su información relacionada de forma segura. Luego cierra la sesión del usuario. Solo se activa si hay un usuario autenticado (currentUserId) para evitar acciones sin sentido.
+   * @returns
+   */
   const deleteAccount = async () => {
     if (!currentUserId) return;
     try {

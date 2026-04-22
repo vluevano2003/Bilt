@@ -241,10 +241,18 @@ export const CreatePackModal = ({
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
 
+  /**
+   * Solo se muestran para seleccionar las rutinas que no fueron creadas por otros usuarios (originalCreatorId nulo) y que no estén ya seleccionadas para el pack (no estén en selectedRoutineIds)
+   */
   const availableRoutines = routines.filter(
     (r: any) => !r.originalCreatorId && !selectedRoutineIds.includes(r.id),
   );
 
+  /**
+   * Render para cada rutina seleccionada, mostrando su nombre y orden en el pack, con botón para eliminarla del pack (toggleRoutineSelection) y drag handle para reordenar (drag)
+   * @param param0
+   * @returns
+   */
   const renderDraggableSelectedRoutine = ({
     item: routineId,
     drag,
@@ -822,6 +830,11 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const insets = useSafeAreaInsets();
   const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
 
+  /**
+   * Render para cada ejercicio de la rutina, mostrando su nombre, grupo muscular, sets y opciones para eliminar el ejercicio o agregar/quitar sets, con drag handle para reordenar (drag)
+   * @param param0
+   * @returns
+   */
   const renderDraggableExercise = ({
     item: routineEx,
     drag,

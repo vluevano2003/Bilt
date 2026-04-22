@@ -30,6 +30,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === "dark");
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Carga las preferencias de tema e idioma al montar el componente
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -55,6 +56,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     loadSettings();
   }, [systemColorScheme]);
 
+  /**
+   * Función para cambiar el tema. Si se pasa un valor, se establece ese tema; si no, se alterna entre claro y oscuro. Guarda la preferencia en AsyncStorage.
+   * @param value
+   */
   const toggleTheme = async (value?: boolean) => {
     const newMode = value !== undefined ? value : !isDarkMode;
     setIsDarkMode(newMode);

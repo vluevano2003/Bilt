@@ -16,6 +16,11 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
+/**
+ * Componente de botón secundario que se adapta al tema actual. Permite personalizar el estilo y deshabilitar el botón.
+ * @param param0
+ * @returns
+ */
 export const SecondaryButton = ({
   title,
   onPress,
