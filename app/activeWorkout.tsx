@@ -376,6 +376,90 @@ export default function ActiveWorkoutScreen() {
         </View>
       )}
 
+      {/*Modal de selección de unidades*/}
+      <Modal
+        visible={!!unitModalExId}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setUnitModalExId(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.editRestModalContent}>
+            <Text style={styles.editRestTitle}>{t("unitSelection.title")}</Text>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("kg")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.kg")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.kg_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("lbs")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.lbs")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.lbs_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("bodyweight")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.bodyweight")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.bodyweight_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.unitOptionBtn}
+              onPress={() => handleUnitSelect("bars")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.bars")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.bars_desc")}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
+              onPress={() => handleUnitSelect("plates")}
+            >
+              <Text style={styles.unitOptionTitle}>
+                {t("unitSelection.plates")}
+              </Text>
+              <Text style={styles.unitOptionDesc}>
+                {t("unitSelection.plates_desc")}
+              </Text>
+            </TouchableOpacity>
+            <View style={[styles.editRestButtonsRow, styles.unitOptionsMargin]}>
+              <TouchableOpacity
+                style={[styles.editRestBtn, styles.editRestBtnTransparent]}
+                onPress={() => setUnitModalExId(null)}
+              >
+                <Text
+                  style={[
+                    styles.editRestBtnText,
+                    styles.editRestBtnTextSecondary,
+                  ]}
+                >
+                  {t("common.cancel")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/*Modal de edición de descanso*/}
       <Modal
         visible={!!restEditExId}
@@ -389,14 +473,22 @@ export default function ActiveWorkoutScreen() {
               {t("activeWorkout.restTimer")}
             </Text>
 
-            <View
-              style={[styles.editRestControls, { justifyContent: "center" }]}
-            >
-              <Text
-                style={[styles.editRestTimeDisplay, { textAlign: "center" }]}
+            <View style={styles.editRestControls}>
+              <TouchableOpacity
+                style={styles.floatingRestAdjustBtn}
+                onPress={() => setTempRest((prev) => Math.max(0, prev - 15))}
               >
+                <Text style={styles.floatingRestAdjustText}>-15</Text>
+              </TouchableOpacity>
+              <Text style={styles.editRestTimeDisplay}>
                 {formatRestTimeStr(tempRest)}
               </Text>
+              <TouchableOpacity
+                style={styles.floatingRestAdjustBtn}
+                onPress={() => setTempRest((prev) => prev + 15)}
+              >
+                <Text style={styles.floatingRestAdjustText}>+15</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.editRestButtonsRow}>
