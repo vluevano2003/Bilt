@@ -136,7 +136,7 @@ export const ActiveWorkoutProvider = ({
       });
     };
     setupSystem();
-  }, []);
+  }, [t]);
 
   /**
    * Formatea un número de segundos en una cadena de formato "M:SS" para mostrar el tiempo restante del descanso en la notificación.
@@ -440,7 +440,7 @@ export const ActiveWorkoutProvider = ({
   }, [user, isLoading, activeRoutine]);
 
   /**
-   * Finaliza el entrenamiento activo, guarda el historial y cancela la notificación persistente.
+   * Finaliza el entrenamiento activo, guarda el historial y cancela la notificación persistente de forma silenciosa, sin destruir la UI de inmediato para que el modal de resumen siga visible.
    * @returns
    */
   const finishWorkout = async () => {
@@ -450,13 +450,13 @@ export const ActiveWorkoutProvider = ({
     }
 
     /**
-     * Antes de intentar guardar el historial, verificamos el estado de la red para asegurarnos de que el usuario tenga conexión. Si no hay conexión, mostramos una alerta y pausamos el entrenamiento para evitar que el usuario pierda su progreso. Debido a las limitaciones de React Native en segundo plano, esta verificación solo se realizará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos verificar el estado de la red ni mostrar una alerta, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native. Sin embargo, si el usuario intenta finalizar el entrenamiento mientras está en segundo plano, se intentará guardar el historial tan pronto como la app vuelva a primer plano, momento en el cual se verificará el estado de la red y se mostrará la alerta si es necesario.
+     * Antes de intentar guardar el historial, verificamos el estado de la red para asegurarnos de que el usuario tenga conexión. Si no hay conexión, mostramos una alerta y pausamos el entrenamiento para evitar que el usuario pierda su progreso sin saberlo. Debido a las limitaciones de React Native en segundo plano, esta verificación solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos verificar el estado de la red ni mostrar una alerta hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
      */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
       setIsPaused(true);
-      return;
+      throw new Error(t("errors.networkFailed"));
     }
 
     try {
@@ -467,26 +467,38 @@ export const ActiveWorkoutProvider = ({
         }))
         .filter((ex) => ex.sets.length > 0);
 
-      if (completedExercises.length === 0) {
-        cancelWorkout();
-        return;
+      if (completedExercises.length > 0) {
+        const insertPromise = supabase.from("history").insert([
+          {
+            user_id: user.id,
+            routine_id: activeRoutine.id,
+            routine_name: activeRoutine.name,
+            duration_seconds: elapsedSeconds,
+            exercises: completedExercises,
+          },
+        ]);
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(t("errors.timeout"))), 8000),
+        );
+
+        const response = (await Promise.race([
+          insertPromise,
+          timeoutPromise,
+        ])) as any;
+
+        if (response && response.error) throw response.error;
       }
-
-      const { error } = await supabase.from("history").insert([
-        {
-          user_id: user.id,
-          routine_id: activeRoutine.id,
-          routine_name: activeRoutine.name,
-          duration_seconds: elapsedSeconds,
-          exercises: completedExercises,
-        },
-      ]);
-
-      if (error) throw error;
+      setIsResting(false);
+      isRestingRef.current = false;
+      setRestTimeRemaining(null);
+      restEndTimeRef.current = null;
+      await stopAllNotifications();
+      await AsyncStorage.removeItem(STORAGE_KEY);
     } catch (error) {
       debugError("Error al guardar:", error);
-    } finally {
-      cancelWorkout();
+      Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
+      throw error;
     }
   };
 

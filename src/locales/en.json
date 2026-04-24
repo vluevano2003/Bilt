@@ -228,7 +228,8 @@
     "connectionMsg": "We couldn't load your session. Please check your internet connection and try again.",
     "userCreation": "Could not create user account.",
     "googleSignInProgress": "Sign-in is already in progress.",
-    "playServicesMissing": "Google Play Services is not available on this device."
+    "playServicesMissing": "Google Play Services is not available on this device.",
+    "timeout": "The server took too long to respond. Please check your connection and try again."
   },
   "routines": {
     "title": "Your Routines",
