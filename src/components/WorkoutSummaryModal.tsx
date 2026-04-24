@@ -61,27 +61,53 @@ export const WorkoutSummaryModal = ({
         <View style={styles.summaryCard}>
           <View style={styles.summaryStatsRow}>
             <View style={styles.summaryStatCol}>
-              <Text style={styles.summaryStatLabel}>
+              <Text
+                style={styles.summaryStatLabel}
+                numberOfLines={2}
+                adjustsFontSizeToFit
+              >
                 {t("activeWorkout.duration")}
               </Text>
-              <Text style={styles.summaryStatValue}>
+              <Text
+                style={styles.summaryStatValue}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 {formatTime(elapsedSeconds)}
               </Text>
             </View>
             <View style={styles.summaryStatCol}>
-              <Text style={styles.summaryStatLabel}>
+              <Text
+                style={styles.summaryStatLabel}
+                numberOfLines={2}
+                adjustsFontSizeToFit
+              >
                 {t("activeWorkout.totalVolume")}
               </Text>
-              <Text style={styles.summaryStatValue}>
+              <Text
+                style={styles.summaryStatValue}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 {stats.volume.toLocaleString()}{" "}
                 <Text style={styles.summaryStatUnit}>{volumeUnitText}</Text>
               </Text>
             </View>
             <View style={styles.summaryStatCol}>
-              <Text style={styles.summaryStatLabel}>
+              <Text
+                style={styles.summaryStatLabel}
+                numberOfLines={2}
+                adjustsFontSizeToFit
+              >
                 {t("activeWorkout.completedSets")}
               </Text>
-              <Text style={styles.summaryStatValue}>{stats.sets}</Text>
+              <Text
+                style={styles.summaryStatValue}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {stats.sets}
+              </Text>
             </View>
           </View>
 

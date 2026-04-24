@@ -231,21 +231,38 @@ export const useActiveWorkoutScreen = () => {
                     text: t("activeWorkout.updateTemplateBtn"),
                     style: "default",
                     onPress: async () => {
-                      const cleanExercises = activeRoutine!.exercises.map(
-                        (ex) => ({
-                          ...ex,
-                          sets: ex.sets.map((s) => ({
-                            ...s,
-                            completed: false,
-                          })),
-                        }),
-                      );
-                      await saveRoutine(
-                        activeRoutine!.id,
-                        activeRoutine!.name,
-                        cleanExercises,
-                      );
-                      calculateAndShowSummary();
+                      try {
+                        const cleanExercises = activeRoutine!.exercises.map(
+                          (ex) => ({
+                            ...ex,
+                            sets: ex.sets.map((s) => ({
+                              ...s,
+                              completed: false,
+                            })),
+                          }),
+                        );
+
+                        const savePromise = saveRoutine(
+                          activeRoutine!.id,
+                          activeRoutine!.name,
+                          cleanExercises,
+                        );
+                        const timeoutPromise = new Promise((_, reject) =>
+                          setTimeout(
+                            () => reject(new Error(t("errors.timeout"))),
+                            8000,
+                          ),
+                        );
+
+                        await Promise.race([savePromise, timeoutPromise]);
+                        calculateAndShowSummary();
+                      } catch (e) {
+                        Alert.alert(
+                          t("profile.alerts.error"),
+                          t("errors.networkFailed"),
+                        );
+                        setIsPaused(false);
+                      }
                     },
                   },
                 ],
@@ -264,10 +281,14 @@ export const useActiveWorkoutScreen = () => {
    */
   const handleCloseSummary = async () => {
     setIsSavingHistory(true);
-    await finishWorkout();
-    setIsSavingHistory(false);
-    setShowSummary(false);
-    router.back();
+    try {
+      await finishWorkout();
+      setShowSummary(false);
+      router.back();
+    } catch (error) {
+    } finally {
+      setIsSavingHistory(false);
+    }
   };
 
   /**

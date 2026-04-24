@@ -83,13 +83,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq("id", idToCheck)
         .single();
 
-      if (data && data.height && !error) {
+      if (error) {
+        if (error.code === "PGRST116") {
+          setHasProfile(false);
+        } else {
+          setHasProfile(true);
+        }
+      } else if (data && data.height) {
         setHasProfile(true);
       } else {
         setHasProfile(false);
       }
     } catch (err) {
-      setHasProfile(false);
+      setHasProfile(true);
     }
   };
 

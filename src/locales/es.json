@@ -228,7 +228,8 @@
     "connectionMsg": "No pudimos cargar tu sesión. Revisa tu internet e inténtalo de nuevo.",
     "userCreation": "No se pudo crear el usuario.",
     "googleSignInProgress": "El inicio de sesión ya está en curso.",
-    "playServicesMissing": "Google Play Services no está disponible en este dispositivo."
+    "playServicesMissing": "Google Play Services no está disponible en este dispositivo.",
+    "timeout": "El servidor tardó demasiado en responder. Revisa tu conexión e intenta de nuevo."
   },
   "routines": {
     "title": "Tus Rutinas",

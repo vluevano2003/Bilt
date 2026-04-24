@@ -136,7 +136,7 @@ export const ActiveWorkoutProvider = ({
       });
     };
     setupSystem();
-  }, []);
+  }, [t]);
 
   /**
    * Formatea un número de segundos en una cadena de formato "M:SS" para mostrar el tiempo restante del descanso en la notificación.
@@ -456,7 +456,7 @@ export const ActiveWorkoutProvider = ({
     if (!networkState.isConnected) {
       Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
       setIsPaused(true);
-      return;
+      throw new Error(t("errors.networkFailed"));
     }
 
     try {
@@ -472,7 +472,7 @@ export const ActiveWorkoutProvider = ({
         return;
       }
 
-      const { error } = await supabase.from("history").insert([
+      const insertPromise = supabase.from("history").insert([
         {
           user_id: user.id,
           routine_id: activeRoutine.id,
@@ -482,11 +482,22 @@ export const ActiveWorkoutProvider = ({
         },
       ]);
 
-      if (error) throw error;
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(t("errors.timeout"))), 8000),
+      );
+
+      const response = (await Promise.race([
+        insertPromise,
+        timeoutPromise,
+      ])) as any;
+
+      if (response && response.error) throw response.error;
+
+      cancelWorkout();
     } catch (error) {
       debugError("Error al guardar:", error);
-    } finally {
-      cancelWorkout();
+      Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
+      throw error; // Re-lanzamos para que la UI se detenga
     }
   };
 
