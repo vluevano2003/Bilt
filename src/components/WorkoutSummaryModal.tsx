@@ -59,10 +59,24 @@ export const WorkoutSummaryModal = ({
         </View>
 
         <View style={styles.summaryCard}>
-          <View style={styles.summaryStatsRow}>
-            <View style={styles.summaryStatCol}>
+          <View
+            style={[
+              styles.summaryStatsRow,
+              {
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.summaryStatCol,
+                { flex: 1, alignItems: "flex-start" },
+              ]}
+            >
               <Text
-                style={styles.summaryStatLabel}
+                style={[styles.summaryStatLabel, { textAlign: "left" }]}
                 numberOfLines={2}
                 adjustsFontSizeToFit
               >
@@ -76,9 +90,15 @@ export const WorkoutSummaryModal = ({
                 {formatTime(elapsedSeconds)}
               </Text>
             </View>
-            <View style={styles.summaryStatCol}>
+
+            <View
+              style={[
+                styles.summaryStatCol,
+                { flex: 1, alignItems: "center", paddingHorizontal: 5 },
+              ]}
+            >
               <Text
-                style={styles.summaryStatLabel}
+                style={[styles.summaryStatLabel, { textAlign: "center" }]}
                 numberOfLines={2}
                 adjustsFontSizeToFit
               >
@@ -93,9 +113,15 @@ export const WorkoutSummaryModal = ({
                 <Text style={styles.summaryStatUnit}>{volumeUnitText}</Text>
               </Text>
             </View>
-            <View style={styles.summaryStatCol}>
+
+            <View
+              style={[
+                styles.summaryStatCol,
+                { flex: 1, alignItems: "flex-end" },
+              ]}
+            >
               <Text
-                style={styles.summaryStatLabel}
+                style={[styles.summaryStatLabel, { textAlign: "right" }]}
                 numberOfLines={2}
                 adjustsFontSizeToFit
               >
@@ -174,7 +200,9 @@ export const WorkoutSummaryModal = ({
             <ActivityIndicator color="#FFF" style={styles.summaryLoadingIcon} />
           )}
           <Text style={styles.summaryFinishBtnText}>
-            {isSavingHistory ? t("common.saving") : t("common.finish")}
+            {isSavingHistory
+              ? t("common.saving")
+              : t("activeWorkout.closeSummary")}
           </Text>
         </TouchableOpacity>
       </View>

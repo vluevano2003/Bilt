@@ -25,6 +25,7 @@ export const useActiveWorkoutScreen = () => {
   const { userHistory } = useUserActivity(user?.id);
 
   const [isSavingHistory, setIsSavingHistory] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   const {
     activeRoutine,
@@ -133,8 +134,6 @@ export const useActiveWorkoutScreen = () => {
     }))
     .sort((a, b) => b.percentage - a.percentage);
 
-  const [showSummary, setShowSummary] = useState(false);
-
   /**
    * Formatea un tiempo dado en segundos a una cadena legible, mostrando horas y minutos si el tiempo es suficientemente largo, o minutos y segundos para tiempos más cortos. Esto se utiliza para mostrar el tiempo transcurrido del workout activo y el tiempo de descanso restante de manera clara para el usuario.
    * @param totalSeconds
@@ -190,14 +189,22 @@ export const useActiveWorkoutScreen = () => {
   };
 
   /**
-   * Maneja el proceso de finalizar el workout activo, incluyendo la detección de modificaciones en la rutina, la presentación de alertas para confirmar la acción y ofrecer la opción de actualizar la plantilla original, y finalmente mostrar el resumen del workout con las estadísticas calculadas. Esto asegura que el usuario tenga control sobre si desea mantener su plantilla original o actualizarla con los cambios realizados durante el workout activo, y luego le permite ver un resumen detallado de su sesión de entrenamiento.
+   * Abre el modal INMEDIATAMENTE y lanza el guardado a base de datos de fondo. Si hay un error, cierra el modal para que puedas intentar de nuevo. Cuando le das "Cerrar" en el modal, ahora sí destruye todo.
    */
-  const calculateAndShowSummary = () => {
+  const calculateAndShowSummary = async () => {
     setShowSummary(true);
+    setIsSavingHistory(true);
+    try {
+      await finishWorkout();
+    } catch (error) {
+      setShowSummary(false);
+    } finally {
+      setIsSavingHistory(false);
+    }
   };
 
   /**
-   * Maneja la acción de finalizar el workout activo, incluyendo la detección de modificaciones en la rutina, la presentación de alertas para confirmar la acción y ofrecer la opción de actualizar la plantilla original, y finalmente mostrar el resumen del workout con las estadísticas calculadas. Esto asegura que el usuario tenga control sobre si desea mantener su plantilla original o actualizarla con los cambios realizados durante el workout activo, y luego le permite ver un resumen detallado de su sesión de entrenamiento.
+   * Maneja la acción de finalizar el workout activo, incluyendo la detección de modificaciones en la rutina, la presentación de alertas para confirmar la acción y ofrecer la opción de actualizar la plantilla original.
    */
   const handleFinishWorkout = () => {
     setIsPaused(true);
@@ -277,22 +284,16 @@ export const useActiveWorkoutScreen = () => {
   };
 
   /**
-   * Maneja el proceso de cerrar el resumen del workout activo, incluyendo la guardado del workout en el historial del usuario y luego navegando de regreso a la pantalla anterior. Esto asegura que los datos del workout activo se guarden correctamente en el historial del usuario para futuras referencias, y luego permite al usuario volver a la pantalla principal o de selección de rutina después de revisar el resumen de su sesión de entrenamiento.
+   * Como la información ya se guardó con calculateAndShowSummary, este botón ya solo tiene la responsabilidad de destruir los datos en memoria y sacarte de la pantalla de entrenamiento.
    */
-  const handleCloseSummary = async () => {
-    setIsSavingHistory(true);
-    try {
-      await finishWorkout();
-      setShowSummary(false);
-      router.back();
-    } catch (error) {
-    } finally {
-      setIsSavingHistory(false);
-    }
+  const handleCloseSummary = () => {
+    cancelWorkout();
+    setShowSummary(false);
+    router.back();
   };
 
   /**
-   * Maneja la acción de cancelar el workout activo, mostrando una alerta para confirmar la acción y advirtiendo al usuario que se perderán los datos no guardados. Si el usuario confirma que desea cancelar, se llama a la función de cancelación del workout y luego se navega de regreso a la pantalla anterior. Esto asegura que el usuario tenga la oportunidad de reconsiderar antes de perder cualquier progreso no guardado en su workout activo, y luego le permite volver a la pantalla principal o de selección de rutina si decide cancelar su sesión actual.
+   * Maneja la acción de cancelar el workout activo, mostrando una alerta para confirmar la acción y advirtiendo al usuario que se perderán los datos no guardados. Si el usuario confirma que desea cancelar, se llama a la función de cancelación del workout y luego se navega de regreso a la pantalla anterior.
    */
   const handleCancelWorkout = () => {
     Alert.alert(
