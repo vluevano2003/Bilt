@@ -404,7 +404,17 @@ export const ActiveWorkoutProvider = ({
    * @param routine
    */
   const startWorkout = (routine: Routine) => {
-    setActiveRoutine(JSON.parse(JSON.stringify(routine)));
+    const workoutToStart = JSON.parse(JSON.stringify(routine));
+
+    workoutToStart.exercises.forEach((ex: any) => {
+      ex.sets.forEach((s: any) => {
+        s.weight = 0;
+        s.reps = 0;
+        s.completed = false;
+      });
+    });
+
+    setActiveRoutine(workoutToStart);
     setOriginalRoutine(JSON.parse(JSON.stringify(routine)));
     setElapsedSeconds(0);
     setIsPaused(false);
@@ -595,8 +605,8 @@ export const ActiveWorkoutProvider = ({
         const newSet: ExerciseSet = {
           id: Math.random().toString(36).substring(2, 9),
           type: "normal",
-          reps: lastSet ? lastSet.reps : 0,
-          weight: lastSet ? lastSet.weight : 0,
+          reps: 0,
+          weight: 0,
           weightUnit: lastSet ? lastSet.weightUnit : "kg",
           completed: false,
         };

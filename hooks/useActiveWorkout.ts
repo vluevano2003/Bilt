@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { useActiveWorkout } from "../src/context/ActiveWorkoutContext";
@@ -57,48 +57,104 @@ export const useActiveWorkoutScreen = () => {
   };
 
   /**
-   * Busca en el historial del usuario el último set realizado para un ejercicio específico y devuelve una cadena formateada con el peso y las repeticiones, o "-" si no se encuentra información relevante
-   * @param exerciseId
-   * @param setIndex
-   * @returns
+   * Busca en el historial del usuario la última sesión que contenga el ejercicio específico y devuelve los datos de la serie anterior para mostrar como referencia en la UI. Esto permite al usuario comparar su rendimiento actual con su último intento registrado para ese ejercicio, proporcionando motivación y contexto durante el workout activo.
    */
-  const getPreviousSet = (exerciseId: string, setIndex: number) => {
-    if (!userHistory || userHistory.length === 0) return "-";
+  const getPreviousSet = useCallback(
+    (globalExerciseId: string, setIndex: number) => {
+      if (!userHistory || userHistory.length === 0) return "-";
 
-    for (const session of userHistory) {
-      const pastExercise = session.exercises?.find(
-        (ex: any) => ex.exerciseDetails?.id === exerciseId,
-      );
+      const sortedHistory = [...userHistory].sort((a, b) => {
+        const dateA = new Date(a.completedAt || 0).getTime();
+        const dateB = new Date(b.completedAt || 0).getTime();
+        return dateB - dateA;
+      });
 
-      if (pastExercise && pastExercise.sets && pastExercise.sets[setIndex]) {
-        const pastSet = pastExercise.sets[setIndex];
+      for (const session of sortedHistory) {
+        const pastExercise = session.exercises?.find(
+          (ex: any) => ex.exerciseDetails?.id === globalExerciseId,
+        );
 
-        if (
-          pastSet.weight > 0 ||
-          pastSet.reps > 0 ||
-          pastSet.weightUnit === "bodyweight"
-        ) {
-          let formattedWeight = "";
+        if (pastExercise && pastExercise.sets && pastExercise.sets[setIndex]) {
+          const pastSet = pastExercise.sets[setIndex];
 
           if (
-            pastSet.weightUnit === "bars" ||
-            pastSet.weightUnit === "plates"
+            pastSet.weight > 0 ||
+            pastSet.reps > 0 ||
+            pastSet.weightUnit === "bodyweight"
           ) {
-            formattedWeight = `${pastSet.weight} ${t(`unitSelection.${pastSet.weightUnit}`)}`;
-          } else if (pastSet.weightUnit === "bodyweight") {
-            formattedWeight =
-              pastSet.weight > 0 ? `BW + ${pastSet.weight}` : "BW";
-          } else {
-            const unit = pastSet.weightUnit === "lbs" ? "lb" : "kg";
-            formattedWeight = `${pastSet.weight}${unit}`;
-          }
+            let formattedWeight = "";
 
-          return `${formattedWeight} x ${pastSet.reps}`;
+            if (
+              pastSet.weightUnit === "bars" ||
+              pastSet.weightUnit === "plates"
+            ) {
+              const translatedUnit = t(
+                `activeWorkout.units.${pastSet.weightUnit}`,
+              );
+              formattedWeight = `${pastSet.weight} ${translatedUnit}`;
+            } else if (pastSet.weightUnit === "bodyweight") {
+              formattedWeight =
+                pastSet.weight > 0 ? `BW+${pastSet.weight}` : "BW";
+            } else {
+              const unit = pastSet.weightUnit === "lbs" ? "lb" : "kg";
+              formattedWeight = `${pastSet.weight}${unit}`;
+            }
+
+            return `${formattedWeight} x ${pastSet.reps}`;
+          }
         }
       }
-    }
-    return "-";
-  };
+      return "-";
+    },
+    [userHistory, t],
+  );
+
+  /**
+   * Calcula los récords personales del usuario para un ejercicio específico, incluyendo el peso máximo levantado y el volumen total (peso x repeticiones) registrado en el historial. Esto se utiliza para mostrar al usuario sus mejores marcas anteriores para ese ejercicio durante el workout activo, proporcionando motivación y contexto para su rendimiento actual. El cálculo tiene en cuenta las conversiones de unidades según el sistema de medición del usuario y su peso corporal si corresponde.
+   * @param globalExerciseId
+   * @returns
+   */
+  const getExerciseRecords = useCallback(
+    (globalExerciseId: string) => {
+      let maxWeight = 0;
+      let maxVolume = 0;
+
+      if (!userHistory || userHistory.length === 0) {
+        return { maxWeight, maxVolume };
+      }
+
+      userHistory.forEach((session) => {
+        const pastExercise = session.exercises?.find(
+          (ex: any) => ex.exerciseDetails?.id === globalExerciseId,
+        );
+
+        if (pastExercise && pastExercise.sets) {
+          let sessionVolume = 0;
+          pastExercise.sets.forEach((set: any) => {
+            if (set.completed) {
+              const weightInKg = getConvertedWeight(set.weight, set.weightUnit);
+
+              if (weightInKg > maxWeight) {
+                maxWeight = weightInKg;
+              }
+
+              sessionVolume += weightInKg * set.reps;
+            }
+          });
+
+          if (sessionVolume > maxVolume) {
+            maxVolume = sessionVolume;
+          }
+        }
+      });
+
+      return {
+        maxWeight: Math.round(maxWeight),
+        maxVolume: Math.round(maxVolume),
+      };
+    },
+    [userHistory, measurementSystem, userWeightString],
+  );
 
   let stats = { volume: 0, sets: 0 };
   let muscleCounts: Record<string, number> = {};
@@ -327,6 +383,7 @@ export const useActiveWorkoutScreen = () => {
     handleCloseSummary,
     handleCancelWorkout,
     getPreviousSet,
+    getExerciseRecords,
     isSavingHistory,
     ...activeWorkoutCtx,
   };
