@@ -440,11 +440,10 @@ export const ItemDetailsModal = ({
             </Text>
 
             {item.exercises?.map((exercise: any, index: number) => {
-              const exerciseName =
-                exercise.exerciseDetails?.id
-                  ?.replace(/_/g, " ")
-                  ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-                t("routines.exercise");
+              const exerciseName = exercise.exerciseDetails?.id
+                ? t(`exercises.${exercise.exerciseDetails.id}`)
+                : t("routines.exercise");
+
               return (
                 <View
                   key={index}
