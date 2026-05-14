@@ -1,4 +1,4 @@
-import notifee, { AndroidImportance } from "@notifee/react-native";
+import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { Audio } from "expo-av";
@@ -37,7 +37,14 @@ const debugError = (...args: any[]) => {
  * La notificación seguirá mostrando que el entrenamiento está activo, pero no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
  */
 notifee.registerForegroundService((notification) => {
-  return new Promise(() => {});
+  return new Promise<void>((resolve) => {
+    const unsubscribe = notifee.onForegroundEvent(({ type }) => {
+      if (type === EventType.DISMISSED || type === EventType.APP_BLOCKED) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
 });
 
 interface ActiveWorkoutContextProps {
@@ -103,6 +110,7 @@ export const ActiveWorkoutProvider = ({
   );
   const [isResting, setIsResting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentAppState, setCurrentAppState] = useState(AppState.currentState);
 
   const isPausedRef = useRef(isPaused);
   const isRestingRef = useRef(isResting);
@@ -311,6 +319,8 @@ export const ActiveWorkoutProvider = ({
   // Configuramos un listener para detectar cuando la app vuelve a primer plano. Cuando esto sucede, calculamos el tiempo transcurrido desde el último tick y actualizamos el estado en consecuencia. Esto nos ayuda a mitigar las limitaciones de React Native en segundo plano, aunque no es perfecto (por ejemplo, si el usuario fuerza el cierre de la app, se perderá el estado).
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
+      setCurrentAppState(nextAppState);
+
       if (nextAppState === "active" && isWorkoutActive) {
         const now = Date.now();
         const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
@@ -347,7 +357,7 @@ export const ActiveWorkoutProvider = ({
 
   // Configuramos un intervalo que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo restante del descanso. Sin embargo, debido a las limitaciones de React Native en segundo plano, este intervalo solo funcionará correctamente cuando la app esté en primer plano. Cuando la app está en segundo plano, el código JS se pausa, por lo que no podremos actualizar el tiempo hasta que la app vuelva a primer plano. Para mitigar esto, calculamos el tiempo transcurrido/restante basándonos en timestamps cuando la app vuelve a primer plano, como se muestra en el useEffect anterior.
   useEffect(() => {
-    if (!isWorkoutActive) return;
+    if (!isWorkoutActive || currentAppState !== "active") return;
 
     const interval = setInterval(() => {
       if (isPausedRef.current) return;
@@ -367,7 +377,7 @@ export const ActiveWorkoutProvider = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isWorkoutActive]);
+  }, [isWorkoutActive, currentAppState]);
 
   // Cuando el tiempo de descanso llega a 0, detenemos el estado de descanso, reproducimos un sonido y mostramos una notificación indicando que el descanso ha terminado. Debido a las limitaciones de React Native en segundo plano, esta lógica solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, el tiempo restante no se actualizará dinámicamente, pero se mostrará el tiempo restante correcto cuando el usuario vuelva a primer plano.
   useEffect(() => {
@@ -437,6 +447,28 @@ export const ActiveWorkoutProvider = ({
    */
   const startWorkout = async (routine: Routine) => {
     await notifee.requestPermission();
+
+    // Validar optimización de batería (MANDATORIO PARA HONOR/XIAOMI)
+    try {
+      const batteryOptimizationEnabled =
+        await notifee.isBatteryOptimizationEnabled();
+      if (batteryOptimizationEnabled) {
+        Alert.alert(
+          t("activeWorkout.batteryAlertTitle"),
+          t("activeWorkout.batteryAlertMsg"),
+          [
+            { text: t("common.cancel"), style: "cancel" },
+            {
+              text: t("common.config"),
+              onPress: async () =>
+                await notifee.openBatteryOptimizationSettings(),
+            },
+          ],
+        );
+      }
+    } catch (error) {
+      debugLog("No se pudo revisar el estado de la batería", error);
+    }
 
     const workoutToStart = JSON.parse(JSON.stringify(routine));
 

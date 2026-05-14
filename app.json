@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bilt Tracker",
     "slug": "gym-tracker-app",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/images/logo_black.png",
     "scheme": "bilttracker",
@@ -26,7 +26,8 @@
         "android.permission.VIBRATE",
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+        "android.permission.FOREGROUND_SERVICE_HEALTH",
+        "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
       "notification": {
         "icon": "./assets/images/logo_white_nobg.png",

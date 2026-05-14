@@ -12,7 +12,9 @@
     "day": "Day",
     "settings": "Settings",
     "saveChanges": "Save Changes",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "ignore": "Ignore",
+    "config": "Configure"
   },
   "tabs": {
     "workout": "Workout",
@@ -332,7 +334,10 @@
     "restInProgress": "Resting...",
     "notificationChannelName": "Workout Status",
     "notificationActiveTitle": "Workout in progress",
-    "notificationActiveBody": "Active Workout"
+    "notificationActiveBody": "Active Workout",
+    "restInProgressBody": "Resting...",
+    "batteryAlertTitle": "Battery Optimization",
+    "batteryAlertMsg": "Your device has battery optimization enabled for this app. To prevent the app from closing when the screen turns off, please allow it to run without restrictions."
   },
   "muscles": {
     "chest": "Chest",
