@@ -11,7 +11,14 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AppState, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  AppState,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
 
@@ -96,6 +103,13 @@ function RootLayoutNav() {
     }
   }, [netInfo.isConnected, offlineAlertShown, t]);
 
+  // Si hay error, ocultamos el splash de todas formas para mostrar la pantalla de fallo de conexión
+  useEffect(() => {
+    if (isError) {
+      SplashScreen.hideAsync().catch(debugError);
+    }
+  }, [isError]);
+
   // Controlar la navegación según el estado de autenticación, perfil del usuario, y la pantalla actual.
   useEffect(() => {
     if (isLoading || !rootNavigationState?.key || isError) return;
@@ -143,78 +157,80 @@ function RootLayoutNav() {
     isError,
   ]);
 
-  // Si hay un error de conexión, mostrar una pantalla de error con opción para reintentar
-  if (isError) {
-    SplashScreen.hideAsync().catch(debugError);
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: colors.background,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: scale(20),
-        }}
-      >
-        <Feather
-          name="wifi-off"
-          size={moderateScale(60)}
-          color={colors.textSecondary}
-          style={{ marginBottom: verticalScale(20) }}
+  return (
+    <View style={{ flex: 1 }}>
+      {/* El Stack siempre se renderiza para no perder el historial de navegación */}
+      <Stack screenOptions={{ headerShown: false, animation: "none" }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="userProfile" options={{ presentation: "card" }} />
+        <Stack.Screen
+          name="activeWorkout"
+          options={{ presentation: "fullScreenModal" }}
         />
-        <Text
+      </Stack>
+
+      {/* Si hay error de conexión, se pinta por encima del Stack actual */}
+      {isError && (
+        <View
           style={{
-            color: colors.textPrimary,
-            fontSize: moderateScale(18),
-            fontWeight: "bold",
-            marginBottom: verticalScale(10),
-            textAlign: "center",
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: colors.background,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: scale(20),
+            zIndex: 9999,
+            elevation: 10,
           }}
         >
-          {t("errors.connectionTitle")}
-        </Text>
-        <Text
-          style={{
-            color: colors.textSecondary,
-            fontSize: moderateScale(14),
-            marginBottom: verticalScale(30),
-            textAlign: "center",
-          }}
-        >
-          {t("errors.connectionMsg")}
-        </Text>
-        <TouchableOpacity
-          style={{
-            backgroundColor: colors.primary,
-            paddingVertical: verticalScale(12),
-            paddingHorizontal: scale(30),
-            borderRadius: moderateScale(25),
-          }}
-          onPress={retryInit}
-        >
+          <Feather
+            name="wifi-off"
+            size={moderateScale(60)}
+            color={colors.textSecondary}
+            style={{ marginBottom: verticalScale(20) }}
+          />
           <Text
             style={{
-              color: "#FFF",
+              color: colors.textPrimary,
+              fontSize: moderateScale(18),
               fontWeight: "bold",
-              fontSize: moderateScale(16),
+              marginBottom: verticalScale(10),
+              textAlign: "center",
             }}
           >
-            {t("common.retry")}
+            {t("errors.connectionTitle")}
           </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  return (
-    <Stack screenOptions={{ headerShown: false, animation: "none" }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="userProfile" options={{ presentation: "card" }} />
-      <Stack.Screen
-        name="activeWorkout"
-        options={{ presentation: "fullScreenModal" }}
-      />
-    </Stack>
+          <Text
+            style={{
+              color: colors.textSecondary,
+              fontSize: moderateScale(14),
+              marginBottom: verticalScale(30),
+              textAlign: "center",
+            }}
+          >
+            {t("errors.connectionMsg")}
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: colors.primary,
+              paddingVertical: verticalScale(12),
+              paddingHorizontal: scale(30),
+              borderRadius: moderateScale(25),
+            }}
+            onPress={retryInit}
+          >
+            <Text
+              style={{
+                color: "#FFF",
+                fontWeight: "bold",
+                fontSize: moderateScale(16),
+              }}
+            >
+              {t("common.retry")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 
