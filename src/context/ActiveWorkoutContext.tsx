@@ -121,6 +121,7 @@ export const ActiveWorkoutProvider = ({
   const lastTickRef = useRef<number>(Date.now());
   const restEndTimeRef = useRef<number | null>(null);
   const restTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const beepSoundRef = useRef<Audio.Sound | null>(null);
 
   const latestStateRef = useRef({
     activeRoutine,
@@ -159,24 +160,45 @@ export const ActiveWorkoutProvider = ({
     isResting,
   ]);
 
-  // Configuramos el canal de notificaciones y el modo de audio para asegurarnos de que las notificaciones funcionen correctamente incluso en segundo plano.
+  // Al montar el proveedor, configuramos el sistema de audio para permitir la reproducción en segundo plano y creamos un canal de notificaciones para el entrenamiento activo. También precargamos un sonido de timbre en memoria RAM para poder reproducirlo instantáneamente cuando el temporizador de descanso llegue a 0, incluso si la app está en segundo plano. Debido a las limitaciones de React Native en segundo plano, esto es crucial para asegurarnos de que el sonido se reproduzca correctamente incluso cuando el código JS está pausado. Al desmontar el proveedor, nos aseguramos de descargar el sonido para liberar recursos.
   useEffect(() => {
+    let isMounted = true;
     const setupSystem = async () => {
-      await Audio.setAudioModeAsync({
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
+      try {
+        await Audio.setAudioModeAsync({
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
 
-      await notifee.createChannel({
-        id: WORKOUT_CHANNEL_ID,
-        name: t("activeWorkout.notificationChannelName"),
-        importance: AndroidImportance.HIGH,
-        sound: "default",
-      });
+        await notifee.createChannel({
+          id: WORKOUT_CHANNEL_ID,
+          name: t("activeWorkout.notificationChannelName"),
+          importance: AndroidImportance.HIGH,
+          sound: "default",
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/beep.mp3"),
+          { shouldPlay: false, volume: 1.0 },
+        );
+
+        if (isMounted) {
+          beepSoundRef.current = sound;
+        }
+      } catch (e) {
+        debugError("Error inicializando sistema de audio o notificaciones:", e);
+      }
     };
     setupSystem();
+
+    return () => {
+      isMounted = false;
+      if (beepSoundRef.current) {
+        beepSoundRef.current.unloadAsync();
+      }
+    };
   }, [t]);
 
   /**
@@ -259,31 +281,16 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0. Debido a las limitaciones de React Native en segundo plano, este sonido solo se reproducirá correctamente cuando la app esté en primer plano. Si la app está en segundo plano, el sonido no se reproducirá hasta que el usuario vuelva a primer plano, momento en el cual se actualizará la notificación con el tiempo restante correcto.
+   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0 utilizando el audio precargado. Al no requerir acceso a disco, evita crashes en segundo plano.
    */
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate([0, 500, 250, 500]);
-
-      await Audio.setAudioModeAsync({
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
-
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/beep.mp3"),
-        { shouldPlay: true, volume: 1.0 },
-      );
-
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
+      if (beepSoundRef.current) {
+        await beepSoundRef.current.replayAsync();
+      }
     } catch (error) {
-      debugLog("Error de sonido mp3", error);
+      debugLog("Error reproduciendo sonido precargado", error);
     }
   };
 
@@ -492,7 +499,7 @@ export const ActiveWorkoutProvider = ({
    * @param routine
    */
   const startWorkout = async (routine: Routine) => {
-    setIsStarting(true); // <-- ACTIVAR LOADER: La app está esperando respuestas asíncronas
+    setIsStarting(true);
 
     try {
       await notifee.requestPermission();
