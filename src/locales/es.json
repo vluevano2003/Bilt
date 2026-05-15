@@ -337,7 +337,9 @@
     "notificationActiveBody": "Entrenamiento Activo",
     "restInProgressBody": "Descansando...",
     "batteryAlertTitle": "Optimización de batería",
-    "batteryAlertMsg": "Tu dispositivo tiene activada la optimización de batería para esta app. Para evitar que la app se cierre sola al apagar la pantalla, por favor permite que funcione sin restricciones."
+    "batteryAlertMsg": "Tu dispositivo tiene activada la optimización de batería para esta app. Para evitar que la app se cierre sola al apagar la pantalla, por favor permite que funcione sin restricciones.",
+    "emptyWorkoutTitle": "Entrenamiento vacío",
+    "emptyWorkoutMsg": "No has completado ninguna serie válida."
   },
   "muscles": {
     "chest": "Pecho",

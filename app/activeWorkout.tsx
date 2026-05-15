@@ -1,6 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React, { useCallback, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,7 +15,7 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { moderateScale, verticalScale } from "../src/utils/Responsive";
+import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 import { useActiveWorkoutScreen } from "../hooks/useActiveWorkout";
 import {
@@ -92,6 +93,9 @@ export default function ActiveWorkoutScreen() {
     isSavingHistory,
     addExercisesToActiveRoutine,
     removeExerciseFromActiveRoutine,
+    isLoaded,
+    isStarting,
+    adjustRestTime,
   } = useActiveWorkoutScreen();
 
   const [restEditExId, setRestEditExId] = useState<string | null>(null);
@@ -108,6 +112,14 @@ export default function ActiveWorkoutScreen() {
   >([]);
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
+
+  if (!isLoaded || isStarting) {
+    return (
+      <View style={[styles.container, styles.emptyContainer]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   if (!activeRoutine)
     return <EmptyWorkoutView router={router} styles={styles} t={t} />;
@@ -361,9 +373,27 @@ export default function ActiveWorkoutScreen() {
             },
           ]}
         >
-          <Text style={styles.floatingRestTime}>
-            {formatRestTimeStr(restTimeRemaining)}
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.floatingRestAdjustBtn}
+              onPress={() => adjustRestTime(-15)}
+            >
+              <Text style={styles.floatingRestAdjustText}>-15</Text>
+            </TouchableOpacity>
+
+            <Text
+              style={[styles.floatingRestTime, { marginHorizontal: scale(15) }]}
+            >
+              {formatRestTimeStr(restTimeRemaining)}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.floatingRestAdjustBtn}
+              onPress={() => adjustRestTime(15)}
+            >
+              <Text style={styles.floatingRestAdjustText}>+15</Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.floatingRestSkipBtn}

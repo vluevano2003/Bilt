@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { useActiveWorkout } from "../src/context/ActiveWorkoutContext";
@@ -7,6 +7,10 @@ import { useAuth } from "../src/context/AuthContext";
 import { useProfile } from "./useProfile";
 import { useRoutines } from "./useRoutines";
 import { useUserActivity } from "./useUserActivity";
+
+const debugError = (...args: any[]) => {
+  if (__DEV__) console.error(...args);
+};
 
 /**
  * Hook para manejar la lógica de la pantalla de workout activo, incluyendo:
@@ -30,9 +34,29 @@ export const useActiveWorkoutScreen = () => {
   const {
     activeRoutine,
     originalRoutine,
-    setIsPaused,
+    elapsedSeconds,
+    isPaused,
+    restTimeRemaining,
+    isResting,
+    isLoaded,
+    isStarting,
+    startWorkout,
+    resumeWorkout,
+    pauseWorkout,
     cancelWorkout,
     finishWorkout,
+    handleSetChange,
+    changeExerciseUnit,
+    addSetToExercise,
+    removeSetFromExercise,
+    toggleSetCompletion,
+    stopRestTimer,
+    adjustRestTime,
+    reorderActiveExercises,
+    setIsPaused,
+    updateExerciseRestTime,
+    addExercisesToActiveRoutine,
+    removeExerciseFromActiveRoutine,
   } = activeWorkoutCtx;
 
   /**
@@ -156,46 +180,57 @@ export const useActiveWorkoutScreen = () => {
     [userHistory, measurementSystem, userWeightString],
   );
 
-  let stats = { volume: 0, sets: 0 };
-  let muscleCounts: Record<string, number> = {};
+  const stats = useMemo(() => {
+    let volume = 0;
+    let completedSets = 0;
 
-  if (activeRoutine) {
-    activeRoutine.exercises.forEach((ex) => {
-      const muscle = ex.exerciseDetails.muscleGroup;
-
+    activeRoutine?.exercises.forEach((ex) => {
       ex.sets.forEach((set) => {
         if (set.completed) {
-          stats.sets++;
-          muscleCounts[muscle] = (muscleCounts[muscle] || 0) + 1;
-
+          completedSets++;
           const convertedWeight = getConvertedWeight(
             set.weight,
             set.weightUnit,
           );
-          stats.volume += convertedWeight * set.reps;
+          volume += convertedWeight * set.reps;
         }
       });
     });
-  }
 
-  stats.volume = Math.round(stats.volume);
+    return { volume: Math.round(volume), sets: completedSets };
+  }, [activeRoutine, measurementSystem, userWeightString]);
 
   /**
    * Calcula la distribución muscular como un porcentaje de sets completados por grupo muscular, ordenado de mayor a menor para mostrar en la UI. Esto permite al usuario ver rápidamente qué grupos musculares ha trabajado más durante el workout activo.
    */
-  const muscleDistribution = Object.keys(muscleCounts)
-    .map((key) => ({
-      name: key,
-      percentage: (muscleCounts[key] / stats.sets) * 100,
-    }))
-    .sort((a, b) => b.percentage - a.percentage);
+  const muscleDistribution = useMemo(() => {
+    if (!activeRoutine) return [];
+    const counts: Record<string, number> = {};
+    let total = 0;
+
+    activeRoutine.exercises.forEach((ex) => {
+      const muscle = ex.exerciseDetails.muscleGroup;
+      const completedInEx = ex.sets.filter((s) => s.completed).length;
+      if (completedInEx > 0) {
+        counts[muscle] = (counts[muscle] || 0) + completedInEx;
+        total += completedInEx;
+      }
+    });
+
+    return Object.keys(counts)
+      .map((m) => ({
+        name: m,
+        percentage: (counts[m] / total) * 100,
+      }))
+      .sort((a, b) => b.percentage - a.percentage);
+  }, [activeRoutine]);
 
   /**
    * Formatea un tiempo dado en segundos a una cadena legible, mostrando horas y minutos si el tiempo es suficientemente largo, o minutos y segundos para tiempos más cortos. Esto se utiliza para mostrar el tiempo transcurrido del workout activo y el tiempo de descanso restante de manera clara para el usuario.
    * @param totalSeconds
    * @returns
    */
-  const formatTime = (totalSeconds: number) => {
+  const formatTime = useCallback((totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -203,18 +238,18 @@ export const useActiveWorkoutScreen = () => {
       return `${hours}h ${minutes}min`;
     }
     return `${minutes}min ${seconds}s`;
-  };
+  }, []);
 
   /**
    * Formatea el tiempo de descanso restante en minutos y segundos, asegurándose de que los segundos siempre se muestren con dos dígitos para una apariencia consistente. Esto mejora la experiencia del usuario al mostrar claramente cuánto tiempo queda en el descanso entre sets o ejercicios.
    * @param seconds
    * @returns
    */
-  const formatRestTime = (seconds: number) => {
+  const formatRestTime = useCallback((seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
-  };
+  }, []);
 
   const handleMinimize = () => router.back();
 
@@ -263,13 +298,37 @@ export const useActiveWorkoutScreen = () => {
    * Maneja la acción de finalizar el workout activo, incluyendo la detección de modificaciones en la rutina, la presentación de alertas para confirmar la acción y ofrecer la opción de actualizar la plantilla original.
    */
   const handleFinishWorkout = () => {
+    const completedCount = activeRoutine?.exercises.reduce(
+      (acc, ex) => acc + ex.sets.filter((s) => s.completed).length,
+      0,
+    );
+
+    if (!completedCount || completedCount === 0) {
+      Alert.alert(
+        t("activeWorkout.emptyWorkoutTitle"),
+        t("activeWorkout.emptyWorkoutMsg"),
+        [
+          { text: t("common.back"), style: "cancel" },
+          {
+            text: t("activeWorkout.yesCancel"),
+            style: "destructive",
+            onPress: () => {
+              cancelWorkout();
+              router.back();
+            },
+          },
+        ],
+      );
+      return;
+    }
+
     setIsPaused(true);
     Alert.alert(
       t("activeWorkout.finishAlertTitle"),
       t("activeWorkout.finishAlertMsg"),
       [
         {
-          text: t("common.back"),
+          text: t("common.cancel"),
           style: "cancel",
           onPress: () => setIsPaused(false),
         },
