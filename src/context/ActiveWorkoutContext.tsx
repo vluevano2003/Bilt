@@ -281,26 +281,51 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0 utilizando el audio precargado. Al no requerir acceso a disco, evita crashes en segundo plano.
+   * Restaura el volumen, activa el ducking (para silenciar la música que esté escuchando el usuario) y reproduce el beep de finalización.
    */
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate([0, 500, 250, 500]);
       if (beepSoundRef.current) {
+        // Activamos ducking para que el beep sobresalga sobre Spotify/Música
+        await Audio.setAudioModeAsync({
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
+        await beepSoundRef.current.setIsLoopingAsync(false);
+        await beepSoundRef.current.setVolumeAsync(1.0);
         await beepSoundRef.current.replayAsync();
       }
     } catch (error) {
-      debugLog("Error reproduciendo sonido precargado", error);
+      debugLog("Error reproduciendo sonido", error);
     }
   };
 
   /**
-   * Programa el sonido de finalización de descanso usando un temporizador nativo (setTimeout).
-   * Al estar desvinculado del ciclo de renderizado de React, esto asegura que el beep suene
-   * exactamente a tiempo incluso cuando la pantalla está apagada y la UI está en pausa.
+   * HACK WAKELOCK: Cuando inicia el descanso, reproducimos el beep en bucle con volumen 0.
+   * Para Android, la app está reproduciendo música activamente, por lo que PROHÍBE
+   * que el procesador entre en Modo Doze (sueño profundo). El setTimeout funcionará perfecto.
    */
-  const scheduleRestBeep = (delayMs: number) => {
+  const scheduleRestBeep = async (delayMs: number) => {
     if (restTimeoutRef.current) clearTimeout(restTimeoutRef.current);
+
+    if (beepSoundRef.current) {
+      try {
+        await Audio.setAudioModeAsync({
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: false,
+          playThroughEarpieceAndroid: false,
+        });
+        await beepSoundRef.current.setIsLoopingAsync(true);
+        await beepSoundRef.current.setVolumeAsync(0);
+        await beepSoundRef.current.playAsync();
+      } catch (e) {
+        debugLog("Error iniciando audio silencioso", e);
+      }
+    }
 
     restTimeoutRef.current = setTimeout(() => {
       playTimerEndSound();
@@ -555,6 +580,8 @@ export const ActiveWorkoutProvider = ({
    */
   const cancelWorkout = async () => {
     if (restTimeoutRef.current) clearTimeout(restTimeoutRef.current);
+    if (beepSoundRef.current) beepSoundRef.current.stopAsync().catch(() => {});
+
     setActiveRoutine(null);
     setOriginalRoutine(null);
     setElapsedSeconds(0);
@@ -626,6 +653,9 @@ export const ActiveWorkoutProvider = ({
       }
 
       if (restTimeoutRef.current) clearTimeout(restTimeoutRef.current);
+      if (beepSoundRef.current)
+        beepSoundRef.current.stopAsync().catch(() => {});
+
       setIsResting(false);
       isRestingRef.current = false;
       setRestTimeRemaining(null);
@@ -661,6 +691,8 @@ export const ActiveWorkoutProvider = ({
     setIsPaused(true);
     isPausedRef.current = true;
     stopAllNotifications();
+    if (restTimeoutRef.current) clearTimeout(restTimeoutRef.current);
+    if (beepSoundRef.current) beepSoundRef.current.stopAsync().catch(() => {});
   };
 
   /**
@@ -807,6 +839,8 @@ export const ActiveWorkoutProvider = ({
    */
   const stopRestTimer = async () => {
     if (restTimeoutRef.current) clearTimeout(restTimeoutRef.current);
+    if (beepSoundRef.current) beepSoundRef.current.stopAsync().catch(() => {});
+
     setIsResting(false);
     isRestingRef.current = false;
     setRestTimeRemaining(null);
