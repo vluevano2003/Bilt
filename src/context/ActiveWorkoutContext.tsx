@@ -169,7 +169,7 @@ export const ActiveWorkoutProvider = ({
         await Audio.setAudioModeAsync({
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
-          shouldDuckAndroid: false,
+          shouldDuckAndroid: true,
           playThroughEarpieceAndroid: false,
         });
 
@@ -212,7 +212,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Muestra una notificación persistente que indica que el entrenamiento está activo.
+   * Muestra una notificación persistente que indica que el entrenamiento está activo. Esta notificación se muestra incluso cuando la app está en segundo plano, pero debido a las limitaciones de React Native, no puede actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
    * @param routineName
    * @param currentElapsedSeconds
    */
@@ -242,7 +242,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Actualiza la notificación de descanso con el tiempo restante.
+   * Actualiza la notificación de descanso con el tiempo restante. Debido a las limitaciones de React Native, esta función solo actualizará la notificación si la app está en primer plano. Si la app está en segundo plano, el tiempo restante no se actualizará dinámicamente, pero se mostrará el tiempo restante correcto cuando el usuario vuelva a primer plano.
    * @param remainingSeconds
    */
   const updateRestNotification = async (remainingSeconds: number) => {
@@ -267,7 +267,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Detiene el servicio en primer plano y cancela la notificación. Esto se llama cuando el entrenamiento se pausa o se cancela.
+   * Detiene el servicio en primer plano y cancela la notificación. Esto se llama cuando el entrenamiento se pausa o se cancela para asegurarnos de que no quede una notificación persistente en segundo plano.
    */
   const stopAllNotifications = async () => {
     try {
@@ -279,7 +279,8 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0.
+   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0 utilizando el audio precargado.
+   * Ya no usamos AudioModeAsync aquí, Expo AV lo manejará nativamente gracias a la configuración inicial.
    */
   const playTimerEndSound = async () => {
     try {
@@ -294,6 +295,7 @@ export const ActiveWorkoutProvider = ({
 
   /**
    * Ajusta dinámicamente el tiempo de descanso sumando o restando segundos sin romper el Beep programado.
+   * Esto cancela el temporizador anterior y programa uno nuevo basado en el tiempo recalculado.
    * @param seconds Segundos a añadir (positivo) o restar (negativo)
    */
   const adjustRestTime = (seconds: number) => {
@@ -322,7 +324,7 @@ export const ActiveWorkoutProvider = ({
     updateRestNotification(newRemaining);
   };
 
-  // Al cargar el proveedor, intentamos restaurar el estado del entrenamiento desde AsyncStorage.
+  // Al cargar el proveedor, intentamos restaurar el estado del entrenamiento desde AsyncStorage. Si encontramos un estado guardado, lo restauramos y calculamos el tiempo transcurrido/restante basándonos en timestamps para mitigar las limitaciones de React Native en segundo plano. Si no hay estado guardado, simplemente marcamos que la carga ha terminado.
   useEffect(() => {
     const loadSavedWorkout = async () => {
       try {
@@ -387,7 +389,7 @@ export const ActiveWorkoutProvider = ({
 
   const isWorkoutActive = !!activeRoutine;
 
-  // Configuramos un listener para detectar cuando la app vuelve a primer plano.
+  // Configuramos un listener para detectar cuando la app vuelve a primer plano. Cuando esto sucede, calculamos el tiempo transcurrido desde el último tick y actualizamos el estado en consecuencia. Esto nos ayuda a mitigar las limitaciones de React Native en segundo plano, aunque no es perfecto (por ejemplo, si el usuario fuerza el cierre de la app, se perderá el estado).
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       setCurrentAppState(nextAppState);
@@ -430,7 +432,7 @@ export const ActiveWorkoutProvider = ({
     return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Configuramos un temporizador que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo de descanso restante. Este temporizador seguirá funcionando incluso cuando la app esté en segundo plano gracias a BackgroundTimer, pero como el código JS se pausa, usamos timestamps para calcular el tiempo transcurrido/restante en lugar de confiar en setInterval para contar los segundos.
+  // Configuramos un temporizador que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo restante del descanso. Este temporizador solo se ejecuta cuando hay un entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, este temporizador no se ejecutará mientras la app esté en segundo plano, pero se sincronizará correctamente cuando la app vuelva a primer plano.
   useEffect(() => {
     if (!isWorkoutActive) return;
 
@@ -482,7 +484,7 @@ export const ActiveWorkoutProvider = ({
     return () => BackgroundTimer.clearInterval(intervalId);
   }, [isWorkoutActive]);
 
-  // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage.
+  // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage para poder restaurarlo si la app se cierra o va a segundo plano.
   useEffect(() => {
     if (!isLoaded) return;
     const saveWorkoutState = async () => {
@@ -503,7 +505,7 @@ export const ActiveWorkoutProvider = ({
   }, [activeRoutine, isPaused, isResting, isLoaded]);
 
   /**
-   * Inicia un nuevo entrenamiento con la rutina seleccionada.
+   * Inicia un nuevo entrenamiento con la rutina seleccionada. Esto establece el estado del entrenamiento activo, resetea los temporizadores y muestra una notificación persistente.
    * @param routine
    */
   const startWorkout = async (routine: Routine) => {
@@ -584,7 +586,7 @@ export const ActiveWorkoutProvider = ({
   }, [user, isLoading, activeRoutine]);
 
   /**
-   * Finaliza el entrenamiento activo, guarda el historial y cancela la notificación persistente.
+   * Finaliza el entrenamiento activo, guarda el historial y cancela la notificación persistente de forma silenciosa, sin destruir la UI de inmediato para que el modal de resumen siga visible.
    * @returns
    */
   const finishWorkout = async () => {
