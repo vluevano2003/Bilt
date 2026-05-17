@@ -161,7 +161,7 @@ export const ActiveWorkoutProvider = ({
     isResting,
   ]);
 
-  // Al montar el proveedor, configuramos el sistema de audio.
+  // Al montar el proveedor, configuramos el sistema de audio para permitir la reproducción en segundo plano y creamos un canal de notificaciones para el entrenamiento activo. También precargamos un sonido de timbre en memoria RAM para poder reproducirlo instantáneamente cuando el temporizador de descanso llegue a 0, incluso si la app está en segundo plano.
   useEffect(() => {
     let isMounted = true;
     const setupSystem = async () => {
@@ -169,7 +169,7 @@ export const ActiveWorkoutProvider = ({
         await Audio.setAudioModeAsync({
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
+          shouldDuckAndroid: false,
           playThroughEarpieceAndroid: false,
         });
 
@@ -268,6 +268,7 @@ export const ActiveWorkoutProvider = ({
 
   /**
    * Detiene el servicio en primer plano y cancela la notificación. Esto se llama cuando el entrenamiento se pausa o se cancela para asegurarnos de que no quede una notificación persistente en segundo plano.
+   * Debido a las limitaciones de React Native, si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    */
   const stopAllNotifications = async () => {
     try {
@@ -280,7 +281,6 @@ export const ActiveWorkoutProvider = ({
 
   /**
    * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0 utilizando el audio precargado.
-   * Ya no usamos AudioModeAsync aquí, Expo AV lo manejará nativamente gracias a la configuración inicial.
    */
   const playTimerEndSound = async () => {
     try {
@@ -432,7 +432,7 @@ export const ActiveWorkoutProvider = ({
     return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Configuramos un temporizador que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo restante del descanso. Este temporizador solo se ejecuta cuando hay un entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, este temporizador no se ejecutará mientras la app esté en segundo plano, pero se sincronizará correctamente cuando la app vuelva a primer plano.
+  // Configuramos un temporizador que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo restante del descanso. Debido a las limitaciones de React Native en segundo plano, este temporizador solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, el tiempo transcurrido y el tiempo restante del descanso no se actualizarán dinámicamente, pero se recalcularán correctamente cuando el usuario vuelva a primer plano gracias a la lógica en el listener de AppState.
   useEffect(() => {
     if (!isWorkoutActive) return;
 
@@ -484,7 +484,7 @@ export const ActiveWorkoutProvider = ({
     return () => BackgroundTimer.clearInterval(intervalId);
   }, [isWorkoutActive]);
 
-  // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage para poder restaurarlo si la app se cierra o va a segundo plano.
+  // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage para poder restaurarlo si la app se cierra o va a segundo plano. Debido a las limitaciones de React Native en segundo plano, esto es crucial para asegurarnos de que el estado del entrenamiento se mantenga incluso cuando el código JS está pausado. Sin embargo, ten en cuenta que si el usuario fuerza el cierre de la app, se perderá el estado guardado, lo cual es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
   useEffect(() => {
     if (!isLoaded) return;
     const saveWorkoutState = async () => {
@@ -505,7 +505,7 @@ export const ActiveWorkoutProvider = ({
   }, [activeRoutine, isPaused, isResting, isLoaded]);
 
   /**
-   * Inicia un nuevo entrenamiento con la rutina seleccionada. Esto establece el estado del entrenamiento activo, resetea los temporizadores y muestra una notificación persistente.
+   * Inicia un nuevo entrenamiento con la rutina seleccionada. Esto establece el estado del entrenamiento activo, resetea los temporizadores y muestra una notificación persistente. Debido a las limitaciones de React Native en segundo plano, esta notificación se mostrará incluso cuando la app esté en segundo plano, pero no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
    * @param routine
    */
   const startWorkout = async (routine: Routine) => {
@@ -562,7 +562,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Detiene el entrenamiento activo, resetea el estado y cancela la notificación persistente.
+   * Detiene el entrenamiento activo, resetea el estado y cancela la notificación persistente. Esto se llama cuando el usuario cancela el entrenamiento o cuando se detecta que el usuario ha cerrado sesión mientras un entrenamiento está activo. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación persistente para evitar que quede una notificación activa en segundo plano si el usuario cancela el entrenamiento o cierra sesión.
    */
   const cancelWorkout = async () => {
     setActiveRoutine(null);
@@ -578,7 +578,7 @@ export const ActiveWorkoutProvider = ({
     await stopAllNotifications();
   };
 
-  // Si el usuario cierra sesión mientras un entrenamiento está activo, cancelamos el entrenamiento.
+  // Si el usuario cierra sesión mientras un entrenamiento está activo, cancelamos el entrenamiento para evitar que quede un estado huérfano o una notificación persistente sin un usuario asociado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación persistente si el usuario cierra sesión mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
   useEffect(() => {
     if (!isLoading && !user && activeRoutine) {
       cancelWorkout();
@@ -595,6 +595,9 @@ export const ActiveWorkoutProvider = ({
       return;
     }
 
+    /**
+     * Antes de intentar guardar el historial, verificamos el estado de la red para asegurarnos de que el usuario tenga conexión. Si no hay conexión, mostramos una alerta y pausamos el entrenamiento para evitar que el usuario pierda su progreso sin saberlo. Debido a las limitaciones de React Native en segundo plano, esta verificación solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos verificar el estado de la red ni mostrar una alerta hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
@@ -647,7 +650,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reanuda el entrenamiento después de una pausa.
+   * Reanuda el entrenamiento después de una pausa. Esto actualiza el timestamp del último tick para que el cálculo del tiempo transcurrido sea correcto y muestra la notificación persistente nuevamente. Debido a las limitaciones de React Native en segundo plano, esta notificación se mostrará incluso cuando la app esté en segundo plano, pero no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
    */
   const resumeWorkout = () => {
     lastTickRef.current = Date.now();
@@ -665,7 +668,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Pausa el entrenamiento activo.
+   * Pausa el entrenamiento activo. Esto detiene el temporizador de tiempo transcurrido y cancela la notificación persistente para evitar que quede una notificación activa en segundo plano mientras el entrenamiento está pausado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación persistente si el usuario pausa el entrenamiento mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    */
   const pauseWorkout = () => {
     setIsPaused(true);
@@ -674,7 +677,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reordena los ejercicios en la rutina activa.
+   * Reordena los ejercicios en la rutina activa. Esto se llama cuando el usuario reordena los ejercicios en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos actualizar el orden de los ejercicios hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param newExercises
    * @returns
    */
@@ -684,7 +687,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Actualiza el peso o las repeticiones de un set específico en un ejercicio.
+   * Actualiza el peso o las repeticiones de un set específico en un ejercicio. Esto se llama cuando el usuario edita un set en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos actualizar los detalles del set hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @param setId
    * @param field
@@ -712,7 +715,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Cambia la unidad de peso de todos los sets de un ejercicio específico.
+   * Cambia la unidad de peso de todos los sets de un ejercicio específico. Esto se llama cuando el usuario cambia la unidad de peso en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos actualizar la unidad de peso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @param newUnit
    * @returns
@@ -730,7 +733,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Agrega un nuevo set a un ejercicio específico.
+   * Agrega un nuevo set a un ejercicio específico. El nuevo set se inicializa con el mismo número de repeticiones, peso y unidad que el último set del ejercicio para facilitar la edición. Esto se llama cuando el usuario agrega un set en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos agregar un nuevo set hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @returns
    */
@@ -755,7 +758,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Elimina un set específico de un ejercicio.
+   * Elimina un set específico de un ejercicio. Esto se llama cuando el usuario elimina un set en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos eliminar un set hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @param setId
    * @returns
@@ -771,7 +774,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Marca un set como completado o no completado. Si se marca como completado, inicia el temporizador de descanso.
+   * Marca un set como completado o no completado. Si se marca como completado, inicia el temporizador de descanso utilizando el tiempo de descanso predeterminado del ejercicio. Esto se llama cuando el usuario toca el checkbox de un set en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos marcar un set como completado ni iniciar el temporizador de descanso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @param setId
    * @param defaultRest
@@ -812,7 +815,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Detiene el temporizador de descanso y vuelve al estado normal de entrenamiento activo.
+   * Detiene el temporizador de descanso y vuelve al estado normal de entrenamiento activo. Esto se llama cuando el usuario toca el botón "Omitir descanso" en la pantalla de edición del entrenamiento activo mientras está en estado de descanso. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos detener el temporizador de descanso ni mostrar la notificación actualizada hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    */
   const stopRestTimer = async () => {
     isRestingRef.current = false;
@@ -827,7 +830,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Actualiza el tiempo de descanso de un ejercicio específico.
+   * Actualiza el tiempo de descanso de un ejercicio específico. Esto se llama cuando el usuario edita el tiempo de descanso de un ejercicio en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos actualizar el tiempo de descanso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @param newTime
    * @returns
@@ -841,7 +844,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Agrega nuevos ejercicios a la rutina activa.
+   * Agrega nuevos ejercicios a la rutina activa. Esto se llama cuando el usuario agrega ejercicios desde la pantalla de selección de ejercicios mientras edita el entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos agregar nuevos ejercicios hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param newExercises
    * @returns
    */
@@ -854,7 +857,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Elimina un ejercicio específico de la rutina activa.
+   * Elimina un ejercicio específico de la rutina activa. Esto se llama cuando el usuario elimina un ejercicio en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos eliminar un ejercicio hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
    * @returns
    */
