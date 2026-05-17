@@ -122,7 +122,6 @@ export const ActiveWorkoutProvider = ({
   const lastTickRef = useRef<number>(Date.now());
   const restEndTimeRef = useRef<number | null>(null);
   const elapsedSecondsRef = useRef(0);
-  const beepSoundRef = useRef<Audio.Sound | null>(null);
 
   const latestStateRef = useRef({
     activeRoutine,
@@ -161,15 +160,14 @@ export const ActiveWorkoutProvider = ({
     isResting,
   ]);
 
-  // Al montar el proveedor, configuramos el sistema de audio para permitir la reproducción en segundo plano y creamos un canal de notificaciones para el entrenamiento activo. También precargamos un sonido de timbre en memoria RAM para poder reproducirlo instantáneamente cuando el temporizador de descanso llegue a 0, incluso si la app está en segundo plano.
+  // Al montar el proveedor, configuramos el sistema de audio para permitir la reproducción en segundo plano y creamos un canal de notificaciones para el entrenamiento activo.
   useEffect(() => {
-    let isMounted = true;
     const setupSystem = async () => {
       try {
         await Audio.setAudioModeAsync({
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
-          shouldDuckAndroid: false,
+          shouldDuckAndroid: true,
           playThroughEarpieceAndroid: false,
         });
 
@@ -179,25 +177,11 @@ export const ActiveWorkoutProvider = ({
           importance: AndroidImportance.HIGH,
           sound: "default",
         });
-
-        const { sound: beep } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/beep.mp3"),
-          { shouldPlay: false, volume: 1.0 },
-        );
-
-        if (isMounted) {
-          beepSoundRef.current = beep;
-        }
       } catch (e) {
         debugError("Error inicializando sistema de audio:", e);
       }
     };
     setupSystem();
-
-    return () => {
-      isMounted = false;
-      if (beepSoundRef.current) beepSoundRef.current.unloadAsync();
-    };
   }, [t]);
 
   /**
@@ -280,17 +264,27 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Reproduce un sonido de timbre cuando el temporizador de descanso llega a 0 utilizando el audio precargado.
+   * Reproduce un sonido de alerta y vibra el dispositivo cuando el temporizador de descanso llega a cero. Debido a las limitaciones de React Native, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos reproducir el sonido ni vibrar hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    */
-  const playTimerEndSound = async () => {
-    try {
-      Vibration.vibrate([0, 500, 250, 500]);
-      if (beepSoundRef.current) {
-        await beepSoundRef.current.replayAsync().catch(() => {});
+  const playTimerEndSound = () => {
+    setTimeout(async () => {
+      try {
+        Vibration.vibrate([0, 500, 250, 500]);
+
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/beep.mp3"),
+          { shouldPlay: true, volume: 1.0 },
+        );
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound.unloadAsync().catch(() => {});
+          }
+        });
+      } catch (error) {
+        debugLog("Error reproduciendo sonido al vuelo", error);
       }
-    } catch (error) {
-      debugLog("Error reproduciendo sonido", error);
-    }
+    }, 0);
   };
 
   /**
