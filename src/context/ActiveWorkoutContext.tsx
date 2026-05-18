@@ -1,7 +1,7 @@
 import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-import { Audio } from "expo-av";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import React, {
   createContext,
   useContext,
@@ -122,7 +122,6 @@ export const ActiveWorkoutProvider = ({
   const lastTickRef = useRef<number>(Date.now());
   const restEndTimeRef = useRef<number | null>(null);
   const elapsedSecondsRef = useRef(0);
-  const beepSoundRef = useRef<Audio.Sound | null>(null);
 
   const latestStateRef = useRef({
     activeRoutine,
@@ -169,8 +168,10 @@ export const ActiveWorkoutProvider = ({
         await Audio.setAudioModeAsync({
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
-          shouldDuckAndroid: false,
+          shouldDuckAndroid: true,
           playThroughEarpieceAndroid: false,
+          interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
+          interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
         });
 
         await notifee.createChannel({
@@ -179,15 +180,6 @@ export const ActiveWorkoutProvider = ({
           importance: AndroidImportance.HIGH,
           sound: "default",
         });
-
-        const { sound: beep } = await Audio.Sound.createAsync(
-          require("../../assets/sounds/beep.mp3"),
-          { shouldPlay: false, volume: 1.0 },
-        );
-
-        if (isMounted) {
-          beepSoundRef.current = beep;
-        }
       } catch (e) {
         debugError("Error inicializando sistema de audio:", e);
       }
@@ -196,9 +188,6 @@ export const ActiveWorkoutProvider = ({
 
     return () => {
       isMounted = false;
-      if (beepSoundRef.current) {
-        beepSoundRef.current.unloadAsync();
-      }
     };
   }, [t]);
 
@@ -287,9 +276,26 @@ export const ActiveWorkoutProvider = ({
   const playTimerEndSound = async () => {
     try {
       Vibration.vibrate([0, 500, 250, 500]);
-      if (beepSoundRef.current) {
-        await beepSoundRef.current.replayAsync().catch(() => {});
-      }
+    } catch (vibrateError) {
+      debugLog("Error vibrando al vuelo", vibrateError);
+    }
+
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../assets/sounds/beep.mp3"),
+        { shouldPlay: true, volume: 1.0 },
+      );
+
+      BackgroundTimer.setTimeout(async () => {
+        try {
+          const status = await sound.getStatusAsync();
+          if (status.isLoaded) {
+            await sound.unloadAsync();
+          }
+        } catch (unloadError) {
+          debugLog("Error liberando sonido", unloadError);
+        }
+      }, 1500);
     } catch (error) {
       debugLog("Error reproduciendo sonido al vuelo", error);
     }
@@ -467,13 +473,13 @@ export const ActiveWorkoutProvider = ({
             setIsResting(false);
           }
 
-          playTimerEndSound();
+          playTimerEndSound().catch(() => {});
 
           const state = latestStateRef.current;
           showActiveWorkoutNotification(
             state.activeRoutine?.name,
             elapsedSecondsRef.current,
-          );
+          ).catch(() => {});
         } else {
           if (isActive) {
             setRestTimeRemaining(remaining);
