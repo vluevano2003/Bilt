@@ -1,7 +1,11 @@
-import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
+import notifee, {
+  AndroidImportance,
+  EventType,
+  TimestampTrigger,
+  TriggerType,
+} from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import React, {
   createContext,
   useContext,
@@ -10,8 +14,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AppState, Vibration } from "react-native";
-import BackgroundTimer from "react-native-background-timer";
+import { Alert, AppState } from "react-native";
 import {
   ExerciseSet,
   Routine,
@@ -90,7 +93,9 @@ export const ActiveWorkoutContext =
 
 const STORAGE_KEY = "active_workout_state";
 const WORKOUT_CHANNEL_ID = "workout_status_channel";
+const ALARM_CHANNEL_ID = "rest_alarm_beep_channel_v2";
 const NOTIFICATION_ID = "workout_status_alert";
+const REST_ALARM_ID = "rest_timer_alert_beep";
 
 /**
  * ActiveWorkoutProvider es el corazón de la funcionalidad de entrenamiento activo. Maneja el estado del entrenamiento en curso, incluyendo la rutina activa, el tiempo transcurrido, el estado de pausa, y los temporizadores de descanso. También se encarga de mostrar notificaciones persistentes mientras el entrenamiento está activo, incluso cuando la app está en segundo plano.
@@ -122,6 +127,7 @@ export const ActiveWorkoutProvider = ({
   const lastTickRef = useRef<number>(Date.now());
   const restEndTimeRef = useRef<number | null>(null);
   const elapsedSecondsRef = useRef(0);
+  const restTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const latestStateRef = useRef({
     activeRoutine,
@@ -162,33 +168,27 @@ export const ActiveWorkoutProvider = ({
 
   // Al montar el proveedor, configuramos el sistema de audio para permitir la reproducción en segundo plano y creamos un canal de notificaciones para el entrenamiento activo.
   useEffect(() => {
-    let isMounted = true;
     const setupSystem = async () => {
       try {
-        await Audio.setAudioModeAsync({
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
-          interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
-          interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-        });
-
         await notifee.createChannel({
           id: WORKOUT_CHANNEL_ID,
           name: t("activeWorkout.notificationChannelName"),
+          importance: AndroidImportance.LOW,
+        });
+
+        await notifee.createChannel({
+          id: ALARM_CHANNEL_ID,
+          name: t("activeWorkout.restTimer"),
           importance: AndroidImportance.HIGH,
-          sound: "default",
+          sound: "beep",
+          vibration: true,
+          vibrationPattern: [300, 500, 250, 500],
         });
       } catch (e) {
-        debugError("Error inicializando sistema de audio:", e);
+        debugError("Error inicializando canales de notifee:", e);
       }
     };
     setupSystem();
-
-    return () => {
-      isMounted = false;
-    };
   }, [t]);
 
   /**
@@ -203,7 +203,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Muestra una notificación persistente que indica que el entrenamiento está activo. Esta notificación se muestra incluso cuando la app está en segundo plano, pero debido a las limitaciones de React Native, no puede actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
+   * Muestra una notificación persistente indicando que el entrenamiento está activo. Esta notificación se muestra tanto en primer plano como en segundo plano para mantener al usuario informado sobre el estado de su entrenamiento. Debido a las limitaciones de React Native en segundo plano, esta notificación no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param routineName
    * @param currentElapsedSeconds
    */
@@ -223,8 +223,6 @@ export const ActiveWorkoutProvider = ({
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
-          showChronometer: true,
-          timestamp: Date.now() - currentElapsedSeconds * 1000,
         },
       });
     } catch (error) {
@@ -233,7 +231,7 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Actualiza la notificación de descanso con el tiempo restante. Debido a las limitaciones de React Native, esta función solo actualizará la notificación si la app está en primer plano. Si la app está en segundo plano, el tiempo restante no se actualizará dinámicamente, pero se mostrará el tiempo restante correcto cuando el usuario vuelva a primer plano.
+   * Actualiza la notificación de descanso con el tiempo restante. Esto se llama cada vez que el tiempo restante del descanso cambia para mantener la notificación actualizada. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos actualizar la notificación hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param remainingSeconds
    */
   const updateRestNotification = async (remainingSeconds: number) => {
@@ -241,7 +239,7 @@ export const ActiveWorkoutProvider = ({
       await notifee.displayNotification({
         id: NOTIFICATION_ID,
         title: t("activeWorkout.restInProgress"),
-        body: t("activeWorkout.restInProgressBody", "Descansando..."),
+        body: t("activeWorkout.restInProgressBody"),
         android: {
           channelId: WORKOUT_CHANNEL_ID,
           asForegroundService: true,
@@ -249,62 +247,89 @@ export const ActiveWorkoutProvider = ({
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
-          showChronometer: true,
-          chronometerDirection: "down",
-          timestamp: Date.now() + remainingSeconds * 1000,
         },
       });
     } catch (e) {}
   };
 
   /**
-   * Detiene el servicio en primer plano y cancela la notificación. Esto se llama cuando el entrenamiento se pausa o se cancela para asegurarnos de que no quede una notificación persistente en segundo plano.
-   * Debido a las limitaciones de React Native, si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * Inicia el temporizador de descanso programando una alarma utilizando notifee. Debido a las limitaciones de React Native en segundo plano, esta función también se asegura de programar una notificación de alarma que se disparará cuando el tiempo de descanso termine, para alertar al usuario incluso si la app está en segundo plano. Sin embargo, ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se dispare correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * @param endTimestamp
+   */
+  const scheduleRestAlarm = async (endTimestamp: number) => {
+    cancelRestAlarm();
+    const delayMs = endTimestamp - Date.now();
+
+    if (delayMs > 0) {
+      try {
+        const trigger: TimestampTrigger = {
+          type: TriggerType.TIMESTAMP,
+          timestamp: endTimestamp,
+        };
+        await notifee.createTriggerNotification(
+          {
+            id: REST_ALARM_ID,
+            title: t("activeWorkout.notificationTitle"),
+            body: t("activeWorkout.notificationBody"),
+            android: {
+              channelId: ALARM_CHANNEL_ID,
+              timeoutAfter: 4000,
+              pressAction: { id: "default" },
+            },
+          },
+          trigger,
+        );
+      } catch (error) {
+        debugLog("Error programando trigger nativo", error);
+      }
+
+      restTimeoutRef.current = setTimeout(() => {
+        isRestingRef.current = false;
+        restEndTimeRef.current = null;
+
+        if (AppState.currentState === "active") {
+          setRestTimeRemaining(null);
+          setIsResting(false);
+        }
+
+        const state = latestStateRef.current;
+        showActiveWorkoutNotification(
+          state.activeRoutine?.name,
+          elapsedSecondsRef.current,
+        ).catch(() => {});
+      }, delayMs);
+    }
+  };
+
+  /**
+   * Detiene el temporizador de descanso y cancela cualquier alarma o notificación relacionada. Esto se llama cuando el usuario decide omitir el descanso o cuando se detecta que el tiempo de descanso ha terminado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación de alarma para evitar que quede una notificación activa en segundo plano si el usuario omite el descanso o si el tiempo de descanso termina mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   */
+  const cancelRestAlarm = () => {
+    if (restTimeoutRef.current) {
+      clearTimeout(restTimeoutRef.current);
+      restTimeoutRef.current = null;
+    }
+    notifee.cancelNotification(REST_ALARM_ID).catch(() => {});
+    notifee.cancelTriggerNotification(REST_ALARM_ID).catch(() => {});
+  };
+
+  /**
+   * Detiene el temporizador de descanso y cancela cualquier alarma o notificación relacionada. Esto se llama cuando el usuario decide omitir el descanso o cuando se detecta que el tiempo de descanso ha terminado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación de alarma para evitar que quede una notificación activa en segundo plano si el usuario omite el descanso o si el tiempo de descanso termina mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    */
   const stopAllNotifications = async () => {
     try {
       await notifee.stopForegroundService();
       await notifee.cancelNotification(NOTIFICATION_ID);
+      cancelRestAlarm();
     } catch (e) {
       debugLog("Error cancelando notificaciones", e);
     }
   };
 
   /**
-   * Reproduce un sonido de alerta y vibra el dispositivo cuando el temporizador de descanso llega a cero. Debido a las limitaciones de React Native, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos reproducir el sonido ni vibrar hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
-   */
-  const playTimerEndSound = async () => {
-    try {
-      Vibration.vibrate([0, 500, 250, 500]);
-    } catch (vibrateError) {
-      debugLog("Error vibrando al vuelo", vibrateError);
-    }
-
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/beep.mp3"),
-        { shouldPlay: true, volume: 1.0 },
-      );
-
-      BackgroundTimer.setTimeout(async () => {
-        try {
-          const status = await sound.getStatusAsync();
-          if (status.isLoaded) {
-            await sound.unloadAsync();
-          }
-        } catch (unloadError) {
-          debugLog("Error liberando sonido", unloadError);
-        }
-      }, 1500);
-    } catch (error) {
-      debugLog("Error reproduciendo sonido al vuelo", error);
-    }
-  };
-
-  /**
-   * Ajusta dinámicamente el tiempo de descanso sumando o restando segundos sin romper el Beep programado.
-   * Esto cancela el temporizador anterior y programa uno nuevo basado en el tiempo recalculado.
-   * @param seconds Segundos a añadir (positivo) o restar (negativo)
+   * Ajusta el tiempo restante del descanso sumando o restando segundos. Esto se llama cuando el usuario edita el tiempo de descanso en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos ajustar el tiempo restante del descanso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * @param seconds
+   * @returns
    */
   const adjustRestTime = (seconds: number) => {
     if (
@@ -330,6 +355,7 @@ export const ActiveWorkoutProvider = ({
     }
 
     updateRestNotification(newRemaining);
+    scheduleRestAlarm(newEndTime);
   };
 
   // Al cargar el proveedor, intentamos restaurar el estado del entrenamiento desde AsyncStorage. Si encontramos un estado guardado, lo restauramos y calculamos el tiempo transcurrido/restante basándonos en timestamps para mitigar las limitaciones de React Native en segundo plano. Si no hay estado guardado, simplemente marcamos que la carga ha terminado.
@@ -368,6 +394,7 @@ export const ActiveWorkoutProvider = ({
               isRestingRef.current = true;
               setRestTimeRemaining(remaining);
               updateRestNotification(remaining);
+              scheduleRestAlarm(parsedState.restEndTime);
             } else {
               setIsResting(false);
               isRestingRef.current = false;
@@ -444,7 +471,7 @@ export const ActiveWorkoutProvider = ({
   useEffect(() => {
     if (!isWorkoutActive) return;
 
-    const intervalId = BackgroundTimer.setInterval(() => {
+    const intervalId = setInterval(() => {
       if (isPausedRef.current) return;
 
       const now = Date.now();
@@ -453,7 +480,6 @@ export const ActiveWorkoutProvider = ({
       const deltaSeconds = Math.round((now - lastTickRef.current) / 1000);
       if (deltaSeconds >= 1) {
         lastTickRef.current += deltaSeconds * 1000;
-
         elapsedSecondsRef.current += deltaSeconds;
 
         if (isActive) {
@@ -461,35 +487,17 @@ export const ActiveWorkoutProvider = ({
         }
       }
 
-      if (isRestingRef.current && restEndTimeRef.current !== null) {
+      if (isActive && isRestingRef.current && restEndTimeRef.current !== null) {
         const remaining = Math.ceil((restEndTimeRef.current - now) / 1000);
-
-        if (remaining <= 0) {
-          isRestingRef.current = false;
-          restEndTimeRef.current = null;
-
-          if (isActive) {
-            setRestTimeRemaining(null);
-            setIsResting(false);
-          }
-
-          playTimerEndSound().catch(() => {});
-
-          const state = latestStateRef.current;
-          showActiveWorkoutNotification(
-            state.activeRoutine?.name,
-            elapsedSecondsRef.current,
-          ).catch(() => {});
-        } else {
-          if (isActive) {
-            setRestTimeRemaining(remaining);
-            setIsResting(true);
-          }
+        if (remaining > 0) {
+          setRestTimeRemaining(remaining);
         }
       }
     }, 1000);
 
-    return () => BackgroundTimer.clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [isWorkoutActive]);
 
   // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage para poder restaurarlo si la app se cierra o va a segundo plano. Debido a las limitaciones de React Native en segundo plano, esto es crucial para asegurarnos de que el estado del entrenamiento se mantenga incluso cuando el código JS está pausado. Sin embargo, ten en cuenta que si el usuario fuerza el cierre de la app, se perderá el estado guardado, lo cual es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
@@ -518,10 +526,8 @@ export const ActiveWorkoutProvider = ({
    */
   const startWorkout = async (routine: Routine) => {
     setIsStarting(true);
-
     try {
       await notifee.requestPermission();
-
       try {
         const batteryOptimizationEnabled =
           await notifee.isBatteryOptimizationEnabled();
@@ -539,12 +545,9 @@ export const ActiveWorkoutProvider = ({
             ],
           );
         }
-      } catch (error) {
-        debugLog("No se pudo revisar el estado de la batería", error);
-      }
+      } catch (error) {}
 
       const workoutToStart = JSON.parse(JSON.stringify(routine));
-
       workoutToStart.exercises.forEach((ex: any) => {
         ex.sets.forEach((s: any) => {
           s.weight = 0;
@@ -819,6 +822,7 @@ export const ActiveWorkoutProvider = ({
       setRestTimeRemaining(defaultRest);
 
       updateRestNotification(defaultRest);
+      scheduleRestAlarm(endTimestamp);
     }
   };
 
@@ -831,6 +835,7 @@ export const ActiveWorkoutProvider = ({
     setIsResting(false);
     setRestTimeRemaining(null);
 
+    cancelRestAlarm();
     showActiveWorkoutNotification(
       activeRoutine?.name,
       elapsedSecondsRef.current,
