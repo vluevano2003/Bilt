@@ -1,9 +1,4 @@
-import notifee, {
-  AndroidImportance,
-  EventType,
-  TimestampTrigger,
-  TriggerType,
-} from "@notifee/react-native";
+import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import React, {
@@ -93,7 +88,7 @@ export const ActiveWorkoutContext =
 
 const STORAGE_KEY = "active_workout_state";
 const WORKOUT_CHANNEL_ID = "workout_status_channel";
-const ALARM_CHANNEL_ID = "rest_alarm_beep_channel_v2";
+const ALARM_CHANNEL_ID = "rest_alarm_beep_channel_v4";
 const NOTIFICATION_ID = "workout_status_alert";
 const REST_ALARM_ID = "rest_timer_alert_beep";
 
@@ -252,6 +247,23 @@ export const ActiveWorkoutProvider = ({
     } catch (e) {}
   };
 
+  const playTimerEndSound = async () => {
+    try {
+      await notifee.displayNotification({
+        id: REST_ALARM_ID,
+        title: t("activeWorkout.notificationTitle"),
+        body: t("activeWorkout.notificationBody"),
+        android: {
+          channelId: ALARM_CHANNEL_ID,
+          timeoutAfter: 4000,
+          pressAction: { id: "default" },
+        },
+      });
+    } catch (error) {
+      debugLog("Error lanzando alarma de notificación", error);
+    }
+  };
+
   /**
    * Inicia el temporizador de descanso programando una alarma utilizando notifee. Debido a las limitaciones de React Native en segundo plano, esta función también se asegura de programar una notificación de alarma que se disparará cuando el tiempo de descanso termine, para alertar al usuario incluso si la app está en segundo plano. Sin embargo, ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se dispare correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param endTimestamp
@@ -261,28 +273,6 @@ export const ActiveWorkoutProvider = ({
     const delayMs = endTimestamp - Date.now();
 
     if (delayMs > 0) {
-      try {
-        const trigger: TimestampTrigger = {
-          type: TriggerType.TIMESTAMP,
-          timestamp: endTimestamp,
-        };
-        await notifee.createTriggerNotification(
-          {
-            id: REST_ALARM_ID,
-            title: t("activeWorkout.notificationTitle"),
-            body: t("activeWorkout.notificationBody"),
-            android: {
-              channelId: ALARM_CHANNEL_ID,
-              timeoutAfter: 4000,
-              pressAction: { id: "default" },
-            },
-          },
-          trigger,
-        );
-      } catch (error) {
-        debugLog("Error programando trigger nativo", error);
-      }
-
       restTimeoutRef.current = setTimeout(() => {
         isRestingRef.current = false;
         restEndTimeRef.current = null;
@@ -291,6 +281,8 @@ export const ActiveWorkoutProvider = ({
           setRestTimeRemaining(null);
           setIsResting(false);
         }
+
+        playTimerEndSound().catch(() => {});
 
         const state = latestStateRef.current;
         showActiveWorkoutNotification(
@@ -310,7 +302,6 @@ export const ActiveWorkoutProvider = ({
       restTimeoutRef.current = null;
     }
     notifee.cancelNotification(REST_ALARM_ID).catch(() => {});
-    notifee.cancelTriggerNotification(REST_ALARM_ID).catch(() => {});
   };
 
   /**
@@ -425,6 +416,7 @@ export const ActiveWorkoutProvider = ({
   const isWorkoutActive = !!activeRoutine;
 
   // Configuramos un listener para detectar cuando la app vuelve a primer plano. Cuando esto sucede, calculamos el tiempo transcurrido desde el último tick y actualizamos el estado en consecuencia. Esto nos ayuda a mitigar las limitaciones de React Native en segundo plano, aunque no es perfecto (por ejemplo, si el usuario fuerza el cierre de la app, se perderá el estado).
+  // Configuramos un listener para detectar cuando la app vuelve a primer plano.
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       setCurrentAppState(nextAppState);
@@ -442,10 +434,25 @@ export const ActiveWorkoutProvider = ({
           } else {
             setRestTimeRemaining(null);
             setIsResting(false);
+            isRestingRef.current = false;
+            restEndTimeRef.current = null;
+
+            const state = latestStateRef.current;
+            showActiveWorkoutNotification(
+              state.activeRoutine?.name,
+              elapsedSecondsRef.current,
+            );
           }
         } else {
           setRestTimeRemaining(null);
           setIsResting(false);
+          isRestingRef.current = false;
+
+          const state = latestStateRef.current;
+          showActiveWorkoutNotification(
+            state.activeRoutine?.name,
+            elapsedSecondsRef.current,
+          );
         }
       } else if (
         (nextAppState === "background" || nextAppState === "inactive") &&
