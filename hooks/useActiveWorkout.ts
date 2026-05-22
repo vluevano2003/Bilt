@@ -133,53 +133,6 @@ export const useActiveWorkoutScreen = () => {
     [userHistory, t],
   );
 
-  /**
-   * Calcula los récords personales del usuario para un ejercicio específico, incluyendo el peso máximo levantado y el volumen total (peso x repeticiones) registrado en el historial. Esto se utiliza para mostrar al usuario sus mejores marcas anteriores para ese ejercicio durante el workout activo, proporcionando motivación y contexto para su rendimiento actual. El cálculo tiene en cuenta las conversiones de unidades según el sistema de medición del usuario y su peso corporal si corresponde.
-   * @param globalExerciseId
-   * @returns
-   */
-  const getExerciseRecords = useCallback(
-    (globalExerciseId: string) => {
-      let maxWeight = 0;
-      let maxVolume = 0;
-
-      if (!userHistory || userHistory.length === 0) {
-        return { maxWeight, maxVolume };
-      }
-
-      userHistory.forEach((session) => {
-        const pastExercise = session.exercises?.find(
-          (ex: any) => ex.exerciseDetails?.id === globalExerciseId,
-        );
-
-        if (pastExercise && pastExercise.sets) {
-          let sessionVolume = 0;
-          pastExercise.sets.forEach((set: any) => {
-            if (set.completed) {
-              const weightInKg = getConvertedWeight(set.weight, set.weightUnit);
-
-              if (weightInKg > maxWeight) {
-                maxWeight = weightInKg;
-              }
-
-              sessionVolume += weightInKg * set.reps;
-            }
-          });
-
-          if (sessionVolume > maxVolume) {
-            maxVolume = sessionVolume;
-          }
-        }
-      });
-
-      return {
-        maxWeight: Math.round(maxWeight),
-        maxVolume: Math.round(maxVolume),
-      };
-    },
-    [userHistory, measurementSystem, userWeightString],
-  );
-
   const stats = useMemo(() => {
     let volume = 0;
     let completedSets = 0;
@@ -442,7 +395,6 @@ export const useActiveWorkoutScreen = () => {
     handleCloseSummary,
     handleCancelWorkout,
     getPreviousSet,
-    getExerciseRecords,
     isSavingHistory,
     ...activeWorkoutCtx,
   };
