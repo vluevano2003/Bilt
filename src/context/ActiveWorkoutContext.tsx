@@ -1,4 +1,9 @@
-import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
+import notifee, {
+  AndroidImportance,
+  EventType,
+  TimestampTrigger,
+  TriggerType,
+} from "@notifee/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import React, {
@@ -27,6 +32,7 @@ const debugLog = (...args: any[]) => {
 const debugError = (...args: any[]) => {
   if (__DEV__) console.error(...args);
 };
+let isForegroundServiceRunning = false;
 
 /**
  * Nota importante sobre el Foreground Service:
@@ -34,12 +40,19 @@ const debugError = (...args: any[]) => {
  * Sin embargo, el código JavaScript se pausa cuando la app va a segundo plano, lo que significa que no podemos ejecutar lógica de temporizador o actualizaciones mientras la app no esté activa.
  * Para mitigar esto, guardamos el estado del entrenamiento en AsyncStorage cada vez que cambia y calculamos el tiempo transcurrido/restante basándonos en timestamps cuando la app vuelve a primer plano.
  * Esto no es perfecto (por ejemplo, si el usuario fuerza el cierre de la app, se perderá el estado), pero es una limitación de cómo funcionan las apps en segundo plano en React Native.
- * La notificación seguirá mostrando que el entrenamiento está activo, pero no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano.
+ *
+ * SOBRE EL BEEP CON PANTALLA APAGADA:
+ * Android activa Doze Mode cuando la pantalla se apaga, lo que congela o throttlea los setTimeout/setInterval de JS.
+ * Por eso se usa notifee.createTriggerNotification con TimestampTrigger para el beep: esto schedula la alarma
+ * directamente en el sistema Android (AlarmManager con setExactAndAllowWhileIdle), que sí se respeta
+ * aunque el proceso JS esté congelado. Esto garantiza que el beep suene a tiempo incluso con pantalla apagada.
  */
 notifee.registerForegroundService((notification) => {
   return new Promise<void>((resolve) => {
+    isForegroundServiceRunning = true;
     const unsubscribe = notifee.onForegroundEvent(({ type }) => {
       if (type === EventType.DISMISSED || type === EventType.APP_BLOCKED) {
+        isForegroundServiceRunning = false;
         unsubscribe();
         resolve();
       }
@@ -91,12 +104,8 @@ const STORAGE_KEY = "active_workout_state";
 const WORKOUT_CHANNEL_ID = "workout_status_channel";
 const ALARM_CHANNEL_ID = "rest_alarm_channel_v8";
 const NOTIFICATION_ID = "workout_status_alert";
-
-/**
- * Throttle mínimo en ms entre llamadas consecutivas a displayNotification
- * para evitar inundar el hilo nativo de Android y provocar ANR.
- */
-const NOTIFICATION_THROTTLE_MS = 800;
+const BEEP_NOTIFICATION_ID = "rest_beep_alarm";
+const NOTIFICATION_THROTTLE_MS = 1000;
 
 /**
  * ActiveWorkoutProvider es el corazón de la funcionalidad de entrenamiento activo. Maneja el estado del entrenamiento en curso, incluyendo la rutina activa, el tiempo transcurrido, el estado de pausa, y los temporizadores de descanso. También se encarga de mostrar notificaciones persistentes mientras el entrenamiento está activo, incluso cuando la app está en segundo plano.
@@ -129,8 +138,8 @@ export const ActiveWorkoutProvider = ({
   const elapsedSecondsRef = useRef(0);
   const restTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const restResolveTokenRef = useRef<number>(0);
-  const latestBeepIdRef = useRef<string | null>(null);
   const lastNotifUpdateRef = useRef<number>(0);
+  const isTransitioningRef = useRef<boolean>(false);
 
   const latestStateRef = useRef({
     activeRoutine,
@@ -209,14 +218,15 @@ export const ActiveWorkoutProvider = ({
    * Muestra o actualiza la notificación persistente del entrenamiento activo. Esta función se llama al iniciar un entrenamiento, al actualizar el tiempo transcurrido, y al volver a primer plano. Debido a las limitaciones de React Native en segundo plano, esta notificación no podrá actualizar dinámicamente el tiempo restante del descanso o el tiempo total transcurrido hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param routineName
    * @param currentElapsedSeconds
-   * @param force
-   * @returns
+   * @param force Omite el throttle y la verificación de transición
    */
   const showActiveWorkoutNotification = async (
     routineName: string | undefined,
     currentElapsedSeconds: number = 0,
     force = false,
   ) => {
+    if (!force && isTransitioningRef.current) return;
+
     const now = Date.now();
     if (!force && now - lastNotifUpdateRef.current < NOTIFICATION_THROTTLE_MS) {
       return;
@@ -224,19 +234,27 @@ export const ActiveWorkoutProvider = ({
     lastNotifUpdateRef.current = now;
 
     try {
+      const canStartForeground =
+        AppState.currentState === "active" || isForegroundServiceRunning;
+
       await notifee.displayNotification({
         id: NOTIFICATION_ID,
         title: t("activeWorkout.notificationActiveTitle"),
         body: routineName || t("activeWorkout.notificationActiveBody"),
         android: {
           channelId: WORKOUT_CHANNEL_ID,
-          asForegroundService: true,
+          asForegroundService: canStartForeground,
+          foregroundServiceTypes: [1 as any],
           color: "#CC5500",
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
         },
       });
+
+      if (canStartForeground) {
+        isForegroundServiceRunning = true;
+      }
     } catch (error) {
       debugError("Fallo al iniciar Foreground Service activo:", error);
     }
@@ -245,8 +263,7 @@ export const ActiveWorkoutProvider = ({
   /**
    * Muestra o actualiza la notificación de descanso en curso. Esta función se llama al iniciar un descanso y cada vez que se actualiza el tiempo restante del descanso. Debido a las limitaciones de React Native en segundo plano, esta notificación no podrá actualizar dinámicamente el tiempo restante del descanso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param remainingSeconds
-   * @param force
-   * @returns
+   * @param force Omite el throttle
    */
   const updateRestNotification = async (
     remainingSeconds: number,
@@ -259,24 +276,34 @@ export const ActiveWorkoutProvider = ({
     lastNotifUpdateRef.current = now;
 
     try {
+      const canStartForeground =
+        AppState.currentState === "active" || isForegroundServiceRunning;
+
       await notifee.displayNotification({
         id: NOTIFICATION_ID,
         title: t("activeWorkout.restInProgress"),
         body: t("activeWorkout.restInProgressBody"),
         android: {
           channelId: WORKOUT_CHANNEL_ID,
-          asForegroundService: true,
+          asForegroundService: canStartForeground,
+          foregroundServiceTypes: [1 as any],
           color: "#CC5500",
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
         },
       });
-    } catch (e) {}
+
+      if (canStartForeground) {
+        isForegroundServiceRunning = true;
+      }
+    } catch (e) {
+      debugError("Fallo al actualizar Foreground Service de descanso:", e);
+    }
   };
 
   /**
-   * Limpia el temporizador de JavaScript sin interferir con las notificaciones nativas de Android.
+   * Limpia el temporizador de JavaScript de detección de fin de descanso.
    */
   const clearRestTimeout = () => {
     if (restTimeoutRef.current) {
@@ -286,22 +313,28 @@ export const ActiveWorkoutProvider = ({
   };
 
   /**
-   * Elimina la notificación del beep anterior si sigue en pantalla (Previene el ANR por amontonamiento)
+   * Cancela la trigger notification del beep, tanto si está pendiente (en el AlarmManager)
+   * como si ya fue mostrada (visible en la bandeja de notificaciones).
+   * Usar cancelTriggerNotification evita que suene si el usuario omite el descanso antes de tiempo.
    */
-  const clearPreviousBeep = () => {
-    if (latestBeepIdRef.current) {
-      notifee.cancelNotification(latestBeepIdRef.current).catch(() => {});
-      latestBeepIdRef.current = null;
-    }
+  const cancelBeepNotification = async () => {
+    try {
+      await notifee.cancelTriggerNotification(BEEP_NOTIFICATION_ID);
+    } catch (_) {}
+    try {
+      await notifee.cancelNotification(BEEP_NOTIFICATION_ID);
+    } catch (_) {}
   };
 
   /**
-   * Detiene el temporizador de descanso y cancela cualquier alarma o notificación relacionada. Esto se llama cuando el usuario decide omitir el descanso o cuando se detecta que el tiempo de descanso ha terminado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación de alarma para evitar que quede una notificación activa en segundo plano si el usuario omite el descanso o si el tiempo de descanso termina mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * Cancela todos los mecanismos de alarma del descanso:
+   * el timeout de JS (fallback en primer plano), la trigger notification del sistema,
+   * y el token de resolución para descartar invocaciones pendientes de handleRestFinished.
    */
   const cancelRestAlarm = () => {
     clearRestTimeout();
-    clearPreviousBeep();
     restResolveTokenRef.current += 1;
+    cancelBeepNotification().catch(() => {});
   };
 
   /**
@@ -314,56 +347,37 @@ export const ActiveWorkoutProvider = ({
 
     restResolveTokenRef.current += 1;
 
+    isTransitioningRef.current = true;
+
     isRestingRef.current = false;
     restEndTimeRef.current = null;
     clearRestTimeout();
-    clearPreviousBeep();
 
     if (AppState.currentState === "active") {
       setRestTimeRemaining(null);
       setIsResting(false);
     }
 
-    const dynamicBeepId = `beep_${Date.now()}`;
-    latestBeepIdRef.current = dynamicBeepId;
-    lastNotifUpdateRef.current = Date.now();
-
-    notifee
-      .displayNotification({
-        id: dynamicBeepId,
-        title: t("activeWorkout.notificationTitle"),
-        body: t("activeWorkout.notificationBody"),
-        android: {
-          channelId: ALARM_CHANNEL_ID,
-          pressAction: { id: "default" },
-          importance: AndroidImportance.HIGH,
-          autoCancel: true,
-        },
-      })
-      .catch(debugError);
-
     setTimeout(() => {
-      if (latestBeepIdRef.current === dynamicBeepId) {
-        notifee.cancelNotification(dynamicBeepId).catch(() => {});
-        latestBeepIdRef.current = null;
-      }
-    }, 5000);
+      if (isRestingRef.current) return;
 
-    setTimeout(() => {
+      isTransitioningRef.current = false;
+      lastNotifUpdateRef.current = Date.now();
+
       const state = latestStateRef.current;
       showActiveWorkoutNotification(
         state.activeRoutine?.name,
         elapsedSecondsRef.current,
         true,
       ).catch(debugError);
-    }, 800);
+    }, 1200);
   };
 
   /**
    * Programa una alarma para el final del descanso usando setTimeout. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native. Si la app va a segundo plano, el temporizador se pausará y no se reanudará hasta que la app vuelva a primer plano, momento en el cual se recalculará el tiempo restante del descanso basándose en timestamps para determinar si el descanso ha terminado o cuánto tiempo queda.
    * @param endTimestamp
    */
-  const scheduleRestAlarm = (endTimestamp: number) => {
+  const scheduleRestAlarm = async (endTimestamp: number) => {
     clearRestTimeout();
 
     restResolveTokenRef.current += 1;
@@ -371,20 +385,51 @@ export const ActiveWorkoutProvider = ({
 
     const delayMs = endTimestamp - Date.now();
 
-    if (delayMs > 0) {
-      restTimeoutRef.current = setTimeout(() => {
-        handleRestFinished(token);
-      }, delayMs);
-    } else {
+    if (delayMs <= 0) {
       handleRestFinished(token);
+      return;
     }
+
+    try {
+      const trigger: TimestampTrigger = {
+        type: TriggerType.TIMESTAMP,
+        timestamp: endTimestamp,
+        alarmManager: {
+          allowWhileIdle: true,
+        },
+      };
+
+      await notifee.createTriggerNotification(
+        {
+          id: BEEP_NOTIFICATION_ID,
+          title: t("activeWorkout.notificationTitle"),
+          body: t("activeWorkout.notificationBody"),
+          android: {
+            channelId: ALARM_CHANNEL_ID,
+            pressAction: { id: "default" },
+            importance: AndroidImportance.HIGH,
+            autoCancel: true,
+            timeoutAfter: 6000,
+          },
+        },
+        trigger,
+      );
+    } catch (e) {
+      debugError("Error programando trigger notification del beep:", e);
+    }
+
+    restTimeoutRef.current = setTimeout(() => {
+      handleRestFinished(token);
+    }, delayMs);
   };
 
   /**
-   * Detiene el temporizador de descanso y cancela cualquier alarma o notificación relacionada. Esto se llama cuando el usuario decide omitir el descanso o cuando se detecta que el tiempo de descanso ha terminado. Debido a las limitaciones de React Native en segundo plano, esto también se asegura de cancelar la notificación de alarma para evitar que quede una notificación activa en segundo plano si el usuario omite el descanso o si el tiempo de descanso termina mientras la app está en segundo plano, aunque ten en cuenta que si el usuario fuerza el cierre de la app, es posible que la notificación no se cancele correctamente, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * Detiene el foreground service y cancela todas las notificaciones activas.
+   * Esto se llama al pausar, cancelar o finalizar el entrenamiento.
    */
   const stopAllNotifications = async () => {
     try {
+      isForegroundServiceRunning = false;
       await notifee.stopForegroundService();
       await notifee.cancelNotification(NOTIFICATION_ID);
       cancelRestAlarm();
@@ -510,7 +555,7 @@ export const ActiveWorkoutProvider = ({
             const token = restResolveTokenRef.current;
             handleRestFinished(token);
           }
-        } else {
+        } else if (!isRestingRef.current && !isTransitioningRef.current) {
           setRestTimeRemaining(null);
           setIsResting(false);
           isRestingRef.current = false;
@@ -542,7 +587,7 @@ export const ActiveWorkoutProvider = ({
     return () => subscription.remove();
   }, [isWorkoutActive]);
 
-  // Configuramos un temporizador que se ejecuta cada segundo para actualizar el tiempo transcurrido y el tiempo restante del descanso. Debido a las limitaciones de React Native en segundo plano, este temporizador solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, el tiempo transcurrido y el tiempo restante del descanso no se actualizarán dinámicamente, pero se recalcularán correctamente cuando el usuario vuelva a primer plano gracias a la lógica en el listener de AppState.
+  // Configuramos un setInterval para actualizar el tiempo transcurrido y el tiempo restante del descanso cada segundo. Este intervalo solo se ejecuta cuando hay un entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, este intervalo se pausará automáticamente cuando la app vaya a segundo plano, lo que significa que no podremos actualizar el tiempo transcurrido ni el tiempo restante del descanso mientras la app no esté activa. Sin embargo, cuando la app vuelva a primer plano, el listener de AppState se encargará de calcular el tiempo transcurrido/restante basándose en timestamps para mantener el estado lo más actualizado posible.
   useEffect(() => {
     if (!isWorkoutActive) return;
 
@@ -579,7 +624,7 @@ export const ActiveWorkoutProvider = ({
     };
   }, [isWorkoutActive]);
 
-  // Cada vez que el estado del entrenamiento cambia, lo guardamos en AsyncStorage para poder restaurarlo si la app se cierra o va a segundo plano. Debido a las limitaciones de React Native en segundo plano, esto es crucial para asegurarnos de que el estado del entrenamiento se mantenga incluso cuando el código JS está pausado. Sin embargo, ten en cuenta que si el usuario fuerza el cierre de la app, se perderá el estado guardado, lo cual es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+  // Cada vez que cambia el estado del entrenamiento activo, lo guardamos en AsyncStorage para mitigar las limitaciones de React Native en segundo plano. Esto se ejecuta cada vez que cambia activeRoutine, isPaused, isResting o isLoaded. Debido a las limitaciones de React Native en segundo plano, este guardado no garantiza que el estado se mantenga perfectamente sincronizado si la app está en segundo plano, pero ayuda a minimizar la pérdida de progreso en caso de que el usuario cierre la app o el sistema la termine por falta de recursos.
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -650,6 +695,7 @@ export const ActiveWorkoutProvider = ({
       isRestingRef.current = false;
       setRestTimeRemaining(null);
       restEndTimeRef.current = null;
+      isTransitioningRef.current = false;
       lastTickRef.current = Date.now();
       showActiveWorkoutNotification(routine.name, 0, true);
     } finally {
@@ -662,6 +708,7 @@ export const ActiveWorkoutProvider = ({
    */
   const cancelWorkout = async () => {
     cancelRestAlarm();
+    isTransitioningRef.current = false;
     setActiveRoutine(null);
     setOriginalRoutine(null);
     setElapsedSeconds(0);
@@ -889,7 +936,15 @@ export const ActiveWorkoutProvider = ({
   }, []);
 
   /**
-   * Marca un set como completado o no completado. Esto se llama cuando el usuario toca el checkbox de un set en la pantalla de edición del entrenamiento activo. Si el set se marca como completado, se inicia el temporizador de descanso basado en el tiempo de descanso configurado para ese ejercicio. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos iniciar el temporizador de descanso ni mostrar la notificación de descanso hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
+   * Marca un set como completado o no completado. Si se marca como completado, inicia el temporizador de descanso utilizando el tiempo de descanso predeterminado del ejercicio. Esto se llama cuando el usuario toca el checkbox de un set en la pantalla de edición del entrenamiento activo.
+   *
+   * La lógica de inicio del descanso (restEndTimeRef, scheduleRestAlarm, updateRestNotification)
+   * se ejecuta fuera y después del setter de estado usando queueMicrotask, para evitar
+   * llamar a APIs nativas desde dentro del ciclo de reconciliación de React.
+   * @param exId
+   * @param setId
+   * @param defaultRest
+   * @returns
    */
   const toggleSetCompletion = useCallback(
     (exId: string, setId: string, defaultRest: number) => {
@@ -920,6 +975,7 @@ export const ActiveWorkoutProvider = ({
           const endTimestamp = Date.now() + defaultRest * 1000;
           restEndTimeRef.current = endTimestamp;
           isRestingRef.current = true;
+          isTransitioningRef.current = false;
           setIsResting(true);
           setRestTimeRemaining(defaultRest);
 
@@ -937,6 +993,7 @@ export const ActiveWorkoutProvider = ({
   const stopRestTimer = () => {
     isRestingRef.current = false;
     restEndTimeRef.current = null;
+    isTransitioningRef.current = false;
     setIsResting(false);
     setRestTimeRemaining(null);
 
