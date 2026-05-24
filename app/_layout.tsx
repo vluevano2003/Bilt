@@ -119,32 +119,28 @@ function RootLayoutNav() {
     const inActiveWorkout = firstSegment === "activeWorkout";
     const isProtectedScreen = inTabsGroup || inUserProfile || inActiveWorkout;
 
-    /**
-     * Función para ocultar la pantalla de carga después de un breve retraso, asegurando una transición suave.
-     */
-    const hideSplash = () => {
-      setTimeout(() => {
-        SplashScreen.hideAsync().catch(debugError);
-      }, 50);
-    };
+    let isRedirecting = false;
 
     // Lógica de navegación basada en el estado del usuario y la pantalla actual
     if (!user && isProtectedScreen) {
       router.replace("/");
-      hideSplash();
+      isRedirecting = true;
     } else if (user && !hasProfile && isProtectedScreen) {
       router.replace("/");
-      hideSplash();
+      isRedirecting = true;
     } else if (user && hasProfile && inIndex) {
       if (url && !hasHandledInitialLink) {
         setHasHandledInitialLink(true);
-        hideSplash();
-        return;
+      } else {
+        router.replace("/(tabs)/home");
+        isRedirecting = true;
       }
-      router.replace("/(tabs)/home");
-      hideSplash();
-    } else {
-      hideSplash();
+    }
+
+    if (!isRedirecting) {
+      setTimeout(() => {
+        SplashScreen.hideAsync().catch(debugError);
+      }, 150);
     }
   }, [
     user,
