@@ -23,16 +23,10 @@ export const ExerciseListItem = React.memo(
     onUnitModal,
     onRemoveSet,
     getPrevSet,
-    getExerciseRecords,
     onSetChange,
     onToggleCompletion,
     onAddSet,
   }: any) => {
-    const records = getExerciseRecords
-      ? getExerciseRecords(exercise.exerciseDetails.id)
-      : null;
-    const hasRecords = records && records.maxWeight > 0;
-
     return (
       <ScaleDecorator>
         <View
@@ -55,27 +49,6 @@ export const ExerciseListItem = React.memo(
                   color={colors.textSecondary}
                 />
               </Text>
-
-              {/*Etiqueta de PR*/}
-              {hasRecords && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: verticalScale(2),
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: scale(12),
-                      color: "#F59E0B",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    🏆 PR: {records.maxWeight} kg
-                  </Text>
-                </View>
-              )}
             </TouchableOpacity>
 
             {!isReadonly && (
@@ -180,7 +153,7 @@ export const ExerciseListItem = React.memo(
                       onSetChange(exercise.id, set.id, "weight", val)
                     }
                     editable={!set.completed}
-                    selectTextOnFocus
+                    selectTextOnFocus={false}
                     underlineColorAndroid="transparent"
                   />
                 </View>
@@ -198,7 +171,7 @@ export const ExerciseListItem = React.memo(
                       onSetChange(exercise.id, set.id, "reps", val)
                     }
                     editable={!set.completed}
-                    selectTextOnFocus
+                    selectTextOnFocus={false}
                     underlineColorAndroid="transparent"
                   />
                 </View>
