@@ -66,7 +66,8 @@ export const useActiveWorkoutScreen = () => {
    * @returns
    */
   const getConvertedWeight = (itemWeight: number, unit: string) => {
-    if (unit === "bars" || unit === "plates") return 0;
+    if (unit === "bars" || unit === "plates" || unit === "km" || unit === "mi")
+      return 0;
 
     let w = Number(itemWeight) || 0;
     const userW = Number(userWeightString) || 0;
@@ -106,6 +107,13 @@ export const useActiveWorkoutScreen = () => {
             pastSet.reps > 0 ||
             pastSet.weightUnit === "bodyweight"
           ) {
+            if (pastSet.weightUnit === "km" || pastSet.weightUnit === "mi") {
+              const translatedUnit = t(
+                `activeWorkout.units.${pastSet.weightUnit}`,
+              );
+              return `${pastSet.weight} ${translatedUnit} x ${pastSet.reps} min`;
+            }
+
             let formattedWeight = "";
 
             if (

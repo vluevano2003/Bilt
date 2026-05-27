@@ -302,12 +302,15 @@
     "keepChanges": "Do you want to save the modifications (new sets/exercises) to your original template?",
     "restTimer": "Rest Timer",
     "skip": "Skip",
+    "timeMin": "Time (min)",
     "units": {
       "kg": "kg",
       "lbs": "lbs",
       "bars": "bars",
       "plates": "plates",
-      "bodyweight": "bw"
+      "bodyweight": "bw",
+      "km": "km",
+      "mi": "mi"
     },
     "cancelWorkoutButton": "Cancel Workout",
     "trainingLabel": "Training",
@@ -346,8 +349,11 @@
     "back": "Back",
     "legs": "Legs",
     "shoulders": "Shoulders",
-    "arms": "Arms",
-    "core": "Core"
+    "biceps": "Biceps",
+    "triceps": "Triceps",
+    "core": "Core",
+    "cardio": "Cardio",
+    "full_body": "Full Body"
   },
   "equipment": {
     "free_weight": "Free Weight",
@@ -451,7 +457,20 @@
     "katana_extension_cable": "Katana Triceps Extension",
     "sissy_squat": "Sissy Squat",
     "lat_pulldown_single_arm": "Single-Arm Lat Pulldown",
-    "reverse_fly_dumbbell": "Dumbbell Reverse Fly"
+    "reverse_fly_dumbbell": "Dumbbell Reverse Fly",
+    "seated_cable_row_single_arm": "Single-Arm Seated Cable Row",
+    "tricep_dip_machine": "Seated Tricep Dip Machine",
+    "treadmill": "Treadmill",
+    "stationary_bike": "Stationary Bike",
+    "stairmaster": "Stairmaster",
+    "elliptical": "Elliptical",
+    "rowing_machine": "Rowing Machine",
+    "burpees": "Burpees",
+    "jumping_jacks": "Jumping Jacks",
+    "mountain_climbers": "Mountain Climbers",
+    "jump_squats": "Jump Squats",
+    "high_knees": "High Knees",
+    "glute_bridge_bodyweight": "Glute Bridge (Bodyweight)"
   },
   "unitSelection": {
     "title": "Select Unit",
@@ -464,7 +483,11 @@
     "bars": "Bars / Pins",
     "bars_desc": "Records weight stack levels or pins on machines. Does not add to volume.",
     "plates": "Plates",
-    "plates_desc": "Records the number of plates per side. Does not add to total volume."
+    "plates_desc": "Records the number of plates per side. Does not add to total volume.",
+    "km": "Kilometers (km)",
+    "km_desc": "Tracks distance in kilometers.",
+    "mi": "Miles (mi)",
+    "mi_desc": "Tracks distance in miles."
   },
   "home": {
     "morning": "Good morning",
@@ -508,59 +531,59 @@
   },
   "exerciseDetails": {
     "bench_press_barbell": {
-      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
       "description": "Lie flat on the bench with your feet flat on the floor. Grab the barbell slightly wider than shoulder-width. Lower the bar with control to your mid-chest and push explosively back up."
     },
     "bench_press_dumbbell": {
-      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
       "description": "Lie flat on a bench holding a dumbbell in each hand. Lower the dumbbells under control to the sides of your chest and push them up, bringing them slightly together at the top."
     },
     "incline_bench_press_barbell": {
-      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
       "description": "On an incline bench (30-45 degrees), lower the bar to your upper chest and press it straight up."
     },
     "incline_bench_press_dumbbell": {
-      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
       "description": "On an incline bench, lower the dumbbells to the sides of your upper chest and press up under control."
     },
     "decline_bench_press_barbell": {
-      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
       "description": "On a decline bench, secure your legs. Lower the bar to your lower chest and press explosively."
     },
     "decline_bench_press_dumbbell": {
-      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
       "description": "On a decline bench, lower the dumbbells under control to the sides of your lower chest and press."
     },
     "chest_press_machine": {
-      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
       "description": "Adjust the seat so the handles are at chest level. Push forward extending your arms without locking your elbows."
     },
     "incline_chest_press_machine": {
-      "submuscles": "Upper Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
       "description": "Adjust the seat. Push the handles forward and up, focusing on squeezing the upper chest."
     },
     "chest_fly_dumbbell": {
-      "submuscles": "Pectoralis Major, Anterior Deltoid",
+      "submuscles": "Middle Chest, Anterior Deltoid",
       "description": "Lie on a flat bench. With a slight bend in your elbows, open the dumbbells to the sides until you feel a stretch in your chest, then close them as if hugging an imaginary barrel."
     },
     "pec_deck": {
-      "submuscles": "Pectoralis Major, Anterior Deltoid",
+      "submuscles": "Middle Chest, Anterior Deltoid",
       "description": "Sit on the machine with your back flat against the pad. Bring your arms (or elbows) together in front of you, squeezing your chest."
     },
     "cable_crossover": {
-      "submuscles": "Pectoralis Major, Lower Pectoralis",
+      "submuscles": "Lower Chest, Middle Chest",
       "description": "Standing between high pulleys, pull the cables down and in front of your body, slightly crossing your hands at the end."
     },
     "pushups": {
-      "submuscles": "Pectoralis Major, Triceps Brachii, Anterior Deltoid, Core",
+      "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid, Core",
       "description": "In a plank position, lower your body by bending your elbows at a 45-degree angle from your torso, and push back up."
     },
     "dips_chest": {
-      "submuscles": "Lower Pectoralis, Triceps Brachii, Anterior Deltoid",
+      "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
       "description": "On parallel bars, lean your torso forward and lower yourself until your elbows are at 90 degrees, then push back up."
     },
     "pullover_dumbbell": {
-      "submuscles": "Pectoralis Major, Latissimus Dorsi",
+      "submuscles": "Latissimus Dorsi, Middle Chest",
       "description": "Lie perpendicularly across a bench, supporting only your upper back. Hold a dumbbell with both hands over your chest, lower it behind your head, and pull it back up."
     },
     "pullups": {
@@ -568,11 +591,11 @@
       "description": "Hang from the bar with an overhand grip wider than your shoulders. Pull your body up until your chin clears the bar."
     },
     "chinups": {
-      "submuscles": "Latissimus Dorsi, Biceps Brachii (strong focus)",
+      "submuscles": "Latissimus Dorsi, Biceps Brachii",
       "description": "Hang with an underhand grip at shoulder width. Pull yourself up by contracting your back and biceps."
     },
     "lat_pulldown_wide": {
-      "submuscles": "Latissimus Dorsi, Biceps Brachii, Rhomboids",
+      "submuscles": "Latissimus Dorsi, Rhomboids",
       "description": "Sit at the machine. Grab the bar wider than shoulder-width and pull it down to your upper chest while sticking your chest out."
     },
     "lat_pulldown_close": {
@@ -580,39 +603,47 @@
       "description": "Use a close or V-grip attachment. Pull the handle down to your chest keeping your elbows close to your body."
     },
     "barbell_row": {
-      "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius, Erector Spinae",
+      "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius",
       "description": "Hinge your torso forward to about a 45-degree angle keeping your back straight. Pull the barbell to your belly button by retracting your shoulder blades."
     },
     "dumbbell_row": {
-      "submuscles": "Latissimus Dorsi, Rhomboids, Biceps Brachii",
+      "submuscles": "Latissimus Dorsi, Rhomboids",
       "description": "Support one hand and knee on a bench. With the other hand, pull the dumbbell up to your hip, keeping the elbow close to your body."
     },
     "seated_cable_row": {
-      "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius",
+      "submuscles": "Latissimus Dorsi, Rhomboids",
       "description": "Sit facing the pulley. With a straight back and chest up, pull the handle to your abdomen, squeezing your shoulder blades."
     },
     "machine_row": {
-      "submuscles": "Latissimus Dorsi, Rhomboids",
+      "submuscles": "Rhomboids, Latissimus Dorsi",
       "description": "Adjust the seat and chest pad. Pull the handles back, squeezing the middle of your back."
     },
     "t_bar_row": {
-      "submuscles": "Latissimus Dorsi, Rhomboids, Middle Trapezius",
+      "submuscles": "Latissimus Dorsi, Rhomboids",
       "description": "Stand over the T-bar with your torso hinged forward. Pull the weight towards your chest/abdomen keeping elbows close."
     },
     "t_bar_row_machine": {
-      "submuscles": "Latissimus Dorsi, Rhomboids",
+      "submuscles": "Rhomboids, Latissimus Dorsi",
       "description": "Lie chest-down on the machine pad. Pull the handles up, isolating your back completely."
     },
     "deadlift": {
-      "submuscles": "Glutes, Hamstrings, Erector Spinae, Trapezius, Quads",
+      "submuscles": "Erector Spinae, Glutes, Hamstrings, Trapezius, Quads",
       "description": "Stand with the barbell over mid-foot. Grab the bar, drop your hips, keep your back straight, and stand up by pushing the floor away with your legs."
+    },
+    "calf_raise_standing": {
+      "submuscles": "Calves, Gastrocnemio",
+      "description": "On a machine or block. Let your heels drop for a full stretch, then push up onto your toes, holding the squeeze for a second."
+    },
+    "calf_raise_seated": {
+      "submuscles": "Calves, Soleus",
+      "description": "Sit at the machine. Raise your heels by contracting your calves and lower slowly to feel the stretch."
     },
     "straight_arm_pulldown": {
       "submuscles": "Latissimus Dorsi",
       "description": "Stand facing a high pulley. With arms straight (slight elbow bend), pull the bar or rope down to your thighs by contracting your lats."
     },
     "hyperextensions": {
-      "submuscles": "Erector Spinae, Glutes, Hamstrings",
+      "submuscles": "Erector Spinae, Hamstrings",
       "description": "On the hyperextension bench, lower your torso under control and raise it until your back is aligned with your legs. Do not overextend."
     },
     "shrugs_barbell": {
@@ -624,23 +655,23 @@
       "description": "Stand holding a dumbbell in each hand at your sides. Shrug your shoulders up, squeezing the traps."
     },
     "squat_barbell": {
-      "submuscles": "Quadriceps, Glutes, Hamstrings, Core",
+      "submuscles": "Quadriceps, Gluteus Maximus, Hamstrings",
       "description": "Place the barbell across your upper back. Keep your chest up and lower your hips back and down, breaking parallel. Push powerfully to stand."
     },
     "squat_dumbbell": {
-      "submuscles": "Quadriceps, Glutes, Core",
+      "submuscles": "Quadriceps, Gluteus Maximus",
       "description": "Hold one dumbbell vertically in front of your chest (Goblet grip). Squat down while keeping your torso upright."
     },
     "front_squat_barbell": {
-      "submuscles": "Quadriceps (focus), Glutes, Core, Upper Back",
+      "submuscles": "Quadriceps, Gluteus Maximus, Core",
       "description": "Rest the barbell on your front delts and clavicles. Keep your elbows very high and perform a deep squat."
     },
     "hack_squat_machine": {
-      "submuscles": "Quadriceps, Glutes",
+      "submuscles": "Quadriceps, Gluteus Maximus",
       "description": "Lie back against the machine pads. Lower under control until your knees pass 90 degrees, then push the platform up."
     },
     "leg_press": {
-      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "submuscles": "Quadriceps, Hamstrings",
       "description": "Sit in the machine. Lower the platform toward you under control and press it back up without locking your knees at the top."
     },
     "leg_extension": {
@@ -656,51 +687,43 @@
       "description": "Sit in the machine. Push the leg pad down and back, flexing your knees to isolate the back of the thigh."
     },
     "romanian_deadlift_barbell": {
-      "submuscles": "Hamstrings, Glutes, Erector Spinae",
+      "submuscles": "Hamstrings, Gluteus Maximus, Erector Spinae",
       "description": "Stand with the barbell. With slightly bent knees, push your hips back until you feel a stretch in your hamstrings, then squeeze glutes to stand."
     },
     "romanian_deadlift_dumbbell": {
-      "submuscles": "Hamstrings, Glutes, Erector Spinae",
+      "submuscles": "Hamstrings, Gluteus Maximus, Erector Spinae",
       "description": "With dumbbells at your sides or in front, push your hips back keeping a straight back. Focus on the hamstring stretch."
     },
     "lunges_barbell": {
-      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "submuscles": "Quadriceps, Gluteus Maximus",
       "description": "With the barbell on your back, step forward and drop your hips until both knees form a 90-degree angle. Push back to the start."
     },
     "lunges_dumbbell": {
-      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "submuscles": "Quadriceps, Gluteus Maximus",
       "description": "Holding dumbbells at your sides, take long steps, controlling the descent of the back knee until it barely hovers above the floor."
     },
     "bulgarian_split_squat_dumbbell": {
-      "submuscles": "Glutes, Quadriceps",
+      "submuscles": "Gluteus Maximus, Quadriceps",
       "description": "Rest the top of your back foot on a bench behind you. Lower yourself under control, keeping the weight focused on the front leg."
     },
     "hip_thrust_barbell": {
-      "submuscles": "Glutes, Hamstrings",
+      "submuscles": "Gluteus Maximus, Hamstrings",
       "description": "Rest your upper back on a bench, place the barbell across your hips (use a pad). Drive your hips up, squeezing glutes hard at the top."
     },
     "hip_thrust_machine": {
-      "submuscles": "Glutes",
+      "submuscles": "Gluteus Maximus",
       "description": "Adjust the belt or pad across your hips. Thrust upward, squeezing your glutes at the peak of the movement."
     },
-    "calf_raise_standing": {
-      "submuscles": "Calves (Gastrocnemius)",
-      "description": "On a machine or block. Let your heels drop for a full stretch, then push up onto your toes, holding the squeeze for a second."
-    },
-    "calf_raise_seated": {
-      "submuscles": "Soleus",
-      "description": "Sit at the machine. Raise your heels by contracting your calves and lower slowly to feel the stretch."
-    },
     "overhead_press_barbell": {
-      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps, Core",
+      "submuscles": "Anterior Deltoid, Triceps Brachii",
       "description": "Standing, hold the bar at clavicle level. Press straight up until arms are fully extended, slightly pushing your head through at the top."
     },
     "overhead_press_dumbbell": {
-      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps",
+      "submuscles": "Anterior Deltoid, Lateral Deltoid",
       "description": "Seated with back support. Press the dumbbells up over your head and lower them under control until they are at ear level."
     },
     "shoulder_press_machine": {
-      "submuscles": "Anterior Deltoid, Triceps",
+      "submuscles": "Anterior Deltoid, Triceps Brachii",
       "description": "Adjust the seat. Push the handles upward by contracting your shoulders, and lower the weight under control."
     },
     "arnold_press": {
@@ -724,7 +747,7 @@
       "description": "Using an overhand grip, raise the barbell with mostly straight arms out in front of you up to shoulder height."
     },
     "face_pull": {
-      "submuscles": "Posterior Deltoid, Middle Trapezius, Rhomboids",
+      "submuscles": "Posterior Deltoid, Upper Trapezius",
       "description": "Use a rope on a high pulley. Pull it toward your face, separating your hands, ensuring your elbows stay higher than your shoulders."
     },
     "reverse_pec_deck": {
@@ -740,15 +763,15 @@
       "description": "Using a straight bar on a low pulley, pull the weight toward your neck, focusing on your shoulders doing the pulling."
     },
     "bicep_curl_barbell": {
-      "submuscles": "Biceps Brachii, Brachialis, Forearms",
+      "submuscles": "Biceps Brachii",
       "description": "Standing, use an underhand grip at shoulder width. Curl the bar up without swinging your torso."
     },
     "bicep_curl_dumbbell": {
-      "submuscles": "Biceps Brachii, Brachialis",
+      "submuscles": "Biceps Brachii",
       "description": "Curl the dumbbells while slightly twisting your wrists outward (supination) at the top for maximum contraction."
     },
     "hammer_curl_dumbbell": {
-      "submuscles": "Brachioradialis, Brachialis, Biceps",
+      "submuscles": "Brachioradialis, Brachialis",
       "description": "Neutral grip (palms facing each other). Curl the dumbbell up to build thickness in the arm."
     },
     "hammer_curl_cable": {
@@ -756,11 +779,11 @@
       "description": "Use the rope attachment on a low pulley. Perform the hammer curl motion maintaining constant tension."
     },
     "preacher_curl_barbell": {
-      "submuscles": "Biceps Brachii (short head)",
+      "submuscles": "Biceps Short Head, Brachialis",
       "description": "Rest your triceps on the preacher pad. Lower the EZ bar until almost fully stretched, and contract hard on the way up."
     },
     "preacher_curl_machine": {
-      "submuscles": "Biceps Brachii",
+      "submuscles": "Biceps Short Head",
       "description": "Adjust the seat so your armpits rest on the pad. Pull the lever toward you, squeezing your biceps tightly."
     },
     "bicep_curl_cable": {
@@ -772,35 +795,35 @@
       "description": "Seated, rest your elbow on your inner thigh. Curl the weight, completely isolating the bicep and squeezing at the top."
     },
     "tricep_pushdown_cable": {
-      "submuscles": "Triceps Brachii (lateral head)",
+      "submuscles": "Triceps Lateral Head, Triceps Medial Head",
       "description": "High pulley with a straight or V-bar. Push down extending your elbows completely, keeping them pinned to your ribs."
     },
     "overhead_tricep_extension_dumbbell": {
-      "submuscles": "Triceps Brachii (long head)",
+      "submuscles": "Triceps Long Head",
       "description": "Seated or standing. Hold a dumbbell with both hands behind your head. Extend your elbows upward, feeling the stretch on the way down."
     },
     "overhead_tricep_extension_cable": {
-      "submuscles": "Triceps Brachii (long head)",
+      "submuscles": "Triceps Long Head",
       "description": "Low or mid pulley with a rope. Face away from the machine and extend the rope overhead forward."
     },
     "skullcrusher_barbell": {
-      "submuscles": "Triceps Brachii",
+      "submuscles": "Triceps Medial Head",
       "description": "Lie on a bench. Using an EZ bar, lower the weight to your forehead by bending your elbows, then extend without moving your upper arms."
     },
     "dips_triceps": {
-      "submuscles": "Triceps Brachii, Lower Pectoralis, Anterior Deltoid",
+      "submuscles": "Triceps Brachii, Lower Chest",
       "description": "On parallel bars or a bench. Keep your torso completely upright (do not lean forward) and press to isolate the triceps."
     },
     "close_grip_bench_press": {
-      "submuscles": "Triceps Brachii, Pectoralis Major, Anterior Deltoid",
+      "submuscles": "Triceps Brachii, Middle Chest",
       "description": "Lie on the bench. Grip the bar at shoulder width. Lower the bar keeping your elbows tucked tight against your torso."
     },
     "tricep_kickback_dumbbell": {
-      "submuscles": "Triceps Brachii",
+      "submuscles": "Triceps Lateral Head",
       "description": "Hinge your torso, supporting one hand. Bring your elbow up and back, then extend your forearm straight backward."
     },
     "tricep_kickback_cable": {
-      "submuscles": "Triceps Brachii",
+      "submuscles": "Triceps Lateral Head",
       "description": "Low pulley with no attachment (grab the rubber ball). The cable provides tension throughout the entire kickback range of motion."
     },
     "crunch": {
@@ -808,7 +831,7 @@
       "description": "Lie face up. Slightly flex your torso, raising your shoulders off the floor to contract your abs."
     },
     "plank": {
-      "submuscles": "Transverse Abdominis, Rectus Abdominis, Full Core",
+      "submuscles": "Full Core, Transverse Abdominis",
       "description": "Support your weight on your forearms and toes. Keep your body in a straight line by squeezing your core and glutes."
     },
     "russian_twist": {
@@ -816,11 +839,11 @@
       "description": "Seated with your torso leaning back and feet elevated. Twist your torso bringing the weight from one side to the other."
     },
     "leg_raises_lying": {
-      "submuscles": "Rectus Abdominis (lower region)",
+      "submuscles": "Rectus Abdominis",
       "description": "Lie down and place your hands under your glutes. Keep your legs straight, raise them to 90 degrees, and lower them without touching the floor."
     },
     "leg_raises_hanging": {
-      "submuscles": "Rectus Abdominis (lower region), Hip Flexors",
+      "submuscles": "Rectus Abdominis, Hip Flexors",
       "description": "Hang from a bar. Bring your knees to your chest (or keep legs straight for more difficulty) using your abs, without swinging."
     },
     "ab_wheel_rollout": {
@@ -848,39 +871,39 @@
       "description": "Stand or lean on the machine and push the footplate backward and upward, squeezing your glute at the top."
     },
     "smith_machine_squat": {
-      "submuscles": "Quadriceps, Glutes, Hamstrings",
+      "submuscles": "Quadriceps, Gluteus Maximus",
       "description": "Place the Smith machine bar on your shoulders. Squat down under control and press back up. The machine provides stabilization."
     },
     "smith_machine_bench_press": {
-      "submuscles": "Pectoralis Major, Triceps, Anterior Deltoid",
+      "submuscles": "Middle Chest, Triceps Brachii",
       "description": "Lie on a bench under the Smith machine. Lower the bar to your chest and press up smoothly."
     },
     "smith_machine_incline_press": {
-      "submuscles": "Upper Pectoralis, Triceps, Anterior Deltoid",
+      "submuscles": "Upper Chest, Triceps Brachii",
       "description": "Use an incline bench under the Smith machine. Lower the bar to your upper chest and press up."
     },
     "smith_machine_overhead_press": {
-      "submuscles": "Anterior Deltoid, Lateral Deltoid, Triceps",
+      "submuscles": "Anterior Deltoid, Triceps Brachii",
       "description": "Seated or standing in the Smith machine, press the bar from shoulder level up until your arms are extended."
     },
     "good_mornings": {
-      "submuscles": "Hamstrings, Erector Spinae, Glutes",
+      "submuscles": "Hamstrings, Erector Spinae",
       "description": "With a barbell on your back, hinge at the hips keeping your legs mostly straight until your torso is nearly parallel to the floor."
     },
     "sumo_deadlift": {
-      "submuscles": "Glutes, Quadriceps, Hamstrings, Lower Back",
+      "submuscles": "Gluteus Maximus, Quadriceps, Adductors",
       "description": "Take a wide stance with toes pointing out. Grip the bar in the middle and lift by driving through your legs and glutes."
     },
     "bayesian_curl_cable": {
-      "submuscles": "Biceps Brachii (Long Head focus), Brachialis",
+      "submuscles": "Biceps Long Head, Brachialis",
       "description": "Stand facing away from a low cable pulley. With your arm extending slightly behind your torso to fully stretch the long head of the bicep, curl the weight forward and up, squeezing at the top."
     },
     "katana_extension_cable": {
-      "submuscles": "Triceps Brachii (Long Head focus)",
+      "submuscles": "Triceps Long Head",
       "description": "Stand facing away from a dual cable machine set at hip height. Grab the left cable with your right hand and the right cable with your left hand. Extend your arms outward and upward, crossing the cables behind your back."
     },
     "sissy_squat": {
-      "submuscles": "Quadriceps (Rectus Femoris focus), Core",
+      "submuscles": "Quadriceps, Core",
       "description": "Stand with feet shoulder-width apart. Lean your torso backward while bending your knees forward, keeping a straight line from your knees to your shoulders. Push back up using only your quads."
     },
     "lat_pulldown_single_arm": {
@@ -888,8 +911,60 @@
       "description": "Sit or kneel in front of a high pulley. Grab a single D-handle and pull it down to your side, squeezing your lat. Keep your torso stable and avoid excessive twisting."
     },
     "reverse_fly_dumbbell": {
-      "submuscles": "Posterior Deltoid, Rhomboids, Middle Trapezius",
+      "submuscles": "Posterior Deltoid, Rhomboids",
       "description": "Hinge forward at the hips until your torso is nearly parallel to the floor. Holding dumbbells, raise your arms out to the sides with a slight bend in your elbows, squeezing your shoulder blades together."
+    },
+    "seated_cable_row_single_arm": {
+      "submuscles": "Latissimus Dorsi, Rhomboids",
+      "description": "Seated facing a low cable pulley, grab a single handle. Pull towards your hip keeping your back straight and elbow close to your body, focusing on back contraction."
+    },
+    "tricep_dip_machine": {
+      "submuscles": "Triceps Brachii, Lower Chest",
+      "description": "Seated on the machine with your back supported, grab the handles and push down extending your arms fully. Return under control until your elbows reach 90 degrees."
+    },
+    "treadmill": {
+      "submuscles": "Cardiovascular, Legs",
+      "description": "Walk, jog, or run at a steady pace or in intervals to improve your cardiovascular endurance."
+    },
+    "stationary_bike": {
+      "submuscles": "Cardiovascular, Quadriceps",
+      "description": "Pedal at a steady pace or with variable resistance. Ideal for low-impact cardio on the joints."
+    },
+    "stairmaster": {
+      "submuscles": "Cardiovascular, Gluteus Maximus",
+      "description": "Climb the machine's stairs maintaining good posture. Excellent for lower body conditioning and endurance."
+    },
+    "elliptical": {
+      "submuscles": "Cardiovascular, Full Body",
+      "description": "Move the machine's pedals and handles in an elliptical motion. Very low-impact cardio."
+    },
+    "rowing_machine": {
+      "submuscles": "Cardiovascular, Back",
+      "description": "Push with your legs and then pull the handle towards your chest. A full-body cardio workout."
+    },
+    "burpees": {
+      "submuscles": "Cardiovascular, Core",
+      "description": "From a standing position, drop into a squat, kick your feet back to a plank, do a pushup, return to the squat, and jump up."
+    },
+    "jumping_jacks": {
+      "submuscles": "Cardiovascular, Calves",
+      "description": "Jump while spreading your legs and bringing your arms above your head simultaneously. Return to the starting position and repeat."
+    },
+    "mountain_climbers": {
+      "submuscles": "Core, Cardiovascular",
+      "description": "In a plank position, alternately bring your knees towards your chest as quickly as possible while keeping your hips stable."
+    },
+    "jump_squats": {
+      "submuscles": "Quadriceps, Cardiovascular",
+      "description": "Perform a traditional squat and, on the way up, push forcefully to jump as high as possible. Land softly to absorb the impact."
+    },
+    "high_knees": {
+      "submuscles": "Cardiovascular, Core",
+      "description": "Run in place while lifting your knees as high as possible towards your chest, alternating quickly."
+    },
+    "glute_bridge_bodyweight": {
+      "submuscles": "Gluteus Maximus, Hamstrings",
+      "description": "Lie on your back with your knees bent. Push your hips up by squeezing your glutes tightly and lower slowly."
     }
   },
   "share": {

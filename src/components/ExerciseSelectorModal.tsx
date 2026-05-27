@@ -1,10 +1,10 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  FlatList,
   Modal,
   ScrollView,
+  SectionList,
   Text,
   TextInput,
   TouchableOpacity,
@@ -51,6 +51,72 @@ export const ExerciseSelectorModal = ({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+
+  /**
+   * Orden predefinido de músculos para mostrar en la interfaz. Esto asegura que los músculos aparezcan en un orden lógico y consistente, independientemente del orden en que se encuentren en los datos originales. Si hay músculos que no están en este orden predefinido, se colocarán al final de la lista.
+   */
+  const MUSCLE_ORDER = [
+    "chest",
+    "back",
+    "legs",
+    "shoulders",
+    "biceps",
+    "triceps",
+    "core",
+    "cardio",
+    "full_body",
+  ];
+
+  /**
+   * Ordena los músculos únicos alfabéticamente según un orden predefinido en MUSCLE_ORDER, para que aparezcan en un orden lógico en la interfaz. Si hay músculos que no están en el orden predefinido, se colocan al final de la lista.
+   */
+  const sortedUniqueMuscles = useMemo(() => {
+    return [...uniqueMuscles].sort((a, b) => {
+      return MUSCLE_ORDER.indexOf(a) - MUSCLE_ORDER.indexOf(b);
+    });
+  }, [uniqueMuscles]);
+
+  /**
+   * Agrupa los ejercicios filtrados por su músculo principal, que se determina a partir de la traducción de los submúsculos. Si el ejercicio es de cardio o cuerpo completo, se agrupa directamente por su grupo muscular. El resultado es una lista de secciones para el SectionList, ordenada alfabéticamente por el título de la sección.
+   */
+  const groupedExercises = useMemo(() => {
+    const groups: Record<string, ExerciseType[]> = {};
+
+    filteredExercises.forEach((ex) => {
+      let primarySubmuscle = "";
+
+      if (ex.muscleGroup === "cardio" || ex.muscleGroup === "full_body") {
+        primarySubmuscle = t(`muscles.${ex.muscleGroup}`);
+      } else {
+        const submusclesStr = t(`exerciseDetails.${ex.id}.submuscles`, {
+          defaultValue: t("routines.unspecifiedSubmuscles"),
+        });
+
+        primarySubmuscle = submusclesStr
+          .split(",")[0]
+          .replace(/\s*\(.*?\)\s*/g, "")
+          .trim();
+      }
+
+      if (!groups[primarySubmuscle]) {
+        groups[primarySubmuscle] = [];
+      }
+      groups[primarySubmuscle].push(ex);
+    });
+    const sections = Object.keys(groups).map((key) => {
+      const sortedData = groups[key].sort((a, b) => {
+        const nameA = t(`exercises.${a.id}`);
+        const nameB = t(`exercises.${b.id}`);
+        return nameA.localeCompare(nameB);
+      });
+      return {
+        title: key,
+        data: sortedData,
+      };
+    });
+
+    return sections.sort((a, b) => a.title.localeCompare(b.title));
+  }, [filteredExercises, t]);
 
   return (
     <Modal
@@ -137,7 +203,7 @@ export const ExerciseSelectorModal = ({
                 </Text>
               </TouchableOpacity>
 
-              {uniqueMuscles.map((muscle) => (
+              {sortedUniqueMuscles.map((muscle) => (
                 <TouchableOpacity
                   key={muscle}
                   style={{
@@ -172,10 +238,34 @@ export const ExerciseSelectorModal = ({
             </ScrollView>
           </View>
 
-          <FlatList
-            data={filteredExercises}
+          <SectionList
+            sections={groupedExercises}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            stickySectionHeadersEnabled={true}
+            renderSectionHeader={({ section: { title } }) => (
+              <View
+                style={{
+                  backgroundColor: colors.background,
+                  paddingTop: verticalScale(10),
+                  paddingBottom: verticalScale(5),
+                  marginTop: 0,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.border,
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: moderateScale(13),
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {title}
+                </Text>
+              </View>
+            )}
             renderItem={({ item }) => {
               const isSelected = tempSelectedExercises.some(
                 (e) => e.id === item.id,
@@ -243,6 +333,7 @@ export const ExerciseSelectorModal = ({
                 paddingTop: verticalScale(15),
                 borderTopWidth: 1,
                 borderTopColor: colors.border,
+                backgroundColor: colors.background,
               }}
             >
               <PrimaryButton

@@ -19,7 +19,15 @@ export type SetType =
   | "dropset"
   | "superset"
   | "rest_pause";
-export type WeightUnit = "kg" | "lbs" | "bars" | "plates" | "bodyweight";
+
+export type WeightUnit =
+  | "kg"
+  | "lbs"
+  | "bars"
+  | "plates"
+  | "bodyweight"
+  | "km"
+  | "mi";
 
 export interface ExerciseSet {
   id: string;
@@ -37,8 +45,11 @@ export interface ExerciseType {
     | "back"
     | "legs"
     | "shoulders"
-    | "arms"
+    | "biceps"
+    | "triceps"
     | "core"
+    | "cardio"
+    | "full_body"
     | string;
   equipment: "free_weight" | "machine" | "bodyweight" | "cable" | string;
   imageUrl?: string;

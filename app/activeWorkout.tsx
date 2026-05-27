@@ -177,21 +177,30 @@ export default function ActiveWorkoutScreen() {
    * Confirma la selección de ejercicios y los agrega a la rutina activa. Convierte los ejercicios seleccionados en el formato requerido por la rutina activa, asignándoles IDs únicos, tiempos de descanso predeterminados, y una configuración inicial de sets. Luego llama a la función para agregar estos ejercicios a la rutina activa y cierra el modal de selección.
    */
   const confirmSelectedExercises = () => {
-    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      exerciseDetails: ex,
-      restTimeSeconds: 90,
-      sets: [
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          type: "normal",
-          reps: 0,
-          weight: 0,
-          weightUnit: measurementSystem === "metric" ? "kg" : "lbs",
-          completed: false,
-        },
-      ],
-    }));
+    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => {
+      const isCardio = ex.muscleGroup === "cardio";
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        exerciseDetails: ex,
+        restTimeSeconds: 90,
+        sets: [
+          {
+            id: Math.random().toString(36).substr(2, 9),
+            type: "normal",
+            reps: 0,
+            weight: 0,
+            weightUnit: isCardio
+              ? measurementSystem === "metric"
+                ? "km"
+                : "mi"
+              : measurementSystem === "metric"
+                ? "kg"
+                : "lbs",
+            completed: false,
+          },
+        ],
+      };
+    });
     addExercisesToActiveRoutine(newExercises);
     setExerciseModalVisible(false);
   };
@@ -223,9 +232,22 @@ export default function ActiveWorkoutScreen() {
    */
   const renderDraggableExercise = useCallback(
     ({ item: exercise, drag, isActive }: RenderItemParams<RoutineExercise>) => {
-      const unitText = exercise.sets[0]
-        ? t(`activeWorkout.units.${exercise.sets[0].weightUnit}`)
-        : "KG";
+      const isCardio = exercise.exerciseDetails.muscleGroup === "cardio";
+
+      let currentUnit = exercise.sets[0]?.weightUnit;
+
+      if (isCardio && (currentUnit === "kg" || currentUnit === "lbs")) {
+        currentUnit = measurementSystem === "metric" ? "km" : "mi";
+      }
+
+      const unitText = currentUnit
+        ? t(`activeWorkout.units.${currentUnit}`)
+        : isCardio
+          ? measurementSystem === "metric"
+            ? "km"
+            : "mi"
+          : "KG";
+
       return (
         <ExerciseListItem
           exercise={exercise}
@@ -249,9 +271,8 @@ export default function ActiveWorkoutScreen() {
       );
     },
     [
-      colors,
-      styles,
       t,
+      measurementSystem,
       isReadonly,
       removeExerciseFromActiveRoutine,
       openRestEditor,
@@ -260,8 +281,16 @@ export default function ActiveWorkoutScreen() {
       handleSetChange,
       toggleSetCompletion,
       addSetToExercise,
+      colors,
+      styles,
     ],
   );
+
+  const activeExUnitModal = activeRoutine.exercises.find(
+    (e) => e.id === unitModalExId,
+  );
+  const isCardioModal =
+    activeExUnitModal?.exerciseDetails.muscleGroup === "cardio";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -416,61 +445,92 @@ export default function ActiveWorkoutScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>{t("unitSelection.title")}</Text>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("kg")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.kg")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.kg_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("lbs")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.lbs")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.lbs_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bodyweight")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bodyweight")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bodyweight_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bars")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bars")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bars_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
-              onPress={() => handleUnitSelect("plates")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.plates")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.plates_desc")}
-              </Text>
-            </TouchableOpacity>
+
+            {isCardioModal ? (
+              <>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("km")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.km")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.km_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
+                  onPress={() => handleUnitSelect("mi")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.mi")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.mi_desc")}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("kg")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.kg")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.kg_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("lbs")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.lbs")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.lbs_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("bodyweight")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.bodyweight")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.bodyweight_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("bars")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.bars")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.bars_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
+                  onPress={() => handleUnitSelect("plates")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.plates")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.plates_desc")}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
             <View style={[styles.editRestButtonsRow, styles.unitOptionsMargin]}>
               <TouchableOpacity
                 style={[styles.editRestBtn, styles.editRestBtnTransparent]}

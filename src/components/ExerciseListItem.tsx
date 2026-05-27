@@ -27,6 +27,8 @@ export const ExerciseListItem = React.memo(
     onToggleCompletion,
     onAddSet,
   }: any) => {
+    const isCardio = exercise.exerciseDetails.muscleGroup === "cardio";
+
     return (
       <ScaleDecorator>
         <View
@@ -99,7 +101,9 @@ export const ExerciseListItem = React.memo(
             </TouchableOpacity>
             <View style={styles.colInputHeader}>
               <Text style={styles.tableHeaderText}>
-                {t("activeWorkout.reps")}
+                {isCardio
+                  ? t("activeWorkout.timeMin")
+                  : t("activeWorkout.reps")}
               </Text>
             </View>
             <View style={styles.colCheckHeader}>
@@ -139,6 +143,7 @@ export const ExerciseListItem = React.memo(
                   <Text style={styles.prevText}>{prevData || "-"}</Text>
                 </View>
 
+                {/* Si es cardio, weight funge como "distancia" */}
                 <View style={styles.colInput}>
                   <TextInput
                     style={[
@@ -157,6 +162,8 @@ export const ExerciseListItem = React.memo(
                     underlineColorAndroid="transparent"
                   />
                 </View>
+
+                {/* Si es cardio, reps funge como "tiempo en segundos" */}
                 <View style={styles.colInput}>
                   <TextInput
                     style={[

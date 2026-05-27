@@ -132,6 +132,9 @@ export const WorkoutDetailsModal = ({
                 ? t(`exercises.${exercise.exerciseDetails.id}`)
                 : t("routines.exercise");
 
+              const isCardio =
+                exercise.exerciseDetails?.muscleGroup === "cardio";
+
               return (
                 <View
                   key={index}
@@ -153,6 +156,24 @@ export const WorkoutDetailsModal = ({
                   {exercise.sets?.map((set: any, setIdx: number) => {
                     let displayUnit = "";
                     let displayWeight = set.weight;
+
+                    if (isCardio) {
+                      return (
+                        <Text
+                          key={setIdx}
+                          style={{
+                            color: colors.textSecondary,
+                            marginLeft: scale(15),
+                            fontSize: moderateScale(14),
+                            marginBottom: verticalScale(6),
+                          }}
+                        >
+                          Set {setIdx + 1}: {set.weight}{" "}
+                          {t(`activeWorkout.units.${set.weightUnit}`)} x{" "}
+                          {set.reps} min
+                        </Text>
+                      );
+                    }
 
                     if (
                       ["bars", "plates", "bodyweight"].includes(set.weightUnit)

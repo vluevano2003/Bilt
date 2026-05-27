@@ -1,5 +1,10 @@
 /**
- * Convierte el peso dado a la unidad correspondiente según el sistema de medición
+ * Funciones para cálculos relacionados con el entrenamiento, como conversión de peso, cálculo de volumen total y formato de duración.
+ * @param itemWeight
+ * @param unit
+ * @param system
+ * @param userWeight
+ * @returns
  */
 export const getConvertedWeight = (
   itemWeight: number | string,
@@ -7,7 +12,8 @@ export const getConvertedWeight = (
   system: "metric" | "imperial" | string,
   userWeight: number | string = 0,
 ) => {
-  if (unit === "bars" || unit === "plates") return 0;
+  if (unit === "bars" || unit === "plates" || unit === "km" || unit === "mi")
+    return 0;
 
   let w = Number(itemWeight) || 0;
   const uW = Number(userWeight) || 0;
