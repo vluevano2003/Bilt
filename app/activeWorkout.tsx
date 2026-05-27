@@ -179,6 +179,17 @@ export default function ActiveWorkoutScreen() {
   const confirmSelectedExercises = () => {
     const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => {
       const isCardio = ex.muscleGroup === "cardio";
+      const isBodyweight = ex.equipment === "bodyweight";
+
+      let defaultUnit: any = "kg";
+      if (isCardio) {
+        defaultUnit = measurementSystem === "metric" ? "km" : "mi";
+      } else if (isBodyweight) {
+        defaultUnit = "bodyweight";
+      } else {
+        defaultUnit = measurementSystem === "metric" ? "kg" : "lbs";
+      }
+
       return {
         id: Math.random().toString(36).substr(2, 9),
         exerciseDetails: ex,
@@ -189,13 +200,7 @@ export default function ActiveWorkoutScreen() {
             type: "normal",
             reps: 0,
             weight: 0,
-            weightUnit: isCardio
-              ? measurementSystem === "metric"
-                ? "km"
-                : "mi"
-              : measurementSystem === "metric"
-                ? "kg"
-                : "lbs",
+            weightUnit: defaultUnit,
             completed: false,
           },
         ],
@@ -258,6 +263,7 @@ export default function ActiveWorkoutScreen() {
           t={t}
           isReadonly={isReadonly}
           unitText={unitText}
+          measurementSystem={measurementSystem}
           onDetails={setDetailsExercise}
           onRemoveEx={removeExerciseFromActiveRoutine}
           onOpenRest={openRestEditor}

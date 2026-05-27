@@ -37,11 +37,11 @@ import {
 } from "../src/components/UserProfileUI";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Profile.styles";
+import { shareProfile } from "../src/utils/shareHelpers";
 import {
   calculateTotalVolume,
   formatDuration,
-} from "../src/utils/profileHelpers";
-import { shareProfile } from "../src/utils/shareHelpers";
+} from "../src/utils/workoutCalculations";
 
 /**
  * Pantalla de perfil de usuario. Muestra la información del usuario, sus rutinas, historial y packs semanales.
@@ -465,6 +465,7 @@ export default function UserProfileScreen() {
                                   {calculateTotalVolume(
                                     session,
                                     profile.measurementSystem,
+                                    profile.weight,
                                   )}{" "}
                                   {profile.measurementSystem === "metric"
                                     ? "kg"
@@ -679,6 +680,7 @@ export default function UserProfileScreen() {
         item={selectedItem}
         isSaved={!!actions.getSavedRoutineId(selectedItem?.id)}
         system={profile.measurementSystem}
+        userWeight={profile.weight}
         onToggleSave={() =>
           actions.handleToggleSaveRoutine(selectedItem, () =>
             setDetailsModalVisible(false),

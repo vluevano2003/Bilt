@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { useInterstitialAd } from "./useInterstitialAd";
 import {
   ExerciseSet,
   ExerciseType,
@@ -23,6 +24,7 @@ export const useRoutineEditor = (
   exercisesDb: ExerciseType[],
 ) => {
   const { t } = useTranslation();
+  const { showAdIfLoaded } = useInterstitialAd();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
@@ -78,6 +80,7 @@ export const useRoutineEditor = (
         routineExercises,
       );
       closeRoutineModal();
+      showAdIfLoaded();
     } catch (error) {
       Alert.alert(t("alerts.error"), t("errors.unexpected"));
     }
@@ -107,12 +110,19 @@ export const useRoutineEditor = (
     setRoutineExercises((prev) =>
       prev.map((ex) => {
         if (ex.id === routineExId) {
+          const lastSet = ex.sets[ex.sets.length - 1];
+          const defaultUnit = lastSet
+            ? lastSet.weightUnit
+            : ex.exerciseDetails.equipment === "bodyweight"
+              ? "bodyweight"
+              : "kg";
+
           const newSet: ExerciseSet = {
             id: Math.random().toString(36).substr(2, 9),
             type: "normal",
             reps: 0,
             weight: 0,
-            weightUnit: "kg",
+            weightUnit: defaultUnit,
             completed: false,
           };
           return { ...ex, sets: [...ex.sets, newSet] };
@@ -164,21 +174,33 @@ export const useRoutineEditor = (
    * Confirma la selección de ejercicios, creando nuevas entradas de ejercicios de rutina basadas en los ejercicios seleccionados temporalmente y agregándolos a la rutina actual, luego cierra el modal de selección de ejercicios
    */
   const confirmSelectedExercises = () => {
-    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      exerciseDetails: ex,
-      restTimeSeconds: 90,
-      sets: [
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          type: "normal",
-          reps: 0,
-          weight: 0,
-          weightUnit: "kg",
-          completed: false,
-        },
-      ],
-    }));
+    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => {
+      const isCardio = ex.muscleGroup === "cardio";
+      const isBodyweight = ex.equipment === "bodyweight";
+
+      let defaultUnit: any = "kg";
+      if (isCardio) {
+        defaultUnit = "km";
+      } else if (isBodyweight) {
+        defaultUnit = "bodyweight";
+      }
+
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        exerciseDetails: ex,
+        restTimeSeconds: 90,
+        sets: [
+          {
+            id: Math.random().toString(36).substr(2, 9),
+            type: "normal",
+            reps: 0,
+            weight: 0,
+            weightUnit: defaultUnit,
+            completed: false,
+          },
+        ],
+      };
+    });
 
     setRoutineExercises((prev) => [...prev, ...newExercises]);
     setExerciseModalVisible(false);

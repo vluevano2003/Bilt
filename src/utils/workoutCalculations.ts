@@ -30,6 +30,7 @@ export const getConvertedWeight = (
 export const calculateTotalVolume = (
   userHistory: any[],
   measurementSystem: string,
+  userWeight: number | string = 0,
 ) => {
   let total = 0;
   userHistory?.forEach((session: any) => {
@@ -40,6 +41,7 @@ export const calculateTotalVolume = (
             set.weight,
             set.weightUnit,
             measurementSystem,
+            userWeight,
           );
           total += w * (Number(set.reps) || 0);
         }

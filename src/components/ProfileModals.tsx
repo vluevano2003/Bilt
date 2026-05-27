@@ -17,12 +17,12 @@ import { SocialUser } from "../../hooks/useProfile";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Profile.styles";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import {
   calculateTotalVolume,
   formatDuration,
   getConvertedWeight,
-} from "../utils/profileHelpers";
-import { moderateScale, scale, verticalScale } from "../utils/Responsive";
+} from "../utils/workoutCalculations";
 
 /**
  * Modal para mostrar la lista de seguidores o seguidos de un usuario
@@ -301,6 +301,7 @@ export const ItemDetailsModal = ({
   item,
   isSaved,
   system,
+  userWeight,
   onToggleSave,
   onClose,
 }: any) => {
@@ -419,7 +420,7 @@ export const ItemDetailsModal = ({
                       fontWeight: "500",
                     }}
                   >
-                    {calculateTotalVolume(item, system)}{" "}
+                    {calculateTotalVolume(item, system, userWeight)}{" "}
                     {system === "metric" ? "kg" : "lbs"}
                   </Text>
                 </View>
@@ -466,7 +467,12 @@ export const ItemDetailsModal = ({
                   {type === "history" ? (
                     exercise.sets?.map((set: any, setIdx: number) => {
                       const convertedWeight = Math.round(
-                        getConvertedWeight(set.weight, set.weightUnit, system),
+                        getConvertedWeight(
+                          set.weight,
+                          set.weightUnit,
+                          system,
+                          userWeight,
+                        ),
                       );
                       const displayUnit =
                         set.weightUnit === "bars"

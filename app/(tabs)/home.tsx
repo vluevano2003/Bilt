@@ -26,6 +26,11 @@ import {
   verticalScale,
 } from "../../src/utils/Responsive";
 
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
@@ -613,10 +618,13 @@ export default function HomeScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
+          const showAd = (index + 1) % 4 === 0;
+          let cardContent;
+
           if (activeTab === "packs") {
             const packItem = item as WeeklyPack;
-            return (
+            cardContent = (
               <TouchableOpacity
                 style={routineStyles.routineCard}
                 activeOpacity={0.8}
@@ -667,63 +675,96 @@ export default function HomeScreen() {
                 </View>
               </TouchableOpacity>
             );
+          } else {
+            const routineItem = item as any;
+            const exercisesPreview =
+              routineItem.exercises
+                ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
+                .join(", ") || t("routines.noExercises");
+
+            cardContent = (
+              <View style={routineStyles.routineCard}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    routineItem.originalCreatorId
+                      ? (setSelectedReadonlyRoutine(routineItem),
+                        setDetailsModalVisible(true))
+                      : editor.openRoutineModal(routineItem);
+                  }}
+                >
+                  <View style={routineStyles.cardHeader}>
+                    <Text style={routineStyles.routineName}>
+                      {routineItem.name}
+                    </Text>
+                    <Feather
+                      name="more-horizontal"
+                      size={moderateScale(20)}
+                      color={colors.textSecondary}
+                    />
+                  </View>
+                  {routineItem.originalCreatorId && (
+                    <View style={homeStyles.bookmarkContainer}>
+                      <FontAwesome
+                        name="bookmark"
+                        size={moderateScale(12)}
+                        color={colors.primary}
+                        style={homeStyles.bookmarkIcon}
+                      />
+                      <Text style={homeStyles.creatorText}>
+                        {t("routines.fromCreator", {
+                          creator: routineItem.originalCreatorName,
+                        })}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={routineStyles.exercisePreview} numberOfLines={2}>
+                    {exercisesPreview}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={routineStyles.startRoutineButton}
+                  onPress={() => handleStartWorkout(routineItem)}
+                >
+                  <Text style={routineStyles.startRoutineText}>
+                    {t("routines.startWorkout")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
           }
 
-          const routineItem = item as any;
-          const exercisesPreview =
-            routineItem.exercises
-              ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
-              .join(", ") || t("routines.noExercises");
-
           return (
-            <View style={routineStyles.routineCard}>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => {
-                  routineItem.originalCreatorId
-                    ? (setSelectedReadonlyRoutine(routineItem),
-                      setDetailsModalVisible(true))
-                    : editor.openRoutineModal(routineItem);
-                }}
-              >
-                <View style={routineStyles.cardHeader}>
-                  <Text style={routineStyles.routineName}>
-                    {routineItem.name}
+            <>
+              {cardContent}
+              {showAd && (
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginBottom: verticalScale(15),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: moderateScale(10),
+                      color: colors.textSecondary,
+                      marginBottom: verticalScale(5),
+                    }}
+                  >
+                    Publicidad
                   </Text>
-                  <Feather
-                    name="more-horizontal"
-                    size={moderateScale(20)}
-                    color={colors.textSecondary}
+                  <BannerAd
+                    unitId={
+                      __DEV__
+                        ? TestIds.BANNER
+                        : (process.env.EXPO_PUBLIC_ADMOB_BANNER_HOME as string)
+                    }
+                    size={BannerAdSize.MEDIUM_RECTANGLE}
+                    requestOptions={{ requestNonPersonalizedAdsOnly: true }}
                   />
                 </View>
-                {routineItem.originalCreatorId && (
-                  <View style={homeStyles.bookmarkContainer}>
-                    <FontAwesome
-                      name="bookmark"
-                      size={moderateScale(12)}
-                      color={colors.primary}
-                      style={homeStyles.bookmarkIcon}
-                    />
-                    <Text style={homeStyles.creatorText}>
-                      {t("routines.fromCreator", {
-                        creator: routineItem.originalCreatorName,
-                      })}
-                    </Text>
-                  </View>
-                )}
-                <Text style={routineStyles.exercisePreview} numberOfLines={2}>
-                  {exercisesPreview}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={routineStyles.startRoutineButton}
-                onPress={() => handleStartWorkout(routineItem)}
-              >
-                <Text style={routineStyles.startRoutineText}>
-                  {t("routines.startWorkout")}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              )}
+            </>
           );
         }}
       />

@@ -1,3 +1,4 @@
+import { useProfile } from "@/hooks/useProfile";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -23,6 +24,8 @@ export const WorkoutDetailsModal = ({
   t,
   insets,
 }: any) => {
+  const { weight: userWeight } = useProfile();
+
   return (
     <Modal
       visible={visible}
@@ -108,7 +111,11 @@ export const WorkoutDetailsModal = ({
                     fontWeight: "500",
                   }}
                 >
-                  {calculateSessionVolume(selectedItem, measurementSystem)}{" "}
+                  {calculateSessionVolume(
+                    selectedItem,
+                    measurementSystem,
+                    userWeight,
+                  )}{" "}
                   {measurementSystem === "metric" ? "kg" : "lbs"}
                 </Text>
               </View>
@@ -193,6 +200,7 @@ export const WorkoutDetailsModal = ({
                           set.weight,
                           set.weightUnit,
                           measurementSystem,
+                          userWeight,
                         ),
                       );
                       displayUnit =

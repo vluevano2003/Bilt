@@ -36,11 +36,6 @@ const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
 };
 
-/**
- * Pantalla de perfil del usuario. Muestra información del perfil, estadísticas sociales, historial de entrenamientos y permite editar el perfil, compartirlo, acceder a configuraciones y ver detalles de entrenamientos pasados.
- * @param param0
- * @returns
- */
 const HeaderRightActions = ({ colors, styles, onShare, onSettings }: any) => (
   <View style={styles.headerRightActions}>
     <TouchableOpacity onPress={onShare}>
@@ -60,11 +55,6 @@ const HeaderRightActions = ({ colors, styles, onShare, onSettings }: any) => (
   </View>
 );
 
-/**
- * Componente para mostrar la información principal del perfil, incluyendo avatar, nombre de usuario, bio y estadísticas de seguidores. También incluye el botón para editar el perfil y acceder a la lista de seguidores/seguidos.
- * @param param0
- * @returns
- */
 const ProfileHeader = ({
   t,
   colors,
@@ -132,11 +122,6 @@ const ProfileHeader = ({
   </View>
 );
 
-/**
- * Componente para mostrar el historial de entrenamientos del usuario. Muestra una lista de entrenamientos con su duración, volumen total y fecha. Permite cargar más entrenamientos si hay más de los mostrados inicialmente. Al tocar un entrenamiento se abre un modal con los detalles completos.
- * @param param0
- * @returns
- */
 const WorkoutHistoryList = ({
   t,
   i18n,
@@ -147,6 +132,7 @@ const WorkoutHistoryList = ({
   setHistoryLimit,
   isLoadingActivity,
   measurementSystem,
+  userWeight, // <--- Prop añadido
   openDetails,
 }: any) => {
   if (isLoadingActivity) {
@@ -163,7 +149,12 @@ const WorkoutHistoryList = ({
     <>
       {userHistory.slice(0, historyLimit).map((session: any) => {
         const durationMins = formatDuration(session.durationSeconds);
-        const totalVolume = calculateSessionVolume(session, measurementSystem);
+        // Pasamos userWeight al calculo final
+        const totalVolume = calculateSessionVolume(
+          session,
+          measurementSystem,
+          userWeight,
+        );
         const volumeUnit = measurementSystem === "metric" ? "kg" : "lbs";
 
         return (
@@ -209,10 +200,6 @@ const WorkoutHistoryList = ({
   );
 };
 
-/**
- * Pantalla de perfil del usuario. Muestra información del perfil, estadísticas sociales, historial de entrenamientos y permite editar el perfil, compartirlo, acceder a configuraciones y ver detalles de entrenamientos pasados.
- * @returns
- */
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const { colors, isDarkMode, toggleTheme } = useTheme();
@@ -239,6 +226,7 @@ export default function ProfileScreen() {
     setEditHeight,
     editWeight,
     setEditWeight,
+    weight, // <--- Obtenemos el peso
     editBio,
     setEditBio,
     editMeasurementSystem,
@@ -270,18 +258,12 @@ export default function ProfileScreen() {
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
 
-  /**
-   * Función para refrescar los datos del perfil y el historial de entrenamientos. Se llama al hacer pull-to-refresh en la lista de historial. Refresca tanto la información del perfil como el historial de actividades.
-   */
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetchData();
     setRefreshing(false);
   }, [refetchData]);
 
-  /**
-   * Función para cerrar sesión del usuario. Llama a la función de signOut de Supabase y maneja cualquier error que pueda ocurrir durante el proceso. Se llama al seleccionar "Cerrar sesión" en el modal de configuraciones.
-   */
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -290,9 +272,6 @@ export default function ProfileScreen() {
     }
   };
 
-  /**
-   * Función para eliminar la cuenta del usuario. Muestra una alerta de confirmación antes de proceder con la eliminación. Si el usuario confirma, se llama a la función deleteAccount que maneja la lógica de eliminación de la cuenta. Se llama al seleccionar "Eliminar cuenta" en el modal de configuraciones.
-   */
   const handleDeleteAccount = () => {
     Alert.alert(
       t("profile.deleteAccountTitle"),
@@ -308,10 +287,6 @@ export default function ProfileScreen() {
     );
   };
 
-  /**
-   * Función para cambiar el idioma de la aplicación. Cambia el idioma usando i18n y guarda la selección en AsyncStorage para que se mantenga en futuras sesiones. Se llama al seleccionar un nuevo idioma en el modal de configuraciones.
-   * @param lang
-   */
   const toggleLanguage = async (lang: string) => {
     i18n.changeLanguage(lang);
     try {
@@ -321,19 +296,11 @@ export default function ProfileScreen() {
     }
   };
 
-  /**
-   * Función para abrir el modal de detalles de un entrenamiento. Recibe el entrenamiento seleccionado como parámetro, lo guarda en el estado y muestra el modal con los detalles completos del entrenamiento. Se llama al tocar un entrenamiento en la lista de historial.
-   * @param item
-   */
   const openDetails = (item: any) => {
     setSelectedItem(item);
     setDetailsModalVisible(true);
   };
 
-  /**
-   * Función para abrir el modal de lista social (seguidores o seguidos). Recibe el tipo de lista a mostrar ("followers" o "following"), carga la lista correspondiente desde la función getSocialList, guarda los datos en el estado y muestra el modal con la lista de usuarios. Se llama al tocar las estadísticas de seguidores o seguidos en el perfil.
-   * @param type
-   */
   const openSocialModal = async (type: "followers" | "following") => {
     setSocialModalType(type);
     setSocialModalVisible(true);
@@ -408,6 +375,7 @@ export default function ProfileScreen() {
               setHistoryLimit={setHistoryLimit}
               isLoadingActivity={isLoadingActivity}
               measurementSystem={measurementSystem}
+              userWeight={weight} // <--- Pasamos el peso al hijo
               openDetails={openDetails}
             />
           </View>

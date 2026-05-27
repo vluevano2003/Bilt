@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
-import { scale, verticalScale } from "../utils/Responsive";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 /**
  * Componente que representa un ejercicio dentro de la lista de ejercicios activos, mostrando su nombre, sets, pesos, repeticiones y permitiendo marcar sets como completados, editar valores y acceder a detalles o temporizador de descanso.
@@ -17,6 +17,7 @@ export const ExerciseListItem = React.memo(
     t,
     isReadonly,
     unitText,
+    measurementSystem,
     onDetails,
     onRemoveEx,
     onOpenRest,
@@ -28,6 +29,10 @@ export const ExerciseListItem = React.memo(
     onAddSet,
   }: any) => {
     const isCardio = exercise.exerciseDetails.muscleGroup === "cardio";
+
+    const hasBodyweightSet = exercise.sets.some(
+      (s: any) => s.weightUnit === "bodyweight",
+    );
 
     return (
       <ScaleDecorator>
@@ -85,6 +90,25 @@ export const ExerciseListItem = React.memo(
                 .padStart(2, "0")}
             </Text>
           </TouchableOpacity>
+
+          {hasBodyweightSet && (
+            <View
+              style={{
+                paddingHorizontal: scale(15),
+                marginBottom: verticalScale(5),
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: moderateScale(11),
+                  color: colors.textSecondary,
+                  fontStyle: "italic",
+                }}
+              >
+                {t("unitSelection.bodyweight_desc")}
+              </Text>
+            </View>
+          )}
 
           <View style={styles.tableHeader}>
             <Text style={styles.colSetHeader}>{t("activeWorkout.set")}</Text>
@@ -158,9 +182,20 @@ export const ExerciseListItem = React.memo(
                       onSetChange(exercise.id, set.id, "weight", val)
                     }
                     editable={!set.completed}
-                    selectTextOnFocus={false}
-                    underlineColorAndroid="transparent"
                   />
+                  {/* Indicador dinámico de unidad para lastre */}
+                  {set.weightUnit === "bodyweight" && (
+                    <Text
+                      style={{
+                        position: "absolute",
+                        right: scale(8),
+                        fontSize: moderateScale(9),
+                        color: colors.textSecondary,
+                      }}
+                    >
+                      {measurementSystem === "metric" ? "kg" : "lbs"}
+                    </Text>
+                  )}
                 </View>
 
                 {/* Si es cardio, reps funge como "tiempo en segundos" */}
