@@ -39,7 +39,7 @@ import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Profile.styles";
 import { shareProfile } from "../src/utils/shareHelpers";
 import {
-  calculateTotalVolume,
+  calculateSessionVolume,
   formatDuration,
 } from "../src/utils/workoutCalculations";
 
@@ -462,7 +462,7 @@ export default function UserProfileScreen() {
                                     name="activity"
                                     size={moderateScale(12)}
                                   />{" "}
-                                  {calculateTotalVolume(
+                                  {calculateSessionVolume(
                                     session,
                                     profile.measurementSystem,
                                     profile.weight,

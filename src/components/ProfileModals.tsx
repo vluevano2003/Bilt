@@ -19,7 +19,7 @@ import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Profile.styles";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import {
-  calculateTotalVolume,
+  calculateSessionVolume,
   formatDuration,
   getConvertedWeight,
 } from "../utils/workoutCalculations";
@@ -420,7 +420,7 @@ export const ItemDetailsModal = ({
                       fontWeight: "500",
                     }}
                   >
-                    {calculateTotalVolume(item, system, userWeight)}{" "}
+                    {calculateSessionVolume(item, system, userWeight)}{" "}
                     {system === "metric" ? "kg" : "lbs"}
                   </Text>
                 </View>
@@ -466,20 +466,54 @@ export const ItemDetailsModal = ({
 
                   {type === "history" ? (
                     exercise.sets?.map((set: any, setIdx: number) => {
-                      const convertedWeight = Math.round(
-                        getConvertedWeight(
-                          set.weight,
-                          set.weightUnit,
-                          system,
-                          userWeight,
-                        ),
-                      );
-                      const displayUnit =
-                        set.weightUnit === "bars"
-                          ? "bars"
-                          : system === "metric"
-                            ? "kg"
-                            : "lbs";
+                      const isCardio =
+                        exercise.exerciseDetails?.muscleGroup === "cardio";
+
+                      let displayUnit = "";
+                      let displayWeight = set.weight;
+
+                      if (isCardio) {
+                        return (
+                          <Text
+                            key={setIdx}
+                            style={{
+                              color: colors.textSecondary,
+                              marginLeft: scale(15),
+                              fontSize: moderateScale(14),
+                              marginBottom: verticalScale(6),
+                            }}
+                          >
+                            Set {setIdx + 1}: {set.weight}{" "}
+                            {t(`activeWorkout.units.${set.weightUnit}`)} x{" "}
+                            {set.reps} min
+                          </Text>
+                        );
+                      }
+
+                      if (
+                        ["bars", "plates", "bodyweight"].includes(set.weightUnit)
+                      ) {
+                        displayUnit = t(`unitSelection.${set.weightUnit}`);
+                        if (set.weightUnit === "bodyweight" && set.weight === 0) {
+                          displayWeight = "";
+                        } else if (
+                          set.weightUnit === "bodyweight" &&
+                          set.weight > 0
+                        ) {
+                          displayWeight = `+${set.weight}`;
+                        }
+                      } else {
+                        displayWeight = Math.round(
+                          getConvertedWeight(
+                            set.weight,
+                            set.weightUnit,
+                            system,
+                            userWeight,
+                          ),
+                        );
+                        displayUnit = system === "metric" ? "kg" : "lbs";
+                      }
+
                       return (
                         <Text
                           key={setIdx}
@@ -490,8 +524,10 @@ export const ItemDetailsModal = ({
                             marginBottom: verticalScale(6),
                           }}
                         >
-                          Set {setIdx + 1}: {set.reps} reps x {convertedWeight}{" "}
-                          {displayUnit}
+                          Set {setIdx + 1}: {set.reps} reps{" "}
+                          {set.weightUnit === "bodyweight" && set.weight === 0
+                            ? "BW"
+                            : `x ${displayWeight} ${displayUnit}`}
                         </Text>
                       );
                     })

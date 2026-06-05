@@ -22,7 +22,7 @@ const debugError = (...args: any[]) => {
 export const useActiveWorkoutScreen = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { saveRoutine } = useRoutines();
+  const { saveRoutine, exercisesDb } = useRoutines();
   const activeWorkoutCtx = useActiveWorkout();
   const { measurementSystem, weight: userWeightString } = useProfile();
   const { user } = useAuth();
@@ -170,7 +170,8 @@ export const useActiveWorkoutScreen = () => {
     let total = 0;
 
     activeRoutine.exercises.forEach((ex) => {
-      const muscle = ex.exerciseDetails.muscleGroup;
+      const currentExDb = exercisesDb?.find((dbEx) => dbEx.id === ex.exerciseDetails.id);
+      const muscle = currentExDb ? currentExDb.muscleGroup : ex.exerciseDetails.muscleGroup;
       const completedInEx = ex.sets.filter((s) => s.completed).length;
       if (completedInEx > 0) {
         counts[muscle] = (counts[muscle] || 0) + completedInEx;
@@ -184,7 +185,7 @@ export const useActiveWorkoutScreen = () => {
         percentage: (counts[m] / total) * 100,
       }))
       .sort((a, b) => b.percentage - a.percentage);
-  }, [activeRoutine]);
+  }, [activeRoutine, exercisesDb]);
 
   /**
    * Formatea un tiempo dado en segundos a una cadena legible, mostrando horas y minutos si el tiempo es suficientemente largo, o minutos y segundos para tiempos más cortos. Esto se utiliza para mostrar el tiempo transcurrido del workout activo y el tiempo de descanso restante de manera clara para el usuario.

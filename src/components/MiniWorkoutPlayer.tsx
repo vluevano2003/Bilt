@@ -6,6 +6,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../context/ActiveWorkoutContext";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 /**
@@ -15,13 +16,14 @@ import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 export const MiniWorkoutPlayer = () => {
   const { t } = useTranslation();
   const { activeRoutine, elapsedSeconds, cancelWorkout } = useActiveWorkout();
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors, insets.bottom);
 
-  if (!activeRoutine || pathname === "/activeWorkout") return null;
+  if (!activeRoutine || pathname === "/activeWorkout" || pathname === "/" || !user) return null;
 
   /**
    * Función que formatea el tiempo transcurrido en minutos y segundos, asegurándose de que siempre se muestren dos dígitos para cada unidad de tiempo.

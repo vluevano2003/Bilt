@@ -122,7 +122,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const {
         data: { session },
+        error,
       } = await supabase.auth.getSession();
+
+      if (error) {
+        throw error;
+      }
 
       setSession(session);
       setUser(session?.user ?? null);
@@ -149,8 +154,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       if (!mounted) return;
+
+      if (event === "SIGNED_OUT") {
+        setSession(null);
+        setUser(null);
+        setHasProfile(false);
+        if (mounted) setIsLoading(false);
+        return;
+      }
 
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
