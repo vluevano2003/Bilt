@@ -27,6 +27,7 @@ import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { CustomAlertProvider } from "../src/context/CustomAlertContext";
 import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
@@ -250,12 +251,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <AuthProvider>
-          <ActiveWorkoutProvider>
-            <RootLayoutNav />
-            <MiniWorkoutPlayer />
-          </ActiveWorkoutProvider>
-        </AuthProvider>
+        <CustomAlertProvider>
+          <AuthProvider>
+            <ActiveWorkoutProvider>
+              <RootLayoutNav />
+              <MiniWorkoutPlayer />
+            </ActiveWorkoutProvider>
+          </AuthProvider>
+        </CustomAlertProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
