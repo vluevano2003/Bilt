@@ -8,11 +8,12 @@ import {
   SafeAreaView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import DraggableFlatList, {
   RenderItemParams,
 } from "react-native-draggable-flatlist";
+import Animated, { interpolate, useAnimatedKeyboard, useAnimatedStyle } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
@@ -110,6 +111,20 @@ export default function ActiveWorkoutScreen() {
   const [tempSelectedExercises, setTempSelectedExercises] = useState<
     ExerciseType[]
   >([]);
+
+  const keyboard = useAnimatedKeyboard();
+  const insetsBottom = insets.bottom;
+  const defaultPadding = Math.max(verticalScale(40), insetsBottom + verticalScale(15));
+  const activePadding = verticalScale(15);
+
+  const animatedKeyboardStyle = useAnimatedStyle(() => {
+    const kbHeight = keyboard.height.value;
+
+    return {
+      transform: [{ translateY: -kbHeight }],
+      paddingBottom: interpolate(kbHeight, [0, 50], [defaultPadding, activePadding], "clamp"),
+    };
+  });
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
@@ -299,7 +314,7 @@ export default function ActiveWorkoutScreen() {
     activeExUnitModal?.exerciseDetails.muscleGroup === "cardio";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: Platform.OS === 'android' ? insets.top : 0 }]}>
       {/*Header*/}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={handleMinimize}>
@@ -395,14 +410,11 @@ export default function ActiveWorkoutScreen() {
 
       {/*Banner de descanso*/}
       {isResting && restTimeRemaining !== null && (
-        <View
+        <Animated.View
           style={[
             styles.floatingRestBanner,
+            animatedKeyboardStyle,
             {
-              paddingBottom: Math.max(
-                verticalScale(50),
-                insets.bottom + verticalScale(20),
-              ),
               justifyContent: "space-between",
               paddingHorizontal: moderateScale(20),
             },
@@ -438,7 +450,7 @@ export default function ActiveWorkoutScreen() {
               {t("activeWorkout.skip")}
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
 
       {/*Modal de selección de unidades*/}

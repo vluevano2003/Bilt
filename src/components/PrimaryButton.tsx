@@ -40,7 +40,7 @@ export const PrimaryButton = ({
       disabled={disabled || loading}
     >
       {loading ? (
-        <ActivityIndicator color={colors.textPrimary} />
+        <ActivityIndicator color="#FFF" />
       ) : (
         <Text style={styles.buttonTextPrimary}>{title}</Text>
       )}
@@ -58,7 +58,7 @@ const getStyles = (colors: any) =>
       marginTop: verticalScale(10),
     },
     buttonTextPrimary: {
-      color: colors.textPrimary,
+      color: "#FFF",
       fontSize: moderateScale(16),
       fontWeight: "bold",
     },

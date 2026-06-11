@@ -14,6 +14,7 @@ import {
   BackHandler,
   FlatList,
   Platform,
+  RefreshControl,
   Text,
   ToastAndroid,
   TouchableOpacity,
@@ -380,7 +381,7 @@ export default function HomeScreen() {
     handleRequest,
   } = useNotifications();
 
-  const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
+  const { userHistory, isLoadingActivity, refetchActivity } = useUserActivity(user?.id);
 
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
@@ -457,10 +458,11 @@ export default function HomeScreen() {
     isSaving,
     saveRoutine,
     deleteRoutine,
+    refetchRoutines,
   } = useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
   const editor = useRoutineEditor(saveRoutine, exercisesDb);
-  const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack } =
+  const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack, refetchPacks } =
     useWeeklyPacks();
 
   const actions = useRoutinesActions(
@@ -477,6 +479,17 @@ export default function HomeScreen() {
     useState<any>(null);
   const [packDetailsModalVisible, setPackDetailsModalVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      refetchRoutines && refetchRoutines(),
+      refetchPacks && refetchPacks(),
+      refetchActivity && refetchActivity(),
+    ]);
+    setRefreshing(false);
+  }, [refetchRoutines, refetchPacks, refetchActivity]);
 
   // Si la pantalla se abre con el parámetro openNotifications=true, se abre automáticamente el modal de notificaciones para mostrar las nuevas notificaciones al usuario. Esto permite redirigir al usuario directamente a las notificaciones desde otras partes de la app o desde una notificación push.
   useEffect(() => {
@@ -577,6 +590,14 @@ export default function HomeScreen() {
       />
 
       <FlatList<any>
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
         ListHeaderComponent={
           <DashboardHeader
             t={t}

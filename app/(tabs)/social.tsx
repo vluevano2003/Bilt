@@ -359,6 +359,7 @@ export default function SocialScreen() {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
+                  paddingTop: verticalScale(20),
                   paddingBottom: verticalScale(100) + insets.bottom,
                 }}
               />
@@ -396,6 +397,7 @@ export default function SocialScreen() {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
+                  paddingTop: verticalScale(20),
                   paddingBottom: verticalScale(100) + insets.bottom,
                 }}
                 refreshControl={

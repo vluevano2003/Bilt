@@ -111,18 +111,20 @@ export const ExerciseListItem = React.memo(
           )}
 
           <View style={styles.tableHeader}>
-            <Text style={styles.colSetHeader}>{t("activeWorkout.set")}</Text>
+            <Text style={styles.colSetHeader}>{t("activeWorkout.set").toUpperCase()}</Text>
 
             <Text style={styles.colPrevHeader}>
               {t("activeWorkout.previous").toUpperCase()}
             </Text>
 
-            <TouchableOpacity
-              style={styles.colInputHeader}
-              onPress={() => onUnitModal(exercise.id)}
-            >
-              <Text style={styles.tableHeaderText}>{unitText}</Text>
-            </TouchableOpacity>
+            <View style={styles.colInputHeader}>
+              <TouchableOpacity
+                style={styles.unitButton}
+                onPress={() => onUnitModal(exercise.id)}
+              >
+                <Text style={styles.unitButtonText}>{unitText}</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.colInputHeader}>
               <Text style={styles.tableHeaderText}>
                 {isCardio

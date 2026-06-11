@@ -2,12 +2,12 @@
  * Define los colores para el tema claro. Estos colores se utilizan en toda la aplicación para mantener una apariencia consistente en el modo claro.
  */
 export const lightColors = {
-  background: "#FFFFFF",
-  surface: "#F4F4F5",
+  background: "#F4F4F5",
+  surface: "#FFFFFF",
   primary: "#CC5500",
-  textPrimary: "#18181B",
-  textSecondary: "#71717A",
-  border: "#E4E4E7",
+  textPrimary: "#09090B",
+  textSecondary: "#52525B",
+  border: "#D4D4D8",
 };
 
 /**

@@ -195,5 +195,5 @@ export const useWeeklyPacks = () => {
     }
   };
 
-  return { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack };
+  return { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack, refetchPacks: fetchPacks };
 };

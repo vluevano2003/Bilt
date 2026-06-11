@@ -9,6 +9,7 @@ import {
   useSegments,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -81,7 +82,7 @@ function RootLayoutNav() {
   const { user, isLoading, hasProfile, isError, retryInit } = useAuth();
   const router = useRouter();
   const segments = useSegments();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const rootNavigationState = useRootNavigationState();
 
   const { t } = useTranslation();
@@ -156,6 +157,7 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style={isDarkMode ? "light" : "dark"} backgroundColor={colors.background} />
       {/* El Stack siempre se renderiza para no perder el historial de navegación */}
       <Stack screenOptions={{ headerShown: false, animation: "none" }}>
         <Stack.Screen name="index" />

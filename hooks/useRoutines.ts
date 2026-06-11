@@ -283,5 +283,6 @@ export const useRoutines = () => {
     isSaving,
     saveRoutine,
     deleteRoutine,
+    refetchRoutines: fetchRoutines,
   };
 };

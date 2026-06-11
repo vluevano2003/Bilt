@@ -57,18 +57,8 @@ export const EditProfileModal = ({
         style={{ flex: 1 }}
       >
         <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              {
-                paddingBottom: Math.max(
-                  verticalScale(40),
-                  insets.bottom + verticalScale(20),
-                ),
-              },
-            ]}
-          >
-            <View style={styles.modalHeader}>
+          <View style={[styles.modalContent, { paddingBottom: 0 }]}>
+            <View style={[styles.modalHeader, { marginBottom: 0 }]}>
               <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
               <TouchableOpacity onPress={onClose}>
                 <AntDesign
@@ -82,7 +72,13 @@ export const EditProfileModal = ({
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: verticalScale(60) }}
+              contentContainerStyle={{
+                paddingTop: verticalScale(20),
+                paddingBottom: Math.max(
+                  verticalScale(40),
+                  insets.bottom + verticalScale(20),
+                ),
+              }}
             >
               <TouchableOpacity
                 style={[styles.avatarContainer, { alignSelf: "center" }]}
