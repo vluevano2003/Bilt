@@ -52,9 +52,7 @@ export function NotificationModal({
    */
   const handleNavigate = (id: string) => {
     onClose();
-    if (id !== user?.id) {
-      router.push({ pathname: "/userProfile", params: { id } });
-    }
+    router.push({ pathname: "/userProfile", params: { id } });
   };
 
   /**

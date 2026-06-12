@@ -221,7 +221,8 @@ export const useNotifications = () => {
           .from("follows")
           .update({ status: "accepted" })
           .eq("follower_id", userIdToHandle)
-          .eq("following_id", user.id);
+          .eq("following_id", user.id)
+          .eq("status", "pending");
 
         if (followError)
           throw new Error(`Error en follows: ${followError.message}`);
@@ -256,7 +257,8 @@ export const useNotifications = () => {
           .from("follows")
           .delete()
           .eq("follower_id", userIdToHandle)
-          .eq("following_id", user.id);
+          .eq("following_id", user.id)
+          .eq("status", "pending");
 
         if (deleteFollowError)
           throw new Error(

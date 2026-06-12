@@ -18,13 +18,18 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           height: verticalScale(60) + insets.bottom,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : verticalScale(10),
-          paddingTop: verticalScale(10),
+          paddingBottom: insets.bottom > 0 ? insets.bottom : verticalScale(8),
+          paddingTop: verticalScale(6),
+        },
+        tabBarLabelStyle: {
+          fontSize: moderateScale(10),
+          fontWeight: "600",
+          marginTop: verticalScale(2),
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
@@ -39,7 +44,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => (
             <FontAwesome5
               name="dumbbell"
-              size={moderateScale(24)}
+              size={moderateScale(20)}
               color={color}
             />
           ),
@@ -50,7 +55,7 @@ export default function TabsLayout() {
         options={{
           title: t("tabs.social"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="team" size={moderateScale(28)} color={color} />
+            <AntDesign name="team" size={moderateScale(24)} color={color} />
           ),
         }}
       />
@@ -59,7 +64,7 @@ export default function TabsLayout() {
         options={{
           title: t("tabs.profile"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="user" size={moderateScale(28)} color={color} />
+            <AntDesign name="user" size={moderateScale(24)} color={color} />
           ),
         }}
       />

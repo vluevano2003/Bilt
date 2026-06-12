@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../context/ActiveWorkoutContext";
-import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 /**
@@ -21,7 +21,10 @@ export const MiniWorkoutPlayer = () => {
   const pathname = usePathname();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const styles = getStyles(colors, insets.bottom);
+  const isTabBarVisible =
+    pathname === "/home" || pathname === "/social" || pathname === "/profile";
+
+  const styles = getStyles(colors, insets.bottom, isTabBarVisible);
 
   if (!activeRoutine || pathname === "/activeWorkout" || pathname === "/" || !user) return null;
 
@@ -61,6 +64,9 @@ export const MiniWorkoutPlayer = () => {
       activeOpacity={0.9}
       onPress={() => router.push("/activeWorkout")}
     >
+      <View style={styles.iconContainer}>
+        <Feather name="activity" size={scale(20)} color={colors.primary} />
+      </View>
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>
           {t("activeWorkout.trainingLabel")}: {activeRoutine.name}
@@ -68,33 +74,39 @@ export const MiniWorkoutPlayer = () => {
         <Text style={styles.time}>{formatTime(elapsedSeconds)}</Text>
       </View>
       <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-        <Feather name="x" size={scale(20)} color="#FFF" />
+        <Feather name="x" size={scale(20)} color={colors.textPrimary} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
 };
 
-const getStyles = (colors: any, bottomInset: number) =>
+const getStyles = (colors: any, bottomInset: number, isTabBarVisible: boolean) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      bottom: verticalScale(75) + bottomInset,
-      left: scale(15),
-      right: scale(15),
+      bottom: isTabBarVisible ? verticalScale(60) + bottomInset : 0,
+      left: 0,
+      right: 0,
       backgroundColor: colors.primary,
-      borderRadius: scale(12),
       flexDirection: "row",
       alignItems: "center",
-      padding: scale(15),
-      elevation: 10,
+      paddingTop: scale(12),
+      paddingBottom: isTabBarVisible ? scale(12) : bottomInset > 0 ? bottomInset + scale(5) : scale(12),
+      paddingHorizontal: scale(15),
       zIndex: 1000,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: verticalScale(4) },
-      shadowOpacity: 0.3,
-      shadowRadius: scale(5),
+    },
+    iconContainer: {
+      width: scale(36),
+      height: scale(36),
+      borderRadius: scale(18),
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: scale(12),
     },
     info: {
       flex: 1,
+      justifyContent: "center",
     },
     title: {
       color: "#FFF",
@@ -102,15 +114,19 @@ const getStyles = (colors: any, bottomInset: number) =>
       fontSize: moderateScale(15),
     },
     time: {
-      color: "rgba(255, 255, 255, 0.8)",
+      color: "rgba(255, 255, 255, 0.9)",
+      fontWeight: "700",
       fontSize: moderateScale(13),
       marginTop: verticalScale(2),
       fontVariant: ["tabular-nums"],
     },
     cancelBtn: {
-      padding: scale(8),
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
-      borderRadius: scale(20),
+      width: scale(36),
+      height: scale(36),
+      borderRadius: scale(18),
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
+      justifyContent: "center",
+      alignItems: "center",
       marginLeft: scale(10),
     },
   });

@@ -84,13 +84,6 @@ export default function UserProfileScreen() {
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Redirige al perfil propio si el usuario accede a su propio perfil a través de la URL
-  useEffect(() => {
-    if (!profile.isLoading && profile.isOwnProfile) {
-      router.replace("/(tabs)/profile");
-    }
-  }, [profile.isLoading, profile.isOwnProfile]);
-
   // Maneja el botón de retroceso en Android para cerrar modales o volver a la pantalla anterior
   useEffect(() => {
     const onBackPress = () => {
@@ -214,8 +207,8 @@ export default function UserProfileScreen() {
     }
   };
 
-  // Muestra un indicador de carga mientras se obtiene la información del perfil o si el usuario está viendo su propio perfil a través de la URL (lo que redirigirá automáticamente al perfil principal).
-  if (profile.isLoading || profile.isOwnProfile) {
+  // Muestra un indicador de carga mientras se obtiene la información del perfil.
+  if (profile.isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
         <ActivityIndicator size="large" color={colors.primary} />

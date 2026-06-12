@@ -1,4 +1,5 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { scale, verticalScale } from "../utils/Responsive";
@@ -80,7 +81,10 @@ export const UserInfoCard = ({
   profileId,
   openSocialModal,
   handleToggleFollow,
-}: any) => (
+}: any) => {
+  const router = useRouter();
+  
+  return (
   <View style={styles.centeredProfileInfo}>
     <View style={styles.avatarContainer}>
       {profile.profilePic ? (
@@ -132,7 +136,16 @@ export const UserInfoCard = ({
     </View>
 
     <View style={styles.actionButtonContainer}>
-      {profile.hasPendingRequestFromThem ? (
+      {profile.isOwnProfile ? (
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => router.navigate("/(tabs)/profile")}
+        >
+          <Text style={[styles.actionButtonText, { color: colors.textPrimary }]}>
+            {t("profile.editProfile")}
+          </Text>
+        </TouchableOpacity>
+      ) : profile.hasPendingRequestFromThem ? (
         <View style={styles.followRequestContainer}>
           <TouchableOpacity
             style={[styles.actionButton, styles.acceptButton]}
@@ -187,7 +200,8 @@ export const UserInfoCard = ({
       )}
     </View>
   </View>
-);
+  );
+};
 
 /**
  * Componente de pestañas segmentadas para alternar entre las secciones de rutinas, packs y historial en el perfil de usuario. Resalta la pestaña activa y permite cambiarla mediante botones táctiles.

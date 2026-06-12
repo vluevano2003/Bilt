@@ -53,9 +53,7 @@ export const SocialListModal = ({
       style={styles.socialListItem}
       onPress={() => {
         onClose();
-        if (item.id !== user?.id) {
-          router.push({ pathname: "/userProfile", params: { id: item.id } });
-        }
+        router.push({ pathname: "/userProfile", params: { id: item.id } });
       }}
     >
       {item.profilePictureUrl ? (

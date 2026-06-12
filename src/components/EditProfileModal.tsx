@@ -58,7 +58,7 @@ export const EditProfileModal = ({
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { paddingBottom: 0 }]}>
-            <View style={[styles.modalHeader, { marginBottom: 0 }]}>
+            <View style={[styles.modalHeader, { paddingBottom: verticalScale(15), marginBottom: verticalScale(5) }]}>
               <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
               <TouchableOpacity onPress={onClose}>
                 <AntDesign
@@ -236,11 +236,22 @@ export const EditProfileModal = ({
                   onPress={handleSave}
                   loading={isSaving}
                 />
-                <SecondaryButton
-                  title={t("profile.cancel")}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: colors.border,
+                    paddingVertical: verticalScale(14),
+                    borderRadius: scale(10),
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                   onPress={onClose}
                   disabled={isSaving}
-                />
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: colors.textPrimary, fontWeight: "bold", fontSize: scale(16) }}>
+                    {t("profile.cancel")}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </ScrollView>
           </View>

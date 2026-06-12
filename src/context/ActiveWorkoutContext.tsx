@@ -14,6 +14,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Alert, AppState } from "react-native";
 import {
@@ -119,6 +120,7 @@ export const ActiveWorkoutProvider = ({
 }) => {
   const { user, isLoading } = useAuth();
   const { t } = useTranslation();
+  const router = useRouter();
 
   const [activeRoutine, setActiveRoutine] = useState<Routine | null>(null);
   const [originalRoutine, setOriginalRoutine] = useState<Routine | null>(null);
@@ -203,6 +205,30 @@ export const ActiveWorkoutProvider = ({
     setupSystem();
   }, [t]);
 
+  // Manejador para cuando el usuario presiona la notificación
+  useEffect(() => {
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      if (
+        type === EventType.PRESS &&
+        (detail.notification?.id === NOTIFICATION_ID ||
+          detail.notification?.id === BEEP_NOTIFICATION_ID)
+      ) {
+        router.push("/activeWorkout");
+      }
+    });
+
+    notifee.getInitialNotification().then((initialNotification) => {
+      if (
+        initialNotification?.notification?.id === NOTIFICATION_ID ||
+        initialNotification?.notification?.id === BEEP_NOTIFICATION_ID
+      ) {
+        router.push("/activeWorkout");
+      }
+    });
+
+    return unsubscribe;
+  }, [router]);
+
   /**
    * Formatea un número de segundos en una cadena de formato "M:SS" para mostrar el tiempo restante del descanso en la notificación.
    * @param seconds
@@ -249,6 +275,9 @@ export const ActiveWorkoutProvider = ({
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
+          pressAction: {
+            id: "default",
+          },
         },
       });
 
@@ -291,6 +320,9 @@ export const ActiveWorkoutProvider = ({
           ongoing: true,
           onlyAlertOnce: true,
           smallIcon: "notification_icon",
+          pressAction: {
+            id: "default",
+          },
         },
       });
 

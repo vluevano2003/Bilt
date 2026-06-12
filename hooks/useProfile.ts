@@ -376,6 +376,49 @@ export const useProfile = (profileUid?: string) => {
         .from("users")
         .update({ is_private: value })
         .eq("id", currentUserId);
+
+      // Si se cambia a pública, aceptar todas las solicitudes pendientes
+      if (!value) {
+        const { data: pendingRequests } = await supabase
+          .from("follows")
+          .select("follower_id")
+          .eq("following_id", currentUserId)
+          .eq("status", "pending");
+
+        if (pendingRequests && pendingRequests.length > 0) {
+          await supabase
+            .from("follows")
+            .update({ status: "accepted" })
+            .eq("following_id", currentUserId)
+            .eq("status", "pending");
+
+          await supabase
+            .from("notifications")
+            .delete()
+            .eq("recipient_id", currentUserId)
+            .eq("type", "follow_request");
+
+          const newFollowerNotifs = pendingRequests.map((req) => ({
+            recipient_id: currentUserId,
+            actor_id: req.follower_id,
+            type: "new_follower",
+          }));
+
+          const requestAcceptedNotifs = pendingRequests.map((req) => ({
+            recipient_id: req.follower_id,
+            actor_id: currentUserId,
+            type: "request_accepted",
+          }));
+
+          await supabase.from("notifications").insert([
+            ...newFollowerNotifs,
+            ...requestAcceptedNotifs,
+          ]);
+
+          setPendingRequestsCount(0);
+          setFollowersCount((prev) => prev + pendingRequests.length);
+        }
+      }
     } catch (error) {
       setIsPrivate(!value);
     }
@@ -444,13 +487,13 @@ export const useProfile = (profileUid?: string) => {
         const body =
           finalStatus === "pending"
             ? t("social.notifications.newRequestBody", {
-                name: myName,
-                lng: targetLocale,
-              })
+              name: myName,
+              lng: targetLocale,
+            })
             : t("social.notifications.newFollowerBody", {
-                name: myName,
-                lng: targetLocale,
-              });
+              name: myName,
+              lng: targetLocale,
+            });
 
         await sendPushNotificationViaEdgeFunction(targetUid, title, body);
       }
