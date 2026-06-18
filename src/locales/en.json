@@ -350,6 +350,8 @@
     "restInProgressBody": "Resting...",
     "batteryAlertTitle": "Battery Optimization",
     "batteryAlertMsg": "Your device has battery optimization enabled for this app. To prevent the app from closing when the screen turns off, please allow it to run without restrictions.",
+    "powerManagerAlertTitle": "Background Execution",
+    "powerManagerAlertMsg": "Your device requires explicit permission to run apps in the background. Please enable 'Auto-start' or 'Run in background' for this app.",
     "emptyWorkoutTitle": "Empty Workout",
     "emptyWorkoutMsg": "You haven't completed any valid sets."
   },
