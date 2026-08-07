@@ -7,6 +7,7 @@ import {
   ExerciseType,
   Routine,
   RoutineExercise,
+  SetType,
 } from "./useRoutines";
 
 /**
@@ -148,6 +149,23 @@ export const useRoutineEditor = (
     );
   };
 
+  const changeSetType = (routineExId: string, setId: string, newType: SetType) => {
+    setRoutineExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id === routineExId) {
+          const updatedSets = ex.sets.map((s) => {
+            if (s.id === setId) {
+              return { ...s, type: newType };
+            }
+            return s;
+          });
+          return { ...ex, sets: updatedSets };
+        }
+        return ex;
+      }),
+    );
+  };
+
   /**
    * Abre el modal de selección de ejercicios, reseteando los filtros y selecciones temporales para una nueva búsqueda
    */
@@ -241,6 +259,7 @@ export const useRoutineEditor = (
     reorderExercises,
     addSetToExercise,
     removeSetFromExercise,
+    changeSetType,
     exerciseModalVisible,
     setExerciseModalVisible,
     searchQuery,

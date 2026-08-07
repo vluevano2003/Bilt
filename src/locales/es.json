@@ -292,6 +292,14 @@
     "exercise": "Ejercicio",
     "set": "Serie"
   },
+  "setTypes": {
+    "title": "Tipo de Serie",
+    "normal": { "name": "Normal", "desc": "Serie de trabajo regular." },
+    "warmup": { "name": "Calentamiento", "desc": "Serie ligera para preparar los músculos." },
+    "dropset": { "name": "Drop Set", "desc": "Serie descendente, bajando peso tras el fallo." },
+    "topset": { "name": "Top Set", "desc": "La serie más pesada del ejercicio." },
+    "backoff": { "name": "Back Off Set", "desc": "Serie más ligera tras un Top Set." }
+  },
   "activeWorkout": {
     "finish": "Finalizar",
     "pause": "Pausar",
@@ -354,6 +362,17 @@
     "powerManagerAlertMsg": "Tu dispositivo requiere permiso manual para que la app funcione en segundo plano. Por favor, activa el 'Inicio automático' o 'Ejecución en segundo plano'.",
     "emptyWorkoutTitle": "Entrenamiento vacío",
     "emptyWorkoutMsg": "No has completado ninguna serie válida."
+  },
+  "historyModal": {
+    "title": "Historial de Entrenamiento",
+    "maxWeight": "Mayor Peso",
+    "maxVolume": "Mayor Volumen",
+    "maxBars": "Máximo de Barras",
+    "maxPlates": "Máximo de Discos",
+    "recentSessions": "Últimos Entrenamientos",
+    "close": "Cerrar",
+    "noHistory": "Aún no hay historial para este ejercicio.",
+    "set": "S{{num}}"
   },
   "muscles": {
     "chest": "Pecho",

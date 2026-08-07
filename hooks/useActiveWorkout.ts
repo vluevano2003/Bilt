@@ -141,6 +141,105 @@ export const useActiveWorkoutScreen = () => {
     [userHistory, t],
   );
 
+  /**
+   * Obtiene el historial detallado de un ejercicio (últimos 5 entrenamientos, max peso, max volumen, etc.)
+   */
+  const getExerciseHistoryDetails = useCallback(
+    (globalExerciseId: string) => {
+      if (!userHistory || userHistory.length === 0) return null;
+
+      const sortedHistory = [...userHistory].sort((a, b) => {
+        const dateA = new Date(a.completedAt || 0).getTime();
+        const dateB = new Date(b.completedAt || 0).getTime();
+        return dateB - dateA;
+      });
+
+      const sessions: any[] = [];
+      let maxWeight = 0;
+      let maxWeightConverted = 0;
+      let maxWeightUnit = "";
+
+      let maxVolume = 0;
+      let maxVolumeConverted = 0;
+      let maxVolumeUnit = "";
+      let maxVolumeSets: any[] = [];
+
+      let maxBars = 0;
+      let maxPlates = 0;
+
+      for (const session of sortedHistory) {
+        const pastExercise = session.exercises?.find(
+          (ex: any) => ex.exerciseDetails?.id === globalExerciseId,
+        );
+
+        if (pastExercise && pastExercise.sets && pastExercise.sets.length > 0) {
+          const completedSets = pastExercise.sets.filter(
+            (s: any) => (s.weight > 0 || s.reps > 0 || s.weightUnit === "bodyweight") && s.type !== "warmup"
+          );
+
+          if (completedSets.length > 0) {
+            let sessionMaxWeight = 0;
+            completedSets.forEach((s: any) => {
+              if (s.weightUnit === "bars") {
+                if (s.weight > maxBars) maxBars = s.weight;
+              } else if (s.weightUnit === "plates") {
+                if (s.weight > maxPlates) maxPlates = s.weight;
+              } else if (s.weightUnit !== "km" && s.weightUnit !== "mi") {
+                const convertedWeight = getConvertedWeight(s.weight, s.weightUnit);
+                if (convertedWeight > sessionMaxWeight) sessionMaxWeight = convertedWeight;
+
+                if (convertedWeight > maxWeightConverted) {
+                  maxWeightConverted = convertedWeight;
+                  maxWeight = s.weight;
+                  maxWeightUnit = s.weightUnit;
+                }
+                
+                // Calcular volumen de ESTA serie individual
+                const setVolume = s.weight * s.reps;
+                const setVolumeConverted = convertedWeight * s.reps;
+
+                if (setVolumeConverted > maxVolumeConverted) {
+                  maxVolumeConverted = setVolumeConverted;
+                  maxVolume = setVolume;
+                  maxVolumeUnit = s.weightUnit;
+                  maxVolumeSets = [s];
+                }
+              } else if (s.weightUnit === "km" || s.weightUnit === "mi") {
+                // For cardio
+                if (s.weight > maxWeight) {
+                   maxWeight = s.weight;
+                   maxWeightUnit = s.weightUnit;
+                }
+              }
+            });
+
+            sessions.push({
+              date: session.completedAt,
+              routineName: session.routineName,
+              sets: completedSets,
+              maxWeight: sessionMaxWeight,
+            });
+          }
+        }
+      }
+
+      if (sessions.length === 0) return null;
+
+      return {
+        recentSessions: sessions.slice(0, 5),
+        maxWeight,
+        maxWeightUnit: maxWeightUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
+        maxVolume,
+        maxVolumeUnit: maxVolumeUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
+        maxVolumeSets,
+        maxBars,
+        maxPlates,
+        chartData: sessions.slice(0, 15).reverse().filter(s => s.maxWeight > 0).map(s => ({ date: s.date, weight: s.maxWeight })),
+      };
+    },
+    [userHistory, measurementSystem, userWeightString],
+  );
+
   const stats = useMemo(() => {
     let volume = 0;
     let completedSets = 0;
@@ -226,15 +325,24 @@ export const useActiveWorkoutScreen = () => {
       return true;
     }
 
-    for (const activeEx of activeRoutine.exercises) {
-      const originalEx = originalRoutine.exercises.find(
-        (origEx) => origEx.id === activeEx.id,
-      );
+    for (let i = 0; i < activeRoutine.exercises.length; i++) {
+      const activeEx = activeRoutine.exercises[i];
+      const originalEx = originalRoutine.exercises[i];
 
-      if (!originalEx) return true;
+      // Reordenar cuenta como modificación
+      if (activeEx.id !== originalEx.id) {
+        return true;
+      }
 
       if (activeEx.sets.length !== originalEx.sets.length) {
         return true;
+      }
+
+      // Cambio de unidad cuenta como modificación
+      for (let j = 0; j < activeEx.sets.length; j++) {
+        if (activeEx.sets[j].weightUnit !== originalEx.sets[j].weightUnit) {
+          return true;
+        }
       }
     }
 
@@ -404,6 +512,7 @@ export const useActiveWorkoutScreen = () => {
     handleCloseSummary,
     handleCancelWorkout,
     getPreviousSet,
+    getExerciseHistoryDetails,
     isSavingHistory,
     ...activeWorkoutCtx,
   };

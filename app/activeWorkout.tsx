@@ -26,7 +26,9 @@ import {
 } from "../hooks/useRoutines";
 import { ExerciseListItem } from "../src/components/ExerciseListItem";
 import { ExerciseSelectorModal } from "../src/components/ExerciseSelectorModal";
+import { ExerciseHistoryModal } from "../src/components/ExerciseHistoryModal";
 import { ExerciseDetailsModal } from "../src/components/RoutinesModals";
+import { SetTypeSelectorModal } from "../src/components/SetTypeSelectorModal";
 import { WorkoutSummaryModal } from "../src/components/WorkoutSummaryModal";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
@@ -78,6 +80,8 @@ export default function ActiveWorkoutScreen() {
     muscleDistribution,
     handleSetChange,
     measurementSystem,
+    changeExerciseUnit,
+    changeSetType,
     addSetToExercise,
     removeSetFromExercise,
     toggleSetCompletion,
@@ -89,8 +93,8 @@ export default function ActiveWorkoutScreen() {
     handleCloseSummary,
     handleCancelWorkout,
     updateExerciseRestTime,
-    changeExerciseUnit,
     getPreviousSet,
+    getExerciseHistoryDetails,
     isSavingHistory,
     addExercisesToActiveRoutine,
     removeExerciseFromActiveRoutine,
@@ -111,6 +115,8 @@ export default function ActiveWorkoutScreen() {
   const [tempSelectedExercises, setTempSelectedExercises] = useState<
     ExerciseType[]
   >([]);
+  const [historyModalExDetails, setHistoryModalExDetails] = useState<ExerciseType | null>(null);
+  const [setTypeModalData, setSetTypeModalData] = useState<{ exId: string; setId: string; currentType: string } | null>(null);
 
   const keyboard = useAnimatedKeyboard();
   const insetsBottom = insets.bottom;
@@ -280,12 +286,14 @@ export default function ActiveWorkoutScreen() {
           unitText={unitText}
           measurementSystem={measurementSystem}
           onDetails={setDetailsExercise}
+          onOpenHistory={setHistoryModalExDetails}
           onRemoveEx={removeExerciseFromActiveRoutine}
           onOpenRest={openRestEditor}
           onUnitModal={setUnitModalExId}
           onRemoveSet={removeSetFromExercise}
           getPrevSet={getPreviousSet}
           onSetChange={handleSetChange}
+          onOpenSetTypeModal={(exId: string, setId: string, currentType: string) => setSetTypeModalData({ exId, setId, currentType })}
           onToggleCompletion={toggleSetCompletion}
           onAddSet={addSetToExercise}
         />
@@ -644,6 +652,24 @@ export default function ActiveWorkoutScreen() {
         onClose={() => setDetailsExercise(null)}
         exercise={detailsExercise}
       />
+
+      <ExerciseHistoryModal
+        visible={!!historyModalExDetails}
+        onClose={() => setHistoryModalExDetails(null)}
+        exerciseName={historyModalExDetails ? t(`exercises.${historyModalExDetails.id}`) : ""}
+        historyData={historyModalExDetails ? getExerciseHistoryDetails(historyModalExDetails.id) : null}
+      />
+
+      {setTypeModalData && (
+        <SetTypeSelectorModal
+          visible={!!setTypeModalData}
+          onClose={() => setSetTypeModalData(null)}
+          currentType={setTypeModalData.currentType}
+          onSelect={(newType) => {
+            changeSetType(setTypeModalData.exId, setTypeModalData.setId, newType);
+          }}
+        />
+      )}
 
       <ExerciseSelectorModal
         visible={exerciseModalVisible}

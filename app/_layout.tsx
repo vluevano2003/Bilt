@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
 import { useNetInfo } from "@react-native-community/netinfo";
 import * as Linking from "expo-linking";
@@ -19,6 +20,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
+  UIManager,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
@@ -41,6 +44,12 @@ const debugError = (...args: any[]) => {
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 /**
  * Manejador de notificaciones para controlar el comportamiento de las alertas.

@@ -20,6 +20,7 @@ import {
   ExerciseSet,
   Routine,
   RoutineExercise,
+  SetType,
   WeightUnit,
 } from "../../hooks/useRoutines";
 import { supabase } from "../config/supabase";
@@ -81,6 +82,7 @@ interface ActiveWorkoutContextProps {
     val: string,
   ) => void;
   changeExerciseUnit: (exId: string, newUnit: WeightUnit) => void;
+  changeSetType: (exId: string, setId: string, newType: SetType) => void;
   addSetToExercise: (exId: string) => void;
   removeSetFromExercise: (exId: string, setId: string) => void;
   toggleSetCompletion: (
@@ -909,6 +911,28 @@ export const ActiveWorkoutProvider = ({
     [],
   );
 
+  const changeSetType = useCallback(
+    (exId: string, setId: string, newType: SetType) => {
+      setActiveRoutine((prev) => {
+        if (!prev) return prev;
+        const updatedExercises = prev.exercises.map((ex) => {
+          if (ex.id === exId) {
+            const updatedSets = ex.sets.map((s) => {
+              if (s.id === setId) {
+                return { ...s, type: newType };
+              }
+              return s;
+            });
+            return { ...ex, sets: updatedSets };
+          }
+          return ex;
+        });
+        return { ...prev, exercises: updatedExercises };
+      });
+    },
+    [],
+  );
+
   /**
    * Agrega un nuevo set a un ejercicio específico. El nuevo set se inicializa con el mismo número de repeticiones, peso y unidad que el último set del ejercicio para facilitar la edición. Esto se llama cuando el usuario agrega un set en la pantalla de edición del entrenamiento activo. Debido a las limitaciones de React Native en segundo plano, esta función solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos agregar un nuevo set hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
    * @param exId
@@ -1094,6 +1118,7 @@ export const ActiveWorkoutProvider = ({
         finishWorkout,
         handleSetChange,
         changeExerciseUnit,
+        changeSetType,
         addSetToExercise,
         removeSetFromExercise,
         toggleSetCompletion,

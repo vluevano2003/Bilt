@@ -292,6 +292,14 @@
     "exercise": "Exercise",
     "set": "Set"
   },
+  "setTypes": {
+    "title": "Set Type",
+    "normal": { "name": "Normal", "desc": "Regular working set." },
+    "warmup": { "name": "Warmup", "desc": "Light set to prepare muscles." },
+    "dropset": { "name": "Drop Set", "desc": "Decreasing weight after failure." },
+    "topset": { "name": "Top Set", "desc": "The heaviest set of the exercise." },
+    "backoff": { "name": "Back Off Set", "desc": "Lighter set after a Top Set." }
+  },
   "activeWorkout": {
     "finish": "Finish",
     "pause": "Pause",
@@ -354,6 +362,17 @@
     "powerManagerAlertMsg": "Your device requires explicit permission to run apps in the background. Please enable 'Auto-start' or 'Run in background' for this app.",
     "emptyWorkoutTitle": "Empty Workout",
     "emptyWorkoutMsg": "You haven't completed any valid sets."
+  },
+  "historyModal": {
+    "title": "Workout History",
+    "maxWeight": "Max Weight",
+    "maxVolume": "Max Volume",
+    "maxBars": "Max Bars",
+    "maxPlates": "Max Plates",
+    "recentSessions": "Recent Sessions",
+    "close": "Close",
+    "noHistory": "No history available for this exercise yet.",
+    "set": "S{{num}}"
   },
   "muscles": {
     "chest": "Chest",

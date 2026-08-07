@@ -15,11 +15,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  LayoutAnimation,
 } from "react-native";
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
+import { Swipeable, TouchableOpacity as GHTouchableOpacity } from "react-native-gesture-handler";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
@@ -28,6 +31,64 @@ import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
+import { SetTypeSelectorModal } from "./SetTypeSelectorModal";
+
+const cycleSetType = (currentType: string) => {
+  switch (currentType) {
+    case "normal": return "warmup";
+    case "warmup": return "dropset";
+    case "dropset": return "topset";
+    case "topset": return "backoff";
+    case "backoff": return "normal";
+    default: return "normal";
+  }
+};
+
+const getSetTypeLabel = (type: string, index: number, sets?: any[]) => {
+  if (type && type !== "normal") {
+    switch (type) {
+      case "warmup": return "W";
+      case "dropset": return "D";
+      case "topset": return "T";
+      case "backoff": return "B";
+    }
+  }
+
+  if (!sets) return (index + 1).toString();
+
+  let normalCount = 0;
+  for (let i = 0; i <= index; i++) {
+    const sType = sets[i]?.type;
+    if (!sType || sType === "normal") {
+      normalCount++;
+    }
+  }
+  return normalCount.toString();
+};
+
+const getSetTypeColor = (type: string, defaultColor: string) => {
+  switch (type) {
+    case "warmup": return "#F59E0B";
+    case "dropset": return "#3B82F6";
+    case "topset": return "#EF4444";
+    case "backoff": return "#10B981";
+    case "normal":
+    default:
+      return defaultColor;
+  }
+};
+
+const getSetTypeBackground = (type: string | undefined) => {
+  switch (type) {
+    case "warmup": return "rgba(245, 158, 11, 0.05)"; // Amber
+    case "dropset": return "rgba(59, 130, 246, 0.05)"; // Blue
+    case "topset": return "rgba(239, 68, 68, 0.05)"; // Red
+    case "backoff": return "rgba(16, 185, 129, 0.05)"; // Green
+    case "normal":
+    default:
+      return "rgba(0,0,0,0.02)";
+  }
+};
 
 /**
  * Modal para mostrar los detalles de un ejercicio, con imagen (si existe), descripción y músculos trabajados, y opción a cerrar el modal
@@ -829,6 +890,23 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   const [detailsExercise, setDetailsExercise] = useState<any | null>(null);
+  const [setTypeModalData, setSetTypeModalData] = useState<{ exId: string; setId: string; currentType: string } | null>(null);
+  const [swipingSets, setSwipingSets] = useState<Record<string, boolean>>({});
+
+  const handleAddSet = (exerciseId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    editor.addSetToExercise(exerciseId);
+  };
+
+  const handleRemoveSet = (exerciseId: string, setId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    editor.removeSetFromExercise(exerciseId, setId);
+  };
+
+  const handleRemoveExercise = (exerciseId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    editor.removeExerciseFromRoutine(exerciseId);
+  };
 
   /**
    * Render para cada ejercicio de la rutina, mostrando su nombre, grupo muscular, sets y opciones para eliminar el ejercicio o agregar/quitar sets, con drag handle para reordenar (drag)
@@ -896,7 +974,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <TouchableOpacity
-                onPress={() => editor.removeExercise(routineEx.id)}
+                onPress={() => handleRemoveExercise(routineEx.id)}
                 style={{ padding: scale(8), marginRight: scale(2) }}
               >
                 <Feather name="trash-2" size={scale(20)} color="#EF4444" />
@@ -914,37 +992,77 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               </TouchableOpacity>
             </View>
           </View>
-          {routineEx.sets.map((set: any, setIndex: number) => (
-            <View
-              key={set.id}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                backgroundColor: "rgba(0,0,0,0.02)",
-                padding: scale(8),
-                borderRadius: scale(6),
-                marginBottom: verticalScale(5),
-                marginRight: scale(10),
-              }}
-            >
-              <Text style={{ color: colors.textPrimary, fontWeight: "500" }}>
-                {t("routines.set")} {setIndex + 1}
-              </Text>
-              <TouchableOpacity
-                onPress={() =>
-                  editor.removeSetFromExercise(routineEx.id, set.id)
-                }
-                style={{ padding: scale(5) }}
+          {routineEx.sets.map((set: any, setIndex: number) => {
+            const renderLeftActions = () => (
+              <GHTouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: scale(50),
+                  height: "100%",
+                }}
+                onPress={() => handleRemoveSet(routineEx.id, set.id)}
               >
-                <Feather
-                  name="minus-circle"
-                  size={scale(18)}
-                  color={colors.textSecondary}
-                />
-              </TouchableOpacity>
+                <Feather name="trash-2" size={scale(24)} color="#EF4444" />
+              </GHTouchableOpacity>
+            );
+
+            return (
+              <View key={set.id} style={{ marginBottom: verticalScale(5) }}>
+                <Swipeable 
+                  renderLeftActions={renderLeftActions} 
+                  overshootLeft={false}
+                  onSwipeableWillOpen={() => setSwipingSets(prev => ({ ...prev, [set.id]: true }))}
+                  onSwipeableWillClose={() => setSwipingSets(prev => ({ ...prev, [set.id]: false }))}
+                >
+                  <View
+                    style={[{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      backgroundColor: getSetTypeBackground(set.type),
+                      padding: scale(8),
+                      borderRadius: scale(6),
+                      marginBottom: 0,
+                      overflow: "hidden",
+                      borderLeftWidth: scale(4),
+                      borderLeftColor: "rgba(239, 68, 68, 0.4)",
+                    }, swipingSets[set.id] && { backgroundColor: "rgba(239, 68, 68, 0.15)" }]}
+                  >
+                  <GHTouchableOpacity
+                    onPress={() => {
+                      if (editor.changeSetType) {
+                        setSetTypeModalData({ exId: routineEx.id, setId: set.id, currentType: set.type || "normal" });
+                      }
+                    }}
+                    style={{
+                      backgroundColor: (set.type && set.type !== "normal") ? getSetTypeColor(set.type, "transparent") : "rgba(0,0,0,0.05)",
+                      width: scale(28),
+                      height: scale(28),
+                      borderRadius: scale(14),
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: scale(10),
+                      borderWidth: (set.type && set.type !== "normal") ? 0 : 1,
+                      borderColor: colors.border,
+                    }}
+                  >
+                    <Text style={{ 
+                      color: (set.type && set.type !== "normal") ? "#FFF" : colors.textPrimary, 
+                      fontWeight: "bold",
+                      fontSize: moderateScale(12) 
+                    }}>
+                      {getSetTypeLabel(set.type, setIndex, routineEx.sets)}
+                    </Text>
+                  </GHTouchableOpacity>
+                  <Text style={{ color: colors.textPrimary, fontWeight: "500", flex: 1 }}>
+                    {t("routines.set")} {setIndex + 1}
+                  </Text>
+                </View>
+              </Swipeable>
             </View>
-          ))}
+            );
+          })}
           <TouchableOpacity
             style={{
               marginTop: verticalScale(10),
@@ -952,7 +1070,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
               alignItems: "center",
               alignSelf: "flex-start",
             }}
-            onPress={() => editor.addSetToExercise(routineEx.id)}
+            onPress={() => handleAddSet(routineEx.id)}
           >
             <Feather
               name="plus"
@@ -1093,12 +1211,12 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
                       <View style={styles.buttonsRow}>
                         {editor.editingRoutine && (
                           <View style={{ flex: 1, marginRight: scale(10) }}>
-                            <SecondaryButton
+                            <PrimaryButton
                               title={t("routines.delete")}
                               onPress={() =>
                                 handleDelete(editor.editingRoutine!.id)
                               }
-                              style={{ borderColor: "#EF4444" }}
+                              style={{ backgroundColor: "#EF4444" }}
                             />
                           </View>
                         )}
@@ -1127,6 +1245,18 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
         onClose={() => setDetailsExercise(null)}
         exercise={detailsExercise}
       />
+      {setTypeModalData && (
+        <SetTypeSelectorModal
+          visible={!!setTypeModalData}
+          onClose={() => setSetTypeModalData(null)}
+          currentType={setTypeModalData.currentType}
+          onSelect={(newType) => {
+            if (editor.changeSetType) {
+              editor.changeSetType(setTypeModalData.exId, setTypeModalData.setId, newType);
+            }
+          }}
+        />
+      )}
     </>
   );
 };

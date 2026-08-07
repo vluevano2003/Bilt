@@ -17,8 +17,9 @@ export type SetType =
   | "warmup"
   | "normal"
   | "dropset"
-  | "superset"
-  | "rest_pause";
+  | "topset"
+  | "backoff";
+
 
 export type WeightUnit =
   | "kg"
