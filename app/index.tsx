@@ -25,6 +25,7 @@ import { CustomInput } from "../src/components/CustomInput";
 import { GoogleSignInButton } from "../src/components/GoogleSignInButton";
 import { PrimaryButton } from "../src/components/PrimaryButton";
 import { SecondaryButton } from "../src/components/SecondaryButton";
+import { useAuth } from "../src/context/AuthContext";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Login.styles";
 
@@ -39,6 +40,7 @@ const debugError = (...args: any[]) => {
 export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const { colors, isDarkMode, toggleTheme } = useTheme();
+  const { user, hasProfile, isLoading: isAuthLoading } = useAuth();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
 
@@ -151,6 +153,10 @@ export default function LoginScreen() {
   };
 
   const showOverlay = isLoading || isGoogleLoading;
+
+  if (isAuthLoading || (user && hasProfile)) {
+    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  }
 
   // Resto del código de renderizado de la pantalla, incluyendo el formulario de login/registro, selección de idioma y tema, y el overlay de carga
   return (
@@ -608,7 +614,7 @@ export default function LoginScreen() {
                       style={[
                         styles.segmentButton,
                         measurementSystem === "metric" &&
-                          styles.segmentButtonActive,
+                        styles.segmentButtonActive,
                       ]}
                       onPress={() => setMeasurementSystem("metric")}
                     >
@@ -616,7 +622,7 @@ export default function LoginScreen() {
                         style={[
                           styles.segmentText,
                           measurementSystem === "metric" &&
-                            styles.segmentTextActive,
+                          styles.segmentTextActive,
                         ]}
                       >
                         {t("register.metric")}
@@ -626,7 +632,7 @@ export default function LoginScreen() {
                       style={[
                         styles.segmentButton,
                         measurementSystem === "imperial" &&
-                          styles.segmentButtonActive,
+                        styles.segmentButtonActive,
                       ]}
                       onPress={() => setMeasurementSystem("imperial")}
                     >
@@ -634,7 +640,7 @@ export default function LoginScreen() {
                         style={[
                           styles.segmentText,
                           measurementSystem === "imperial" &&
-                            styles.segmentTextActive,
+                          styles.segmentTextActive,
                         ]}
                       >
                         {t("register.imperial")}

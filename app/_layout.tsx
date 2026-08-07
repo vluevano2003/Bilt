@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
 import { useNetInfo } from "@react-native-community/netinfo";
 import * as Linking from "expo-linking";
@@ -9,6 +10,7 @@ import {
   useSegments,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,6 +20,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
+  UIManager,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import mobileAds from "react-native-google-mobile-ads";
@@ -27,6 +31,7 @@ import { MiniWorkoutPlayer } from "../src/components/MiniWorkoutPlayer";
 import "../src/config/i18n";
 import { ActiveWorkoutProvider } from "../src/context/ActiveWorkoutContext";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { CustomAlertProvider } from "../src/context/CustomAlertContext";
 import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
@@ -39,6 +44,12 @@ const debugError = (...args: any[]) => {
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 /**
  * Manejador de notificaciones para controlar el comportamiento de las alertas.
@@ -80,7 +91,7 @@ function RootLayoutNav() {
   const { user, isLoading, hasProfile, isError, retryInit } = useAuth();
   const router = useRouter();
   const segments = useSegments();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const rootNavigationState = useRootNavigationState();
 
   const { t } = useTranslation();
@@ -155,6 +166,7 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style={isDarkMode ? "light" : "dark"} backgroundColor={colors.background} />
       {/* El Stack siempre se renderiza para no perder el historial de navegación */}
       <Stack screenOptions={{ headerShown: false, animation: "none" }}>
         <Stack.Screen name="index" />
@@ -250,12 +262,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <AuthProvider>
-          <ActiveWorkoutProvider>
-            <RootLayoutNav />
-            <MiniWorkoutPlayer />
-          </ActiveWorkoutProvider>
-        </AuthProvider>
+        <CustomAlertProvider>
+          <AuthProvider>
+            <ActiveWorkoutProvider>
+              <RootLayoutNav />
+              <MiniWorkoutPlayer />
+            </ActiveWorkoutProvider>
+          </AuthProvider>
+        </CustomAlertProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

@@ -251,7 +251,7 @@ export default function SocialScreen() {
       const results: SearchResult[] = [];
       if (data) {
         data.forEach((doc) => {
-          if (doc.id !== user?.id && !blockedIds.has(doc.id)) {
+          if (!blockedIds.has(doc.id)) {
             results.push({
               id: doc.id,
               username: doc.username,
@@ -359,6 +359,7 @@ export default function SocialScreen() {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
+                  paddingTop: verticalScale(20),
                   paddingBottom: verticalScale(100) + insets.bottom,
                 }}
               />
@@ -396,6 +397,7 @@ export default function SocialScreen() {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
+                  paddingTop: verticalScale(20),
                   paddingBottom: verticalScale(100) + insets.bottom,
                 }}
                 refreshControl={

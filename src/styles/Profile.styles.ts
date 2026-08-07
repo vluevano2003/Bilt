@@ -241,7 +241,7 @@ export const getStyles = (colors: any) =>
       fontSize: moderateScale(13),
       fontWeight: "600",
     },
-    segmentTextActive: { color: colors.textPrimary },
+    segmentTextActive: { color: "#FFF" },
 
     //Historial de actividad, publicaciones, rutinas, etc.
     historySectionContainer: {

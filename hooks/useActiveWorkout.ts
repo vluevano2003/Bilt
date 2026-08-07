@@ -22,7 +22,7 @@ const debugError = (...args: any[]) => {
 export const useActiveWorkoutScreen = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { saveRoutine } = useRoutines();
+  const { saveRoutine, exercisesDb } = useRoutines();
   const activeWorkoutCtx = useActiveWorkout();
   const { measurementSystem, weight: userWeightString } = useProfile();
   const { user } = useAuth();
@@ -65,11 +65,12 @@ export const useActiveWorkoutScreen = () => {
    * @param unit
    * @returns
    */
-  const getConvertedWeight = (itemWeight: number, unit: string) => {
-    if (unit === "bars" || unit === "plates") return 0;
+  const getConvertedWeight = (itemWeight: number, unit: string, userWeightOverride?: string) => {
+    if (unit === "bars" || unit === "plates" || unit === "km" || unit === "mi")
+      return 0;
 
     let w = Number(itemWeight) || 0;
-    const userW = Number(userWeightString) || 0;
+    const userW = Number(userWeightOverride ?? userWeightString) || 0;
 
     if (unit === "bodyweight") {
       w += userW;
@@ -106,6 +107,13 @@ export const useActiveWorkoutScreen = () => {
             pastSet.reps > 0 ||
             pastSet.weightUnit === "bodyweight"
           ) {
+            if (pastSet.weightUnit === "km" || pastSet.weightUnit === "mi") {
+              const translatedUnit = t(
+                `activeWorkout.units.${pastSet.weightUnit}`,
+              );
+              return `${pastSet.weight} ${translatedUnit} x ${pastSet.reps} min`;
+            }
+
             let formattedWeight = "";
 
             if (
@@ -117,8 +125,19 @@ export const useActiveWorkoutScreen = () => {
               );
               formattedWeight = `${pastSet.weight} ${translatedUnit}`;
             } else if (pastSet.weightUnit === "bodyweight") {
+              let unitToDisplay = pastSet.bwUnit;
+              if (!unitToDisplay) {
+                pastExercise.sets.forEach((st: any) => {
+                  if (st.weightUnit === "kg" || st.weightUnit === "lbs") {
+                    unitToDisplay = st.weightUnit === "lbs" ? "lb" : "kg";
+                  }
+                });
+                if (!unitToDisplay) {
+                  unitToDisplay = measurementSystem === "imperial" ? "lb" : "kg";
+                }
+              }
               formattedWeight =
-                pastSet.weight > 0 ? `BW+${pastSet.weight}` : "BW";
+                pastSet.weight > 0 ? `BW+${pastSet.weight} ${unitToDisplay}` : "BW";
             } else {
               const unit = pastSet.weightUnit === "lbs" ? "lb" : "kg";
               formattedWeight = `${pastSet.weight}${unit}`;
@@ -131,6 +150,125 @@ export const useActiveWorkoutScreen = () => {
       return "-";
     },
     [userHistory, t],
+  );
+
+  /**
+   * Obtiene el historial detallado de un ejercicio (últimos 5 entrenamientos, max peso, max volumen, etc.)
+   */
+  const getExerciseHistoryDetails = useCallback(
+    (globalExerciseId: string) => {
+      if (!userHistory || userHistory.length === 0) return null;
+
+      const sortedHistory = [...userHistory].sort((a, b) => {
+        const dateA = new Date(a.completedAt || 0).getTime();
+        const dateB = new Date(b.completedAt || 0).getTime();
+        return dateB - dateA;
+      });
+
+      const sessions: any[] = [];
+      let maxWeight = 0;
+      let maxWeightConverted = 0;
+      let maxWeightUnit = "";
+      let maxWeightSet: any = null;
+
+      let maxVolume = 0;
+      let maxVolumeConverted = 0;
+      let maxVolumeUnit = "";
+      let maxVolumeSets: any[] = [];
+
+      let maxBars = 0;
+      let maxPlates = 0;
+
+      for (const session of sortedHistory) {
+        const pastExercise = session.exercises?.find(
+          (ex: any) => ex.exerciseDetails?.id === globalExerciseId,
+        );
+
+        if (pastExercise && pastExercise.sets && pastExercise.sets.length > 0) {
+          const completedSets = pastExercise.sets.filter(
+            (s: any) => (s.weight > 0 || s.reps > 0 || s.weightUnit === "bodyweight") && s.type !== "warmup"
+          );
+
+          if (completedSets.length > 0) {
+            let sessionMaxWeight = 0;
+
+            let inferredUnit = measurementSystem === "metric" ? "kg" : "lbs";
+            session.exercises?.forEach((e: any) => {
+              e.sets?.forEach((st: any) => {
+                if (st.weightUnit === "kg" || st.weightUnit === "lbs") {
+                  inferredUnit = st.weightUnit;
+                }
+              });
+            });
+
+            completedSets.forEach((s: any) => {
+              if (s.weightUnit === "bars") {
+                if (s.weight > maxBars) maxBars = s.weight;
+              } else if (s.weightUnit === "plates") {
+                if (s.weight > maxPlates) maxPlates = s.weight;
+              } else if (s.weightUnit !== "km" && s.weightUnit !== "mi") {
+                const effectiveUnit = s.weightUnit === "bodyweight" ? (s.bwUnit || inferredUnit) : s.weightUnit;
+                const effectiveUserWeight = s.bwUserWeight || userWeightString;
+                const convertedWeight = getConvertedWeight(s.weight, effectiveUnit, effectiveUserWeight);
+
+                const trueWeight = s.weightUnit === "bodyweight" ? (Number(s.weight) + Number(effectiveUserWeight || 0)) : s.weight;
+                const trueUnit = s.weightUnit === "bodyweight" ? (s.bwUnit || inferredUnit) : s.weightUnit;
+
+                if (convertedWeight > sessionMaxWeight) sessionMaxWeight = convertedWeight;
+
+                if (convertedWeight > maxWeightConverted) {
+                  maxWeightConverted = convertedWeight;
+                  maxWeight = trueWeight;
+                  maxWeightUnit = trueUnit;
+                  maxWeightSet = s;
+                }
+
+                // Calcular volumen de ESTA serie individual
+                const setVolume = trueWeight * s.reps;
+                const setVolumeConverted = convertedWeight * s.reps;
+
+                if (setVolumeConverted > maxVolumeConverted) {
+                  maxVolumeConverted = setVolumeConverted;
+                  maxVolume = setVolume;
+                  maxVolumeUnit = trueUnit;
+                  maxVolumeSets = [s];
+                }
+              } else if (s.weightUnit === "km" || s.weightUnit === "mi") {
+                // For cardio
+                if (s.weight > maxWeight) {
+                  maxWeight = s.weight;
+                  maxWeightUnit = s.weightUnit;
+                  maxWeightSet = s;
+                }
+              }
+            });
+
+            sessions.push({
+              date: session.completedAt,
+              routineName: session.routineName,
+              sets: completedSets,
+              maxWeight: sessionMaxWeight,
+            });
+          }
+        }
+      }
+
+      if (sessions.length === 0) return null;
+
+      return {
+        recentSessions: sessions.slice(0, 5),
+        maxWeight,
+        maxWeightUnit: maxWeightUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
+        maxWeightSet,
+        maxVolume,
+        maxVolumeUnit: maxVolumeUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
+        maxVolumeSets,
+        maxBars,
+        maxPlates,
+        chartData: sessions.slice(0, 15).reverse().filter(s => s.maxWeight > 0).map(s => ({ date: s.date, weight: s.maxWeight })),
+      };
+    },
+    [userHistory, measurementSystem, userWeightString],
   );
 
   const stats = useMemo(() => {
@@ -162,7 +300,8 @@ export const useActiveWorkoutScreen = () => {
     let total = 0;
 
     activeRoutine.exercises.forEach((ex) => {
-      const muscle = ex.exerciseDetails.muscleGroup;
+      const currentExDb = exercisesDb?.find((dbEx) => dbEx.id === ex.exerciseDetails.id);
+      const muscle = currentExDb ? currentExDb.muscleGroup : ex.exerciseDetails.muscleGroup;
       const completedInEx = ex.sets.filter((s) => s.completed).length;
       if (completedInEx > 0) {
         counts[muscle] = (counts[muscle] || 0) + completedInEx;
@@ -176,7 +315,7 @@ export const useActiveWorkoutScreen = () => {
         percentage: (counts[m] / total) * 100,
       }))
       .sort((a, b) => b.percentage - a.percentage);
-  }, [activeRoutine]);
+  }, [activeRoutine, exercisesDb]);
 
   /**
    * Formatea un tiempo dado en segundos a una cadena legible, mostrando horas y minutos si el tiempo es suficientemente largo, o minutos y segundos para tiempos más cortos. Esto se utiliza para mostrar el tiempo transcurrido del workout activo y el tiempo de descanso restante de manera clara para el usuario.
@@ -217,15 +356,24 @@ export const useActiveWorkoutScreen = () => {
       return true;
     }
 
-    for (const activeEx of activeRoutine.exercises) {
-      const originalEx = originalRoutine.exercises.find(
-        (origEx) => origEx.id === activeEx.id,
-      );
+    for (let i = 0; i < activeRoutine.exercises.length; i++) {
+      const activeEx = activeRoutine.exercises[i];
+      const originalEx = originalRoutine.exercises[i];
 
-      if (!originalEx) return true;
+      // Reordenar cuenta como modificación
+      if (activeEx.id !== originalEx.id) {
+        return true;
+      }
 
       if (activeEx.sets.length !== originalEx.sets.length) {
         return true;
+      }
+
+      // Cambio de unidad cuenta como modificación
+      for (let j = 0; j < activeEx.sets.length; j++) {
+        if (activeEx.sets[j].weightUnit !== originalEx.sets[j].weightUnit) {
+          return true;
+        }
       }
     }
 
@@ -239,7 +387,7 @@ export const useActiveWorkoutScreen = () => {
     setShowSummary(true);
     setIsSavingHistory(true);
     try {
-      await finishWorkout();
+      await finishWorkout(measurementSystem, userWeightString);
     } catch (error) {
       setShowSummary(false);
     } finally {
@@ -395,6 +543,7 @@ export const useActiveWorkoutScreen = () => {
     handleCloseSummary,
     handleCancelWorkout,
     getPreviousSet,
+    getExerciseHistoryDetails,
     isSavingHistory,
     ...activeWorkoutCtx,
   };

@@ -24,7 +24,7 @@ export const getStyles = (colors: any) =>
       borderBottomColor: colors.primary,
       paddingBottom: verticalScale(5),
     },
-    content: { padding: scale(20), flex: 1 },
+    content: { paddingHorizontal: scale(20), flex: 1 },
 
     //Buscador y feed
     searchBar: {
@@ -33,7 +33,7 @@ export const getStyles = (colors: any) =>
       padding: scale(12),
       borderRadius: scale(10),
       alignItems: "center",
-      marginBottom: verticalScale(20),
+      marginTop: verticalScale(20),
       borderWidth: 1,
       borderColor: colors.border,
     },

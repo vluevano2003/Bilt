@@ -57,18 +57,8 @@ export const EditProfileModal = ({
         style={{ flex: 1 }}
       >
         <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              {
-                paddingBottom: Math.max(
-                  verticalScale(40),
-                  insets.bottom + verticalScale(20),
-                ),
-              },
-            ]}
-          >
-            <View style={styles.modalHeader}>
+          <View style={[styles.modalContent, { paddingBottom: 0 }]}>
+            <View style={[styles.modalHeader, { paddingBottom: verticalScale(15), marginBottom: verticalScale(5) }]}>
               <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
               <TouchableOpacity onPress={onClose}>
                 <AntDesign
@@ -82,7 +72,13 @@ export const EditProfileModal = ({
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: verticalScale(60) }}
+              contentContainerStyle={{
+                paddingTop: verticalScale(20),
+                paddingBottom: Math.max(
+                  verticalScale(40),
+                  insets.bottom + verticalScale(20),
+                ),
+              }}
             >
               <TouchableOpacity
                 style={[styles.avatarContainer, { alignSelf: "center" }]}
@@ -112,46 +108,6 @@ export const EditProfileModal = ({
                 value={editUsername}
                 onChangeText={setEditUsername}
               />
-
-              <Text style={styles.label}>{t("profile.measurementSystem")}</Text>
-              <View style={styles.formSegmentContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    editMeasurementSystem === "metric" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("metric")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      editMeasurementSystem === "metric" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.metric")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    editMeasurementSystem === "imperial" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("imperial")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      editMeasurementSystem === "imperial" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.imperial")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
               <View style={styles.rowInputs}>
                 <View style={styles.halfInput}>
@@ -240,11 +196,22 @@ export const EditProfileModal = ({
                   onPress={handleSave}
                   loading={isSaving}
                 />
-                <SecondaryButton
-                  title={t("profile.cancel")}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: colors.border,
+                    paddingVertical: verticalScale(14),
+                    borderRadius: scale(10),
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                   onPress={onClose}
                   disabled={isSaving}
-                />
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: colors.textPrimary, fontWeight: "bold", fontSize: scale(16) }}>
+                    {t("profile.cancel")}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </ScrollView>
           </View>

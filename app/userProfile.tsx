@@ -37,11 +37,11 @@ import {
 } from "../src/components/UserProfileUI";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Profile.styles";
-import {
-  calculateTotalVolume,
-  formatDuration,
-} from "../src/utils/profileHelpers";
 import { shareProfile } from "../src/utils/shareHelpers";
+import {
+  calculateSessionVolume,
+  formatDuration,
+} from "../src/utils/workoutCalculations";
 
 /**
  * Pantalla de perfil de usuario. Muestra la información del usuario, sus rutinas, historial y packs semanales.
@@ -83,13 +83,6 @@ export default function UserProfileScreen() {
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Redirige al perfil propio si el usuario accede a su propio perfil a través de la URL
-  useEffect(() => {
-    if (!profile.isLoading && profile.isOwnProfile) {
-      router.replace("/(tabs)/profile");
-    }
-  }, [profile.isLoading, profile.isOwnProfile]);
 
   // Maneja el botón de retroceso en Android para cerrar modales o volver a la pantalla anterior
   useEffect(() => {
@@ -214,8 +207,8 @@ export default function UserProfileScreen() {
     }
   };
 
-  // Muestra un indicador de carga mientras se obtiene la información del perfil o si el usuario está viendo su propio perfil a través de la URL (lo que redirigirá automáticamente al perfil principal).
-  if (profile.isLoading || profile.isOwnProfile) {
+  // Muestra un indicador de carga mientras se obtiene la información del perfil.
+  if (profile.isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -462,9 +455,10 @@ export default function UserProfileScreen() {
                                     name="activity"
                                     size={moderateScale(12)}
                                   />{" "}
-                                  {calculateTotalVolume(
+                                  {calculateSessionVolume(
                                     session,
                                     profile.measurementSystem,
+                                    profile.weight,
                                   )}{" "}
                                   {profile.measurementSystem === "metric"
                                     ? "kg"
@@ -679,6 +673,7 @@ export default function UserProfileScreen() {
         item={selectedItem}
         isSaved={!!actions.getSavedRoutineId(selectedItem?.id)}
         system={profile.measurementSystem}
+        userWeight={profile.weight}
         onToggleSave={() =>
           actions.handleToggleSaveRoutine(selectedItem, () =>
             setDetailsModalVisible(false),

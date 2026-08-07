@@ -147,6 +147,7 @@ const WorkoutHistoryList = ({
   setHistoryLimit,
   isLoadingActivity,
   measurementSystem,
+  userWeight,
   openDetails,
 }: any) => {
   if (isLoadingActivity) {
@@ -163,7 +164,11 @@ const WorkoutHistoryList = ({
     <>
       {userHistory.slice(0, historyLimit).map((session: any) => {
         const durationMins = formatDuration(session.durationSeconds);
-        const totalVolume = calculateSessionVolume(session, measurementSystem);
+        const totalVolume = calculateSessionVolume(
+          session,
+          measurementSystem,
+          userWeight,
+        );
         const volumeUnit = measurementSystem === "metric" ? "kg" : "lbs";
 
         return (
@@ -239,6 +244,7 @@ export default function ProfileScreen() {
     setEditHeight,
     editWeight,
     setEditWeight,
+    weight,
     editBio,
     setEditBio,
     editMeasurementSystem,
@@ -249,6 +255,7 @@ export default function ProfileScreen() {
     followingCount,
     getSocialList,
     changeMeasurementSystem,
+    updateMeasurementSystem,
     getBlockedUsersList,
     unblockUserFromList,
     deleteAccount,
@@ -408,6 +415,7 @@ export default function ProfileScreen() {
               setHistoryLimit={setHistoryLimit}
               isLoadingActivity={isLoadingActivity}
               measurementSystem={measurementSystem}
+              userWeight={weight}
               openDetails={openDetails}
             />
           </View>
@@ -465,6 +473,8 @@ export default function ProfileScreen() {
         i18n={i18n}
         toggleLanguage={toggleLanguage}
         colors={colors}
+        measurementSystem={measurementSystem}
+        updateMeasurementSystem={updateMeasurementSystem}
       />
 
       <SocialListModal

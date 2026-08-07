@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { useInterstitialAd } from "./useInterstitialAd";
 import { WeeklyPack } from "./useWeeklyPacks";
 
 /**
@@ -28,6 +29,7 @@ export const useRoutinesActions = (
   closeEditorModal: () => void,
 ) => {
   const { t } = useTranslation();
+  const { showAdIfLoaded } = useInterstitialAd();
 
   const [packModalVisible, setPackModalVisible] = useState(false);
   const [editingPackId, setEditingPackId] = useState<string | null>(null);
@@ -72,6 +74,7 @@ export const useRoutinesActions = (
     setPackName("");
     setPackDescription("");
     setSelectedRoutineIds([]);
+    showAdIfLoaded();
   };
 
   /**

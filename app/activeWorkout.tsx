@@ -8,11 +8,12 @@ import {
   SafeAreaView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import DraggableFlatList, {
   RenderItemParams,
 } from "react-native-draggable-flatlist";
+import Animated, { interpolate, useAnimatedKeyboard, useAnimatedStyle } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
@@ -25,7 +26,9 @@ import {
 } from "../hooks/useRoutines";
 import { ExerciseListItem } from "../src/components/ExerciseListItem";
 import { ExerciseSelectorModal } from "../src/components/ExerciseSelectorModal";
+import { ExerciseHistoryModal } from "../src/components/ExerciseHistoryModal";
 import { ExerciseDetailsModal } from "../src/components/RoutinesModals";
+import { SetTypeSelectorModal } from "../src/components/SetTypeSelectorModal";
 import { WorkoutSummaryModal } from "../src/components/WorkoutSummaryModal";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/ActiveWorkout.styles";
@@ -77,6 +80,8 @@ export default function ActiveWorkoutScreen() {
     muscleDistribution,
     handleSetChange,
     measurementSystem,
+    changeExerciseUnit,
+    changeSetType,
     addSetToExercise,
     removeSetFromExercise,
     toggleSetCompletion,
@@ -88,8 +93,8 @@ export default function ActiveWorkoutScreen() {
     handleCloseSummary,
     handleCancelWorkout,
     updateExerciseRestTime,
-    changeExerciseUnit,
     getPreviousSet,
+    getExerciseHistoryDetails,
     isSavingHistory,
     addExercisesToActiveRoutine,
     removeExerciseFromActiveRoutine,
@@ -110,6 +115,22 @@ export default function ActiveWorkoutScreen() {
   const [tempSelectedExercises, setTempSelectedExercises] = useState<
     ExerciseType[]
   >([]);
+  const [historyModalExDetails, setHistoryModalExDetails] = useState<ExerciseType | null>(null);
+  const [setTypeModalData, setSetTypeModalData] = useState<{ exId: string; setId: string; currentType: string } | null>(null);
+
+  const keyboard = useAnimatedKeyboard();
+  const insetsBottom = insets.bottom;
+  const defaultPadding = Math.max(verticalScale(40), insetsBottom + verticalScale(15));
+  const activePadding = verticalScale(15);
+
+  const animatedKeyboardStyle = useAnimatedStyle(() => {
+    const kbHeight = keyboard.height.value;
+
+    return {
+      transform: [{ translateY: -kbHeight }],
+      paddingBottom: interpolate(kbHeight, [0, 50], [defaultPadding, activePadding], "clamp"),
+    };
+  });
 
   const volumeUnitText = measurementSystem === "metric" ? "kg" : "lbs";
 
@@ -177,21 +198,35 @@ export default function ActiveWorkoutScreen() {
    * Confirma la selección de ejercicios y los agrega a la rutina activa. Convierte los ejercicios seleccionados en el formato requerido por la rutina activa, asignándoles IDs únicos, tiempos de descanso predeterminados, y una configuración inicial de sets. Luego llama a la función para agregar estos ejercicios a la rutina activa y cierra el modal de selección.
    */
   const confirmSelectedExercises = () => {
-    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      exerciseDetails: ex,
-      restTimeSeconds: 90,
-      sets: [
-        {
-          id: Math.random().toString(36).substr(2, 9),
-          type: "normal",
-          reps: 0,
-          weight: 0,
-          weightUnit: measurementSystem === "metric" ? "kg" : "lbs",
-          completed: false,
-        },
-      ],
-    }));
+    const newExercises: RoutineExercise[] = tempSelectedExercises.map((ex) => {
+      const isCardio = ex.muscleGroup === "cardio";
+      const isBodyweight = ex.equipment === "bodyweight";
+
+      let defaultUnit: any = "kg";
+      if (isCardio) {
+        defaultUnit = measurementSystem === "metric" ? "km" : "mi";
+      } else if (isBodyweight) {
+        defaultUnit = "bodyweight";
+      } else {
+        defaultUnit = measurementSystem === "metric" ? "kg" : "lbs";
+      }
+
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        exerciseDetails: ex,
+        restTimeSeconds: 90,
+        sets: [
+          {
+            id: Math.random().toString(36).substr(2, 9),
+            type: "normal",
+            reps: 0,
+            weight: 0,
+            weightUnit: defaultUnit,
+            completed: false,
+          },
+        ],
+      };
+    });
     addExercisesToActiveRoutine(newExercises);
     setExerciseModalVisible(false);
   };
@@ -223,9 +258,22 @@ export default function ActiveWorkoutScreen() {
    */
   const renderDraggableExercise = useCallback(
     ({ item: exercise, drag, isActive }: RenderItemParams<RoutineExercise>) => {
-      const unitText = exercise.sets[0]
-        ? t(`activeWorkout.units.${exercise.sets[0].weightUnit}`)
-        : "KG";
+      const isCardio = exercise.exerciseDetails.muscleGroup === "cardio";
+
+      let currentUnit = exercise.sets[0]?.weightUnit;
+
+      if (isCardio && (currentUnit === "kg" || currentUnit === "lbs")) {
+        currentUnit = measurementSystem === "metric" ? "km" : "mi";
+      }
+
+      const unitText = currentUnit
+        ? t(`activeWorkout.units.${currentUnit}`)
+        : isCardio
+          ? measurementSystem === "metric"
+            ? "km"
+            : "mi"
+          : "KG";
+
       return (
         <ExerciseListItem
           exercise={exercise}
@@ -236,22 +284,24 @@ export default function ActiveWorkoutScreen() {
           t={t}
           isReadonly={isReadonly}
           unitText={unitText}
+          measurementSystem={measurementSystem}
           onDetails={setDetailsExercise}
+          onOpenHistory={setHistoryModalExDetails}
           onRemoveEx={removeExerciseFromActiveRoutine}
           onOpenRest={openRestEditor}
           onUnitModal={setUnitModalExId}
           onRemoveSet={removeSetFromExercise}
           getPrevSet={getPreviousSet}
           onSetChange={handleSetChange}
+          onOpenSetTypeModal={(exId: string, setId: string, currentType: string) => setSetTypeModalData({ exId, setId, currentType })}
           onToggleCompletion={toggleSetCompletion}
           onAddSet={addSetToExercise}
         />
       );
     },
     [
-      colors,
-      styles,
       t,
+      measurementSystem,
       isReadonly,
       removeExerciseFromActiveRoutine,
       openRestEditor,
@@ -260,11 +310,19 @@ export default function ActiveWorkoutScreen() {
       handleSetChange,
       toggleSetCompletion,
       addSetToExercise,
+      colors,
+      styles,
     ],
   );
 
+  const activeExUnitModal = activeRoutine.exercises.find(
+    (e) => e.id === unitModalExId,
+  );
+  const isCardioModal =
+    activeExUnitModal?.exerciseDetails.muscleGroup === "cardio";
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: Platform.OS === 'android' ? insets.top : 0 }]}>
       {/*Header*/}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={handleMinimize}>
@@ -360,14 +418,11 @@ export default function ActiveWorkoutScreen() {
 
       {/*Banner de descanso*/}
       {isResting && restTimeRemaining !== null && (
-        <View
+        <Animated.View
           style={[
             styles.floatingRestBanner,
+            animatedKeyboardStyle,
             {
-              paddingBottom: Math.max(
-                verticalScale(50),
-                insets.bottom + verticalScale(20),
-              ),
               justifyContent: "space-between",
               paddingHorizontal: moderateScale(20),
             },
@@ -403,7 +458,7 @@ export default function ActiveWorkoutScreen() {
               {t("activeWorkout.skip")}
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
 
       {/*Modal de selección de unidades*/}
@@ -416,61 +471,92 @@ export default function ActiveWorkoutScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.editRestModalContent}>
             <Text style={styles.editRestTitle}>{t("unitSelection.title")}</Text>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("kg")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.kg")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.kg_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("lbs")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.lbs")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.lbs_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bodyweight")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bodyweight")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bodyweight_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.unitOptionBtn}
-              onPress={() => handleUnitSelect("bars")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.bars")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.bars_desc")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
-              onPress={() => handleUnitSelect("plates")}
-            >
-              <Text style={styles.unitOptionTitle}>
-                {t("unitSelection.plates")}
-              </Text>
-              <Text style={styles.unitOptionDesc}>
-                {t("unitSelection.plates_desc")}
-              </Text>
-            </TouchableOpacity>
+
+            {isCardioModal ? (
+              <>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("km")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.km")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.km_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
+                  onPress={() => handleUnitSelect("mi")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.mi")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.mi_desc")}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("kg")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.kg")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.kg_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("lbs")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.lbs")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.lbs_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("bodyweight")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.bodyweight")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.bodyweight_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.unitOptionBtn}
+                  onPress={() => handleUnitSelect("bars")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.bars")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.bars_desc")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.unitOptionBtn, styles.unitOptionBtnLast]}
+                  onPress={() => handleUnitSelect("plates")}
+                >
+                  <Text style={styles.unitOptionTitle}>
+                    {t("unitSelection.plates")}
+                  </Text>
+                  <Text style={styles.unitOptionDesc}>
+                    {t("unitSelection.plates_desc")}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
             <View style={[styles.editRestButtonsRow, styles.unitOptionsMargin]}>
               <TouchableOpacity
                 style={[styles.editRestBtn, styles.editRestBtnTransparent]}
@@ -566,6 +652,24 @@ export default function ActiveWorkoutScreen() {
         onClose={() => setDetailsExercise(null)}
         exercise={detailsExercise}
       />
+
+      <ExerciseHistoryModal
+        visible={!!historyModalExDetails}
+        onClose={() => setHistoryModalExDetails(null)}
+        exerciseName={historyModalExDetails ? t(`exercises.${historyModalExDetails.id}`) : ""}
+        historyData={historyModalExDetails ? getExerciseHistoryDetails(historyModalExDetails.id) : null}
+      />
+
+      {setTypeModalData && (
+        <SetTypeSelectorModal
+          visible={!!setTypeModalData}
+          onClose={() => setSetTypeModalData(null)}
+          currentType={setTypeModalData.currentType}
+          onSelect={(newType) => {
+            changeSetType(setTypeModalData.exId, setTypeModalData.setId, newType);
+          }}
+        />
+      )}
 
       <ExerciseSelectorModal
         visible={exerciseModalVisible}

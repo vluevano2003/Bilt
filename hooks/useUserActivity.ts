@@ -146,5 +146,5 @@ export const useUserActivity = (userId?: string) => {
     };
   }, [userId, fetchActivity]);
 
-  return { userRoutines, userHistory, userPacks, isLoadingActivity };
+  return { userRoutines, userHistory, userPacks, isLoadingActivity, refetchActivity: fetchActivity };
 };

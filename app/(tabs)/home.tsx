@@ -14,6 +14,7 @@ import {
   BackHandler,
   FlatList,
   Platform,
+  RefreshControl,
   Text,
   ToastAndroid,
   TouchableOpacity,
@@ -26,6 +27,11 @@ import {
   verticalScale,
 } from "../../src/utils/Responsive";
 
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useProfile } from "../../hooks/useProfile";
 import { usePushNotifications } from "../../hooks/usePushNotifications";
@@ -116,6 +122,7 @@ const DashboardHeader = ({
   setActiveTab,
   ownRoutinesCount,
   ownPacksCount,
+  onCreate,
 }: any) => {
   /**
    * Genera un saludo dinámico basado en la hora del día
@@ -247,71 +254,121 @@ const DashboardHeader = ({
       </View>
 
       {activeTab === "own" && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            marginTop: verticalScale(15),
-            paddingHorizontal: scale(5),
-          }}
-        >
+        <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(5) }}>
           <View
             style={{
-              backgroundColor:
-                ownRoutinesCount >= 10
-                  ? "rgba(239, 68, 68, 0.1)"
-                  : colors.surface,
-              paddingHorizontal: scale(12),
-              paddingVertical: verticalScale(5),
-              borderRadius: moderateScale(15),
-              borderWidth: 1,
-              borderColor: ownRoutinesCount >= 10 ? "#EF4444" : colors.border,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Text
+            <TouchableOpacity
               style={{
-                fontSize: moderateScale(12),
-                fontWeight: "bold",
-                color:
-                  ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: colors.primary,
+                paddingHorizontal: scale(16),
+                paddingVertical: verticalScale(8),
+                borderRadius: moderateScale(25),
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 3,
+                elevation: 4,
+              }}
+              activeOpacity={0.8}
+              onPress={onCreate}
+            >
+              <Feather name="plus" size={moderateScale(16)} color="#FFF" style={{ marginRight: scale(6) }} />
+              <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: moderateScale(14) }}>
+                {t("routines.createNew")}
+              </Text>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                backgroundColor:
+                  ownRoutinesCount >= 10
+                    ? "rgba(239, 68, 68, 0.1)"
+                    : colors.surface,
+                paddingHorizontal: scale(10),
+                paddingVertical: verticalScale(4),
+                borderRadius: moderateScale(15),
+                borderWidth: 1,
+                borderColor: ownRoutinesCount >= 10 ? "#EF4444" : colors.border,
               }}
             >
-              {ownRoutinesCount} / 10 {t("routines.createdLabel")}
-            </Text>
+              <Text
+                style={{
+                  fontSize: moderateScale(11),
+                  fontWeight: "bold",
+                  color:
+                    ownRoutinesCount >= 10 ? "#EF4444" : colors.textSecondary,
+                }}
+              >
+                {ownRoutinesCount} / 10 {t("routines.createdLabel")}
+              </Text>
+            </View>
           </View>
+          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(15) }} />
         </View>
       )}
 
       {activeTab === "packs" && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            marginTop: verticalScale(15),
-            paddingHorizontal: scale(5),
-          }}
-        >
+        <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(5) }}>
           <View
             style={{
-              backgroundColor:
-                ownPacksCount >= 6 ? "rgba(239, 68, 68, 0.1)" : colors.surface,
-              paddingHorizontal: scale(12),
-              paddingVertical: verticalScale(5),
-              borderRadius: moderateScale(15),
-              borderWidth: 1,
-              borderColor: ownPacksCount >= 6 ? "#EF4444" : colors.border,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Text
+            <TouchableOpacity
               style={{
-                fontSize: moderateScale(12),
-                fontWeight: "bold",
-                color: ownPacksCount >= 6 ? "#EF4444" : colors.textSecondary,
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: colors.primary,
+                paddingHorizontal: scale(16),
+                paddingVertical: verticalScale(8),
+                borderRadius: moderateScale(25),
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 3,
+                elevation: 4,
+              }}
+              activeOpacity={0.8}
+              onPress={onCreate}
+            >
+              <Feather name="plus" size={moderateScale(16)} color="#FFF" style={{ marginRight: scale(6) }} />
+              <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: moderateScale(14) }}>
+                {t("weeklyPacks.createNew")}
+              </Text>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                backgroundColor:
+                  ownPacksCount >= 6 ? "rgba(239, 68, 68, 0.1)" : colors.surface,
+                paddingHorizontal: scale(10),
+                paddingVertical: verticalScale(4),
+                borderRadius: moderateScale(15),
+                borderWidth: 1,
+                borderColor: ownPacksCount >= 6 ? "#EF4444" : colors.border,
               }}
             >
-              {ownPacksCount} / 6 {t("weeklyPacks.createdLabel")}
-            </Text>
+              <Text
+                style={{
+                  fontSize: moderateScale(11),
+                  fontWeight: "bold",
+                  color: ownPacksCount >= 6 ? "#EF4444" : colors.textSecondary,
+                }}
+              >
+                {ownPacksCount} / 6 {t("weeklyPacks.createdLabel")}
+              </Text>
+            </View>
           </View>
+          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(15) }} />
         </View>
       )}
     </View>
@@ -373,9 +430,10 @@ export default function HomeScreen() {
     requests,
     history,
     handleRequest,
+    refetch: refetchNotifications,
   } = useNotifications();
 
-  const { userHistory, isLoadingActivity } = useUserActivity(user?.id);
+  const { userHistory, isLoadingActivity, refetchActivity } = useUserActivity(user?.id);
 
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
@@ -452,10 +510,11 @@ export default function HomeScreen() {
     isSaving,
     saveRoutine,
     deleteRoutine,
+    refetchRoutines,
   } = useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
   const editor = useRoutineEditor(saveRoutine, exercisesDb);
-  const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack } =
+  const { packs, isLoadingPacks, isSavingPack, saveWeeklyPack, deletePack, refetchPacks } =
     useWeeklyPacks();
 
   const actions = useRoutinesActions(
@@ -472,6 +531,17 @@ export default function HomeScreen() {
     useState<any>(null);
   const [packDetailsModalVisible, setPackDetailsModalVisible] = useState(false);
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      refetchRoutines && refetchRoutines(),
+      refetchPacks && refetchPacks(),
+      refetchActivity && refetchActivity(),
+    ]);
+    setRefreshing(false);
+  }, [refetchRoutines, refetchPacks, refetchActivity]);
 
   // Si la pantalla se abre con el parámetro openNotifications=true, se abre automáticamente el modal de notificaciones para mostrar las nuevas notificaciones al usuario. Esto permite redirigir al usuario directamente a las notificaciones desde otras partes de la app o desde una notificación push.
   useEffect(() => {
@@ -565,13 +635,24 @@ export default function HomeScreen() {
               styles={homeStyles}
               hasNewNotifications={hasNewNotifications}
               onOpenFeedback={() => setFeedbackModalVisible(true)}
-              onOpenNotifications={() => setNotificationsVisible(true)}
+              onOpenNotifications={() => {
+                refetchNotifications();
+                setNotificationsVisible(true);
+              }}
             />
           ),
         }}
       />
 
       <FlatList<any>
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
         ListHeaderComponent={
           <DashboardHeader
             t={t}
@@ -588,6 +669,29 @@ export default function HomeScreen() {
               routines.filter((r) => !r.originalCreatorId).length
             }
             ownPacksCount={packs.filter((p) => !p.originalCreatorId).length}
+            onCreate={() => {
+              if (activeTab === "packs") {
+                const ownPacks = packs.filter((p) => !p.originalCreatorId);
+                if (ownPacks.length >= 6) {
+                  Alert.alert(
+                    t("alerts.limitReached"),
+                    t("weeklyPacks.limitReached"),
+                  );
+                } else {
+                  actions.openPackModal();
+                }
+              } else {
+                const ownRoutines = routines.filter((r) => !r.originalCreatorId);
+                if (ownRoutines.length >= 10) {
+                  Alert.alert(
+                    t("alerts.limitReached"),
+                    t("routines.limitReached"),
+                  );
+                } else {
+                  editor.openRoutineModal();
+                }
+              }
+            }}
           />
         }
         data={activeTab === "packs" ? packs : displayedRoutines}
@@ -602,21 +706,32 @@ export default function HomeScreen() {
         ListEmptyComponent={
           <View style={routineStyles.emptyState}>
             <Feather
-              name={activeTab === "packs" ? "layers" : "clipboard"}
+              name={
+                activeTab === "packs"
+                  ? "layers"
+                  : activeTab === "saved"
+                  ? "bookmark"
+                  : "clipboard"
+              }
               size={moderateScale(60)}
               color={colors.textSecondary}
             />
             <Text style={routineStyles.emptyText}>
               {activeTab === "packs"
                 ? t("weeklyPacks.emptyMessage")
+                : activeTab === "saved"
+                ? t("routines.emptySavedMessage")
                 : t("routines.emptyMessage")}
             </Text>
           </View>
         }
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
+          const showAd = (index + 1) % 4 === 0;
+          let cardContent;
+
           if (activeTab === "packs") {
             const packItem = item as WeeklyPack;
-            return (
+            cardContent = (
               <TouchableOpacity
                 style={routineStyles.routineCard}
                 activeOpacity={0.8}
@@ -667,105 +782,99 @@ export default function HomeScreen() {
                 </View>
               </TouchableOpacity>
             );
+          } else {
+            const routineItem = item as any;
+            const exercisesPreview =
+              routineItem.exercises
+                ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
+                .join(", ") || t("routines.noExercises");
+
+            cardContent = (
+              <View style={routineStyles.routineCard}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    routineItem.originalCreatorId
+                      ? (setSelectedReadonlyRoutine(routineItem),
+                        setDetailsModalVisible(true))
+                      : editor.openRoutineModal(routineItem);
+                  }}
+                >
+                  <View style={routineStyles.cardHeader}>
+                    <Text style={routineStyles.routineName}>
+                      {routineItem.name}
+                    </Text>
+                    <Feather
+                      name="more-horizontal"
+                      size={moderateScale(20)}
+                      color={colors.textSecondary}
+                    />
+                  </View>
+                  {routineItem.originalCreatorId && (
+                    <View style={homeStyles.bookmarkContainer}>
+                      <FontAwesome
+                        name="bookmark"
+                        size={moderateScale(12)}
+                        color={colors.primary}
+                        style={homeStyles.bookmarkIcon}
+                      />
+                      <Text style={homeStyles.creatorText}>
+                        {t("routines.fromCreator", {
+                          creator: routineItem.originalCreatorName,
+                        })}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={routineStyles.exercisePreview} numberOfLines={2}>
+                    {exercisesPreview}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={routineStyles.startRoutineButton}
+                  onPress={() => handleStartWorkout(routineItem)}
+                >
+                  <Text style={routineStyles.startRoutineText}>
+                    {t("routines.startWorkout")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
           }
 
-          const routineItem = item as any;
-          const exercisesPreview =
-            routineItem.exercises
-              ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
-              .join(", ") || t("routines.noExercises");
-
           return (
-            <View style={routineStyles.routineCard}>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => {
-                  routineItem.originalCreatorId
-                    ? (setSelectedReadonlyRoutine(routineItem),
-                      setDetailsModalVisible(true))
-                    : editor.openRoutineModal(routineItem);
-                }}
-              >
-                <View style={routineStyles.cardHeader}>
-                  <Text style={routineStyles.routineName}>
-                    {routineItem.name}
+            <>
+              {cardContent}
+              {showAd && (
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginBottom: verticalScale(15),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: moderateScale(10),
+                      color: colors.textSecondary,
+                      marginBottom: verticalScale(5),
+                    }}
+                  >
+                    Publicidad
                   </Text>
-                  <Feather
-                    name="more-horizontal"
-                    size={moderateScale(20)}
-                    color={colors.textSecondary}
+                  <BannerAd
+                    unitId={
+                      __DEV__
+                        ? TestIds.BANNER
+                        : (process.env.EXPO_PUBLIC_ADMOB_BANNER_HOME as string)
+                    }
+                    size={BannerAdSize.MEDIUM_RECTANGLE}
+                    requestOptions={{ requestNonPersonalizedAdsOnly: true }}
                   />
                 </View>
-                {routineItem.originalCreatorId && (
-                  <View style={homeStyles.bookmarkContainer}>
-                    <FontAwesome
-                      name="bookmark"
-                      size={moderateScale(12)}
-                      color={colors.primary}
-                      style={homeStyles.bookmarkIcon}
-                    />
-                    <Text style={homeStyles.creatorText}>
-                      {t("routines.fromCreator", {
-                        creator: routineItem.originalCreatorName,
-                      })}
-                    </Text>
-                  </View>
-                )}
-                <Text style={routineStyles.exercisePreview} numberOfLines={2}>
-                  {exercisesPreview}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={routineStyles.startRoutineButton}
-                onPress={() => handleStartWorkout(routineItem)}
-              >
-                <Text style={routineStyles.startRoutineText}>
-                  {t("routines.startWorkout")}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              )}
+            </>
           );
         }}
       />
-
-      {!activeRoutine && (
-        <TouchableOpacity
-          style={[
-            routineStyles.fab,
-            {
-              bottom: Math.max(
-                verticalScale(30),
-                insets.bottom + verticalScale(15),
-              ),
-            },
-          ]}
-          onPress={() => {
-            if (activeTab === "packs") {
-              const ownPacks = packs.filter((p) => !p.originalCreatorId);
-              if (ownPacks.length >= 6) {
-                Alert.alert(
-                  t("alerts.limitReached"),
-                  t("weeklyPacks.limitReached"),
-                );
-              } else {
-                actions.openPackModal();
-              }
-            } else {
-              const ownRoutines = routines.filter((r) => !r.originalCreatorId);
-              if (ownRoutines.length >= 10) {
-                Alert.alert(
-                  t("alerts.limitReached"),
-                  t("routines.limitReached"),
-                );
-              } else {
-                editor.openRoutineModal();
-              }
-            }
-          }}
-        >
-          <AntDesign name="plus" size={moderateScale(28)} color="#FFF" />
-        </TouchableOpacity>
-      )}
 
       <FeedbackModal
         visible={feedbackModalVisible}

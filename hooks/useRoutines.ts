@@ -17,9 +17,18 @@ export type SetType =
   | "warmup"
   | "normal"
   | "dropset"
-  | "superset"
-  | "rest_pause";
-export type WeightUnit = "kg" | "lbs" | "bars" | "plates" | "bodyweight";
+  | "topset"
+  | "backoff";
+
+
+export type WeightUnit =
+  | "kg"
+  | "lbs"
+  | "bars"
+  | "plates"
+  | "bodyweight"
+  | "km"
+  | "mi";
 
 export interface ExerciseSet {
   id: string;
@@ -37,8 +46,11 @@ export interface ExerciseType {
     | "back"
     | "legs"
     | "shoulders"
-    | "arms"
+    | "biceps"
+    | "triceps"
     | "core"
+    | "cardio"
+    | "full_body"
     | string;
   equipment: "free_weight" | "machine" | "bodyweight" | "cable" | string;
   imageUrl?: string;
@@ -272,5 +284,6 @@ export const useRoutines = () => {
     isSaving,
     saveRoutine,
     deleteRoutine,
+    refetchRoutines: fetchRoutines,
   };
 };
