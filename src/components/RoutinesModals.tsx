@@ -260,15 +260,21 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               >
                 {t("routines.instructions")}
               </Text>
-              <Text
-                style={{
-                  color: colors.textSecondary,
-                  fontSize: moderateScale(15),
-                  lineHeight: moderateScale(24),
-                }}
-              >
-                {description}
-              </Text>
+              {description
+                ? description.split("\n").map((paragraph, index) => (
+                    <Text
+                      key={index}
+                      style={{
+                        color: colors.textSecondary,
+                        fontSize: moderateScale(15),
+                        lineHeight: moderateScale(24),
+                        marginBottom: verticalScale(12),
+                      }}
+                    >
+                      {paragraph}
+                    </Text>
+                  ))
+                : null}
             </View>
           </ScrollView>
         </View>
@@ -905,7 +911,7 @@ export const RoutineEditorModal = ({ editor, isSaving, handleDelete }: any) => {
 
   const handleRemoveExercise = (exerciseId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    editor.removeExerciseFromRoutine(exerciseId);
+    editor.removeExercise(exerciseId);
   };
 
   /**

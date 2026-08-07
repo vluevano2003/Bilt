@@ -5,7 +5,6 @@ import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
-import { PrimaryButton } from "./PrimaryButton";
 
 interface Props {
   visible: boolean;
@@ -18,6 +17,35 @@ export const ExerciseHistoryModal = ({ visible, onClose, exerciseName, historyDa
   const { t } = useTranslation();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+
+  // Determina la unidad base para la escala del gráfico
+  const chartBaseUnit = historyData?.maxWeightUnit || "kg";
+
+  const getNormalizedWeight = (weight: number, unit: string, baseUnit: string) => {
+    if (!weight || !unit || unit === baseUnit) return weight;
+    if (unit === "lbs" && baseUnit === "kg") return weight / 2.20462;
+    if (unit === "kg" && baseUnit === "lbs") return weight * 2.20462;
+    return weight;
+  };
+
+  // Calcula el peso máximo normalizado de las sesiones recientes para escalar el gráfico de barras
+  let chartMaxWeight = 0;
+  if (historyData?.recentSessions?.length > 0) {
+    historyData.recentSessions.forEach((session: any) => {
+      let sessionMax = 0;
+      session.sets.forEach((s: any) => {
+        // Omite barras, placas y peso corporal para el gráfico de peso
+        if (s.weightUnit === "bars" || s.weightUnit === "plates" || s.weightUnit === "bodyweight") return;
+        const normalized = getNormalizedWeight(s.weight, s.weightUnit, chartBaseUnit);
+        if (normalized > sessionMax) sessionMax = normalized;
+      });
+      if (sessionMax > chartMaxWeight) chartMaxWeight = sessionMax;
+    });
+  }
+
+  // Invierte el orden de las sesiones recientes para mostrar de la más antigua a la más reciente de izquierda a derecha
+  const chartSessions = historyData?.recentSessions ? [...historyData.recentSessions].reverse() : [];
+
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
@@ -88,7 +116,10 @@ export const ExerciseHistoryModal = ({ visible, onClose, exerciseName, historyDa
                         {historyData.maxVolumeSets.map((set: any) => {
                           let w = "";
                           if (set.weightUnit === "bars" || set.weightUnit === "plates") w = `${set.weight}`;
-                          else if (set.weightUnit === "bodyweight") w = set.weight > 0 ? `BW+${set.weight}` : "BW";
+                          else if (set.weightUnit === "bodyweight") {
+                            let unitToDisplay = set.bwUnit || (historyData.maxWeightUnit === "lbs" ? "lb" : "kg");
+                            w = set.weight > 0 ? `BW+${set.weight} ${unitToDisplay}` : "BW";
+                          }
                           else w = `${set.weight}${set.weightUnit === "lbs" ? "lb" : "kg"}`;
                           return `${w} x ${set.reps}`;
                         }).join(" • ")}
@@ -107,6 +138,21 @@ export const ExerciseHistoryModal = ({ visible, onClose, exerciseName, historyDa
                     <Text style={{ fontSize: moderateScale(15), fontWeight: "bold", color: colors.primary, textAlign: "center" }}>
                       {historyData.maxWeight > 0 ? `${historyData.maxWeight.toLocaleString()} ${historyData.maxWeightUnit === "lbs" ? "lb" : historyData.maxWeightUnit}` : "-"}
                     </Text>
+                    {historyData.maxWeightSet && (
+                      <Text style={{ fontSize: moderateScale(8), color: colors.textSecondary, textAlign: "center", marginTop: verticalScale(4) }}>
+                        {(() => {
+                          const set = historyData.maxWeightSet;
+                          let w = "";
+                          if (set.weightUnit === "bars" || set.weightUnit === "plates") w = `${set.weight}`;
+                          else if (set.weightUnit === "bodyweight") {
+                            let unitToDisplay = set.bwUnit || (historyData.maxWeightUnit === "lbs" ? "lb" : "kg");
+                            w = set.weight > 0 ? `BW+${set.weight} ${unitToDisplay}` : "BW";
+                          }
+                          else w = `${set.weight}${set.weightUnit === "lbs" ? "lb" : "kg"}`;
+                          return `${w} x ${set.reps}`;
+                        })()}
+                      </Text>
+                    )}
                   </View>
                 </View>
 
@@ -142,6 +188,51 @@ export const ExerciseHistoryModal = ({ visible, onClose, exerciseName, historyDa
                 </View>
               </View>
 
+              {/* Native Bar Chart */}
+              {chartMaxWeight > 0 && chartSessions.length > 0 && (
+                <View style={{ marginBottom: verticalScale(30) }}>
+                  <Text style={{ fontSize: moderateScale(16), fontWeight: "bold", color: colors.textPrimary, marginBottom: verticalScale(15) }}>
+                    Progreso (Peso Máximo)
+                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "flex-end", justifyContent: "space-around", height: verticalScale(140), backgroundColor: colors.surface, borderRadius: scale(12), padding: moderateScale(15), borderWidth: 1, borderColor: colors.border }}>
+                    {chartSessions.map((session: any, index: number) => {
+                      let sessionMax = 0;
+                      let sessionMaxUnit = "";
+                      let sessionMaxNormalized = 0;
+
+                      session.sets.forEach((s: any) => {
+                        if (s.weightUnit === "bars" || s.weightUnit === "plates" || s.weightUnit === "bodyweight") return;
+
+                        const normalized = getNormalizedWeight(s.weight, s.weightUnit, chartBaseUnit);
+                        // Encontramos el máximo basado en el peso normalizado para asegurar una comparación precisa
+                        if (normalized > sessionMaxNormalized) {
+                          sessionMaxNormalized = normalized;
+                          sessionMax = s.weight;
+                          sessionMaxUnit = s.weightUnit === "lbs" ? "lb" : "kg";
+                        }
+                      });
+
+                      // La altura máxima de la barra es el 70% para dejar espacio para el texto
+                      const barHeight = sessionMaxNormalized > 0 ? (sessionMaxNormalized / chartMaxWeight) * 70 : 0;
+                      const dateObj = new Date(session.date);
+                      const dateString = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+
+                      return (
+                        <View key={index} style={{ alignItems: "center", width: "15%", height: "100%", justifyContent: "flex-end" }}>
+                          <Text style={{ fontSize: moderateScale(9), color: colors.textSecondary, marginBottom: verticalScale(5) }} numberOfLines={1}>
+                            {sessionMax > 0 ? `${Math.round(sessionMax)} ${sessionMaxUnit}` : ""}
+                          </Text>
+                          <View style={{ height: `${barHeight}%`, width: "100%", backgroundColor: colors.primary, borderRadius: scale(4), minHeight: sessionMax > 0 ? 5 : 0 }} />
+                          <Text style={{ fontSize: moderateScale(10), color: colors.textSecondary, marginTop: verticalScale(5) }} numberOfLines={1}>
+                            {dateString}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
               <Text style={{ fontSize: moderateScale(16), fontWeight: "bold", color: colors.textPrimary, marginBottom: verticalScale(10) }}>
                 {t("historyModal.recentSessions")}
               </Text>
@@ -167,10 +258,21 @@ export const ExerciseHistoryModal = ({ visible, onClose, exerciseName, historyDa
                         const translatedUnit = t(`activeWorkout.units.${set.weightUnit}`);
                         formattedWeight = `${set.weight} ${translatedUnit}`;
                       } else if (set.weightUnit === "bodyweight") {
-                        formattedWeight = set.weight > 0 ? `BW+${set.weight}` : "BW";
+                        let unitToDisplay = "";
+                        if (set.bwUnit) {
+                          unitToDisplay = set.bwUnit;
+                        } else {
+                          session.sets.forEach((st: any) => {
+                            if (st.weightUnit === "kg" || st.weightUnit === "lbs") unitToDisplay = st.weightUnit === "lbs" ? "lb" : "kg";
+                          });
+                          if (!unitToDisplay) {
+                            unitToDisplay = historyData.maxWeightUnit === "lbs" ? "lb" : "kg";
+                          }
+                        }
+                        formattedWeight = set.weight > 0 ? `BW+${set.weight} ${unitToDisplay}` : "BW";
                       } else if (set.weightUnit === "km" || set.weightUnit === "mi") {
-                         const translatedUnit = t(`activeWorkout.units.${set.weightUnit}`);
-                         formattedWeight = `${set.weight} ${translatedUnit}`;
+                        const translatedUnit = t(`activeWorkout.units.${set.weightUnit}`);
+                        formattedWeight = `${set.weight} ${translatedUnit}`;
                       } else {
                         const unit = set.weightUnit === "lbs" ? "lb" : "kg";
                         formattedWeight = `${set.weight}${unit}`;

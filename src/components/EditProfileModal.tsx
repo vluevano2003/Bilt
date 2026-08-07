@@ -109,46 +109,6 @@ export const EditProfileModal = ({
                 onChangeText={setEditUsername}
               />
 
-              <Text style={styles.label}>{t("profile.measurementSystem")}</Text>
-              <View style={styles.formSegmentContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    editMeasurementSystem === "metric" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("metric")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      editMeasurementSystem === "metric" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.metric")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.formSegmentButton,
-                    editMeasurementSystem === "imperial" &&
-                      styles.formSegmentButtonActive,
-                  ]}
-                  onPress={() => changeMeasurementSystem("imperial")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      editMeasurementSystem === "imperial" &&
-                        styles.segmentTextActive,
-                    ]}
-                  >
-                    {t("profile.imperial")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
               <View style={styles.rowInputs}>
                 <View style={styles.halfInput}>
                   <Text style={styles.label}>

@@ -255,6 +255,7 @@ export default function ProfileScreen() {
     followingCount,
     getSocialList,
     changeMeasurementSystem,
+    updateMeasurementSystem,
     getBlockedUsersList,
     unblockUserFromList,
     deleteAccount,
@@ -472,6 +473,8 @@ export default function ProfileScreen() {
         i18n={i18n}
         toggleLanguage={toggleLanguage}
         colors={colors}
+        measurementSystem={measurementSystem}
+        updateMeasurementSystem={updateMeasurementSystem}
       />
 
       <SocialListModal

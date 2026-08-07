@@ -1,6 +1,7 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   Modal,
@@ -12,7 +13,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert,
 } from "react-native";
 import packageJson from "../../package.json";
 import { getStyles } from "../styles/Profile.styles";
@@ -33,6 +33,8 @@ interface SettingsModalProps {
   i18n: any;
   toggleLanguage: (lang: string) => void;
   colors: any;
+  measurementSystem?: string;
+  updateMeasurementSystem?: (val: "metric" | "imperial") => void;
 }
 
 /**
@@ -55,6 +57,8 @@ export const SettingsModal = ({
   i18n,
   toggleLanguage,
   colors,
+  measurementSystem,
+  updateMeasurementSystem,
 }: SettingsModalProps) => {
   const styles = getStyles(colors);
 
@@ -88,10 +92,10 @@ export const SettingsModal = ({
       msg,
       [
         { text: t("profile.cancel"), style: "cancel" },
-        { 
-          text: t("profile.confirm"), 
-          style: newValue ? "default" : "destructive", 
-          onPress: () => togglePrivacy(newValue) 
+        {
+          text: t("profile.confirm"),
+          style: newValue ? "default" : "destructive",
+          onPress: () => togglePrivacy(newValue)
         }
       ],
       { cancelable: true }
@@ -169,7 +173,7 @@ export const SettingsModal = ({
             showsVerticalScrollIndicator={false}
           >
             <View style={{ marginTop: verticalScale(10) }}>
-              {/* Option: Private Account */}
+              {/* Opción: Cuenta privada */}
               <View
                 style={{
                   flexDirection: "row",
@@ -199,7 +203,7 @@ export const SettingsModal = ({
                 />
               </View>
 
-              {/* Option: Blocked Users */}
+              {/* Opción: Usuarios bloqueados */}
               <TouchableOpacity
                 style={{
                   flexDirection: "row",
@@ -223,7 +227,79 @@ export const SettingsModal = ({
                 <Feather name="chevron-right" size={scale(20)} color={colors.textSecondary} />
               </TouchableOpacity>
 
-              {/* Option: Language */}
+              {/* Sistema de medidas */}
+              {measurementSystem && updateMeasurementSystem && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingVertical: verticalScale(16),
+                    paddingHorizontal: scale(20),
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+                    <Feather name="bar-chart-2" size={scale(22)} color={colors.textPrimary} style={{ marginRight: scale(16) }} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: moderateScale(16), fontWeight: "600", color: colors.textPrimary }}>
+                        {t("profile.measurementSystem")}
+                      </Text>
+                      <Text style={{ fontSize: moderateScale(11), color: colors.textSecondary, marginTop: verticalScale(4), paddingRight: scale(10) }}>
+                        {t("profile.measurementSystemDesc", "Cambiar entre sistema métrico e imperial actualizará las unidades (kg/lbs y km/mi) mostradas en tus rutinas, historial y medidas corporales.")}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={[
+                      styles.formSegmentContainer,
+                      { width: scale(120), marginBottom: 0, marginTop: 0 },
+                    ]}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.formSegmentButton,
+                        measurementSystem === "metric" &&
+                        styles.formSegmentButtonActive,
+                        { paddingVertical: verticalScale(6) }
+                      ]}
+                      onPress={() => updateMeasurementSystem("metric")}
+                    >
+                      <Text
+                        style={[
+                          styles.segmentText,
+                          measurementSystem === "metric" &&
+                          styles.segmentTextActive,
+                          { fontSize: moderateScale(12) }
+                        ]}
+                      >
+                        {t("profile.metric")}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.formSegmentButton,
+                        measurementSystem === "imperial" &&
+                        styles.formSegmentButtonActive,
+                        { paddingVertical: verticalScale(6) }
+                      ]}
+                      onPress={() => updateMeasurementSystem("imperial")}
+                    >
+                      <Text
+                        style={[
+                          styles.segmentText,
+                          measurementSystem === "imperial" &&
+                          styles.segmentTextActive,
+                          { fontSize: moderateScale(12) }
+                        ]}
+                      >
+                        {t("profile.imperial")}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+
+              {/* Idioma */}
               <View
                 style={{
                   flexDirection: "row",
@@ -284,7 +360,7 @@ export const SettingsModal = ({
                 </View>
               </View>
 
-              {/* Option: Dark Mode */}
+              {/* Modo oscuro */}
               <View
                 style={{
                   flexDirection: "row",

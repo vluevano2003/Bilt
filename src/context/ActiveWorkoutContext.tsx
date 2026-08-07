@@ -74,7 +74,7 @@ interface ActiveWorkoutContextProps {
   resumeWorkout: () => void;
   pauseWorkout: () => void;
   cancelWorkout: () => void;
-  finishWorkout: () => Promise<void>;
+  finishWorkout: (measurementSystem?: string, userWeightString?: string) => Promise<void>;
   handleSetChange: (
     exId: string,
     setId: string,
@@ -754,15 +754,12 @@ export const ActiveWorkoutProvider = ({
    * Finaliza el entrenamiento activo, guarda el historial y cancela la notificación persistente de forma silenciosa, sin destruir la UI de inmediato para que el modal de resumen siga visible.
    * @returns
    */
-  const finishWorkout = async () => {
+  const finishWorkout = async (measurementSystem?: string, userWeightString?: string) => {
     if (!activeRoutine || !user?.id) {
       cancelWorkout();
       return;
     }
 
-    /**
-     * Antes de intentar guardar el historial, verificamos el estado de la red para asegurarnos de que el usuario tenga conexión. Si no hay conexión, mostramos una alerta y pausamos el entrenamiento para evitar que el usuario pierda su progreso sin saberlo. Debido a las limitaciones de React Native en segundo plano, esta verificación solo se ejecutará correctamente cuando la app esté en primer plano. Si la app está en segundo plano, no podremos verificar el estado de la red ni mostrar una alerta hasta que la app vuelva a primer plano, lo que es una limitación conocida de cómo funcionan las apps en segundo plano en React Native.
-     */
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       Alert.alert(t("profile.alerts.error"), t("errors.networkFailed"));
@@ -774,7 +771,16 @@ export const ActiveWorkoutProvider = ({
       const completedExercises = activeRoutine.exercises
         .map((ex) => ({
           ...ex,
-          sets: ex.sets.filter((set) => set.completed),
+          sets: ex.sets.filter((set) => set.completed).map((set) => {
+            if (set.weightUnit === "bodyweight" && measurementSystem) {
+              return { 
+                ...set, 
+                bwUnit: measurementSystem === "metric" ? "kg" : "lbs",
+                bwUserWeight: userWeightString || "0"
+              };
+            }
+            return set;
+          }),
         }))
         .filter((ex) => ex.sets.length > 0);
 

@@ -363,6 +363,25 @@ export const useProfile = (profileUid?: string) => {
     }
   };
 
+  /**
+   * Actualiza el sistema de medición del usuario directamente (por ejemplo, desde ajustes).
+   */
+  const updateMeasurementSystem = async (system: "metric" | "imperial") => {
+    if (!currentUserId || !isOwnProfile) return;
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ measurement_system: system })
+        .eq("id", currentUserId);
+      if (error) throw error;
+      setMeasurementSystem(system);
+      setEditMeasurementSystem(system);
+    } catch (err) {
+      console.error("Error updating measurement system:", err);
+      Alert.alert(t("profile.error"), t("profile.saveError"));
+    }
+  };
+
   const handleCancel = () => {
     setNewProfilePic(null);
     setIsEditing(false);
@@ -859,6 +878,7 @@ export const useProfile = (profileUid?: string) => {
     getSocialList,
     handleFollowRequest,
     changeMeasurementSystem,
+    updateMeasurementSystem,
     isBlocked,
     hasBlockedMe,
     toggleBlock,

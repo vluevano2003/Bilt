@@ -1,12 +1,15 @@
 import React from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Dimensions,
   Modal,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import {
   BannerAd,
@@ -14,6 +17,66 @@ import {
   TestIds,
 } from "react-native-google-mobile-ads";
 import { verticalScale } from "../utils/Responsive";
+
+const { width, height } = Dimensions.get("window");
+
+const COLORS = ["#FFC107", "#FF5252", "#4CAF50", "#2196F3", "#E040FB", "#00BCD4"];
+
+const NativeCelebration = () => {
+  const particles = React.useMemo(() => {
+    return Array.from({ length: 30 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * width,
+      y: new Animated.Value(-20),
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      size: Math.random() * 8 + 6,
+      duration: Math.random() * 1500 + 1500,
+      delay: Math.random() * 1000,
+    }));
+  }, []);
+
+  const scale = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 4,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+
+    particles.forEach(p => {
+      Animated.timing(p.y, {
+        toValue: height + 50,
+        duration: p.duration,
+        delay: p.delay,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, []);
+
+  return (
+    <View style={[StyleSheet.absoluteFill, { zIndex: 999, elevation: 999 }]} pointerEvents="none">
+      {particles.map(p => (
+        <Animated.View
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: p.x,
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+            borderRadius: p.size / 2,
+            transform: [{ translateY: p.y }],
+            opacity: 0.8
+          }}
+        />
+      ))}
+    </View>
+  );
+};
+
+
 
 /**
  * Modal que muestra un resumen del entrenamiento al finalizar, incluyendo duración, volumen total, series completadas y distribución muscular.
@@ -46,6 +109,7 @@ export const WorkoutSummaryModal = ({
     <SafeAreaView style={styles.summaryOverlay}>
       <ScrollView
         contentContainerStyle={{
+          paddingTop: insets.top + verticalScale(20),
           paddingBottom: verticalScale(160) + insets.bottom,
         }}
       >
@@ -168,6 +232,7 @@ export const WorkoutSummaryModal = ({
           )}
         </View>
       </ScrollView>
+      <NativeCelebration />
 
       <View
         style={[

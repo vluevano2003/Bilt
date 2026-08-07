@@ -65,12 +65,12 @@ export const useActiveWorkoutScreen = () => {
    * @param unit
    * @returns
    */
-  const getConvertedWeight = (itemWeight: number, unit: string) => {
+  const getConvertedWeight = (itemWeight: number, unit: string, userWeightOverride?: string) => {
     if (unit === "bars" || unit === "plates" || unit === "km" || unit === "mi")
       return 0;
 
     let w = Number(itemWeight) || 0;
-    const userW = Number(userWeightString) || 0;
+    const userW = Number(userWeightOverride ?? userWeightString) || 0;
 
     if (unit === "bodyweight") {
       w += userW;
@@ -125,8 +125,19 @@ export const useActiveWorkoutScreen = () => {
               );
               formattedWeight = `${pastSet.weight} ${translatedUnit}`;
             } else if (pastSet.weightUnit === "bodyweight") {
+              let unitToDisplay = pastSet.bwUnit;
+              if (!unitToDisplay) {
+                pastExercise.sets.forEach((st: any) => {
+                  if (st.weightUnit === "kg" || st.weightUnit === "lbs") {
+                    unitToDisplay = st.weightUnit === "lbs" ? "lb" : "kg";
+                  }
+                });
+                if (!unitToDisplay) {
+                  unitToDisplay = measurementSystem === "imperial" ? "lb" : "kg";
+                }
+              }
               formattedWeight =
-                pastSet.weight > 0 ? `BW+${pastSet.weight}` : "BW";
+                pastSet.weight > 0 ? `BW+${pastSet.weight} ${unitToDisplay}` : "BW";
             } else {
               const unit = pastSet.weightUnit === "lbs" ? "lb" : "kg";
               formattedWeight = `${pastSet.weight}${unit}`;
@@ -158,6 +169,7 @@ export const useActiveWorkoutScreen = () => {
       let maxWeight = 0;
       let maxWeightConverted = 0;
       let maxWeightUnit = "";
+      let maxWeightSet: any = null;
 
       let maxVolume = 0;
       let maxVolumeConverted = 0;
@@ -179,36 +191,54 @@ export const useActiveWorkoutScreen = () => {
 
           if (completedSets.length > 0) {
             let sessionMaxWeight = 0;
+
+            let inferredUnit = measurementSystem === "metric" ? "kg" : "lbs";
+            session.exercises?.forEach((e: any) => {
+              e.sets?.forEach((st: any) => {
+                if (st.weightUnit === "kg" || st.weightUnit === "lbs") {
+                  inferredUnit = st.weightUnit;
+                }
+              });
+            });
+
             completedSets.forEach((s: any) => {
               if (s.weightUnit === "bars") {
                 if (s.weight > maxBars) maxBars = s.weight;
               } else if (s.weightUnit === "plates") {
                 if (s.weight > maxPlates) maxPlates = s.weight;
               } else if (s.weightUnit !== "km" && s.weightUnit !== "mi") {
-                const convertedWeight = getConvertedWeight(s.weight, s.weightUnit);
+                const effectiveUnit = s.weightUnit === "bodyweight" ? (s.bwUnit || inferredUnit) : s.weightUnit;
+                const effectiveUserWeight = s.bwUserWeight || userWeightString;
+                const convertedWeight = getConvertedWeight(s.weight, effectiveUnit, effectiveUserWeight);
+
+                const trueWeight = s.weightUnit === "bodyweight" ? (Number(s.weight) + Number(effectiveUserWeight || 0)) : s.weight;
+                const trueUnit = s.weightUnit === "bodyweight" ? (s.bwUnit || inferredUnit) : s.weightUnit;
+
                 if (convertedWeight > sessionMaxWeight) sessionMaxWeight = convertedWeight;
 
                 if (convertedWeight > maxWeightConverted) {
                   maxWeightConverted = convertedWeight;
-                  maxWeight = s.weight;
-                  maxWeightUnit = s.weightUnit;
+                  maxWeight = trueWeight;
+                  maxWeightUnit = trueUnit;
+                  maxWeightSet = s;
                 }
-                
+
                 // Calcular volumen de ESTA serie individual
-                const setVolume = s.weight * s.reps;
+                const setVolume = trueWeight * s.reps;
                 const setVolumeConverted = convertedWeight * s.reps;
 
                 if (setVolumeConverted > maxVolumeConverted) {
                   maxVolumeConverted = setVolumeConverted;
                   maxVolume = setVolume;
-                  maxVolumeUnit = s.weightUnit;
+                  maxVolumeUnit = trueUnit;
                   maxVolumeSets = [s];
                 }
               } else if (s.weightUnit === "km" || s.weightUnit === "mi") {
                 // For cardio
                 if (s.weight > maxWeight) {
-                   maxWeight = s.weight;
-                   maxWeightUnit = s.weightUnit;
+                  maxWeight = s.weight;
+                  maxWeightUnit = s.weightUnit;
+                  maxWeightSet = s;
                 }
               }
             });
@@ -229,6 +259,7 @@ export const useActiveWorkoutScreen = () => {
         recentSessions: sessions.slice(0, 5),
         maxWeight,
         maxWeightUnit: maxWeightUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
+        maxWeightSet,
         maxVolume,
         maxVolumeUnit: maxVolumeUnit || (measurementSystem === "metric" ? "kg" : "lbs"),
         maxVolumeSets,
@@ -356,7 +387,7 @@ export const useActiveWorkoutScreen = () => {
     setShowSummary(true);
     setIsSavingHistory(true);
     try {
-      await finishWorkout();
+      await finishWorkout(measurementSystem, userWeightString);
     } catch (error) {
       setShowSummary(false);
     } finally {

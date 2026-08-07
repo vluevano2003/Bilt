@@ -22,14 +22,18 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: verticalScale(60) + insets.bottom,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : verticalScale(8),
-          paddingTop: verticalScale(6),
+          height: verticalScale(65) + insets.bottom,
+          paddingTop: verticalScale(10),
+          paddingBottom: insets.bottom + verticalScale(10),
+        },
+        tabBarItemStyle: {
+          justifyContent: "center",
+          alignItems: "center",
         },
         tabBarLabelStyle: {
           fontSize: moderateScale(10),
           fontWeight: "600",
-          marginTop: verticalScale(2),
+          marginTop: 0,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
