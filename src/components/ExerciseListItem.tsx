@@ -1,8 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Text, TextInput, TouchableOpacity, View, LayoutAnimation } from "react-native";
+import { LayoutAnimation, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
-import { Swipeable, TouchableOpacity as GHTouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity as GHTouchableOpacity, Swipeable } from "react-native-gesture-handler";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 
 const cycleSetType = (currentType: string) => {
@@ -58,7 +58,7 @@ const getSetTypeBackground = (type: string | undefined) => {
     case "backoff": return "rgba(16, 185, 129, 0.05)"; // Green
     case "normal":
     default:
-      return undefined;
+      return "rgba(255, 255, 255, 0.03)";
   }
 };
 
@@ -192,7 +192,7 @@ export const ExerciseListItem = React.memo(
             <Text style={styles.colSetHeader}>{t("activeWorkout.set").toUpperCase()}</Text>
 
             <View style={[styles.colPrevHeader, { alignItems: 'center', justifyContent: 'center' }]}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.unitButton, { paddingHorizontal: scale(5) }]}
                 onPress={() => onOpenHistory && onOpenHistory(exercise.exerciseDetails)}
               >
@@ -253,22 +253,20 @@ export const ExerciseListItem = React.memo(
 
             return (
               <View key={set.id} style={{ marginBottom: verticalScale(5) }}>
-                <Swipeable 
-                  renderLeftActions={renderLeftActions} 
+                <Swipeable
+                  renderLeftActions={renderLeftActions}
                   overshootLeft={false}
                   onSwipeableWillOpen={() => setSwipingSets(prev => ({ ...prev, [set.id]: true }))}
                   onSwipeableWillClose={() => setSwipingSets(prev => ({ ...prev, [set.id]: false }))}
                 >
                   <View
                     style={[
-                      styles.setRow, 
-                      { 
-                        marginBottom: 0, 
+                      styles.setRow,
+                      {
+                        marginBottom: 0,
                         overflow: "hidden",
-                        borderWidth: 1,
-                        borderColor: set.completed ? "transparent" : colors.border,
-                        borderLeftWidth: (!isReadonly && !set.completed) ? scale(4) : 1,
-                        borderLeftColor: (!isReadonly && !set.completed) ? "rgba(239, 68, 68, 0.4)" : (set.completed ? "transparent" : colors.border),
+                        borderLeftWidth: (!isReadonly && !set.completed) ? scale(4) : 0,
+                        borderLeftColor: (!isReadonly && !set.completed) ? "rgba(239, 68, 68, 0.4)" : "transparent",
                         backgroundColor: getSetTypeBackground(set.type)
                       },
                       set.completed && styles.setRowCompleted,
@@ -276,106 +274,106 @@ export const ExerciseListItem = React.memo(
                     ]}
                   >
                     <View style={styles.colSet}>
-                    <GHTouchableOpacity
-                      onPress={() => {
-                        if (!isReadonly && onOpenSetTypeModal) {
-                          onOpenSetTypeModal(exercise.id, set.id, set.type || "normal");
+                      <GHTouchableOpacity
+                        onPress={() => {
+                          if (!isReadonly && onOpenSetTypeModal) {
+                            onOpenSetTypeModal(exercise.id, set.id, set.type || "normal");
+                          }
+                        }}
+                        style={{
+                          backgroundColor: (set.type && set.type !== "normal") ? getSetTypeColor(set.type, colors.surface, colors) : "rgba(0,0,0,0.05)",
+                          width: scale(28),
+                          height: scale(28),
+                          borderRadius: scale(14),
+                          justifyContent: "center",
+                          alignItems: "center",
+                          borderWidth: (set.type && set.type !== "normal") ? 0 : 1,
+                          borderColor: colors.border,
+                        }}
+                      >
+                        <Text style={[styles.setText, { color: (set.type && set.type !== "normal") ? "#FFF" : colors.textPrimary }]}>
+                          {getSetTypeLabel(set.type, setIndex, exercise.sets)}
+                        </Text>
+                      </GHTouchableOpacity>
+                    </View>
+
+                    <View style={styles.colPrev}>
+                      <Text style={styles.prevText}>{prevData || "-"}</Text>
+                    </View>
+
+                    {/* Si es cardio, weight funge como "distancia" */}
+                    <View style={styles.colInput}>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          set.completed && styles.inputDisabled,
+                        ]}
+                        keyboardType="numeric"
+                        value={set.weight ? set.weight.toString() : ""}
+                        placeholder=""
+                        placeholderTextColor={colors.textSecondary}
+                        onChangeText={(val) =>
+                          onSetChange(exercise.id, set.id, "weight", val)
                         }
-                      }}
-                      style={{
-                        backgroundColor: (set.type && set.type !== "normal") ? getSetTypeColor(set.type, colors.surface, colors) : "rgba(0,0,0,0.05)",
-                        width: scale(28),
-                        height: scale(28),
-                        borderRadius: scale(14),
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderWidth: (set.type && set.type !== "normal") ? 0 : 1,
-                        borderColor: colors.border,
-                      }}
-                    >
-                      <Text style={[styles.setText, { color: (set.type && set.type !== "normal") ? "#FFF" : colors.textPrimary }]}>
-                        {getSetTypeLabel(set.type, setIndex, exercise.sets)}
-                      </Text>
-                    </GHTouchableOpacity>
-                  </View>
+                        editable={!set.completed}
+                      />
+                      {/* Indicador dinámico de unidad para lastre */}
+                      {set.weightUnit === "bodyweight" && (
+                        <Text
+                          style={{
+                            position: "absolute",
+                            right: scale(8),
+                            fontSize: moderateScale(9),
+                            color: colors.textSecondary,
+                          }}
+                        >
+                          {measurementSystem === "metric" ? "kg" : "lbs"}
+                        </Text>
+                      )}
+                    </View>
 
-                <View style={styles.colPrev}>
-                  <Text style={styles.prevText}>{prevData || "-"}</Text>
-                </View>
-
-                {/* Si es cardio, weight funge como "distancia" */}
-                <View style={styles.colInput}>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      set.completed && styles.inputDisabled,
-                    ]}
-                    keyboardType="numeric"
-                    value={set.weight ? set.weight.toString() : ""}
-                    placeholder=""
-                    placeholderTextColor={colors.textSecondary}
-                    onChangeText={(val) =>
-                      onSetChange(exercise.id, set.id, "weight", val)
-                    }
-                    editable={!set.completed}
-                  />
-                  {/* Indicador dinámico de unidad para lastre */}
-                  {set.weightUnit === "bodyweight" && (
-                    <Text
-                      style={{
-                        position: "absolute",
-                        right: scale(8),
-                        fontSize: moderateScale(9),
-                        color: colors.textSecondary,
-                      }}
-                    >
-                      {measurementSystem === "metric" ? "kg" : "lbs"}
-                    </Text>
-                  )}
-                </View>
-
-                {/* Si es cardio, reps funge como "tiempo en segundos" */}
-                <View style={styles.colInput}>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      set.completed && styles.inputDisabled,
-                    ]}
-                    keyboardType="numeric"
-                    value={set.reps ? set.reps.toString() : ""}
-                    placeholder=""
-                    placeholderTextColor={colors.textSecondary}
-                    onChangeText={(val) =>
-                      onSetChange(exercise.id, set.id, "reps", val)
-                    }
-                    editable={!set.completed}
-                    selectTextOnFocus={false}
-                    underlineColorAndroid="transparent"
-                  />
-                </View>
-                <View style={styles.colCheck}>
-                  <TouchableOpacity
-                    style={[
-                      styles.checkButton,
-                      set.completed
-                        ? styles.checkButtonActive
-                        : styles.checkButtonInactive,
-                    ]}
-                    onPress={() =>
-                      onToggleCompletion(
-                        exercise.id,
-                        set.id,
-                        exercise.restTimeSeconds || 90,
-                      )
-                    }
-                  >
-                    <Feather
-                      name="check"
-                      size={scale(16)}
-                      color={set.completed ? "#FFF" : "transparent"}
-                    />
-                  </TouchableOpacity>
-                </View>
+                    {/* Si es cardio, reps funge como "tiempo en segundos" */}
+                    <View style={styles.colInput}>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          set.completed && styles.inputDisabled,
+                        ]}
+                        keyboardType="numeric"
+                        value={set.reps ? set.reps.toString() : ""}
+                        placeholder=""
+                        placeholderTextColor={colors.textSecondary}
+                        onChangeText={(val) =>
+                          onSetChange(exercise.id, set.id, "reps", val)
+                        }
+                        editable={!set.completed}
+                        selectTextOnFocus={false}
+                        underlineColorAndroid="transparent"
+                      />
+                    </View>
+                    <View style={styles.colCheck}>
+                      <TouchableOpacity
+                        style={[
+                          styles.checkButton,
+                          set.completed
+                            ? styles.checkButtonActive
+                            : styles.checkButtonInactive,
+                        ]}
+                        onPress={() =>
+                          onToggleCompletion(
+                            exercise.id,
+                            set.id,
+                            exercise.restTimeSeconds || 90,
+                          )
+                        }
+                      >
+                        <Feather
+                          name="check"
+                          size={scale(16)}
+                          color={set.completed ? "#FFF" : "transparent"}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </Swipeable>
               </View>

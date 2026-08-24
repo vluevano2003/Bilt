@@ -364,7 +364,7 @@
     "musclesWorked": "Muscles worked",
     "noSetsValid": "You haven't completed any valid sets.",
     "previous": "PREV",
-    "notificationTitle": "Rest finished! 🏋️‍♂️",
+    "notificationTitle": "Rest finished! ",
     "notificationBody": "It's time for your next set. Let's go!",
     "noActiveRoutine": "No active routine",
     "restInProgress": "Resting...",
@@ -578,439 +578,439 @@
   "exerciseDetails": {
     "bench_press_barbell": {
       "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Flat bench press rack and an Olympic barbell.\n🧘‍♂️ Position: Lie on your back with your feet firmly planted on the floor. Retract your scapulae to puff your chest out. Maintain a natural slight lower back arch. Grip the bar slightly wider than shoulder-width.\n🏋️ Technique: Unrack the bar. Lower it slowly (eccentric phase) until it gently touches the middle/lower part of your chest (nipple line). Do not bounce the bar off your chest. Explode upwards, exhaling, until your arms are fully extended without forcefully locking the elbows."
+      "description": "Equipment: Flat bench press rack and an Olympic barbell.\nPosition: Lie on your back with your feet firmly planted on the floor. Retract your scapulae to puff your chest out. Maintain a natural slight lower back arch. Grip the bar slightly wider than shoulder-width.\nTechnique: Unrack the bar. Lower it slowly (eccentric phase) until it gently touches the middle/lower part of your chest (nipple line). Do not bounce the bar off your chest. Explode upwards, exhaling, until your arms are fully extended without forcefully locking the elbows."
     },
     "bench_press_dumbbell": {
       "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Flat bench and a pair of dumbbells.\n🧘‍♂️ Position: Lie flat on the bench, retracting your shoulder blades. Keep your glutes on the bench and feet flat on the floor. Hold the dumbbells at the sides of your chest.\n🏋️ Technique: Press both dumbbells up and slightly inward until they almost touch at the top. Lower the weight under control until the dumbbells reach chest level, feeling a deep stretch in your pectorals."
+      "description": "Equipment: Flat bench and a pair of dumbbells.\nPosition: Lie flat on the bench, retracting your shoulder blades. Keep your glutes on the bench and feet flat on the floor. Hold the dumbbells at the sides of your chest.\nTechnique: Press both dumbbells up and slightly inward until they almost touch at the top. Lower the weight under control until the dumbbells reach chest level, feeling a deep stretch in your pectorals."
     },
     "incline_bench_press_barbell": {
       "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Incline bench (usually 30-45 degrees) with an Olympic barbell rack.\n🧘‍♂️ Position: Sit on the bench, press your back firmly against the pad, and retract your scapulae. Plant feet flat on the floor. Grip the bar slightly wider than shoulder-width.\n🏋️ Technique: Unrack the bar. Lower it under control towards your upper chest (just below the collarbones). Pause briefly without bouncing, then explosively press back up."
+      "description": "Equipment: Incline bench (usually 30-45 degrees) with an Olympic barbell rack.\nPosition: Sit on the bench, press your back firmly against the pad, and retract your scapulae. Plant feet flat on the floor. Grip the bar slightly wider than shoulder-width.\nTechnique: Unrack the bar. Lower it under control towards your upper chest (just below the collarbones). Pause briefly without bouncing, then explosively press back up."
     },
     "incline_bench_press_dumbbell": {
       "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Adjustable bench set to a 30-45 degree incline and a pair of dumbbells.\n🧘‍♂️ Position: Rest your back on the incline bench, feet firm on the floor, chest out. Hold the dumbbells at the sides of your upper chest with a pronated grip.\n🏋️ Technique: Press the dumbbells straight up over your upper shoulders. Lower them slowly, controlling the weight until you feel a good stretch in your upper pectoral before pressing up again."
+      "description": "Equipment: Adjustable bench set to a 30-45 degree incline and a pair of dumbbells.\nPosition: Rest your back on the incline bench, feet firm on the floor, chest out. Hold the dumbbells at the sides of your upper chest with a pronated grip.\nTechnique: Press the dumbbells straight up over your upper shoulders. Lower them slowly, controlling the weight until you feel a good stretch in your upper pectoral before pressing up again."
     },
     "decline_bench_press_barbell": {
       "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Decline bench with leg rollers and an Olympic barbell.\n🧘‍♂️ Position: Secure your legs under the bench rollers. Lie back. Retract your scapulae and grip the bar slightly wider than shoulder-width.\n🏋️ Technique: Lower the bar towards your lower chest (below the nipples). Once it lightly touches your chest, press the bar explosively upwards until your arms are extended. Ideal for targeting the lower pectoral."
+      "description": "Equipment: Decline bench with leg rollers and an Olympic barbell.\nPosition: Secure your legs under the bench rollers. Lie back. Retract your scapulae and grip the bar slightly wider than shoulder-width.\nTechnique: Lower the bar towards your lower chest (below the nipples). Once it lightly touches your chest, press the bar explosively upwards until your arms are extended. Ideal for targeting the lower pectoral."
     },
     "decline_bench_press_dumbbell": {
       "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Decline bench with leg rollers and a pair of dumbbells.\n🧘‍♂️ Position: Secure your shins under the rollers. Lie back and hold the dumbbells at the sides of your lower chest.\n🏋️ Technique: Press the dumbbells up while contracting your lower chest. Lower the weight under control, keeping your elbows at about a 45-degree angle relative to your torso to protect your shoulders."
+      "description": "Equipment: Decline bench with leg rollers and a pair of dumbbells.\nPosition: Secure your shins under the rollers. Lie back and hold the dumbbells at the sides of your lower chest.\nTechnique: Press the dumbbells up while contracting your lower chest. Lower the weight under control, keeping your elbows at about a 45-degree angle relative to your torso to protect your shoulders."
     },
     "chest_press_machine": {
       "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Chest Press Machine (pin-loaded or plate-loaded).\n🧘‍♂️ Position: Adjust the seat height so the pushing handles align with the middle of your chest. Sit with your entire back firmly against the pad.\n🏋️ Technique: Push the handles forward while contracting your pectorals, exhaling during the effort. Extend your arms without abruptly locking the elbows. Return the weight slowly without letting the plates crash at the bottom."
+      "description": "Equipment: Chest Press Machine (pin-loaded or plate-loaded).\nPosition: Adjust the seat height so the pushing handles align with the middle of your chest. Sit with your entire back firmly against the pad.\nTechnique: Push the handles forward while contracting your pectorals, exhaling during the effort. Extend your arms without abruptly locking the elbows. Return the weight slowly without letting the plates crash at the bottom."
     },
     "incline_chest_press_machine": {
       "submuscles": "Upper Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Incline Chest Press Machine (convergent or plate-loaded).\n🧘‍♂️ Position: Adjust the seat so the pushing motion goes in an upward diagonal angle. Rest your back completely on the pad, chest out.\n🏋️ Technique: Press the handles up and forward. This machine usually brings your hands slightly together at the top (convergent motion), which maximizes upper chest contraction. Lower under control."
+      "description": "Equipment: Incline Chest Press Machine (convergent or plate-loaded).\nPosition: Adjust the seat so the pushing motion goes in an upward diagonal angle. Rest your back completely on the pad, chest out.\nTechnique: Press the handles up and forward. This machine usually brings your hands slightly together at the top (convergent motion), which maximizes upper chest contraction. Lower under control."
     },
     "chest_fly_dumbbell": {
       "submuscles": "Middle Chest, Anterior Deltoid",
-      "description": "⚙️ Equipment: Flat bench and a pair of dumbbells.\n🧘‍♂️ Position: Lie on the bench, feet anchored, scapulae retracted. Raise the dumbbells over your chest with palms facing each other and elbows slightly bent.\n🏋️ Technique: Open your arms out to the sides as if hugging a wide barrel. Lower until you feel a deep stretch in your chest, keeping the elbow bend frozen. Return to the starting position by contracting your chest."
+      "description": "Equipment: Flat bench and a pair of dumbbells.\nPosition: Lie on the bench, feet anchored, scapulae retracted. Raise the dumbbells over your chest with palms facing each other and elbows slightly bent.\nTechnique: Open your arms out to the sides as if hugging a wide barrel. Lower until you feel a deep stretch in your chest, keeping the elbow bend frozen. Return to the starting position by contracting your chest."
     },
     "pec_deck": {
       "submuscles": "Middle Chest, Anterior Deltoid",
-      "description": "⚙️ Equipment: Pec Deck Machine (Chest fly machine).\n🧘‍♂️ Position: Adjust the seat so your elbows or hands (depending on the machine) are at shoulder level or slightly below. Keep your chest up.\n🏋️ Technique: Bring your arms or elbows together in front of you, squeezing the center of your chest hard at maximum contraction for 1 second. Open your arms under control to stretch the muscle again without losing tension."
+      "description": "Equipment: Pec Deck Machine (Chest fly machine).\nPosition: Adjust the seat so your elbows or hands (depending on the machine) are at shoulder level or slightly below. Keep your chest up.\nTechnique: Bring your arms or elbows together in front of you, squeezing the center of your chest hard at maximum contraction for 1 second. Open your arms under control to stretch the muscle again without losing tension."
     },
     "cable_crossover": {
       "submuscles": "Lower Chest, Middle Chest",
-      "description": "⚙️ Equipment: High double pulleys on a cable crossover station and 'D' handles.\n🧘‍♂️ Position: Set the pulleys above your head. Grab a handle with each hand, step forward to create tension, and lean your torso slightly forward.\n🏋️ Technique: With elbows slightly bent, pull the cables down and in front of your body, like a big hug, until your hands slightly cross or touch. Contract the lower chest and slowly open back up."
+      "description": "Equipment: High double pulleys on a cable crossover station and 'D' handles.\nPosition: Set the pulleys above your head. Grab a handle with each hand, step forward to create tension, and lean your torso slightly forward.\nTechnique: With elbows slightly bent, pull the cables down and in front of your body, like a big hug, until your hands slightly cross or touch. Contract the lower chest and slowly open back up."
     },
     "pushups": {
       "submuscles": "Middle Chest, Triceps Brachii, Anterior Deltoid, Core",
-      "description": "⚙️ Equipment: None, bodyweight only.\n🧘‍♂️ Position: Face down on the floor. Place your palms slightly wider than shoulder-width. Keep your body in a perfect straight line from shoulders to heels, squeezing your core and glutes.\n🏋️ Technique: Lower your entire body as a single block by bending your elbows at about 45 degrees from your torso. Go down until your chest grazes the floor, then push strongly back up to full extension."
+      "description": "Equipment: None, bodyweight only.\nPosition: Face down on the floor. Place your palms slightly wider than shoulder-width. Keep your body in a perfect straight line from shoulders to heels, squeezing your core and glutes.\nTechnique: Lower your entire body as a single block by bending your elbows at about 45 degrees from your torso. Go down until your chest grazes the floor, then push strongly back up to full extension."
     },
     "dips_chest": {
       "submuscles": "Lower Chest, Triceps Brachii, Anterior Deltoid",
-      "description": "⚙️ Equipment: Dip station (parallel bars).\n🧘‍♂️ Position: Mount the parallel bars supporting your weight on straight arms. Cross your legs behind you and LEAN your torso heavily forward (crucial to target the chest, not the triceps).\n🏋️ Technique: Lower your body by bending your elbows outwards until your shoulders are slightly below your elbows (90° angle). Push back up using the strength of your lower chest."
+      "description": "Equipment: Dip station (parallel bars).\nPosition: Mount the parallel bars supporting your weight on straight arms. Cross your legs behind you and LEAN your torso heavily forward (crucial to target the chest, not the triceps).\nTechnique: Lower your body by bending your elbows outwards until your shoulders are slightly below your elbows (90° angle). Push back up using the strength of your lower chest."
     },
     "pullover_dumbbell": {
       "submuscles": "Latissimus Dorsi, Middle Chest",
-      "description": "⚙️ Equipment: Flat bench and a single heavy dumbbell.\n🧘‍♂️ Position: Lie perpendicularly across a bench, supporting only your upper back (shoulders). Hold the dumbbell with both hands (diamond/goblet grip) just above your chest.\n🏋️ Technique: With arms almost straight, lower the dumbbell slowly backward behind your head until you feel an extreme stretch in your lats and chest. Pull the dumbbell back to the starting position over your chest."
+      "description": "Equipment: Flat bench and a single heavy dumbbell.\nPosition: Lie perpendicularly across a bench, supporting only your upper back (shoulders). Hold the dumbbell with both hands (diamond/goblet grip) just above your chest.\nTechnique: With arms almost straight, lower the dumbbell slowly backward behind your head until you feel an extreme stretch in your lats and chest. Pull the dumbbell back to the starting position over your chest."
     },
     "pullups": {
       "submuscles": "Latissimus Dorsi, Biceps Brachii, Lower Trapezius",
-      "description": "⚙️ Equipment: High pull-up bar.\n🧘‍♂️ Position: Hang from the bar with palms facing forward (pronated grip) at a distance wider than shoulder-width. Puff your chest out and tense your core.\n🏋️ Technique: Pull your body upward focusing on driving your elbows down and towards your ribs. Pull until your chin clears the bar. Lower your body under control until your arms are almost fully stretched."
+      "description": "Equipment: High pull-up bar.\nPosition: Hang from the bar with palms facing forward (pronated grip) at a distance wider than shoulder-width. Puff your chest out and tense your core.\nTechnique: Pull your body upward focusing on driving your elbows down and towards your ribs. Pull until your chin clears the bar. Lower your body under control until your arms are almost fully stretched."
     },
     "chinups": {
       "submuscles": "Latissimus Dorsi, Biceps Brachii",
-      "description": "⚙️ Equipment: High pull-up bar.\n🧘‍♂️ Position: Hang from the bar with palms facing you (supinated grip) at shoulder width. This grip heavily involves the biceps.\n🏋️ Technique: Initiate the movement by contracting your back and biceps. Pull up until your upper chest nearly touches the bar. Descend slowly, maintaining muscle tension throughout the descent."
+      "description": "Equipment: High pull-up bar.\nPosition: Hang from the bar with palms facing you (supinated grip) at shoulder width. This grip heavily involves the biceps.\nTechnique: Initiate the movement by contracting your back and biceps. Pull up until your upper chest nearly touches the bar. Descend slowly, maintaining muscle tension throughout the descent."
     },
     "lat_pulldown_wide": {
       "submuscles": "Latissimus Dorsi, Rhomboids",
-      "description": "⚙️ Equipment: High pulley machine (Lat Pulldown) and a wide bar.\n🧘‍♂️ Position: Sit at the machine securing your knees under the pads so you don't lift off the seat. Grip the bar with palms facing forward, wider than shoulder-width. Point your chest to the ceiling.\n🏋️ Technique: Pull the bar directly down towards your upper chest, squeezing your lats and trying to bring your shoulder blades together. Return the weight up with control, not letting your shoulders shrug into your ears."
+      "description": "Equipment: High pulley machine (Lat Pulldown) and a wide bar.\nPosition: Sit at the machine securing your knees under the pads so you don't lift off the seat. Grip the bar with palms facing forward, wider than shoulder-width. Point your chest to the ceiling.\nTechnique: Pull the bar directly down towards your upper chest, squeezing your lats and trying to bring your shoulder blades together. Return the weight up with control, not letting your shoulders shrug into your ears."
     },
     "lat_pulldown_close": {
       "submuscles": "Latissimus Dorsi, Biceps Brachii",
-      "description": "⚙️ Equipment: High pulley machine with a V-handle (close grip).\n🧘‍♂️ Position: Sit down adjusting the knee pads. Grip the V-handle with both hands.\n🏋️ Technique: Pull the handle towards the middle of your chest, keeping your elbows as close to your ribs as possible throughout the movement. Feel your mid-back contract, and let the weight rise slowly to stretch the lats."
+      "description": "Equipment: High pulley machine with a V-handle (close grip).\nPosition: Sit down adjusting the knee pads. Grip the V-handle with both hands.\nTechnique: Pull the handle towards the middle of your chest, keeping your elbows as close to your ribs as possible throughout the movement. Feel your mid-back contract, and let the weight rise slowly to stretch the lats."
     },
     "barbell_row": {
       "submuscles": "Latissimus Dorsi, Rhomboids, Trapezius",
-      "description": "⚙️ Equipment: Olympic barbell and plates.\n🧘‍♂️ Position: Stand with feet shoulder-width apart. Slightly bend your knees and hinge your torso forward (about 45 degrees or nearly parallel to the floor) keeping your back perfectly straight and chest out.\n🏋️ Technique: Pull the bar towards your belly button/lower hip, driving the movement with your elbows towards the ceiling. Squeeze your back at the top. Lower the bar until your arms are fully extended."
+      "description": "Equipment: Olympic barbell and plates.\nPosition: Stand with feet shoulder-width apart. Slightly bend your knees and hinge your torso forward (about 45 degrees or nearly parallel to the floor) keeping your back perfectly straight and chest out.\nTechnique: Pull the bar towards your belly button/lower hip, driving the movement with your elbows towards the ceiling. Squeeze your back at the top. Lower the bar until your arms are fully extended."
     },
     "dumbbell_row": {
       "submuscles": "Latissimus Dorsi, Rhomboids",
-      "description": "⚙️ Equipment: Flat bench and a dumbbell.\n🧘‍♂️ Position: Rest your left knee and left hand on the bench for stability, keeping your right foot firm on the floor and your back straight and parallel to the ground. Hold the dumbbell with your free right hand.\n🏋️ Technique: Pull the dumbbell in an arc motion towards your hip, not your chest. Squeeze your lat. Lower the weight under control until you feel your shoulder and lat stretch."
+      "description": "Equipment: Flat bench and a dumbbell.\nPosition: Rest your left knee and left hand on the bench for stability, keeping your right foot firm on the floor and your back straight and parallel to the ground. Hold the dumbbell with your free right hand.\nTechnique: Pull the dumbbell in an arc motion towards your hip, not your chest. Squeeze your lat. Lower the weight under control until you feel your shoulder and lat stretch."
     },
     "seated_cable_row": {
       "submuscles": "Latissimus Dorsi, Rhomboids",
-      "description": "⚙️ Equipment: Low cable row machine with a V-handle or straight bar.\n🧘‍♂️ Position: Sit on the machine's bench, place your feet on the platforms leaving your knees slightly bent. Keep your back straight and vertical, do not slouch.\n🏋️ Technique: Pull the handle towards the pit of your stomach (abdomen). Avoid using momentum or swinging your torso backward; all the work must be done by your back muscles (lats and rhomboids)."
+      "description": "Equipment: Low cable row machine with a V-handle or straight bar.\nPosition: Sit on the machine's bench, place your feet on the platforms leaving your knees slightly bent. Keep your back straight and vertical, do not slouch.\nTechnique: Pull the handle towards the pit of your stomach (abdomen). Avoid using momentum or swinging your torso backward; all the work must be done by your back muscles (lats and rhomboids)."
     },
     "machine_row": {
       "submuscles": "Rhomboids, Latissimus Dorsi",
-      "description": "⚙️ Equipment: Seated Row Machine (convergent or plate-loaded).\n🧘‍♂️ Position: Adjust the seat and chest pad so that when you extend your arms, you can just reach the handles. Press your chest firmly against the pad.\n🏋️ Technique: Pull the handles towards you squeezing your mid-back hard. The huge advantage of this machine is that your lower back gets to rest. Return the weight smoothly."
+      "description": "Equipment: Seated Row Machine (convergent or plate-loaded).\nPosition: Adjust the seat and chest pad so that when you extend your arms, you can just reach the handles. Press your chest firmly against the pad.\nTechnique: Pull the handles towards you squeezing your mid-back hard. The huge advantage of this machine is that your lower back gets to rest. Return the weight smoothly."
     },
     "t_bar_row": {
       "submuscles": "Latissimus Dorsi, Rhomboids",
-      "description": "⚙️ Equipment: Barbell anchored in a corner or Landmine, with a V-handle or special attachment.\n🧘‍♂️ Position: Stand over the bar with one leg on each side. Hinge your torso to 45 degrees by bending your knees and sticking your chest out. Grip the handle looped under the bar.\n🏋️ Technique: Pull the weight towards your chest, focusing the effort on the central muscles of your back. Keep your torso static. Avoid standing up straighter as you get tired."
+      "description": "Equipment: Barbell anchored in a corner or Landmine, with a V-handle or special attachment.\nPosition: Stand over the bar with one leg on each side. Hinge your torso to 45 degrees by bending your knees and sticking your chest out. Grip the handle looped under the bar.\nTechnique: Pull the weight towards your chest, focusing the effort on the central muscles of your back. Keep your torso static. Avoid standing up straighter as you get tired."
     },
     "t_bar_row_machine": {
       "submuscles": "Rhomboids, Latissimus Dorsi",
-      "description": "⚙️ Equipment: T-Bar Row Machine with a chest support pad.\n🧘‍♂️ Position: Lie face down on the angled pad. Plant your feet firmly on the base. Grip the handles.\n🏋️ Technique: This version removes all tension from your lower back. Simply pull the weight upward, squeezing your shoulder blades hard. Ideal for 100% isolation of the upper and mid-back."
+      "description": "Equipment: T-Bar Row Machine with a chest support pad.\nPosition: Lie face down on the angled pad. Plant your feet firmly on the base. Grip the handles.\nTechnique: This version removes all tension from your lower back. Simply pull the weight upward, squeezing your shoulder blades hard. Ideal for 100% isolation of the upper and mid-back."
     },
     "deadlift": {
       "submuscles": "Erector Spinae, Glutes, Hamstrings, Trapezius, Quads",
-      "description": "⚙️ Equipment: Olympic barbell and standard plates or bumpers on the floor.\n🧘‍♂️ Position: Place feet hip-width apart. The bar should cross the center of your feet. Squat down bending knees and hips to grip the bar just outside your knees. Chest out, back super straight (never arched like a cat), and shoulders slightly in front of the bar.\n🏋️ Technique: Take a breath, tense your core and push the floor away with your legs. The bar must scrape your shins and thighs the whole way up. Stand tall and squeeze glutes. On the way down, hinge hips back first, then bend knees."
+      "description": "Equipment: Olympic barbell and standard plates or bumpers on the floor.\nPosition: Place feet hip-width apart. The bar should cross the center of your feet. Squat down bending knees and hips to grip the bar just outside your knees. Chest out, back super straight (never arched like a cat), and shoulders slightly in front of the bar.\nTechnique: Take a breath, tense your core and push the floor away with your legs. The bar must scrape your shins and thighs the whole way up. Stand tall and squeeze glutes. On the way down, hinge hips back first, then bend knees."
     },
     "calf_raise_standing": {
       "submuscles": "Calves, Gastrocnemio",
-      "description": "⚙️ Equipment: Standing Calf Raise Machine or using a barbell/dumbbells standing on a weight plate.\n🧘‍♂️ Position: Place the machine's shoulder pads over your shoulders. Stand with the balls of your feet on the edge of the platform, letting your heels hang freely downward.\n🏋️ Technique: Drop your heels as low as possible to feel an extreme stretch in your calves (eccentric phase). Then, push up by getting on your tiptoes as high as you can, holding that contraction for 1 second."
+      "description": "Equipment: Standing Calf Raise Machine or using a barbell/dumbbells standing on a weight plate.\nPosition: Place the machine's shoulder pads over your shoulders. Stand with the balls of your feet on the edge of the platform, letting your heels hang freely downward.\nTechnique: Drop your heels as low as possible to feel an extreme stretch in your calves (eccentric phase). Then, push up by getting on your tiptoes as high as you can, holding that contraction for 1 second."
     },
     "calf_raise_seated": {
       "submuscles": "Calves, Soleus",
-      "description": "⚙️ Equipment: Seated Calf Raise Machine.\n🧘‍♂️ Position: Sit down and place the pads comfortably over your lower quads/knees. The balls of your feet go on the edge of the step, heels in the air.\n🏋️ Technique: Being seated, this exercise heavily isolates the 'soleus' muscle. Lower your heels all the way down, and explode up contracting hard. A slow, controlled movement is essential here."
+      "description": "Equipment: Seated Calf Raise Machine.\nPosition: Sit down and place the pads comfortably over your lower quads/knees. The balls of your feet go on the edge of the step, heels in the air.\nTechnique: Being seated, this exercise heavily isolates the 'soleus' muscle. Lower your heels all the way down, and explode up contracting hard. A slow, controlled movement is essential here."
     },
     "straight_arm_pulldown": {
       "submuscles": "Latissimus Dorsi",
-      "description": "⚙️ Equipment: High pulley with a straight bar or rope.\n🧘‍♂️ Position: Stand facing the pulley. Grab the bar, take a step back, slightly bend your knees, and hinge your torso slightly forward. Keep your arms almost entirely straight.\n🏋️ Technique: Using the power of your lats, push the bar down in a wide arc until it touches your thighs. Keep your arms straight throughout the motion and feel your lats open up (stretch) as you return the weight upward."
+      "description": "Equipment: High pulley with a straight bar or rope.\nPosition: Stand facing the pulley. Grab the bar, take a step back, slightly bend your knees, and hinge your torso slightly forward. Keep your arms almost entirely straight.\nTechnique: Using the power of your lats, push the bar down in a wide arc until it touches your thighs. Keep your arms straight throughout the motion and feel your lats open up (stretch) as you return the weight upward."
     },
     "hyperextensions": {
       "submuscles": "Erector Spinae, Hamstrings",
-      "description": "⚙️ Equipment: 45° or 90° Hyperextension Bench.\n🧘‍♂️ Position: Adjust the pad height so it ends just below your hip crease, allowing you to flex your torso freely. Cross your arms over your chest or behind your head.\n🏋️ Technique: Flex your torso down towards the floor in a controlled manner. Then, using your lower back muscles and glutes, raise your torso until it forms a straight line with your legs. NEVER hyperextend by arching your back backward."
+      "description": "Equipment: 45° or 90° Hyperextension Bench.\nPosition: Adjust the pad height so it ends just below your hip crease, allowing you to flex your torso freely. Cross your arms over your chest or behind your head.\nTechnique: Flex your torso down towards the floor in a controlled manner. Then, using your lower back muscles and glutes, raise your torso until it forms a straight line with your legs. NEVER hyperextend by arching your back backward."
     },
     "shrugs_barbell": {
       "submuscles": "Upper Trapezius",
-      "description": "⚙️ Equipment: Olympic barbell on the floor or in a rack.\n🧘‍♂️ Position: Stand holding the bar in front of your thighs with a pronated grip. Keep your arms completely straight and chest up.\n🏋️ Technique: Elevate your shoulders vertically towards your ears as high as possible, like saying 'I don't know'. Hold the trapezius contraction for a second at the top and lower very slowly. Avoid jerking or rolling your shoulders in circles."
+      "description": "Equipment: Olympic barbell on the floor or in a rack.\nPosition: Stand holding the bar in front of your thighs with a pronated grip. Keep your arms completely straight and chest up.\nTechnique: Elevate your shoulders vertically towards your ears as high as possible, like saying 'I don't know'. Hold the trapezius contraction for a second at the top and lower very slowly. Avoid jerking or rolling your shoulders in circles."
     },
     "shrugs_dumbbell": {
       "submuscles": "Upper Trapezius",
-      "description": "⚙️ Equipment: A pair of heavy dumbbells.\n🧘‍♂️ Position: Stand holding a dumbbell in each hand hanging at the sides of your legs. Firm posture, tight core.\n🏋️ Technique: Same principle as the barbell: shrug your shoulders upwards in a purely vertical motion. The dumbbells at your sides allow a slightly more natural range of motion that prevents leaning forward."
+      "description": "Equipment: A pair of heavy dumbbells.\nPosition: Stand holding a dumbbell in each hand hanging at the sides of your legs. Firm posture, tight core.\nTechnique: Same principle as the barbell: shrug your shoulders upwards in a purely vertical motion. The dumbbells at your sides allow a slightly more natural range of motion that prevents leaning forward."
     },
     "squat_barbell": {
       "submuscles": "Quadriceps, Gluteus Maximus, Hamstrings",
-      "description": "⚙️ Equipment: Squat rack and Olympic barbell.\n🧘‍♂️ Position: Get under the bar, resting it firmly on your meaty traps (high bar). Step back, place feet shoulder-width or slightly wider, toes pointing slightly outward. Chest puffed and core braced hard.\n🏋️ Technique: Initiate by breaking at the hips backward and downward as if sitting in a chair. Keep the weight mid-foot/heel. Lower until your hip crease drops below the top of your knees (break parallel). Explode pushing the floor to rise back up."
+      "description": "Equipment: Squat rack and Olympic barbell.\nPosition: Get under the bar, resting it firmly on your meaty traps (high bar). Step back, place feet shoulder-width or slightly wider, toes pointing slightly outward. Chest puffed and core braced hard.\nTechnique: Initiate by breaking at the hips backward and downward as if sitting in a chair. Keep the weight mid-foot/heel. Lower until your hip crease drops below the top of your knees (break parallel). Explode pushing the floor to rise back up."
     },
     "squat_dumbbell": {
       "submuscles": "Quadriceps, Gluteus Maximus",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Stand holding a heavy dumbbell with both hands in front of your chest at neck height (goblet style) or a dumbbell in each hand at your sides. Feet shoulder-width apart.\n🏋️ Technique: Keeping your torso as upright as possible, squat down. The 'goblet' variant in front forces your core to stabilize the weight and prevents you from leaning too far forward."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Stand holding a heavy dumbbell with both hands in front of your chest at neck height (goblet style) or a dumbbell in each hand at your sides. Feet shoulder-width apart.\nTechnique: Keeping your torso as upright as possible, squat down. The 'goblet' variant in front forces your core to stabilize the weight and prevents you from leaning too far forward."
     },
     "front_squat_barbell": {
       "submuscles": "Quadriceps, Gluteus Maximus, Core",
-      "description": "⚙️ Equipment: Squat rack and Olympic barbell.\n🧘‍♂️ Position: Rest the bar on the front of your shoulders (anterior deltoids) and collarbone area. Keep your elbows pointing high forward (Olympic grip) or cross your arms to stabilize the bar. Feet shoulder-width apart.\n🏋️ Technique: Squat down in a very vertical manner. This position shifts almost all the focus to the quadriceps and requires strong core work to keep your chest from collapsing forward."
+      "description": "Equipment: Squat rack and Olympic barbell.\nPosition: Rest the bar on the front of your shoulders (anterior deltoids) and collarbone area. Keep your elbows pointing high forward (Olympic grip) or cross your arms to stabilize the bar. Feet shoulder-width apart.\nTechnique: Squat down in a very vertical manner. This position shifts almost all the focus to the quadriceps and requires strong core work to keep your chest from collapsing forward."
     },
     "hack_squat_machine": {
       "submuscles": "Quadriceps, Gluteus Maximus",
-      "description": "⚙️ Equipment: Hack Squat Machine.\n🧘‍♂️ Position: Rest your entire back and head on the pad. Place your shoulders under the shoulder pads. Plant your feet on the platform at medium/low height, shoulder-width apart.\n🏋️ Technique: Unlock the machine. Squat down until your knees pass a 90-degree angle (deep squat). Keep your lower back glued to the pad at all times. Push the platform forcefully through your heels and mid-foot."
+      "description": "Equipment: Hack Squat Machine.\nPosition: Rest your entire back and head on the pad. Place your shoulders under the shoulder pads. Plant your feet on the platform at medium/low height, shoulder-width apart.\nTechnique: Unlock the machine. Squat down until your knees pass a 90-degree angle (deep squat). Keep your lower back glued to the pad at all times. Push the platform forcefully through your heels and mid-foot."
     },
     "leg_press": {
       "submuscles": "Quadriceps, Hamstrings",
-      "description": "⚙️ Equipment: 45-degree or seated Leg Press Machine.\n🧘‍♂️ Position: Sit deeply in the seat, ensuring your lower back is fully supported. Place your feet in the center of the platform at shoulder width.\n🏋️ Technique: Push the platform and release the safeties. Lower the weight under control until your knees form at least a 90-degree angle (or until your thighs almost touch your chest). Push back up without abruptly locking your knees to protect the joint."
+      "description": "Equipment: 45-degree or seated Leg Press Machine.\nPosition: Sit deeply in the seat, ensuring your lower back is fully supported. Place your feet in the center of the platform at shoulder width.\nTechnique: Push the platform and release the safeties. Lower the weight under control until your knees form at least a 90-degree angle (or until your thighs almost touch your chest). Push back up without abruptly locking your knees to protect the joint."
     },
     "leg_extension": {
       "submuscles": "Quadriceps",
-      "description": "⚙️ Equipment: Leg Extension Machine.\n🧘‍♂️ Position: Adjust the backrest so the back of your knees aligns with the machine's pivot point. The lower roller should rest on your lower shins/ankles. Grip the side handles firmly.\n🏋️ Technique: Extend your knees fully by lifting the roller, and squeeze your quadriceps in the top position for 1 second. Lower the weight slowly, resisting gravity."
+      "description": "Equipment: Leg Extension Machine.\nPosition: Adjust the backrest so the back of your knees aligns with the machine's pivot point. The lower roller should rest on your lower shins/ankles. Grip the side handles firmly.\nTechnique: Extend your knees fully by lifting the roller, and squeeze your quadriceps in the top position for 1 second. Lower the weight slowly, resisting gravity."
     },
     "leg_curl_lying": {
       "submuscles": "Hamstrings, Calves",
-      "description": "⚙️ Equipment: Lying Leg Curl Machine.\n🧘‍♂️ Position: Lie face down. Adjust the roller so it rests just above your heels (on the Achilles tendons). Your knees should align with the machine's pivot axis.\n🏋️ Technique: Flex your knees pulling the roller towards your glutes as far as you can. Contract your hamstrings hard and lower the weight in a very controlled manner to avoid injury from momentum."
+      "description": "Equipment: Lying Leg Curl Machine.\nPosition: Lie face down. Adjust the roller so it rests just above your heels (on the Achilles tendons). Your knees should align with the machine's pivot axis.\nTechnique: Flex your knees pulling the roller towards your glutes as far as you can. Contract your hamstrings hard and lower the weight in a very controlled manner to avoid injury from momentum."
     },
     "leg_curl_seated": {
       "submuscles": "Hamstrings",
-      "description": "⚙️ Equipment: Seated Leg Curl Machine.\n🧘‍♂️ Position: Sit and adjust the backrest. The top roller should secure your thighs firmly, and the bottom roller should sit behind your ankles.\n🏋️ Technique: Push the roller down and back, bending your knees to isolate the back of the thigh (hamstrings). Hold briefly at the bottom and let it up slowly, feeling the muscle stretch."
+      "description": "Equipment: Seated Leg Curl Machine.\nPosition: Sit and adjust the backrest. The top roller should secure your thighs firmly, and the bottom roller should sit behind your ankles.\nTechnique: Push the roller down and back, bending your knees to isolate the back of the thigh (hamstrings). Hold briefly at the bottom and let it up slowly, feeling the muscle stretch."
     },
     "romanian_deadlift_barbell": {
       "submuscles": "Hamstrings, Gluteus Maximus, Erector Spinae",
-      "description": "⚙️ Equipment: Olympic barbell and plates (RDL).\n🧘‍♂️ Position: Stand with the bar in front of your thighs. Feet hip-width apart, knees slightly bent (soft knees). Chest out and keep your back perfectly straight.\n🏋️ Technique: Hinge your hips backward (as if trying to touch the wall behind you with your glutes), letting the bar slide down your thighs. Lower until you feel a deep stretch in your hamstrings (usually just below the knees). Squeeze glutes and push hips forward to rise."
+      "description": "Equipment: Olympic barbell and plates (RDL).\nPosition: Stand with the bar in front of your thighs. Feet hip-width apart, knees slightly bent (soft knees). Chest out and keep your back perfectly straight.\nTechnique: Hinge your hips backward (as if trying to touch the wall behind you with your glutes), letting the bar slide down your thighs. Lower until you feel a deep stretch in your hamstrings (usually just below the knees). Squeeze glutes and push hips forward to rise."
     },
     "romanian_deadlift_dumbbell": {
       "submuscles": "Hamstrings, Gluteus Maximus, Erector Spinae",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Stand, holding the dumbbells in front of your thighs or at your sides. Knees slightly unlocked. Chest upright.\n🏋️ Technique: Perform the same hip hinge motion as with the barbell: hips back, neutral spine. Lower until you feel maximum stretch in the hamstrings and return to the starting position by contracting your glutes."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Stand, holding the dumbbells in front of your thighs or at your sides. Knees slightly unlocked. Chest upright.\nTechnique: Perform the same hip hinge motion as with the barbell: hips back, neutral spine. Lower until you feel maximum stretch in the hamstrings and return to the starting position by contracting your glutes."
     },
     "lunges_barbell": {
       "submuscles": "Quadriceps, Gluteus Maximus",
-      "description": "⚙️ Equipment: Olympic barbell across your upper back.\n🧘‍♂️ Position: Place the bar on your traps like in a squat. Keep your torso vertical and core tight.\n🏋️ Technique: Take a wide step forward with one leg. Drop your hips directly towards the floor until your back knee almost touches it (or lightly grazes it) and your front knee is at 90 degrees. Push with the front leg to return to the starting position."
+      "description": "Equipment: Olympic barbell across your upper back.\nPosition: Place the bar on your traps like in a squat. Keep your torso vertical and core tight.\nTechnique: Take a wide step forward with one leg. Drop your hips directly towards the floor until your back knee almost touches it (or lightly grazes it) and your front knee is at 90 degrees. Push with the front leg to return to the starting position."
     },
     "lunges_dumbbell": {
       "submuscles": "Quadriceps, Gluteus Maximus",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Stand holding the dumbbells at the sides of your body with arms hanging straight. Shoulders back.\n🏋️ Technique: Take long steps (lunges), lowering your center of gravity until both knees form 90-degree angles. Keep your torso slightly leaning forward if you want to target the glutes more, or completely vertical to focus on the quadriceps."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Stand holding the dumbbells at the sides of your body with arms hanging straight. Shoulders back.\nTechnique: Take long steps (lunges), lowering your center of gravity until both knees form 90-degree angles. Keep your torso slightly leaning forward if you want to target the glutes more, or completely vertical to focus on the quadriceps."
     },
     "bulgarian_split_squat_dumbbell": {
       "submuscles": "Gluteus Maximus, Quadriceps",
-      "description": "⚙️ Equipment: A bench and a pair of dumbbells.\n🧘‍♂️ Position: Facing away from the bench, place the top of one foot on it. Take a short hop forward with the other leg to find the right distance. Hold the dumbbells at your sides.\n🏋️ Technique: Lower your hips towards the floor ensuring most of your weight (80-90%) rests on the front leg. Go down until your front thigh is parallel to the floor and explode upwards."
+      "description": "Equipment: A bench and a pair of dumbbells.\nPosition: Facing away from the bench, place the top of one foot on it. Take a short hop forward with the other leg to find the right distance. Hold the dumbbells at your sides.\nTechnique: Lower your hips towards the floor ensuring most of your weight (80-90%) rests on the front leg. Go down until your front thigh is parallel to the floor and explode upwards."
     },
     "hip_thrust_barbell": {
       "submuscles": "Gluteus Maximus, Hamstrings",
-      "description": "⚙️ Equipment: Low bench for the back, Olympic barbell, large plates, and a thick protective barbell pad.\n🧘‍♂️ Position: Sit on the floor with your upper back (just below the shoulder blades) resting against the bench. Roll the loaded bar until it sits on your hip crease. Bend your knees so your feet are flat.\n🏋️ Technique: Tuck your chin to your chest. Push the floor with your heels and lift your hips explosively until your torso forms a straight line from shoulders to knees. Squeeze glutes for 2 seconds at the top and lower under control."
+      "description": "Equipment: Low bench for the back, Olympic barbell, large plates, and a thick protective barbell pad.\nPosition: Sit on the floor with your upper back (just below the shoulder blades) resting against the bench. Roll the loaded bar until it sits on your hip crease. Bend your knees so your feet are flat.\nTechnique: Tuck your chin to your chest. Push the floor with your heels and lift your hips explosively until your torso forms a straight line from shoulders to knees. Squeeze glutes for 2 seconds at the top and lower under control."
     },
     "hip_thrust_machine": {
       "submuscles": "Gluteus Maximus",
-      "description": "⚙️ Equipment: Hip Thrust Machine.\n🧘‍♂️ Position: Position yourself in the machine, securing the belt or pad firmly over your hip crease. Rest your back against the pad.\n🏋️ Technique: Release the safety. Push your hips upwards, strongly contracting the glutes at the highest point. Do not overarch your lower back; all power must come from the glute contraction."
+      "description": "Equipment: Hip Thrust Machine.\nPosition: Position yourself in the machine, securing the belt or pad firmly over your hip crease. Rest your back against the pad.\nTechnique: Release the safety. Push your hips upwards, strongly contracting the glutes at the highest point. Do not overarch your lower back; all power must come from the glute contraction."
     },
     "overhead_press_barbell": {
       "submuscles": "Anterior Deltoid, Triceps Brachii",
-      "description": "⚙️ Equipment: Olympic barbell (Military Press).\n🧘‍♂️ Position: Standing. Grip the bar at collarbone height, with a grip just slightly wider than your shoulders. Tuck elbows down and slightly in front of the bar. Brace core and glutes.\n🏋️ Technique: Press the bar vertically upward, passing very close to your face (tilt your head slightly back). Once the bar clears your head, push your head forward (under the bar) and fully extend your arms."
+      "description": "Equipment: Olympic barbell (Military Press).\nPosition: Standing. Grip the bar at collarbone height, with a grip just slightly wider than your shoulders. Tuck elbows down and slightly in front of the bar. Brace core and glutes.\nTechnique: Press the bar vertically upward, passing very close to your face (tilt your head slightly back). Once the bar clears your head, push your head forward (under the bar) and fully extend your arms."
     },
     "overhead_press_dumbbell": {
       "submuscles": "Anterior Deltoid, Lateral Deltoid",
-      "description": "⚙️ Equipment: A pair of dumbbells and (optionally) a bench with a 90-degree backrest.\n🧘‍♂️ Position: Seated or standing, hold the dumbbells at shoulder height with palms facing forward (or slightly inward). Chest upright.\n🏋️ Technique: Press the dumbbells upwards, bringing them slightly together overhead. Lower them in a controlled manner until they are at ear or shoulder level before the next rep."
+      "description": "Equipment: A pair of dumbbells and (optionally) a bench with a 90-degree backrest.\nPosition: Seated or standing, hold the dumbbells at shoulder height with palms facing forward (or slightly inward). Chest upright.\nTechnique: Press the dumbbells upwards, bringing them slightly together overhead. Lower them in a controlled manner until they are at ear or shoulder level before the next rep."
     },
     "shoulder_press_machine": {
       "submuscles": "Anterior Deltoid, Triceps Brachii",
-      "description": "⚙️ Equipment: Shoulder Press Machine.\n🧘‍♂️ Position: Adjust the seat so the handles align with your shoulder level. Rest your back firmly.\n🏋️ Technique: Push the handles upwards, extending your arms without abruptly locking the elbows. Control the descent to maintain constant tension on the front and lateral deltoids."
+      "description": "Equipment: Shoulder Press Machine.\nPosition: Adjust the seat so the handles align with your shoulder level. Rest your back firmly.\nTechnique: Push the handles upwards, extending your arms without abruptly locking the elbows. Control the descent to maintain constant tension on the front and lateral deltoids."
     },
     "arnold_press": {
       "submuscles": "Anterior Deltoid, Lateral Deltoid",
-      "description": "⚙️ Equipment: Bench with backrest and a pair of dumbbells.\n🧘‍♂️ Position: Seated. Raise the dumbbells to chest height, but this time with palms facing your face and elbows in front of you.\n🏋️ Technique: As you press the dumbbells overhead, rotate your wrists and elbows outward so that, at the top, your palms end up facing forward. Reverse the rotation on the way down. Excellent for front and lateral shoulders."
+      "description": "Equipment: Bench with backrest and a pair of dumbbells.\nPosition: Seated. Raise the dumbbells to chest height, but this time with palms facing your face and elbows in front of you.\nTechnique: As you press the dumbbells overhead, rotate your wrists and elbows outward so that, at the top, your palms end up facing forward. Reverse the rotation on the way down. Excellent for front and lateral shoulders."
     },
     "lateral_raises_dumbbell": {
       "submuscles": "Lateral Deltoid",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Stand holding the dumbbells in front of you or slightly at your sides, with a slight bend in the elbows. Lean your torso 5-10% forward.\n🏋️ Technique: Raise your arms out to the sides as if you were 'pouring two pitchers of water', leading the movement with your elbows, not your hands. Raise until your arms are parallel to the floor and lower slowly."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Stand holding the dumbbells in front of you or slightly at your sides, with a slight bend in the elbows. Lean your torso 5-10% forward.\nTechnique: Raise your arms out to the sides as if you were 'pouring two pitchers of water', leading the movement with your elbows, not your hands. Raise until your arms are parallel to the floor and lower slowly."
     },
     "lateral_raises_cable": {
       "submuscles": "Lateral Deltoid",
-      "description": "⚙️ Equipment: Low pulley and a single 'D' handle or ankle cuffs.\n🧘‍♂️ Position: Stand next to the pulley. Grab the handle with the hand furthest from the machine, passing the cable in front of or behind your body.\n🏋️ Technique: Raise your arm to the side up to shoulder height. The pulley provides a brutal constant tension from bottom to top, which dumbbells cannot do. Lower controlling the cable."
+      "description": "Equipment: Low pulley and a single 'D' handle or ankle cuffs.\nPosition: Stand next to the pulley. Grab the handle with the hand furthest from the machine, passing the cable in front of or behind your body.\nTechnique: Raise your arm to the side up to shoulder height. The pulley provides a brutal constant tension from bottom to top, which dumbbells cannot do. Lower controlling the cable."
     },
     "front_raises_dumbbell": {
       "submuscles": "Anterior Deltoid",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Stand with dumbbells resting on the front of your thighs, palms facing your legs.\n🏋️ Technique: Keeping the arm almost straight, raise one (or both) dumbbells straight forward up to eye level. Lower under control. Alternate arms or do both at the same time to isolate the anterior deltoid."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Stand with dumbbells resting on the front of your thighs, palms facing your legs.\nTechnique: Keeping the arm almost straight, raise one (or both) dumbbells straight forward up to eye level. Lower under control. Alternate arms or do both at the same time to isolate the anterior deltoid."
     },
     "front_raises_barbell": {
       "submuscles": "Anterior Deltoid",
-      "description": "⚙️ Equipment: Straight or EZ Barbell.\n🧘‍♂️ Position: Stand, hold the bar resting in front of your thighs with hands shoulder-width apart.\n🏋️ Technique: With elbows locked or semi-locked, raise the bar frontally until it is parallel to the ground (shoulder height). Lower very slowly to avoid swinging and using momentum."
+      "description": "Equipment: Straight or EZ Barbell.\nPosition: Stand, hold the bar resting in front of your thighs with hands shoulder-width apart.\nTechnique: With elbows locked or semi-locked, raise the bar frontally until it is parallel to the ground (shoulder height). Lower very slowly to avoid swinging and using momentum."
     },
     "face_pull": {
       "submuscles": "Posterior Deltoid, Upper Trapezius",
-      "description": "⚙️ Equipment: High or chest-height pulley and a rope attachment.\n🧘‍♂️ Position: Stand facing the pulley. Grip the ends of the rope with palms facing down or inward. Take a couple of steps back.\n🏋️ Technique: Pull the rope directly towards your face (or forehead), separating your hands at the end of the movement and pulling your elbows back and out. At the same time, 'externally rotate' your arms as if doing a front double bicep pose. Excellent for rear delts and posture."
+      "description": "Equipment: High or chest-height pulley and a rope attachment.\nPosition: Stand facing the pulley. Grip the ends of the rope with palms facing down or inward. Take a couple of steps back.\nTechnique: Pull the rope directly towards your face (or forehead), separating your hands at the end of the movement and pulling your elbows back and out. At the same time, 'externally rotate' your arms as if doing a front double bicep pose. Excellent for rear delts and posture."
     },
     "reverse_pec_deck": {
       "submuscles": "Posterior Deltoid, Rhomboids",
-      "description": "⚙️ Equipment: Pec Deck Machine set in reverse mode.\n🧘‍♂️ Position: Adjust the machine arms backward and sit facing the machine (chest against the backrest). Extend your arms and grip the handles.\n🏋️ Technique: With arms parallel to the floor and elbows slightly bent, push the handles backward in a wide arc. Squeeze the back of your shoulders (rear deltoids) and shoulder blades. Return with control."
+      "description": "Equipment: Pec Deck Machine set in reverse mode.\nPosition: Adjust the machine arms backward and sit facing the machine (chest against the backrest). Extend your arms and grip the handles.\nTechnique: With arms parallel to the floor and elbows slightly bent, push the handles backward in a wide arc. Squeeze the back of your shoulders (rear deltoids) and shoulder blades. Return with control."
     },
     "upright_row_barbell": {
       "submuscles": "Lateral Deltoid, Upper Trapezius",
-      "description": "⚙️ Equipment: Olympic or EZ Barbell.\n🧘‍♂️ Position: Stand holding the bar in front of your thighs with a grip slightly narrower or at shoulder width. Chest up.\n🏋️ Technique: Pull the bar upward in a straight line grazing your body, lifting and guiding the movement with your elbows toward the ceiling. Pull up to high chest/chin. Lower slowly. *If you feel shoulder discomfort, widen your grip or use dumbbells*."
+      "description": "Equipment: Olympic or EZ Barbell.\nPosition: Stand holding the bar in front of your thighs with a grip slightly narrower or at shoulder width. Chest up.\nTechnique: Pull the bar upward in a straight line grazing your body, lifting and guiding the movement with your elbows toward the ceiling. Pull up to high chest/chin. Lower slowly. *If you feel shoulder discomfort, widen your grip or use dumbbells*."
     },
     "upright_row_cable": {
       "submuscles": "Lateral Deltoid, Upper Trapezius",
-      "description": "⚙️ Equipment: Low pulley with a straight bar or rope.\n🧘‍♂️ Position: Stand facing the pulley. Grip the bar with both hands. Take a half step back.\n🏋️ Technique: Pull the bar towards your neck, pointing your elbows up and out. The cable tension maintains a constant contraction on the upper traps and lateral shoulders."
+      "description": "Equipment: Low pulley with a straight bar or rope.\nPosition: Stand facing the pulley. Grip the bar with both hands. Take a half step back.\nTechnique: Pull the bar towards your neck, pointing your elbows up and out. The cable tension maintains a constant contraction on the upper traps and lateral shoulders."
     },
     "bicep_curl_barbell": {
       "submuscles": "Biceps Brachii",
-      "description": "⚙️ Equipment: Straight or EZ Barbell and plates.\n🧘‍♂️ Position: Stand. Grip the bar with a supinated grip (palms up) at shoulder width. Keep your elbows glued to your ribs and don't move them forward.\n🏋️ Technique: Bend your elbows and curl the bar towards your chest, strongly contracting the biceps. Lower the weight slowly and under control until your arms are almost fully extended. Do not swing your body!"
+      "description": "Equipment: Straight or EZ Barbell and plates.\nPosition: Stand. Grip the bar with a supinated grip (palms up) at shoulder width. Keep your elbows glued to your ribs and don't move them forward.\nTechnique: Bend your elbows and curl the bar towards your chest, strongly contracting the biceps. Lower the weight slowly and under control until your arms are almost fully extended. Do not swing your body!"
     },
     "bicep_curl_dumbbell": {
       "submuscles": "Biceps Brachii",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Standing or seated. Hold the dumbbells at your sides with palms facing inward or forward.\n🏋️ Technique: With elbows static, bend your arms to lift the weight. If you start with palms inward, rotate your wrist as you curl (supination). Squeeze at the top and lower with control. You can alternate or lift both at once."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Standing or seated. Hold the dumbbells at your sides with palms facing inward or forward.\nTechnique: With elbows static, bend your arms to lift the weight. If you start with palms inward, rotate your wrist as you curl (supination). Squeeze at the top and lower with control. You can alternate or lift both at once."
     },
     "hammer_curl_dumbbell": {
       "submuscles": "Brachioradialis, Brachialis",
-      "description": "⚙️ Equipment: A pair of dumbbells.\n🧘‍♂️ Position: Standing or seated. Hold the dumbbells at your sides, but with palms facing each other (neutral grip) at all times.\n🏋️ Technique: Curl the dumbbells up maintaining the neutral grip, as if you were hammering a nail. This curl brutally targets the brachialis and brachioradialis (forearm), adding thickness to the arm."
+      "description": "Equipment: A pair of dumbbells.\nPosition: Standing or seated. Hold the dumbbells at your sides, but with palms facing each other (neutral grip) at all times.\nTechnique: Curl the dumbbells up maintaining the neutral grip, as if you were hammering a nail. This curl brutally targets the brachialis and brachioradialis (forearm), adding thickness to the arm."
     },
     "hammer_curl_cable": {
       "submuscles": "Brachioradialis, Brachialis",
-      "description": "⚙️ Equipment: Low pulley with a rope attachment.\n🧘‍♂️ Position: Stand facing the low pulley, holding one end of the rope in each hand with a neutral grip.\n🏋️ Technique: Flex your arms, pulling the rope towards your shoulders without moving your elbows. At the end of the range, you can slightly separate your hands outward for a greater contraction."
+      "description": "Equipment: Low pulley with a rope attachment.\nPosition: Stand facing the low pulley, holding one end of the rope in each hand with a neutral grip.\nTechnique: Flex your arms, pulling the rope towards your shoulders without moving your elbows. At the end of the range, you can slightly separate your hands outward for a greater contraction."
     },
     "preacher_curl_barbell": {
       "submuscles": "Biceps Short Head, Brachialis",
-      "description": "⚙️ Equipment: Preacher (Scott) Bench and EZ or straight bar.\n🧘‍♂️ Position: Sit, adjusting the height so your armpits rest right on the top edge of the pad. Rest the entire back of your arms (triceps) flat on the angled pad.\n🏋️ Technique: Curl the bar towards your chin, contracting the bicep. The pad completely isolates the muscle preventing you from using your back. Lower the bar until your arm is almost fully straight, but be careful not to hyperextend the elbow abruptly."
+      "description": "Equipment: Preacher (Scott) Bench and EZ or straight bar.\nPosition: Sit, adjusting the height so your armpits rest right on the top edge of the pad. Rest the entire back of your arms (triceps) flat on the angled pad.\nTechnique: Curl the bar towards your chin, contracting the bicep. The pad completely isolates the muscle preventing you from using your back. Lower the bar until your arm is almost fully straight, but be careful not to hyperextend the elbow abruptly."
     },
     "preacher_curl_machine": {
       "submuscles": "Biceps Short Head",
-      "description": "⚙️ Equipment: Preacher Curl Machine (plate-loaded).\n🧘‍♂️ Position: Sit and place your arms flat on the pad. Grip the machine's handles or bar.\n🏋️ Technique: Flex your arms pulling the handles towards you. Being a pulley/plate machine, it provides a perfectly constant resistance both on the way up and down, something free weights can't do at the very top."
+      "description": "Equipment: Preacher Curl Machine (plate-loaded).\nPosition: Sit and place your arms flat on the pad. Grip the machine's handles or bar.\nTechnique: Flex your arms pulling the handles towards you. Being a pulley/plate machine, it provides a perfectly constant resistance both on the way up and down, something free weights can't do at the very top."
     },
     "bicep_curl_cable": {
       "submuscles": "Biceps Brachii",
-      "description": "⚙️ Equipment: Low pulley with a straight bar, EZ bar, or single handle.\n🧘‍♂️ Position: Stand, grip the bar or handle, and step back half a pace to create tension in the cable right from the start.\n🏋️ Technique: Lift the weight by bending the elbow. The advantage of the cable is that it keeps massive tension on the bicep when your arms are straight (stretch phase), maximizing hypertrophy."
+      "description": "Equipment: Low pulley with a straight bar, EZ bar, or single handle.\nPosition: Stand, grip the bar or handle, and step back half a pace to create tension in the cable right from the start.\nTechnique: Lift the weight by bending the elbow. The advantage of the cable is that it keeps massive tension on the bicep when your arms are straight (stretch phase), maximizing hypertrophy."
     },
     "concentration_curl_dumbbell": {
       "submuscles": "Biceps Brachii",
-      "description": "⚙️ Equipment: A bench and a dumbbell.\n🧘‍♂️ Position: Sit on the edge of a bench. Open your legs wide and rest the triceps of your working arm against your inner thigh, just above the knee. Let the arm hang holding the dumbbell.\n🏋️ Technique: Bend the elbow to curl the dumbbell towards your shoulder, squeezing the bicep hard at the point of maximum contraction (bicep 'peak'). Lower the weight very slowly under control. Your arm should not detach from your thigh."
+      "description": "Equipment: A bench and a dumbbell.\nPosition: Sit on the edge of a bench. Open your legs wide and rest the triceps of your working arm against your inner thigh, just above the knee. Let the arm hang holding the dumbbell.\nTechnique: Bend the elbow to curl the dumbbell towards your shoulder, squeezing the bicep hard at the point of maximum contraction (bicep 'peak'). Lower the weight very slowly under control. Your arm should not detach from your thigh."
     },
     "tricep_pushdown_cable": {
       "submuscles": "Triceps Lateral Head, Triceps Medial Head",
-      "description": "⚙️ Equipment: High pulley with a rope, straight bar, or V-bar attachment.\n🧘‍♂️ Position: Stand facing the pulley. Grip the attachment with both hands. Pin your elbows firmly against your ribs. Lean slightly forward for better stability.\n🏋️ Technique: Extend your arms, pushing the cable down until your elbows are completely straight. Bend your arms letting the cable rise, feeling the triceps stretch, but *do not let your elbows detach from your ribs*."
+      "description": "Equipment: High pulley with a rope, straight bar, or V-bar attachment.\nPosition: Stand facing the pulley. Grip the attachment with both hands. Pin your elbows firmly against your ribs. Lean slightly forward for better stability.\nTechnique: Extend your arms, pushing the cable down until your elbows are completely straight. Bend your arms letting the cable rise, feeling the triceps stretch, but *do not let your elbows detach from your ribs*."
     },
     "overhead_tricep_extension_dumbbell": {
       "submuscles": "Triceps Long Head",
-      "description": "⚙️ Equipment: A dumbbell and a bench (with or without backrest).\n🧘‍♂️ Position: Seated, grip a dumbbell with both hands (forming a diamond/goblet grip under the top plate). Lift the dumbbell overhead and slightly behind your head. Keep your elbows pointing high towards the ceiling.\n🏋️ Technique: Lower the dumbbell behind your neck by bending only your elbows until you feel a maximum stretch in the long head of the triceps. Extend your arms to return the dumbbell to the top."
+      "description": "Equipment: A dumbbell and a bench (with or without backrest).\nPosition: Seated, grip a dumbbell with both hands (forming a diamond/goblet grip under the top plate). Lift the dumbbell overhead and slightly behind your head. Keep your elbows pointing high towards the ceiling.\nTechnique: Lower the dumbbell behind your neck by bending only your elbows until you feel a maximum stretch in the long head of the triceps. Extend your arms to return the dumbbell to the top."
     },
     "overhead_tricep_extension_cable": {
       "submuscles": "Triceps Long Head",
-      "description": "⚙️ Equipment: Pulley set at low or mid-height, with a rope attachment.\n🧘‍♂️ Position: Stand, facing away from the machine. Pass the rope behind your head and hold one end in each hand. Lean your torso forward (staggered stance for stability).\n🏋️ Technique: Extend your arms forward and slightly upward, straightening your elbows. This cable variant provides brutal tension on the triceps in the maximum stretch phase."
+      "description": "Equipment: Pulley set at low or mid-height, with a rope attachment.\nPosition: Stand, facing away from the machine. Pass the rope behind your head and hold one end in each hand. Lean your torso forward (staggered stance for stability).\nTechnique: Extend your arms forward and slightly upward, straightening your elbows. This cable variant provides brutal tension on the triceps in the maximum stretch phase."
     },
     "skullcrusher_barbell": {
       "submuscles": "Triceps Medial Head",
-      "description": "⚙️ Equipment: Flat bench and an EZ or straight barbell.\n🧘‍♂️ Position: Lie on the bench. Hold the bar over your head with arms extended and a grip slightly narrower than shoulder-width. Push your elbows slightly backward (towards your forehead).\n🏋️ Technique: Bending only your elbows, lower the bar very controllably towards your forehead (or slightly behind your head for a deeper stretch). Extend your arms pushing the weight back to the starting position. Your shoulders should not move."
+      "description": "Equipment: Flat bench and an EZ or straight barbell.\nPosition: Lie on the bench. Hold the bar over your head with arms extended and a grip slightly narrower than shoulder-width. Push your elbows slightly backward (towards your forehead).\nTechnique: Bending only your elbows, lower the bar very controllably towards your forehead (or slightly behind your head for a deeper stretch). Extend your arms pushing the weight back to the starting position. Your shoulders should not move."
     },
     "dips_triceps": {
       "submuscles": "Triceps Brachii, Lower Chest",
-      "description": "⚙️ Equipment: Dip station, a bench, or parallel bars.\n🧘‍♂️ Position: Mount the parallel bars. Unlike the chest variant, here you must keep your torso AS VERTICAL AS POSSIBLE and your elbows super tucked into your body.\n🏋️ Technique: Lower your body by bending your elbows straight back (not out to the sides) until they form a 90-degree angle. Push forcefully using your triceps to fully extend your arms at the top."
+      "description": "Equipment: Dip station, a bench, or parallel bars.\nPosition: Mount the parallel bars. Unlike the chest variant, here you must keep your torso AS VERTICAL AS POSSIBLE and your elbows super tucked into your body.\nTechnique: Lower your body by bending your elbows straight back (not out to the sides) until they form a 90-degree angle. Push forcefully using your triceps to fully extend your arms at the top."
     },
     "close_grip_bench_press": {
       "submuscles": "Triceps Brachii, Middle Chest",
-      "description": "⚙️ Equipment: Flat bench, rack, and an Olympic barbell.\n🧘‍♂️ Position: Lie on the bench. Instead of a wide chest grip, place your hands at a distance just narrower than your shoulder width. Tuck your elbows into your ribs.\n🏋️ Technique: Lower the bar towards your lower chest or upper abdomen, grazing your sides with your elbows. Press explosively upwards focusing 100% on squeezing your triceps to lock the weight out."
+      "description": "Equipment: Flat bench, rack, and an Olympic barbell.\nPosition: Lie on the bench. Instead of a wide chest grip, place your hands at a distance just narrower than your shoulder width. Tuck your elbows into your ribs.\nTechnique: Lower the bar towards your lower chest or upper abdomen, grazing your sides with your elbows. Press explosively upwards focusing 100% on squeezing your triceps to lock the weight out."
     },
     "tricep_kickback_dumbbell": {
       "submuscles": "Triceps Lateral Head",
-      "description": "⚙️ Equipment: A bench and one or two light dumbbells.\n🧘‍♂️ Position: Hinge your torso parallel to the floor, resting one hand on the bench (or both free bent forward). Lift your upper arm until your elbow is in line with or slightly above your back. Hold that position.\n🏋️ Technique: Keeping the shoulder and elbow frozen in place, 'kick' the dumbbell backward by fully extending the arm. Maximum contraction is achieved at the top, hold there for 1 second, and lower slowly."
+      "description": "Equipment: A bench and one or two light dumbbells.\nPosition: Hinge your torso parallel to the floor, resting one hand on the bench (or both free bent forward). Lift your upper arm until your elbow is in line with or slightly above your back. Hold that position.\nTechnique: Keeping the shoulder and elbow frozen in place, 'kick' the dumbbell backward by fully extending the arm. Maximum contraction is achieved at the top, hold there for 1 second, and lower slowly."
     },
     "tricep_kickback_cable": {
       "submuscles": "Triceps Lateral Head",
-      "description": "⚙️ Equipment: Low pulley without an attachment (gripping directly the cable stopper).\n🧘‍♂️ Position: Lean forward gripping the cable with one hand. Raise your elbow next to your torso until your upper arm is parallel to the floor.\n🏋️ Technique: Extend your arm backward. By using a cable, you will maintain constant tension on the triceps even when returning the arm to the flexed position, fixing the main flaw of the dumbbell kickback."
+      "description": "Equipment: Low pulley without an attachment (gripping directly the cable stopper).\nPosition: Lean forward gripping the cable with one hand. Raise your elbow next to your torso until your upper arm is parallel to the floor.\nTechnique: Extend your arm backward. By using a cable, you will maintain constant tension on the triceps even when returning the arm to the flexed position, fixing the main flaw of the dumbbell kickback."
     },
     "crunch": {
       "submuscles": "Rectus Abdominis",
-      "description": "⚙️ Equipment: Exercise mat.\n🧘‍♂️ Position: Lie on your back, bend your knees, and plant your feet on the floor. Place your hands lightly behind your ears (do not yank your neck!) or crossed over your chest.\n🏋️ Technique: Lift only your shoulders and upper back off the ground by contracting your upper abdominal muscles as if trying to curl up. Hold for a moment and lower under control."
+      "description": "Equipment: Exercise mat.\nPosition: Lie on your back, bend your knees, and plant your feet on the floor. Place your hands lightly behind your ears (do not yank your neck!) or crossed over your chest.\nTechnique: Lift only your shoulders and upper back off the ground by contracting your upper abdominal muscles as if trying to curl up. Hold for a moment and lower under control."
     },
     "plank": {
       "submuscles": "Full Core, Transverse Abdominis",
-      "description": "⚙️ Equipment: Exercise mat.\n🧘‍♂️ Position: Face down, support your body weight on your forearms and toes. Your elbows must be aligned directly under your shoulders.\n🏋️ Technique: Lift your body. Strongly contract your core, glutes, and quads to maintain a perfectly straight and rigid line from head to heels. Do not let your hips sag or rise too high. Hold for the necessary time."
+      "description": "Equipment: Exercise mat.\nPosition: Face down, support your body weight on your forearms and toes. Your elbows must be aligned directly under your shoulders.\nTechnique: Lift your body. Strongly contract your core, glutes, and quads to maintain a perfectly straight and rigid line from head to heels. Do not let your hips sag or rise too high. Hold for the necessary time."
     },
     "russian_twist": {
       "submuscles": "Obliques, Rectus Abdominis",
-      "description": "⚙️ Equipment: Exercise mat, and optionally a weight plate, dumbbell, or medicine ball.\n🧘‍♂️ Position: Sit down, lean your torso back about 45 degrees, and slightly lift your feet off the floor to balance on your glutes.\n🏋️ Technique: Holding the weight with both hands, explosively twist your torso to one side until you almost touch the floor with your hands/weight. Immediately twist to the other side. Focus on rotating your shoulders and using your obliques."
+      "description": "Equipment: Exercise mat, and optionally a weight plate, dumbbell, or medicine ball.\nPosition: Sit down, lean your torso back about 45 degrees, and slightly lift your feet off the floor to balance on your glutes.\nTechnique: Holding the weight with both hands, explosively twist your torso to one side until you almost touch the floor with your hands/weight. Immediately twist to the other side. Focus on rotating your shoulders and using your obliques."
     },
     "leg_raises_lying": {
       "submuscles": "Rectus Abdominis",
-      "description": "⚙️ Equipment: Exercise mat or a flat bench.\n🧘‍♂️ Position: Lie on your back, arms at your sides (you can place your hands under your glutes if you need lumbar support), and legs completely straight and extended.\n🏋️ Technique: Using your lower abs, raise your straight legs towards the ceiling until they pass 90 degrees. Slowly lower your legs without letting your heels touch the floor before the next rep."
+      "description": "Equipment: Exercise mat or a flat bench.\nPosition: Lie on your back, arms at your sides (you can place your hands under your glutes if you need lumbar support), and legs completely straight and extended.\nTechnique: Using your lower abs, raise your straight legs towards the ceiling until they pass 90 degrees. Slowly lower your legs without letting your heels touch the floor before the next rep."
     },
     "leg_raises_hanging": {
       "submuscles": "Rectus Abdominis, Hip Flexors",
-      "description": "⚙️ Equipment: Pull-up bar or Roman chair (Captain's chair).\n🧘‍♂️ Position: Hang from the bar (or rest your forearms on the Roman chair). Let your body hang relaxed but keeping your core tense.\n🏋️ Technique: Raise your legs (straight for higher difficulty, or bend your knees to make it easier) by actively lifting your pelvis towards your chest (doing a 'curl' of your lower spine). Lower under control avoiding body swing."
+      "description": "Equipment: Pull-up bar or Roman chair (Captain's chair).\nPosition: Hang from the bar (or rest your forearms on the Roman chair). Let your body hang relaxed but keeping your core tense.\nTechnique: Raise your legs (straight for higher difficulty, or bend your knees to make it easier) by actively lifting your pelvis towards your chest (doing a 'curl' of your lower spine). Lower under control avoiding body swing."
     },
     "ab_wheel_rollout": {
       "submuscles": "Full Core, Latissimus Dorsi",
-      "description": "⚙️ Equipment: Ab Wheel (Ab Roller) and knee mat.\n🧘‍♂️ Position: Kneeling on the floor, grip the ab wheel handles in front of you. Brace your core; do not let your lower back sag.\n🏋️ Technique: Roll forward in a very controlled manner, extending your hips and arms until your chest is as close to the floor as possible, maintaining absolute core tension. Pull back using your abdominal strength."
+      "description": "Equipment: Ab Wheel (Ab Roller) and knee mat.\nPosition: Kneeling on the floor, grip the ab wheel handles in front of you. Brace your core; do not let your lower back sag.\nTechnique: Roll forward in a very controlled manner, extending your hips and arms until your chest is as close to the floor as possible, maintaining absolute core tension. Pull back using your abdominal strength."
     },
     "bicycle_crunch": {
       "submuscles": "Obliques, Rectus Abdominis",
-      "description": "⚙️ Equipment: Exercise mat.\n🧘‍♂️ Position: Lie on your back. Raise your legs to 90 degrees (tabletop position) and lightly place your fingers by the sides of your head.\n🏋️ Technique: While extending your right leg (without touching the floor), twist your torso and crunch up to touch or bring your left knee close to your right elbow. Alternate fluidly and rhythmically simulating pedaling. Squeeze the obliques."
+      "description": "Equipment: Exercise mat.\nPosition: Lie on your back. Raise your legs to 90 degrees (tabletop position) and lightly place your fingers by the sides of your head.\nTechnique: While extending your right leg (without touching the floor), twist your torso and crunch up to touch or bring your left knee close to your right elbow. Alternate fluidly and rhythmically simulating pedaling. Squeeze the obliques."
     },
     "cable_crunch": {
       "submuscles": "Rectus Abdominis",
-      "description": "⚙️ Equipment: High pulley with a rope attachment.\n🧘‍♂️ Position: Kneeling facing or facing away from the machine (preference). Hold the ends of the rope on either side of your head or chin.\n🏋️ Technique: Curl your torso downward bringing your elbows towards your knees, rounding your back (here we DO want to round). Contract your abs like an accordion moving the weight. Return under control, stretching the abs."
+      "description": "Equipment: High pulley with a rope attachment.\nPosition: Kneeling facing or facing away from the machine (preference). Hold the ends of the rope on either side of your head or chin.\nTechnique: Curl your torso downward bringing your elbows towards your knees, rounding your back (here we DO want to round). Contract your abs like an accordion moving the weight. Return under control, stretching the abs."
     },
     "hip_abductor_machine": {
       "submuscles": "Gluteus Medius, Gluteus Minimus",
-      "description": "⚙️ Equipment: Seated Abductor Machine (Pads on the outside).\n🧘‍♂️ Position: Sit and place the outside of your knees against the protective pads. Secure your back well into the seat.\n🏋️ Technique: Push the pads opening your legs as wide as the machine allows, strongly activating the gluteus medius (sides of the hips). Return slowly, controlling the closure."
+      "description": "Equipment: Seated Abductor Machine (Pads on the outside).\nPosition: Sit and place the outside of your knees against the protective pads. Secure your back well into the seat.\nTechnique: Push the pads opening your legs as wide as the machine allows, strongly activating the gluteus medius (sides of the hips). Return slowly, controlling the closure."
     },
     "hip_adductor_machine": {
       "submuscles": "Adductors, Inner Thigh",
-      "description": "⚙️ Equipment: Seated Adductor Machine (Pads on the inside).\n🧘‍♂️ Position: Adjust the machine so your legs start very wide apart. Place the inner part of your thighs and knees against the pads.\n🏋️ Technique: Squeeze hard, closing your legs and bringing the pads together. This machine exclusively works the inner thigh musculature (adductors). Open slowly and under control, feeling the stretch in the groin."
+      "description": "Equipment: Seated Adductor Machine (Pads on the inside).\nPosition: Adjust the machine so your legs start very wide apart. Place the inner part of your thighs and knees against the pads.\nTechnique: Squeeze hard, closing your legs and bringing the pads together. This machine exclusively works the inner thigh musculature (adductors). Open slowly and under control, feeling the stretch in the groin."
     },
     "glute_kickback_machine": {
       "submuscles": "Gluteus Maximus, Hamstrings",
-      "description": "⚙️ Equipment: Glute Kickback Machine (plate or cable loaded).\n🧘‍♂️ Position: Stand facing the machine, lean over supporting yourself on the handles or pads. Place your right foot against the low resistance plate.\n🏋️ Technique: Push the plate by kicking directly backward and slightly upward. Fully extend the hip and contract the gluteus maximus for 1-2 seconds at the top. Lower back down controlling the negative weight."
+      "description": "Equipment: Glute Kickback Machine (plate or cable loaded).\nPosition: Stand facing the machine, lean over supporting yourself on the handles or pads. Place your right foot against the low resistance plate.\nTechnique: Push the plate by kicking directly backward and slightly upward. Fully extend the hip and contract the gluteus maximus for 1-2 seconds at the top. Lower back down controlling the negative weight."
     },
     "smith_machine_squat": {
       "submuscles": "Quadriceps, Gluteus Maximus",
-      "description": "⚙️ Equipment: Smith Machine.\n🧘‍♂️ Position: Place the bar on your upper back. You can place your feet slightly further forward from your center of gravity on the Smith, depending on which muscle you want to focus on (further forward = more glute; underneath you = more quads).\n🏋️ Technique: Break parallel and push. The machine stabilizes the weight for you, allowing you to push without thinking about balance, which is great for overloading the legs to the max."
+      "description": "Equipment: Smith Machine.\nPosition: Place the bar on your upper back. You can place your feet slightly further forward from your center of gravity on the Smith, depending on which muscle you want to focus on (further forward = more glute; underneath you = more quads).\nTechnique: Break parallel and push. The machine stabilizes the weight for you, allowing you to push without thinking about balance, which is great for overloading the legs to the max."
     },
     "smith_machine_bench_press": {
       "submuscles": "Middle Chest, Triceps Brachii",
-      "description": "⚙️ Equipment: Smith Machine and flat bench.\n🧘‍♂️ Position: Center the bench perfectly under the bar, aiming for it to come down right at nipple level. Lie down and grip the bar.\n🏋️ Technique: Lower the bar slowly and push back up. Due to the lack of stabilizing muscles needed (because of the fixed vertical guide), you can focus 100% on pushing the bar with your pectoral without fear of it falling or unbalancing."
+      "description": "Equipment: Smith Machine and flat bench.\nPosition: Center the bench perfectly under the bar, aiming for it to come down right at nipple level. Lie down and grip the bar.\nTechnique: Lower the bar slowly and push back up. Due to the lack of stabilizing muscles needed (because of the fixed vertical guide), you can focus 100% on pushing the bar with your pectoral without fear of it falling or unbalancing."
     },
     "smith_machine_incline_press": {
       "submuscles": "Upper Chest, Triceps Brachii",
-      "description": "⚙️ Equipment: Smith Machine and incline bench (30-45 degrees).\n🧘‍♂️ Position: Ensure the bench is aligned so the Smith bar comes down to your collarbone or upper chest. Puff your chest out.\n🏋️ Technique: Unrack, lower the weight slowly grazing your collarbone, and press hard contracting your upper chest. An excellent way to seek muscular failure safely."
+      "description": "Equipment: Smith Machine and incline bench (30-45 degrees).\nPosition: Ensure the bench is aligned so the Smith bar comes down to your collarbone or upper chest. Puff your chest out.\nTechnique: Unrack, lower the weight slowly grazing your collarbone, and press hard contracting your upper chest. An excellent way to seek muscular failure safely."
     },
     "smith_machine_overhead_press": {
       "submuscles": "Anterior Deltoid, Triceps Brachii",
-      "description": "⚙️ Equipment: Smith Machine and a bench with a backrest set to almost 90 degrees.\n🧘‍♂️ Position: Adjust the seat so the bar passes just in front of your face, grazing your nose, on the way down. Seated with chest high.\n🏋️ Technique: Lower the bar to chin or upper chest level. Press straight up, isolating and blasting the front and medial heads of the shoulder."
+      "description": "Equipment: Smith Machine and a bench with a backrest set to almost 90 degrees.\nPosition: Adjust the seat so the bar passes just in front of your face, grazing your nose, on the way down. Seated with chest high.\nTechnique: Lower the bar to chin or upper chest level. Press straight up, isolating and blasting the front and medial heads of the shoulder."
     },
     "good_mornings": {
       "submuscles": "Hamstrings, Erector Spinae",
-      "description": "⚙️ Equipment: Light Olympic barbell or moderate weight.\n🧘‍♂️ Position: Place the bar across your upper back and traps. Feet shoulder-width apart, legs almost straight (minimal knee bend).\n🏋️ Technique: Hinge your hips far back and lean your torso forward until it is almost parallel to the ground (simulating a bow). You should feel an extreme stretch in your hamstrings and lower back. Return by pushing your hips forward and squeezing your glutes."
+      "description": "Equipment: Light Olympic barbell or moderate weight.\nPosition: Place the bar across your upper back and traps. Feet shoulder-width apart, legs almost straight (minimal knee bend).\nTechnique: Hinge your hips far back and lean your torso forward until it is almost parallel to the ground (simulating a bow). You should feel an extreme stretch in your hamstrings and lower back. Return by pushing your hips forward and squeezing your glutes."
     },
     "sumo_deadlift": {
       "submuscles": "Gluteus Maximus, Quadriceps, Adductors",
-      "description": "⚙️ Equipment: Olympic barbell on the floor and plates.\n🧘‍♂️ Position: Adopt a very wide stance, toes pointing outward at a wide angle. Grip the bar inside your thighs. Chest up, neutral spine, hips close to the bar.\n🏋️ Technique: Take a breath and press the floor apart with your feet (as if trying to split it in half). Keep the bar very close to your shins. Stand up until fully erect. Involves much more leg and adductor strength than a conventional deadlift."
+      "description": "Equipment: Olympic barbell on the floor and plates.\nPosition: Adopt a very wide stance, toes pointing outward at a wide angle. Grip the bar inside your thighs. Chest up, neutral spine, hips close to the bar.\nTechnique: Take a breath and press the floor apart with your feet (as if trying to split it in half). Keep the bar very close to your shins. Stand up until fully erect. Involves much more leg and adductor strength than a conventional deadlift."
     },
     "bayesian_curl_cable": {
       "submuscles": "Biceps Long Head, Brachialis",
-      "description": "⚙️ Equipment: Low pulley, ideally placed behind you (facing away from the machine) with a single handle.\n🧘‍♂️ Position: Grip the handle, step forward until your arm is stretched BEHIND and BELOW the plane of your body. This position extremely stretches the long head of the biceps.\n🏋️ Technique: Perform a normal curl but keeping your elbow anchored slightly behind your back. It is one of the best movements for isolated bicep hypertrophy and advanced technique."
+      "description": "Equipment: Low pulley, ideally placed behind you (facing away from the machine) with a single handle.\nPosition: Grip the handle, step forward until your arm is stretched BEHIND and BELOW the plane of your body. This position extremely stretches the long head of the biceps.\nTechnique: Perform a normal curl but keeping your elbow anchored slightly behind your back. It is one of the best movements for isolated bicep hypertrophy and advanced technique."
     },
     "katana_extension_cable": {
       "submuscles": "Triceps Long Head",
-      "description": "⚙️ Equipment: Two pulleys set at low-mid or high level, crossing the cables behind you.\n🧘‍♂️ Position: Standing or kneeling with your back to the cables. Grab the left cable with your right hand, and the right cable with your left. Your elbows point out to the sides or up.\n🏋️ Technique: Extend your arms simulating drawing katanas out to the sides (or forward and up). This cross-body stretch for the triceps (long head) provides unmatched stimulation. Excellent for heavy eccentric work."
+      "description": "Equipment: Two pulleys set at low-mid or high level, crossing the cables behind you.\nPosition: Standing or kneeling with your back to the cables. Grab the left cable with your right hand, and the right cable with your left. Your elbows point out to the sides or up.\nTechnique: Extend your arms simulating drawing katanas out to the sides (or forward and up). This cross-body stretch for the triceps (long head) provides unmatched stimulation. Excellent for heavy eccentric work."
     },
     "sissy_squat": {
       "submuscles": "Quadriceps, Core",
-      "description": "⚙️ Equipment: Specific Sissy Squat Machine or just free bodyweight (expert version).\n🧘‍♂️ Position: (On machine) Tuck your feet under the front rollers and rest your calves against the vertical pad.\n🏋️ Technique: Lean drastically backward while lowering your hips, maintaining a straight line from your knees to your shoulders (like The Matrix!). Feel a brutal pull in the quads, pause at the bottom for 1 second, and pull yourself up."
+      "description": "Equipment: Specific Sissy Squat Machine or just free bodyweight (expert version).\nPosition: (On machine) Tuck your feet under the front rollers and rest your calves against the vertical pad.\nTechnique: Lean drastically backward while lowering your hips, maintaining a straight line from your knees to your shoulders (like The Matrix!). Feel a brutal pull in the quads, pause at the bottom for 1 second, and pull yourself up."
     },
     "lat_pulldown_single_arm": {
       "submuscles": "Latissimus Dorsi, Biceps Brachii",
-      "description": "⚙️ Equipment: High pulley with a 'D' handle or single grip.\n🧘‍♂️ Position: Seated or kneeling. Grab the handle with one hand. Lean your torso slightly to the side opposite to the one working, to align the full stretch of the lateral lat.\n🏋️ Technique: Pull from very high up (allowing the cable to pull your shoulder up slightly for a good stretch) and descend bringing the elbow towards the base of your waist (not towards the floor, but towards your hip). Squeeze for 2 seconds and return super-slowly."
+      "description": "Equipment: High pulley with a 'D' handle or single grip.\nPosition: Seated or kneeling. Grab the handle with one hand. Lean your torso slightly to the side opposite to the one working, to align the full stretch of the lateral lat.\nTechnique: Pull from very high up (allowing the cable to pull your shoulder up slightly for a good stretch) and descend bringing the elbow towards the base of your waist (not towards the floor, but towards your hip). Squeeze for 2 seconds and return super-slowly."
     },
     "reverse_fly_dumbbell": {
       "submuscles": "Posterior Deltoid, Rhomboids",
-      "description": "⚙️ Equipment: A pair of light dumbbells and a bench.\n🧘‍♂️ Position: Sit on the edge of the bench and lean your chest on your thighs, or use an incline bench (face down). Arms hang straight down.\n🏋️ Technique: Raise the dumbbells to the sides keeping a slight bend in your elbows, imitating a bird spreading its wings. Focus exclusively on squeezing the rear deltoid and rhomboids. Your pinky can rotate slightly upwards at the top."
+      "description": "Equipment: A pair of light dumbbells and a bench.\nPosition: Sit on the edge of the bench and lean your chest on your thighs, or use an incline bench (face down). Arms hang straight down.\nTechnique: Raise the dumbbells to the sides keeping a slight bend in your elbows, imitating a bird spreading its wings. Focus exclusively on squeezing the rear deltoid and rhomboids. Your pinky can rotate slightly upwards at the top."
     },
     "seated_cable_row_single_arm": {
       "submuscles": "Latissimus Dorsi, Rhomboids",
-      "description": "⚙️ Equipment: Seated row machine or low pulley with a D-handle.\n🧘‍♂️ Position: Seated with one or both feet anchored. Take the handle with one hand.\n🏋️ Technique: Pull towards your ribs. The one-arm version allows you to perform a slight 'torso rotation' at the bottom that adds an extra lat contraction which cannot be achieved working bilaterally."
+      "description": "Equipment: Seated row machine or low pulley with a D-handle.\nPosition: Seated with one or both feet anchored. Take the handle with one hand.\nTechnique: Pull towards your ribs. The one-arm version allows you to perform a slight 'torso rotation' at the bottom that adds an extra lat contraction which cannot be achieved working bilaterally."
     },
     "tricep_dip_machine": {
       "submuscles": "Triceps Brachii, Lower Chest",
-      "description": "⚙️ Equipment: Tricep Dip Machine (Seated, plate-loaded).\n🧘‍♂️ Position: Sit down. Secure your legs (if it has rollers). Grip the handles at your sides.\n🏋️ Technique: Push rigidly towards the floor trying to keep your torso vertical to avoid including the pectoral for help. Lock out and flex, controlling the weight on the way up, feeling the triceps burn."
+      "description": "Equipment: Tricep Dip Machine (Seated, plate-loaded).\nPosition: Sit down. Secure your legs (if it has rollers). Grip the handles at your sides.\nTechnique: Push rigidly towards the floor trying to keep your torso vertical to avoid including the pectoral for help. Lock out and flex, controlling the weight on the way up, feeling the triceps burn."
     },
     "treadmill": {
       "submuscles": "Cardiovascular, Legs",
-      "description": "⚙️ Equipment: Treadmill.\n🧘‍♂️ Position: Stand on the side rails before starting it, step onto the running belt when it begins to move.\n🏋️ Technique: Adjust incline and speed. To burn fat and work the heart, use LISS style (12-15% incline, medium-low walking speed) or HIIT (rotating sprints). Keep your posture upright."
+      "description": "Equipment: Treadmill.\nPosition: Stand on the side rails before starting it, step onto the running belt when it begins to move.\nTechnique: Adjust incline and speed. To burn fat and work the heart, use LISS style (12-15% incline, medium-low walking speed) or HIIT (rotating sprints). Keep your posture upright."
     },
     "stationary_bike": {
       "submuscles": "Cardiovascular, Quadriceps",
-      "description": "⚙️ Equipment: Stationary Bike (Upright or Recumbent).\n🧘‍♂️ Position: Adjust the seat so that your leg, at the lowest point of the pedal stroke, has a minimal bend in the knee.\n🏋️ Technique: Maintain a fluid pedaling motion, using the machine's magnetic resistance to simulate hills or hard aerobic resistance. Excellent for low impact on the knee joints."
+      "description": "Equipment: Stationary Bike (Upright or Recumbent).\nPosition: Adjust the seat so that your leg, at the lowest point of the pedal stroke, has a minimal bend in the knee.\nTechnique: Maintain a fluid pedaling motion, using the machine's magnetic resistance to simulate hills or hard aerobic resistance. Excellent for low impact on the knee joints."
     },
     "stairmaster": {
       "submuscles": "Cardiovascular, Gluteus Maximus",
-      "description": "⚙️ Equipment: Infinite Stairmaster or revolving stairs.\n🧘‍♂️ Position: Stand facing the stairs, avoid resting all your weight leaning heavily on the handles to cheat the machine.\n🏋️ Technique: Climb the steps at a constant pace ensuring you use the whole sole of your foot (or heel) to step and engage the glutes, not just the toes (which will only burn your calves). Excellent demanding cardio."
+      "description": "Equipment: Infinite Stairmaster or revolving stairs.\nPosition: Stand facing the stairs, avoid resting all your weight leaning heavily on the handles to cheat the machine.\nTechnique: Climb the steps at a constant pace ensuring you use the whole sole of your foot (or heel) to step and engage the glutes, not just the toes (which will only burn your calves). Excellent demanding cardio."
     },
     "elliptical": {
       "submuscles": "Cardiovascular, Full Body",
-      "description": "⚙️ Equipment: Elliptical Machine.\n🧘‍♂️ Position: Grab the moving handles and plant your feet well on the pedals.\n🏋️ Technique: Maintain a constant gliding rhythm, also pushing/pulling with your arms using the handles. Zero impact, ideal for light rehab or joint-friendly cardio."
+      "description": "Equipment: Elliptical Machine.\nPosition: Grab the moving handles and plant your feet well on the pedals.\nTechnique: Maintain a constant gliding rhythm, also pushing/pulling with your arms using the handles. Zero impact, ideal for light rehab or joint-friendly cardio."
     },
     "rowing_machine": {
       "submuscles": "Cardiovascular, Back",
-      "description": "⚙️ Equipment: Ergometer (Rowing Machine).\n🧘‍♂️ Position: Sit down, strap your feet in, and grab the handle.\n🏋️ Technique: The power does not come from the arms; it is 60% brutal leg push, 20% core pendulum backward, and only 20% final arm pull to the chest. Synchronize (Legs-Core-Arms, then Arms-Core-Legs) so you don't destroy your lower back."
+      "description": "Equipment: Ergometer (Rowing Machine).\nPosition: Sit down, strap your feet in, and grab the handle.\nTechnique: The power does not come from the arms; it is 60% brutal leg push, 20% core pendulum backward, and only 20% final arm pull to the chest. Synchronize (Legs-Core-Arms, then Arms-Core-Legs) so you don't destroy your lower back."
     },
     "burpees": {
       "submuscles": "Cardiovascular, Core",
-      "description": "⚙️ Equipment: None, bodyweight cardio / HIIT.\n🧘‍♂️ Position: Athletic standing stance.\n🏋️ Technique: (1) Drop into a squat touching the floor. (2) Kick feet back into a plank position. (3) Optional push-up touching the chest. (4) Bring knees explosively back to chest. (5) Jump towards the ceiling giving a light clap. A devastating anaerobic full-body movement."
+      "description": "Equipment: None, bodyweight cardio / HIIT.\nPosition: Athletic standing stance.\nTechnique: (1) Drop into a squat touching the floor. (2) Kick feet back into a plank position. (3) Optional push-up touching the chest. (4) Bring knees explosively back to chest. (5) Jump towards the ceiling giving a light clap. A devastating anaerobic full-body movement."
     },
     "jumping_jacks": {
       "submuscles": "Cardiovascular, Calves",
-      "description": "⚙️ Equipment: None.\n🧘‍♂️ Position: Standing.\n🏋️ Technique: Jump spreading your legs simultaneously while raising your arms to clap (or almost) over your head. Jump back closing your legs and arms. Classic cardiovascular warm-up movement."
+      "description": "Equipment: None.\nPosition: Standing.\nTechnique: Jump spreading your legs simultaneously while raising your arms to clap (or almost) over your head. Jump back closing your legs and arms. Classic cardiovascular warm-up movement."
     },
     "mountain_climbers": {
       "submuscles": "Core, Cardiovascular",
-      "description": "⚙️ Equipment: Exercise mat.\n🧘‍♂️ Position: Push-up plank (straight arms) with firm core and shoulders.\n🏋️ Technique: Alternate bringing your knees quickly towards your chest simulating running parallel to the ground (like climbing). Try not to let your hips bounce uncontrollably up and down."
+      "description": "Equipment: Exercise mat.\nPosition: Push-up plank (straight arms) with firm core and shoulders.\nTechnique: Alternate bringing your knees quickly towards your chest simulating running parallel to the ground (like climbing). Try not to let your hips bounce uncontrollably up and down."
     },
     "jump_squats": {
       "submuscles": "Quadriceps, Cardiovascular",
-      "description": "⚙️ Equipment: None.\n🧘‍♂️ Position: Wide squat stance.\n🏋️ Technique: Lower into a cushioned squat (loading power) and explode up like a spring. In the air, your feet leave the ground, and cushion the landing by fluidly dropping BACK into the squat position (without stopping abruptly to protect your knees)."
+      "description": "Equipment: None.\nPosition: Wide squat stance.\nTechnique: Lower into a cushioned squat (loading power) and explode up like a spring. In the air, your feet leave the ground, and cushion the landing by fluidly dropping BACK into the squat position (without stopping abruptly to protect your knees)."
     },
     "high_knees": {
       "submuscles": "Cardiovascular, Core",
-      "description": "⚙️ Equipment: None.\n🧘‍♂️ Position: Standing.\n🏋️ Technique: Run in place lifting your knees towards your chest as high and fast as you can, strongly pumping the arm opposite to the knee, similar to sprinting."
+      "description": "Equipment: None.\nPosition: Standing.\nTechnique: Run in place lifting your knees towards your chest as high and fast as you can, strongly pumping the arm opposite to the knee, similar to sprinting."
     },
     "glute_bridge_bodyweight": {
       "submuscles": "Gluteus Maximus, Hamstrings",
-      "description": "⚙️ Equipment: Exercise mat.\n🧘‍♂️ Position: Lie on your back, bend knees planting heels and feet on the floor very close to your glutes.\n🏋️ Technique: Tuck your chin to your chest and lift your hips squeezing your glutes explosively at the top. Hold tension for two seconds. The bodyweight glute bridge is great for activation, but use bands or weights for real growth."
+      "description": "Equipment: Exercise mat.\nPosition: Lie on your back, bend knees planting heels and feet on the floor very close to your glutes.\nTechnique: Tuck your chin to your chest and lift your hips squeezing your glutes explosively at the top. Hold tension for two seconds. The bodyweight glute bridge is great for activation, but use bands or weights for real growth."
     }
   },
   "share": {

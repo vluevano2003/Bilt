@@ -263,6 +263,19 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
               {description
                 ? description.split("\n").map((paragraph, index) => {
                     if (!paragraph.trim()) return null;
+                    
+                    let text = paragraph.trim();
+                    text = text.replace(/^[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+/, "").trim();
+
+                    let prefix = "";
+                    let content = text;
+                    const colonIndex = text.indexOf(":");
+                    
+                    if (colonIndex !== -1 && colonIndex < 20) {
+                      prefix = text.substring(0, colonIndex + 1) + " ";
+                      content = text.substring(colonIndex + 1).trim();
+                    }
+
                     return (
                       <View
                         key={index}
@@ -283,7 +296,12 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                             textAlign: "justify",
                           }}
                         >
-                          {paragraph.trim()}
+                          {prefix ? (
+                            <Text style={{ fontWeight: "bold", color: colors.textPrimary }}>
+                              {prefix}
+                            </Text>
+                          ) : null}
+                          {content}
                         </Text>
                       </View>
                     );
