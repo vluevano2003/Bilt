@@ -291,6 +291,9 @@ export default function ProfileScreen() {
    */
   const handleLogout = async () => {
     try {
+      if (user?.id) {
+        await supabase.from("users").update({ push_token: null }).eq("id", user.id);
+      }
       await supabase.auth.signOut();
     } catch (error) {
       debugLog("Error logging out:", error);

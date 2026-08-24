@@ -261,19 +261,33 @@ export const ExerciseDetailsModal = ({ visible, onClose, exercise }: any) => {
                 {t("routines.instructions")}
               </Text>
               {description
-                ? description.split("\n").map((paragraph, index) => (
-                    <Text
-                      key={index}
-                      style={{
-                        color: colors.textSecondary,
-                        fontSize: moderateScale(15),
-                        lineHeight: moderateScale(24),
-                        marginBottom: verticalScale(12),
-                      }}
-                    >
-                      {paragraph}
-                    </Text>
-                  ))
+                ? description.split("\n").map((paragraph, index) => {
+                    if (!paragraph.trim()) return null;
+                    return (
+                      <View
+                        key={index}
+                        style={{
+                          backgroundColor: colors.surface,
+                          padding: scale(15),
+                          borderRadius: scale(12),
+                          marginBottom: verticalScale(12),
+                          borderWidth: 1,
+                          borderColor: "rgba(150, 150, 150, 0.1)",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: colors.textSecondary,
+                            fontSize: moderateScale(14),
+                            lineHeight: moderateScale(22),
+                            textAlign: "justify",
+                          }}
+                        >
+                          {paragraph.trim()}
+                        </Text>
+                      </View>
+                    );
+                  })
                 : null}
             </View>
           </ScrollView>

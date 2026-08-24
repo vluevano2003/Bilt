@@ -95,9 +95,26 @@ export function NotificationModal({
       });
 
     const diffDays = Math.floor(diffHours / 24);
-    return t("social.time.daysAgo", {
-      count: diffDays,
-      defaultValue: `Hace ${diffDays} d`,
+    
+    if (diffDays < 7) {
+      return t("social.time.daysAgo", {
+        count: diffDays,
+        defaultValue: `Hace ${diffDays} d`,
+      });
+    }
+
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths >= 1) {
+      return t("social.time.monthsAgo", {
+        count: diffMonths,
+        defaultValue: `Hace ${diffMonths} mes${diffMonths !== 1 ? 'es' : ''}`,
+      });
+    }
+
+    const diffWeeks = Math.floor(diffDays / 7);
+    return t("social.time.weeksAgo", {
+      count: diffWeeks,
+      defaultValue: `Hace ${diffWeeks} sem`,
     });
   };
 

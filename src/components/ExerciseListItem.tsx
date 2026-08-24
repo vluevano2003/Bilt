@@ -95,6 +95,8 @@ export const ExerciseListItem = React.memo(
       (s: any) => s.weightUnit === "bodyweight",
     );
 
+    const hasCompletedSets = exercise.sets.some((s: any) => s.completed);
+
     const handleAddSet = () => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       onAddSet(exercise.id);
@@ -202,8 +204,13 @@ export const ExerciseListItem = React.memo(
 
             <View style={styles.colInputHeader}>
               <TouchableOpacity
-                style={styles.unitButton}
-                onPress={() => onUnitModal(exercise.id)}
+                style={[styles.unitButton, hasCompletedSets && { opacity: 0.5 }]}
+                onPress={() => {
+                  if (!hasCompletedSets) {
+                    onUnitModal(exercise.id);
+                  }
+                }}
+                disabled={hasCompletedSets}
               >
                 <Text style={styles.unitButtonText}>{unitText}</Text>
               </TouchableOpacity>
@@ -258,8 +265,10 @@ export const ExerciseListItem = React.memo(
                       { 
                         marginBottom: 0, 
                         overflow: "hidden",
-                        borderLeftWidth: (!isReadonly && !set.completed) ? scale(4) : 0,
-                        borderLeftColor: "rgba(239, 68, 68, 0.4)",
+                        borderWidth: 1,
+                        borderColor: set.completed ? "transparent" : colors.border,
+                        borderLeftWidth: (!isReadonly && !set.completed) ? scale(4) : 1,
+                        borderLeftColor: (!isReadonly && !set.completed) ? "rgba(239, 68, 68, 0.4)" : (set.completed ? "transparent" : colors.border),
                         backgroundColor: getSetTypeBackground(set.type)
                       },
                       set.completed && styles.setRowCompleted,
