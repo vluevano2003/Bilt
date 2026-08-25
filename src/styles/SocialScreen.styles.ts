@@ -30,8 +30,9 @@ export const getStyles = (colors: any) =>
     searchBar: {
       flexDirection: "row",
       backgroundColor: colors.surface,
-      padding: scale(12),
-      borderRadius: scale(10),
+      paddingHorizontal: scale(15),
+      paddingVertical: verticalScale(10),
+      borderRadius: scale(8),
       alignItems: "center",
       marginTop: verticalScale(20),
       borderWidth: 1,
@@ -41,7 +42,8 @@ export const getStyles = (colors: any) =>
       flex: 1,
       color: colors.textPrimary,
       marginLeft: scale(10),
-      fontSize: moderateScale(16),
+      fontSize: moderateScale(14),
+      paddingVertical: verticalScale(4),
     },
     placeholderText: {
       color: colors.textSecondary,
@@ -126,6 +128,23 @@ export const getStyles = (colors: any) =>
       fontWeight: "bold",
       fontSize: moderateScale(15),
     },
+    historyHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: scale(15),
+      paddingVertical: verticalScale(15),
+    },
+    historyTitle: {
+      color: colors.textPrimary,
+      fontSize: moderateScale(16),
+      fontWeight: "bold",
+    },
+    historyClearText: {
+      color: colors.primary,
+      fontSize: moderateScale(14),
+      fontWeight: "500",
+    },
     feedAction: {
       color: colors.textSecondary,
       fontSize: moderateScale(13),
@@ -182,5 +201,11 @@ export const getStyles = (colors: any) =>
     loadMoreText: {
       color: colors.primary,
       fontWeight: "bold",
+    },
+    emptyText: {
+      color: colors.textSecondary,
+      fontSize: moderateScale(16),
+      textAlign: "center",
+      marginTop: verticalScale(40),
     },
   });

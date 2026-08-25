@@ -20,13 +20,17 @@ import {
   TestIds,
 } from "react-native-google-mobile-ads";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale, verticalScale } from "../../src/utils/Responsive";
+import { moderateScale, verticalScale, scale } from "../../src/utils/Responsive";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSocialFeed } from "../../hooks/useSocialFeed";
+import { useRoutines } from "../../hooks/useRoutines";
 import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
+import { useProfile } from "../../hooks/useProfile";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getStyles } from "../../src/styles/SocialScreen.styles";
+import { ItemDetailsModal } from "../../src/components/ProfileModals";
 
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
@@ -73,8 +77,8 @@ const ITEMS_PER_PAGE = 15;
 /**
  * Componente memoizado para mostrar cada resultado de búsqueda de usuario, con su avatar, nombre de usuario y un botón para ir a su perfil.
  */
-const UserSearchCard = React.memo(({ item, colors, styles, onPress }: any) => (
-  <TouchableOpacity style={styles.userCard} onPress={() => onPress(item.id)}>
+const UserSearchCard = React.memo(({ item, colors, styles, onPress, onRemove }: any) => (
+  <TouchableOpacity style={styles.userCard} onPress={() => onPress(item)}>
     {item.profilePictureUrl ? (
       <Image
         source={{ uri: item.profilePictureUrl }}
@@ -90,11 +94,17 @@ const UserSearchCard = React.memo(({ item, colors, styles, onPress }: any) => (
       </View>
     )}
     <Text style={styles.usernameText}>@{item.username}</Text>
-    <Feather
-      name="chevron-right"
-      size={moderateScale(20)}
-      color={colors.textSecondary}
-    />
+    {onRemove ? (
+      <TouchableOpacity onPress={() => onRemove(item.id)} style={{ padding: scale(5) }}>
+        <Feather name="x" size={moderateScale(20)} color={colors.textSecondary} />
+      </TouchableOpacity>
+    ) : (
+      <Feather
+        name="chevron-right"
+        size={moderateScale(20)}
+        color={colors.textSecondary}
+      />
+    )}
   </TouchableOpacity>
 ));
 
@@ -102,12 +112,12 @@ const UserSearchCard = React.memo(({ item, colors, styles, onPress }: any) => (
  * Componente memoizado para mostrar cada actividad en el feed, ya sea una rutina creada o un entrenamiento completado, con detalles como duración, volumen o número de ejercicios, y un anuncio cada 5 publicaciones.
  */
 const FeedActivityCard = React.memo(
-  ({ item, showAd, colors, styles, t, onPressUser }: any) => {
+  ({ item, showAd, colors, styles, t, onPressUser, onPressItem }: any) => {
     const isWorkout = item.type === "history";
 
     return (
       <>
-        <View style={styles.feedCard}>
+        <TouchableOpacity style={styles.feedCard} activeOpacity={0.8} onPress={() => onPressItem && onPressItem(item)}>
           <View style={styles.feedHeader}>
             <TouchableOpacity onPress={() => onPressUser(item.userId)}>
               {item.userAvatar ? (
@@ -161,7 +171,7 @@ const FeedActivityCard = React.memo(
               )}
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {showAd && (
           <View style={styles.adContainer}>
@@ -201,6 +211,96 @@ export default function SocialScreen() {
   const { feed, loadingFeed, refreshing, onRefresh } = useSocialFeed();
   const [page, setPage] = useState(1);
   const displayedFeed = feed.slice(0, page * ITEMS_PER_PAGE);
+
+  const { measurementSystem, weight } = useProfile();
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [searchHistory, setSearchHistory] = useState<SearchResult[]>([]);
+  const { routines: myRoutines, deleteRoutine } = useRoutines();
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const stored = await AsyncStorage.getItem("@gym_tracker_search_history");
+      if (stored) setSearchHistory(JSON.parse(stored));
+    } catch (error) {
+      debugLog("Error loading history:", error);
+    }
+  };
+
+  const addToHistory = (userItem: SearchResult) => {
+    try {
+      setSearchHistory(prev => {
+        const filtered = prev.filter(item => item.id !== userItem.id);
+        const newHistory = [userItem, ...filtered].slice(0, 20);
+        AsyncStorage.setItem("@gym_tracker_search_history", JSON.stringify(newHistory));
+        return newHistory;
+      });
+    } catch (error) {
+      debugLog("Error saving history:", error);
+    }
+  };
+
+  const removeHistoryItem = async (userId: string) => {
+    try {
+      setSearchHistory(prev => {
+        const newHistory = prev.filter(item => item.id !== userId);
+        AsyncStorage.setItem("@gym_tracker_search_history", JSON.stringify(newHistory));
+        return newHistory;
+      });
+    } catch (error) {
+      debugLog("Error removing history item:", error);
+    }
+  };
+
+  const clearAllHistory = async () => {
+    try {
+      setSearchHistory([]);
+      await AsyncStorage.removeItem("@gym_tracker_search_history");
+    } catch (error) {
+      debugLog("Error clearing history:", error);
+    }
+  };
+
+  const handleToggleSave = async () => {
+    if (!selectedItem || selectedItem.type !== "routine" || !user?.id) return;
+    const originalId = selectedItem.fullData.id;
+
+    const savedRoutine = myRoutines.find((r) => r.originalRoutineId === originalId);
+    if (savedRoutine) {
+      try {
+        await deleteRoutine(savedRoutine.id);
+        Alert.alert(t("profile.alerts.success"), t("routines.successRemoved"));
+      } catch (error) {
+        Alert.alert(t("profile.alerts.error"), t("errors.unexpected"));
+      }
+    } else {
+      try {
+        const { error } = await supabase.from("routines").insert([
+          {
+            user_id: user.id,
+            name: selectedItem.fullData.name,
+            exercises: selectedItem.fullData.exercises,
+            original_creator_id: selectedItem.userId,
+            original_creator_name: selectedItem.username,
+            original_routine_id: originalId,
+          },
+        ]);
+        if (error) throw error;
+        Alert.alert(t("profile.alerts.success"), t("routines.successSaved"));
+      } catch (error) {
+        Alert.alert(t("profile.alerts.error"), t("errors.unexpected"));
+      }
+    }
+  };
+
+  const handlePressItem = useCallback((item: any) => {
+    setSelectedItem(item);
+    setDetailsModalVisible(true);
+  }, []);
 
   // Efecto para manejar la búsqueda de usuarios con debounce, evitando llamadas excesivas a la API mientras el usuario escribe.
   useEffect(() => {
@@ -280,8 +380,15 @@ export default function SocialScreen() {
    * Función para manejar la acción de presionar un usuario, navegando a su perfil mediante el router de Expo Router.
    */
   const handleUserPress = useCallback(
-    (userId: string) => {
-      router.push({ pathname: "/userProfile", params: { id: userId } });
+    (userIdOrItem: string | SearchResult) => {
+      let id = "";
+      if (typeof userIdOrItem === "string") {
+        id = userIdOrItem;
+      } else {
+        id = userIdOrItem.id;
+        addToHistory(userIdOrItem);
+      }
+      router.push({ pathname: "/userProfile", params: { id } });
     },
     [router],
   );
@@ -345,32 +452,64 @@ export default function SocialScreen() {
                 color={colors.primary}
                 style={styles.searchLoader}
               />
-            ) : searchResults.length > 0 ? (
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <UserSearchCard
-                    item={item}
-                    colors={colors}
-                    styles={styles}
-                    onPress={handleUserPress}
-                  />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingTop: verticalScale(20),
-                  paddingBottom: verticalScale(100) + insets.bottom,
-                }}
-              />
             ) : searchQuery.length >= 2 ? (
-              <Text style={styles.placeholderText}>
-                {t("social.noResults")}
-              </Text>
+              searchResults.length > 0 ? (
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <UserSearchCard
+                      item={item}
+                      colors={colors}
+                      styles={styles}
+                      onPress={handleUserPress}
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingTop: verticalScale(20),
+                    paddingBottom: verticalScale(100) + insets.bottom,
+                  }}
+                  keyboardShouldPersistTaps="handled"
+                />
+              ) : (
+                <Text style={styles.placeholderText}>
+                  {t("social.noResults")}
+                </Text>
+              )
             ) : (
-              <Text style={styles.placeholderText}>
-                {t("social.searchInstructions")}
-              </Text>
+              <View style={{ flex: 1, marginTop: verticalScale(10) }}>
+                <View style={styles.historyHeader}>
+                  <Text style={styles.historyTitle}>{t("social.recentSearches")}</Text>
+                  {searchHistory.length > 0 && (
+                    <TouchableOpacity onPress={clearAllHistory}>
+                      <Text style={styles.historyClearText}>{t("social.clearAll")}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                {searchHistory.length > 0 ? (
+                  <FlatList
+                    data={searchHistory}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                      <UserSearchCard
+                        item={item}
+                        colors={colors}
+                        styles={styles}
+                        onPress={handleUserPress}
+                        onRemove={removeHistoryItem}
+                      />
+                    )}
+                    contentContainerStyle={{ paddingBottom: verticalScale(100) + insets.bottom }}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                  />
+                ) : (
+                  <Text style={styles.emptyText}>
+                    {t("social.emptyHistory")}
+                  </Text>
+                )}
+              </View>
             )}
           </View>
         ) : (
@@ -393,6 +532,7 @@ export default function SocialScreen() {
                     styles={styles}
                     t={t}
                     onPressUser={handleUserPress}
+                    onPressItem={handlePressItem}
                   />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -432,6 +572,17 @@ export default function SocialScreen() {
           </View>
         )}
       </View>
+
+      <ItemDetailsModal
+        visible={detailsModalVisible}
+        type={selectedItem?.type}
+        item={selectedItem?.fullData}
+        isSaved={selectedItem?.type === "routine" ? !!myRoutines.find(r => r.originalRoutineId === selectedItem.fullData.id) : false}
+        system={measurementSystem || "metric"}
+        userWeight={weight || 0}
+        onToggleSave={handleToggleSave}
+        onClose={() => setDetailsModalVisible(false)}
+      />
     </View>
   );
 }

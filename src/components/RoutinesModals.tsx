@@ -86,7 +86,7 @@ const getSetTypeBackground = (type: string | undefined) => {
     case "backoff": return "rgba(16, 185, 129, 0.05)"; // Green
     case "normal":
     default:
-      return "rgba(0,0,0,0.02)";
+      return "rgba(255, 255, 255, 0.03)";
   }
 };
 

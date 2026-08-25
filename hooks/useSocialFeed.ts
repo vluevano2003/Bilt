@@ -22,6 +22,7 @@ export interface FeedItem {
     volume?: number;
     exerciseCount?: number;
   };
+  fullData?: any;
 }
 
 /**
@@ -123,6 +124,13 @@ export const useSocialFeed = () => {
               duration: d.duration_seconds,
               volume: Math.round(totalVolume),
             },
+            fullData: {
+              id: d.id,
+              routineName: d.routine_name,
+              completedAt: d.completed_at,
+              durationSeconds: d.duration_seconds,
+              exercises: d.exercises,
+            },
           });
         });
       }
@@ -147,6 +155,11 @@ export const useSocialFeed = () => {
               title: d.name,
               details: {
                 exerciseCount: d.exercises?.length || 0,
+              },
+              fullData: {
+                id: d.id,
+                name: d.name,
+                exercises: d.exercises,
               },
             });
           }
