@@ -26,6 +26,20 @@ export const WorkoutDetailsModal = ({
 }: any) => {
   const { weight: userWeight } = useProfile();
 
+  // Inferir el sistema de medición principal de la sesión para mostrar el volumen total en la unidad original
+  let sessionSystem = measurementSystem;
+  let foundSystem = false;
+  selectedItem?.exercises?.forEach((ex: any) => {
+    if (!foundSystem) {
+      ex.sets?.forEach((set: any) => {
+        if (!foundSystem && (set.weightUnit === "kg" || set.weightUnit === "lbs")) {
+          sessionSystem = set.weightUnit === "lbs" ? "imperial" : "metric";
+          foundSystem = true;
+        }
+      });
+    }
+  });
+
   return (
     <Modal
       visible={visible}
@@ -113,10 +127,10 @@ export const WorkoutDetailsModal = ({
                 >
                   {calculateSessionVolume(
                     selectedItem,
-                    measurementSystem,
+                    sessionSystem,
                     userWeight,
                   )}{" "}
-                  {measurementSystem === "metric" ? "kg" : "lbs"}
+                  {sessionSystem === "metric" ? "kg" : "lbs"}
                 </Text>
               </View>
             </View>
@@ -195,16 +209,8 @@ export const WorkoutDetailsModal = ({
                         displayWeight = `+${set.weight}`;
                       }
                     } else {
-                      displayWeight = Math.round(
-                        getConvertedWeight(
-                          set.weight,
-                          set.weightUnit,
-                          measurementSystem,
-                          userWeight,
-                        ),
-                      );
-                      displayUnit =
-                        measurementSystem === "metric" ? "kg" : "lbs";
+                      displayWeight = set.weight;
+                      displayUnit = set.weightUnit === "lbs" ? "lb" : "kg";
                     }
 
                     return (

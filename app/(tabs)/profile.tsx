@@ -189,12 +189,26 @@ const WorkoutHistoryList = ({
     <>
       {userHistory.slice(0, historyLimit).map((session: any) => {
         const durationMins = formatDuration(session.durationSeconds);
+        // Inferir el sistema de medición principal de la sesión para mostrar el volumen total en la unidad original
+        let sessionSystem = measurementSystem;
+        let foundSystem = false;
+        session.exercises?.forEach((ex: any) => {
+          if (!foundSystem) {
+            ex.sets?.forEach((set: any) => {
+              if (!foundSystem && (set.weightUnit === "kg" || set.weightUnit === "lbs")) {
+                sessionSystem = set.weightUnit === "lbs" ? "imperial" : "metric";
+                foundSystem = true;
+              }
+            });
+          }
+        });
+
         const totalVolume = calculateSessionVolume(
           session,
-          measurementSystem,
+          sessionSystem,
           userWeight,
         );
-        const volumeUnit = measurementSystem === "metric" ? "kg" : "lbs";
+        const volumeUnit = sessionSystem === "metric" ? "kg" : "lbs";
 
         return (
           <TouchableOpacity

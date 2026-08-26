@@ -310,6 +310,20 @@ export const ItemDetailsModal = ({
 
   if (!item) return null;
 
+  // Inferir el sistema de medición principal de la sesión
+  let sessionSystem = system;
+  let foundSystem = false;
+  item.exercises?.forEach((ex: any) => {
+    if (!foundSystem) {
+      ex.sets?.forEach((set: any) => {
+        if (!foundSystem && (set.weightUnit === "kg" || set.weightUnit === "lbs")) {
+          sessionSystem = set.weightUnit === "lbs" ? "imperial" : "metric";
+          foundSystem = true;
+        }
+      });
+    }
+  });
+
   return (
     <Modal
       visible={visible}
@@ -418,8 +432,8 @@ export const ItemDetailsModal = ({
                       fontWeight: "500",
                     }}
                   >
-                    {calculateSessionVolume(item, system, userWeight)}{" "}
-                    {system === "metric" ? "kg" : "lbs"}
+                    {calculateSessionVolume(item, sessionSystem, userWeight)}{" "}
+                    {sessionSystem === "metric" ? "kg" : "lbs"}
                   </Text>
                 </View>
               </View>
@@ -501,15 +515,8 @@ export const ItemDetailsModal = ({
                           displayWeight = `+${set.weight}`;
                         }
                       } else {
-                        displayWeight = Math.round(
-                          getConvertedWeight(
-                            set.weight,
-                            set.weightUnit,
-                            system,
-                            userWeight,
-                          ),
-                        );
-                        displayUnit = system === "metric" ? "kg" : "lbs";
+                        displayWeight = set.weight;
+                        displayUnit = set.weightUnit === "lbs" ? "lb" : "kg";
                       }
 
                       return (

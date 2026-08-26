@@ -1,4 +1,4 @@
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -159,8 +159,12 @@ const FeedActivityCard = React.memo(
             <View style={styles.feedStats}>
               {item.type === "achievement" ? (
                  <Text style={styles.feedStatText}>
-                    <Feather name={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.icon as any || "award"} size={moderateScale(12)} color={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.color || "#f97316"} />{" "}
-                    {ACHIEVEMENTS_LIST.find((a) => a.id === item.title) ? t(ACHIEVEMENTS_LIST.find((a) => a.id === item.title)!.descKey) : "Felicidades"}
+                    {ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.icon === "fire" ? (
+                      <FontAwesome5 name="fire" size={moderateScale(12)} color={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.color || "#f97316"} />
+                    ) : (
+                      <Feather name={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.icon as any || "award"} size={moderateScale(12)} color={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.color || "#f97316"} />
+                    )}{" "}
+                    {ACHIEVEMENTS_LIST.find((a) => a.id === item.title) ? t(ACHIEVEMENTS_LIST.find((a) => a.id === item.title)!.descKey) : t("social.congratulations", { defaultValue: "Felicidades" })}
                  </Text>
               ) : isWorkout ? (
                 <>
@@ -170,7 +174,7 @@ const FeedActivityCard = React.memo(
                   </Text>
                   <Text style={styles.feedStatText}>
                     <Feather name="activity" size={moderateScale(12)} />{" "}
-                    {item.details.volume} kg
+                    {item.details.volume} {item.details.volumeUnit || "kg"}
                   </Text>
                 </>
               ) : (
@@ -185,7 +189,7 @@ const FeedActivityCard = React.memo(
 
         {showAd && (
           <View style={styles.adContainer}>
-            <Text style={styles.adLabelText}>Publicidad</Text>
+            <Text style={styles.adLabelText}>{t("social.advertisement", { defaultValue: "Publicidad" })}</Text>
             <BannerAd
               unitId={
                 __DEV__

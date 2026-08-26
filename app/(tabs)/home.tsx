@@ -43,6 +43,7 @@ import { useWeeklyPacks, WeeklyPack } from "../../hooks/useWeeklyPacks";
 import { ExerciseSelectorModal } from "../../src/components/ExerciseSelectorModal";
 import { FeedbackModal } from "../../src/components/FeedbackModal";
 import { NotificationModal } from "../../src/components/NotificationModal";
+import { StreakInfoModal } from "../../src/components/GamificationModals";
 import {
   CreatePackModal,
   PackDetailsModal,
@@ -450,6 +451,7 @@ export default function HomeScreen() {
   const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const [streakInfoVisible, setStreakInfoVisible] = useState(false);
 
   const lastHistoryId = useRef<string | null>(null);
   const lastRequestsCount = useRef<number>(0);
@@ -653,10 +655,7 @@ export default function HomeScreen() {
               }}
               currentStreak={currentStreak}
               onOpenStreakInfo={() => {
-                Alert.alert(
-                  t("gamification.streakInfoTitle"),
-                  t("gamification.streakInfoDesc")
-                );
+                setStreakInfoVisible(true);
               }}
             />
           ),
@@ -975,6 +974,8 @@ export default function HomeScreen() {
         toggleExerciseSelection={editor.toggleExerciseSelection}
         onConfirm={editor.confirmSelectedExercises}
       />
+
+      <StreakInfoModal visible={streakInfoVisible} onClose={() => setStreakInfoVisible(false)} />
     </View>
   );
 }

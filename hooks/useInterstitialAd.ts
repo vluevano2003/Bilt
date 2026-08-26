@@ -19,7 +19,7 @@ const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
  * @returns
  */
 export const useInterstitialAd = () => {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(interstitial.loaded);
 
   useEffect(() => {
     const unsubscribeLoaded = interstitial.addAdEventListener(

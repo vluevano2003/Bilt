@@ -114,6 +114,75 @@ export const AchievementModal = ({ visible, achievementId, onClose }: Achievemen
     </Modal>
   );
 };
+export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+
+  if (!visible) return null;
+
+  const desc = t("gamification.streakInfoDesc");
+
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <View style={styles.overlay}>
+        <View style={[styles.modalContainer, { paddingHorizontal: moderateScale(20), width: '90%' }]}>
+          <Text style={[styles.title, { marginBottom: verticalScale(20), marginTop: verticalScale(5) }]}>
+            {t("gamification.streakInfoTitle")}
+          </Text>
+          
+          <View style={{ width: '100%', marginBottom: verticalScale(15) }}>
+            {desc.split('\n\n').map((paragraph: string, index: number) => {
+              if (!paragraph.trim()) return null;
+              
+              let prefix = "";
+              let content = paragraph;
+              const colonIndex = paragraph.indexOf(":");
+              
+              if (colonIndex !== -1 && colonIndex < 35) {
+                prefix = paragraph.substring(0, colonIndex + 1);
+                content = paragraph.substring(colonIndex + 1).trim();
+              }
+
+              return (
+                <View
+                  key={index}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    padding: scale(15),
+                    borderRadius: scale(12),
+                    marginBottom: verticalScale(12),
+                    borderWidth: 1,
+                    borderColor: "rgba(150, 150, 150, 0.1)",
+                    width: '100%',
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#AAA',
+                      fontSize: moderateScale(13),
+                      lineHeight: moderateScale(20),
+                      textAlign: "justify",
+                    }}
+                  >
+                    {prefix ? (
+                      <Text style={{ fontWeight: "bold", color: '#FFF', textTransform: 'uppercase' }}>
+                        {prefix}{" "}
+                      </Text>
+                    ) : null}
+                    {content}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity style={[styles.button, { marginTop: 0 }]} onPress={onClose}>
+            <Text style={styles.buttonText}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
   overlay: {

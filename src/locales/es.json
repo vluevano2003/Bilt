@@ -113,7 +113,9 @@
     },
     "notificationsTitle": "Notificaciones",
     "someone": "Alguien",
-    "user": "Usuario"
+    "user": "Usuario",
+    "congratulations": "¡Felicidades!",
+    "advertisement": "Publicidad"
   },
   "profile": {
     "title": "Mi Perfil",

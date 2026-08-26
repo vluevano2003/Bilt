@@ -20,6 +20,7 @@ export interface FeedItem {
   details: {
     duration?: number;
     volume?: number;
+    volumeUnit?: string;
     exerciseCount?: number;
   };
   fullData?: any;
@@ -89,8 +90,21 @@ export const useSocialFeed = () => {
 
       if (historyData) {
         historyData.forEach((d) => {
-          const userSys = userMap[d.user_id]?.measurement_system || "metric";
           const userW = Number(userMap[d.user_id]?.weight) || 0;
+
+          // Inferir el sistema de medición de esta sesión específica
+          let sessionSystem = "metric";
+          let foundSystem = false;
+          d.exercises?.forEach((ex: any) => {
+            if (!foundSystem) {
+              ex.sets?.forEach((set: any) => {
+                if (!foundSystem && (set.weightUnit === "kg" || set.weightUnit === "lbs")) {
+                  sessionSystem = set.weightUnit === "lbs" ? "imperial" : "metric";
+                  foundSystem = true;
+                }
+              });
+            }
+          });
 
           let totalVolume = 0;
           d.exercises?.forEach((ex: any) => {
@@ -102,9 +116,9 @@ export const useSocialFeed = () => {
                 } else if (set.weightUnit === "bodyweight") {
                   w += userW;
                 } else {
-                  if (userSys === "metric" && set.weightUnit === "lbs")
+                  if (sessionSystem === "metric" && set.weightUnit === "lbs")
                     w *= 0.453592;
-                  if (userSys === "imperial" && set.weightUnit === "kg")
+                  if (sessionSystem === "imperial" && set.weightUnit === "kg")
                     w *= 2.20462;
                 }
                 totalVolume += w * (set.reps || 0);
@@ -123,6 +137,7 @@ export const useSocialFeed = () => {
             details: {
               duration: d.duration_seconds,
               volume: Math.round(totalVolume),
+              volumeUnit: sessionSystem === "metric" ? "kg" : "lbs",
             },
             fullData: {
               id: d.id,

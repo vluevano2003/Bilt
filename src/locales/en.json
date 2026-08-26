@@ -113,7 +113,9 @@
     },
     "notificationsTitle": "Notifications",
     "someone": "Someone",
-    "user": "User"
+    "user": "User",
+    "congratulations": "Congratulations!",
+    "advertisement": "Advertisement"
   },
   "profile": {
     "title": "My Profile",
