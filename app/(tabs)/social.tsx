@@ -24,6 +24,7 @@ import { moderateScale, verticalScale, scale } from "../../src/utils/Responsive"
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSocialFeed } from "../../hooks/useSocialFeed";
+import { useAchievements, ACHIEVEMENTS_LIST } from "../../hooks/useAchievements";
 import { useRoutines } from "../../hooks/useRoutines";
 import { supabase } from "../../src/config/supabase";
 import { useAuth } from "../../src/context/AuthContext";
@@ -140,19 +141,28 @@ const FeedActivityCard = React.memo(
                 <Text style={styles.feedUsername}>@{item.username}</Text>
               </TouchableOpacity>
               <Text style={styles.feedAction}>
-                {isWorkout
+                {item.type === "history"
                   ? t("social.completedWorkout")
-                  : t("social.createdRoutine")}
+                  : item.type === "achievement"
+                    ? t("social.earnedAchievement", { defaultValue: "Obtuvo un nuevo logro" })
+                    : t("social.createdRoutine")}
               </Text>
             </View>
             <Text style={styles.feedTime}>{getTimeAgo(item.timestamp, t)}</Text>
           </View>
           <View style={styles.feedContent}>
             <Text style={styles.feedTitle}>
-              {item.title || t("social.defaultWorkout")}
+              {item.type === "achievement" ? 
+                (ACHIEVEMENTS_LIST.find((a) => a.id === item.title) ? t(ACHIEVEMENTS_LIST.find((a) => a.id === item.title)!.titleKey) : item.title) 
+                : (item.title || t("social.defaultWorkout"))}
             </Text>
             <View style={styles.feedStats}>
-              {isWorkout ? (
+              {item.type === "achievement" ? (
+                 <Text style={styles.feedStatText}>
+                    <Feather name={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.icon as any || "award"} size={moderateScale(12)} color={ACHIEVEMENTS_LIST.find((a) => a.id === item.title)?.color || "#f97316"} />{" "}
+                    {ACHIEVEMENTS_LIST.find((a) => a.id === item.title) ? t(ACHIEVEMENTS_LIST.find((a) => a.id === item.title)!.descKey) : "Felicidades"}
+                 </Text>
+              ) : isWorkout ? (
                 <>
                   <Text style={styles.feedStatText}>
                     <Feather name="clock" size={moderateScale(12)} />{" "}
@@ -298,6 +308,7 @@ export default function SocialScreen() {
   };
 
   const handlePressItem = useCallback((item: any) => {
+    if (item.type === "achievement") return;
     setSelectedItem(item);
     setDetailsModalVisible(true);
   }, []);

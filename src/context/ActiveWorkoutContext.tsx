@@ -23,6 +23,7 @@ import {
   SetType,
   WeightUnit,
 } from "../../hooks/useRoutines";
+import { AchievementModal, StreakModal } from "../components/GamificationModals";
 import { supabase } from "../config/supabase";
 import { useAuth } from "./AuthContext";
 
@@ -129,6 +130,12 @@ export const ActiveWorkoutProvider = ({
   const [restTimeRemaining, setRestTimeRemaining] = useState<number | null>(
     null,
   );
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [streakModalVisible, setStreakModalVisible] = useState(false);
+  const [newStreakCount, setNewStreakCount] = useState(0);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [currentAchievementIndex, setCurrentAchievementIndex] = useState(0);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
   const [isResting, setIsResting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
@@ -328,10 +335,10 @@ export const ActiveWorkoutProvider = ({
   const cancelBeepNotification = async () => {
     try {
       await notifee.cancelTriggerNotification(BEEP_NOTIFICATION_ID);
-    } catch (_) {}
+    } catch (_) { }
     try {
       await notifee.cancelNotification(BEEP_NOTIFICATION_ID);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   /**
@@ -342,7 +349,7 @@ export const ActiveWorkoutProvider = ({
   const cancelRestAlarm = () => {
     clearRestTimeout();
     restResolveTokenRef.current += 1;
-    cancelBeepNotification().catch(() => {});
+    cancelBeepNotification().catch(() => { });
   };
 
   /**
@@ -696,7 +703,7 @@ export const ActiveWorkoutProvider = ({
             ],
           );
         }
-      } catch (error) {}
+      } catch (error) { }
 
       const workoutToStart = JSON.parse(JSON.stringify(routine));
       workoutToStart.exercises.forEach((ex: any) => {
@@ -773,8 +780,8 @@ export const ActiveWorkoutProvider = ({
           ...ex,
           sets: ex.sets.filter((set) => set.completed).map((set) => {
             if (set.weightUnit === "bodyweight" && measurementSystem) {
-              return { 
-                ...set, 
+              return {
+                ...set,
                 bwUnit: measurementSystem === "metric" ? "kg" : "lbs",
                 bwUserWeight: userWeightString || "0"
               };
@@ -785,6 +792,12 @@ export const ActiveWorkoutProvider = ({
         .filter((ex) => ex.sets.length > 0);
 
       if (completedExercises.length > 0) {
+        // Pre-fetch para comparar
+        const { data: oldUser } = await supabase.from('users').select('current_streak').eq('id', user.id).single();
+        const oldStreak = oldUser?.current_streak || 0;
+        const { data: oldAch } = await supabase.from('user_achievements').select('achievement_id').eq('user_id', user.id);
+        const oldAchSet = new Set((oldAch || []).map(a => a.achievement_id));
+
         const insertPromise = supabase.from("history").insert([
           {
             user_id: user.id,
@@ -805,6 +818,26 @@ export const ActiveWorkoutProvider = ({
         ])) as any;
 
         if (response && response.error) throw response.error;
+
+        // Post-fetch
+        const { data: newUser } = await supabase.from('users').select('current_streak').eq('id', user.id).single();
+        const newStreak = newUser?.current_streak || 0;
+        const { data: newAch } = await supabase.from('user_achievements').select('achievement_id').eq('user_id', user.id);
+        const newAchSet = new Set((newAch || []).map(a => a.achievement_id));
+
+        const unlocked = [...newAchSet].filter(x => !oldAchSet.has(x));
+
+        if (newStreak > oldStreak) {
+          setNewStreakCount(newStreak);
+          setStreakModalVisible(true);
+        }
+        if (unlocked.length > 0) {
+          setUnlockedAchievements(unlocked);
+          setCurrentAchievementIndex(0);
+          if (!(newStreak > oldStreak)) {
+            setAchievementModalVisible(true);
+          }
+        }
       }
 
       setIsResting(false);
@@ -1138,6 +1171,34 @@ export const ActiveWorkoutProvider = ({
       }}
     >
       {children}
+
+      <StreakModal
+        visible={streakModalVisible}
+        streak={newStreakCount}
+        onClose={() => {
+          setStreakModalVisible(false);
+          if (unlockedAchievements.length > 0) {
+            setTimeout(() => setAchievementModalVisible(true), 400);
+          }
+        }}
+      />
+
+      <AchievementModal
+        visible={achievementModalVisible}
+        achievementId={unlockedAchievements[currentAchievementIndex] || null}
+        onClose={() => {
+          setAchievementModalVisible(false);
+          if (currentAchievementIndex < unlockedAchievements.length - 1) {
+            setTimeout(() => {
+              setCurrentAchievementIndex(prev => prev + 1);
+              setAchievementModalVisible(true);
+            }, 400);
+          } else {
+            setUnlockedAchievements([]);
+            setCurrentAchievementIndex(0);
+          }
+        }}
+      />
     </ActiveWorkoutContext.Provider>
   );
 };

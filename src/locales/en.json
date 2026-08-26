@@ -12,9 +12,10 @@
     "day": "Day",
     "settings": "Settings",
     "saveChanges": "Save Changes",
-    "confirm": "Confirm",
+    "confirm": "Awesome!",
     "ignore": "Ignore",
-    "config": "Configure"
+    "config": "Configure",
+    "confirm_awesome": "Incredible!"
   },
   "tabs": {
     "workout": "Workout",
@@ -192,7 +193,8 @@
     "removeFollowerTitle": "Remove Follower?",
     "removeFollowerMsg": "We won't tell them they've been removed from your followers.",
     "remove": "Remove",
-    "deleteAccountError": "Could not delete account. Please try again."
+    "deleteAccountError": "Could not delete account. Please try again.",
+    "achievements": "Logros"
   },
   "alerts": {
     "missingData": "Missing data",
@@ -549,7 +551,8 @@
     "startEmpty": "+ Start Empty Workout",
     "workoutInProgress": "Workout in progress",
     "goToWorkout": "Go to Active Workout",
-    "defaultName": "Athlete"
+    "defaultName": "Athlete",
+    "streak": "Racha"
   },
   "weeklyPacks": {
     "tabPacks": "Packs",
@@ -1028,5 +1031,70 @@
     "send": "Send Feedback",
     "successMsg": "Your feedback has been sent. We will review it soon!",
     "errorMsg": "Could not send feedback. Please try again later."
+  },
+  "achievements": {
+    "workouts_1": {
+      "title": "First time",
+      "desc": "You completed your first workout. The journey begins!"
+    },
+    "workouts_5": {
+      "title": "Warming up",
+      "desc": "5 workouts completed. Keep it up!"
+    },
+    "workouts_10": {
+      "title": "Beginner",
+      "desc": "10 workouts. You are getting into the rhythm."
+    },
+    "workouts_50": {
+      "title": "Consistent",
+      "desc": "50 workouts. Discipline shows!"
+    },
+    "workouts_100": {
+      "title": "Centurion",
+      "desc": "100 workouts. You are a machine."
+    },
+    "workouts_365": {
+      "title": "A year of sweat",
+      "desc": "365 workouts in total. Incredible!"
+    },
+    "workouts_1000": {
+      "title": "Legend",
+      "desc": "1000 workouts. God level."
+    },
+    "streak_2": {
+      "title": "Initial fire",
+      "desc": "2 weeks in a row. Don't let it go out!"
+    },
+    "streak_4": {
+      "title": "A month of fire",
+      "desc": "4 weeks streak. A whole month without failing."
+    },
+    "streak_10": {
+      "title": "Fire Streak",
+      "desc": "10 unstoppable weeks."
+    },
+    "streak_30": {
+      "title": "Unstoppable Streak",
+      "desc": "30 weeks in a row. You are unstoppable."
+    },
+    "streak_50": {
+      "title": "Eternal Fire",
+      "desc": "50 weeks training in a row."
+    },
+    "streak_100": {
+      "title": "Centennial Fire",
+      "desc": "100 weeks. You don't know excuses."
+    },
+    "streak_200": {
+      "title": "Fire Deity",
+      "desc": "200 weeks. Impossible to reach."
+    }
+  },
+  "gamification": {
+    "streakTitle": "Streak Increased!",
+    "streakDays": "days streak",
+    "achievementUnlocked": "New Achievement!",
+    "streakInfoTitle": "Your Streak",
+    "streakInfoDesc": "🔥 Active Streak: Increases by 1 for each different day you train. You only lose it if you go a full week without training!\n\n🏆 Weekly Achievements: Achievements track consecutive weeks of training (Mon-Sun). Don't lose them!"
   }
 }

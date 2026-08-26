@@ -1,4 +1,4 @@
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -101,6 +101,29 @@ export const UserInfoCard = ({
           />
         </View>
       )}
+      <View style={{
+        position: 'absolute',
+        bottom: 0,
+        right: -scale(10),
+        backgroundColor: profile.currentStreak > 0 ? '#f97316' : colors.surface,
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(4),
+        borderRadius: scale(12),
+        borderWidth: 2,
+        borderColor: colors.background,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: profile.currentStreak > 0 ? '#f97316' : '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: profile.currentStreak > 0 ? 0.5 : 0.1,
+        shadowRadius: 4,
+        elevation: 4
+      }}>
+        <FontAwesome5 name="fire" size={scale(12)} color={profile.currentStreak > 0 ? "#fff" : colors.textSecondary} />
+        <Text style={{ color: profile.currentStreak > 0 ? '#fff' : colors.textSecondary, fontWeight: 'bold', fontSize: scale(12), marginLeft: scale(4) }}>
+          {profile.currentStreak || 0}
+        </Text>
+      </View>
     </View>
     <Text style={styles.usernameText}>@{profile.username}</Text>
 
@@ -252,6 +275,19 @@ export const SegmentedTabs = ({
         name="calendar"
         size={scale(22)}
         color={activeTab === "history" ? colors.primary : colors.textSecondary}
+      />
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={[
+        styles.segmentButton,
+        activeTab === "achievements" && styles.segmentButtonActive,
+      ]}
+      onPress={() => setActiveTab("achievements")}
+    >
+      <Feather
+        name="award"
+        size={scale(22)}
+        color={activeTab === "achievements" ? colors.primary : colors.textSecondary}
       />
     </TouchableOpacity>
   </View>

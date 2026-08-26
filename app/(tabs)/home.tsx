@@ -1,4 +1,4 @@
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Tabs,
@@ -66,8 +66,19 @@ const HeaderRightActions = ({
   hasNewNotifications,
   onOpenFeedback,
   onOpenNotifications,
+  currentStreak,
+  onOpenStreakInfo,
 }: any) => (
   <View style={styles.headerRightContainer}>
+    <TouchableOpacity 
+      onPress={onOpenStreakInfo}
+      style={{ flexDirection: 'row', alignItems: 'center', marginRight: scale(10), backgroundColor: colors.surface, paddingHorizontal: scale(8), paddingVertical: scale(4), borderRadius: scale(12), borderColor: colors.border, borderWidth: 1 }}
+    >
+      <FontAwesome5 name="fire" size={scale(14)} color={currentStreak > 0 ? "#f97316" : colors.textSecondary} />
+      <Text style={{ color: currentStreak > 0 ? "#f97316" : colors.textSecondary, fontWeight: "bold", fontSize: scale(12), marginLeft: scale(4) }}>
+        {currentStreak || 0}
+      </Text>
+    </TouchableOpacity>
     <TouchableOpacity onPress={onOpenFeedback}>
       <Feather
         name="message-square"
@@ -117,6 +128,7 @@ const DashboardHeader = ({
   routineStyles,
   username,
   totalWorkouts,
+  currentStreak,
   trainedDays,
   activeTab,
   setActiveTab,
@@ -159,7 +171,7 @@ const DashboardHeader = ({
           <Text style={homeStyles.cardTitle}>{t("home.weeklySummary")}</Text>
         </View>
         <View style={homeStyles.statsRow}>
-          <View style={homeStyles.statBoxLeft}>
+          <View style={[homeStyles.statBoxLeft, { flex: 1, alignItems: "center", justifyContent: "center" }]}>
             <Text style={homeStyles.statNumber}>{totalWorkouts}</Text>
             <Text style={homeStyles.statLabelSmall}>{t("home.workouts")}</Text>
           </View>
@@ -423,7 +435,7 @@ export default function HomeScreen() {
     }, [t]),
   );
 
-  const { isPrivate, username } = useProfile();
+  const { isPrivate, username, currentStreak } = useProfile();
 
   const {
     loading: notificationsLoading,
@@ -548,7 +560,7 @@ export default function HomeScreen() {
     if (params.openNotifications === "true") setNotificationsVisible(true);
   }, [params.openNotifications]);
 
-  const totalWorkouts = userHistory?.length || 0;
+  const totalWorkouts = userHistory ? new Set(userHistory.map((s: any) => new Date(s.completedAt).toDateString())).size : 0;
 
   /**
    * Maneja el inicio de un entrenamiento al presionar el botón "Iniciar" en una rutina. Si ya hay un entrenamiento activo que no es la rutina seleccionada, muestra una alerta. Si no hay entrenamiento activo o es la misma rutina, inicia el entrenamiento y navega a la pantalla de entrenamiento activo.
@@ -639,6 +651,13 @@ export default function HomeScreen() {
                 refetchNotifications();
                 setNotificationsVisible(true);
               }}
+              currentStreak={currentStreak}
+              onOpenStreakInfo={() => {
+                Alert.alert(
+                  t("gamification.streakInfoTitle"),
+                  t("gamification.streakInfoDesc")
+                );
+              }}
             />
           ),
         }}
@@ -662,6 +681,7 @@ export default function HomeScreen() {
             routineStyles={routineStyles}
             username={username}
             totalWorkouts={totalWorkouts}
+            currentStreak={currentStreak}
             trainedDays={getTrainingDaysThisWeek()}
             activeTab={activeTab}
             setActiveTab={setActiveTab}

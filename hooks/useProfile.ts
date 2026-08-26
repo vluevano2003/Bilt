@@ -71,6 +71,10 @@ export const useProfile = (profileUid?: string) => {
     "metric" | "imperial"
   >("metric");
   const [targetLocale, setTargetLocale] = useState("es");
+  
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [currentWeeklyStreak, setCurrentWeeklyStreak] = useState(0);
+  const [lastWorkoutDate, setLastWorkoutDate] = useState<string | null>(null);
 
   const [editUsername, setEditUsername] = useState("");
   const [newProfilePic, setNewProfilePic] = useState<string | null>(null);
@@ -122,6 +126,9 @@ export const useProfile = (profileUid?: string) => {
       setBio(data.bio || "");
       setTargetLocale(data.locale || "es");
       setIsPrivate(data.is_private || false);
+      setCurrentStreak(data.current_streak || 0);
+      setCurrentWeeklyStreak(data.current_weekly_streak || 0);
+      setLastWorkoutDate(data.last_workout_date || null);
       setIsLoading(false);
     } catch (err) {
       setHasBlockedMe(true);
@@ -215,7 +222,7 @@ export const useProfile = (profileUid?: string) => {
      * Suscripción a cambios en la tabla de usuarios para actualizar el perfil en tiempo real si hay cambios. Solo se suscribe al perfil que se está visualizando (targetUid) para evitar recibir eventos innecesarios.
      */
     const channel = supabase
-      .channel(`public:users:id=eq.${targetUid}`)
+      .channel(`public:users:id=eq.${targetUid}-${Math.random().toString(36).substring(7)}`)
       .on(
         "postgres_changes",
         {
@@ -242,7 +249,7 @@ export const useProfile = (profileUid?: string) => {
      * Suscripción a cambios en la tabla de follows para actualizar los datos sociales en tiempo real. Se suscribe a cualquier cambio que involucre al usuario objetivo (ya sea como seguidor o seguido) para mantener actualizados los contadores y estados de seguimiento.
      */
     const followsChannel = supabase
-      .channel(`follows-changes-${targetUid}`)
+      .channel(`follows-changes-${targetUid}-${Math.random().toString(36).substring(7)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "follows" },
@@ -848,6 +855,9 @@ export const useProfile = (profileUid?: string) => {
     email,
     gender,
     measurementSystem,
+    currentStreak,
+    currentWeeklyStreak,
+    lastWorkoutDate,
     height,
     weight,
     isPrivate,

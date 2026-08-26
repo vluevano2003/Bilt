@@ -1,4 +1,4 @@
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale, scale, verticalScale } from "../src/utils/Responsive";
 
 import { SocialUser, useProfile } from "../hooks/useProfile";
+import { useAchievements, ACHIEVEMENTS_LIST } from "../hooks/useAchievements";
 import { useProfileActions } from "../hooks/useProfileActions";
 import { useUserActivity } from "../hooks/useUserActivity";
 import { WeeklyPack } from "../hooks/useWeeklyPacks";
@@ -65,7 +66,7 @@ export default function UserProfileScreen() {
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [reportModalVisible, setReportModalVisible] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  const [activeTab, setActiveTab] = useState<"routines" | "history" | "packs">(
+  const [activeTab, setActiveTab] = useState<"routines" | "history" | "packs" | "achievements">(
     "routines",
   );
   const [socialModalVisible, setSocialModalVisible] = useState(false);
@@ -83,6 +84,8 @@ export default function UserProfileScreen() {
   const [selectedPack, setSelectedPack] = useState<WeeklyPack | null>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
+  
+  const { achievements, loading: achievementsLoading } = useAchievements(profileId);
 
   // Maneja el botón de retroceso en Android para cerrar modales o volver a la pantalla anterior
   useEffect(() => {
@@ -409,6 +412,62 @@ export default function UserProfileScreen() {
                         <Text style={styles.emptyHistoryText}>
                           {t("weeklyPacks.noPublicPacks")}
                         </Text>
+                      )
+                    ) : activeTab === "achievements" ? (
+                      achievementsLoading ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                          {ACHIEVEMENTS_LIST.map((ach) => {
+                            const earned = achievements.find((a: any) => a.achievement_id === ach.id);
+                            
+                            return (
+                              <View key={ach.id} style={{ 
+                                width: '48%', 
+                                backgroundColor: colors.surface, 
+                                padding: moderateScale(12), 
+                                borderRadius: moderateScale(12), 
+                                marginBottom: verticalScale(15),
+                                alignItems: 'center',
+                                opacity: earned ? 1 : 0.5,
+                                borderWidth: 1,
+                                borderColor: earned ? colors.primary : colors.border
+                              }}>
+                                <View style={{ 
+                                  width: moderateScale(50), 
+                                  height: moderateScale(50), 
+                                  borderRadius: moderateScale(25), 
+                                  backgroundColor: earned ? ach.color + '20' : colors.background,
+                                  justifyContent: 'center', 
+                                  alignItems: 'center',
+                                  marginBottom: verticalScale(8)
+                                }}>
+                                  {ach.icon === "fire" ? (
+                                    <FontAwesome5 name="fire" size={moderateScale(24)} color={earned ? ach.color : colors.textSecondary} />
+                                  ) : (
+                                    <Feather name={ach.icon as any || "award"} size={moderateScale(24)} color={earned ? ach.color : colors.textSecondary} />
+                                  )}
+                                </View>
+                                <Text style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: moderateScale(12), textAlign: 'center', marginBottom: verticalScale(4) }}>
+                                  {t(ach.titleKey)}
+                                </Text>
+                                <Text style={{ color: colors.textSecondary, fontSize: moderateScale(10), textAlign: 'center', marginBottom: earned ? verticalScale(4) : 0 }}>
+                                  {t(ach.descKey)}
+                                </Text>
+                                {earned && (
+                                  <Text style={{ color: colors.primary, fontSize: moderateScale(10), textAlign: 'center', fontWeight: 'bold' }}>
+                                    ✓ {new Date(earned.earned_at).toLocaleDateString()}
+                                  </Text>
+                                )}
+                                {!earned && (
+                                  <Text style={{ color: colors.textSecondary, fontSize: moderateScale(10), textAlign: 'center', marginTop: verticalScale(4), fontWeight: 'bold' }}>
+                                    {ach.id.startsWith("workouts_") ? `${Math.min(new Set(userHistory.map((s: any) => new Date(s.completedAt).toDateString())).size, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ach.id.startsWith("streak_") ? `${Math.min(profile.currentWeeklyStreak || 0, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ""}
+                                  </Text>
+                                )}
+                              </View>
+                            );
+                          })}
+                        </View>
                       )
                     ) : userHistory.length > 0 ? (
                       <>

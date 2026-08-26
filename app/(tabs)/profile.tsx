@@ -1,4 +1,4 @@
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Tabs } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -14,9 +14,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale, verticalScale } from "../../src/utils/Responsive";
+import { moderateScale, verticalScale, scale } from "../../src/utils/Responsive";
 
 import { SocialUser, useProfile } from "../../hooks/useProfile";
+import { useAchievements, ACHIEVEMENTS_LIST } from "../../hooks/useAchievements";
 import { useUserActivity } from "../../hooks/useUserActivity";
 import { EditProfileModal } from "../../src/components/EditProfileModal";
 import { SocialListModal } from "../../src/components/ProfileModals";
@@ -73,6 +74,7 @@ const ProfileHeader = ({
   username,
   followersCount,
   followingCount,
+  currentStreak,
   bio,
   openSocialModal,
   openEditModal,
@@ -90,6 +92,29 @@ const ProfileHeader = ({
           />
         </View>
       )}
+      <View style={{
+        position: 'absolute',
+        bottom: 0,
+        right: -scale(10),
+        backgroundColor: currentStreak > 0 ? '#f97316' : colors.surface,
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(4),
+        borderRadius: scale(12),
+        borderWidth: 2,
+        borderColor: colors.background,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: currentStreak > 0 ? '#f97316' : '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: currentStreak > 0 ? 0.5 : 0.1,
+        shadowRadius: 4,
+        elevation: 4
+      }}>
+        <FontAwesome5 name="fire" size={scale(12)} color={currentStreak > 0 ? "#fff" : colors.textSecondary} />
+        <Text style={{ color: currentStreak > 0 ? '#fff' : colors.textSecondary, fontWeight: 'bold', fontSize: scale(12), marginLeft: scale(4) }}>
+          {currentStreak || 0}
+        </Text>
+      </View>
     </View>
     <Text style={styles.usernameText}>@{username}</Text>
 
@@ -214,6 +239,66 @@ const WorkoutHistoryList = ({
   );
 };
 
+const AchievementsList = ({ achievements, loading, colors, styles, t, totalWorkouts, currentWeeklyStreak }: any) => {
+  if (loading) {
+    return <ActivityIndicator size="small" color={colors.primary} />;
+  }
+
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: moderateScale(10) }}>
+      {ACHIEVEMENTS_LIST.map((ach) => {
+        const earned = achievements.find((a: any) => a.achievement_id === ach.id);
+        
+        return (
+          <View key={ach.id} style={{ 
+            width: '48%', 
+            backgroundColor: colors.surface, 
+            padding: moderateScale(12), 
+            borderRadius: moderateScale(12), 
+            marginBottom: verticalScale(15),
+            alignItems: 'center',
+            opacity: earned ? 1 : 0.5,
+            borderWidth: 1,
+            borderColor: earned ? colors.primary : colors.border
+          }}>
+            <View style={{ 
+              width: moderateScale(50), 
+              height: moderateScale(50), 
+              borderRadius: moderateScale(25), 
+              backgroundColor: earned ? ach.color + '20' : colors.background,
+              justifyContent: 'center', 
+              alignItems: 'center',
+              marginBottom: verticalScale(8)
+            }}>
+              {ach.icon === "fire" ? (
+                <FontAwesome5 name="fire" size={moderateScale(24)} color={earned ? ach.color : colors.textSecondary} />
+              ) : (
+                <Feather name={ach.icon as any || "award"} size={moderateScale(24)} color={earned ? ach.color : colors.textSecondary} />
+              )}
+            </View>
+            <Text style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: moderateScale(12), textAlign: 'center', marginBottom: verticalScale(4) }}>
+              {t(ach.titleKey)}
+            </Text>
+            <Text style={{ color: colors.textSecondary, fontSize: moderateScale(10), textAlign: 'center', marginBottom: earned ? verticalScale(4) : 0 }}>
+              {t(ach.descKey)}
+            </Text>
+            {earned && (
+              <Text style={{ color: colors.primary, fontSize: moderateScale(10), textAlign: 'center', fontWeight: 'bold' }}>
+                ✓ {new Date(earned.earned_at).toLocaleDateString()}
+              </Text>
+            )}
+            {!earned && (
+              <Text style={{ color: colors.textSecondary, fontSize: moderateScale(10), textAlign: 'center', marginTop: verticalScale(4), fontWeight: 'bold' }}>
+                {ach.id.startsWith("workouts_") ? `${Math.min(totalWorkouts, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ach.id.startsWith("streak_") ? `${Math.min(currentWeeklyStreak, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ""}
+              </Text>
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
+};
+
 /**
  * Pantalla de perfil del usuario. Muestra información del perfil, estadísticas sociales, historial de entrenamientos y permite editar el perfil, compartirlo, acceder a configuraciones y ver detalles de entrenamientos pasados.
  * @returns
@@ -231,6 +316,8 @@ export default function ProfileScreen() {
     isEditing,
     openEditModal,
     username,
+    currentStreak,
+    currentWeeklyStreak,
     profilePic,
     email,
     gender,
@@ -276,15 +363,18 @@ export default function ProfileScreen() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"history" | "achievements">("history");
+  
+  const { achievements, loading: achievementsLoading, refetchAchievements } = useAchievements(user?.id);
 
   /**
    * Función para refrescar los datos del perfil y el historial de entrenamientos. Se llama al hacer pull-to-refresh en la lista de historial. Refresca tanto la información del perfil como el historial de actividades.
    */
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refetchData();
+    await Promise.all([refetchData(), refetchAchievements()]);
     setRefreshing(false);
-  }, [refetchData]);
+  }, [refetchData, refetchAchievements]);
 
   /**
    * Función para cerrar sesión del usuario. Llama a la función de signOut de Supabase y maneja cualquier error que pueda ocurrir durante el proceso. Se llama al seleccionar "Cerrar sesión" en el modal de configuraciones.
@@ -399,28 +489,47 @@ export default function ProfileScreen() {
             username={username}
             followersCount={followersCount}
             followingCount={followingCount}
+            currentStreak={currentStreak}
             bio={bio}
             openSocialModal={openSocialModal}
             openEditModal={openEditModal}
           />
 
           <View style={styles.historySectionContainer}>
-            <Text style={[styles.label, styles.historySectionTitle]}>
-              {t("profile.workoutHistory")}
-            </Text>
-            <WorkoutHistoryList
-              t={t}
-              i18n={i18n}
-              colors={colors}
-              styles={styles}
-              userHistory={userHistory}
-              historyLimit={historyLimit}
-              setHistoryLimit={setHistoryLimit}
-              isLoadingActivity={isLoadingActivity}
-              measurementSystem={measurementSystem}
-              userWeight={weight}
-              openDetails={openDetails}
-            />
+            <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: verticalScale(15), borderBottomWidth: 1, borderBottomColor: colors.border }}>
+              <TouchableOpacity onPress={() => setActiveTab("history")} style={{ paddingBottom: verticalScale(8), borderBottomWidth: 2, borderBottomColor: activeTab === "history" ? colors.primary : "transparent" }}>
+                <Text style={[styles.label, { color: activeTab === "history" ? colors.primary : colors.textSecondary }]}>{t("profile.workoutHistory")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setActiveTab("achievements")} style={{ paddingBottom: verticalScale(8), borderBottomWidth: 2, borderBottomColor: activeTab === "achievements" ? colors.primary : "transparent" }}>
+                <Text style={[styles.label, { color: activeTab === "achievements" ? colors.primary : colors.textSecondary }]}>{t("profile.achievements", { defaultValue: "Logros" })}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {activeTab === "history" ? (
+              <WorkoutHistoryList
+                t={t}
+                i18n={i18n}
+                colors={colors}
+                styles={styles}
+                userHistory={userHistory}
+                historyLimit={historyLimit}
+                setHistoryLimit={setHistoryLimit}
+                isLoadingActivity={isLoadingActivity}
+                measurementSystem={measurementSystem}
+                userWeight={weight}
+                openDetails={openDetails}
+              />
+            ) : (
+              <AchievementsList 
+                 achievements={achievements} 
+                 loading={achievementsLoading} 
+                 colors={colors} 
+                 styles={styles} 
+                 t={t}
+                 totalWorkouts={new Set(userHistory.map((s: any) => new Date(s.completedAt).toDateString())).size}
+                 currentWeeklyStreak={currentWeeklyStreak}
+              />
+            )}
           </View>
         </View>
       </ScrollView>

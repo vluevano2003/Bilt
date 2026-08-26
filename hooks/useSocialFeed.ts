@@ -11,7 +11,7 @@ const debugError = (...args: any[]) => {
 
 export interface FeedItem {
   id: string;
-  type: "routine" | "history";
+  type: "routine" | "history" | "achievement";
   userId: string;
   username: string;
   userAvatar?: string;
@@ -163,6 +163,29 @@ export const useSocialFeed = () => {
               },
             });
           }
+        });
+      }
+
+      const { data: achievementsData } = await supabase
+        .from("user_achievements")
+        .select("*")
+        .in("user_id", followedIds)
+        .order("earned_at", { ascending: false })
+        .limit(100);
+
+      if (achievementsData) {
+        achievementsData.forEach((d) => {
+          allItems.push({
+            id: `ach_${d.id}`,
+            type: "achievement",
+            userId: d.user_id,
+            username: userMap[d.user_id]?.username || t("social.user"),
+            userAvatar: userMap[d.user_id]?.profile_picture_url,
+            timestamp: new Date(d.earned_at).getTime(),
+            title: d.achievement_id,
+            details: {},
+            fullData: d,
+          });
         });
       }
 

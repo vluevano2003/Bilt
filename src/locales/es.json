@@ -12,9 +12,10 @@
     "day": "Día",
     "settings": "Ajustes",
     "saveChanges": "Guardar Cambios",
-    "confirm": "Confirmar",
+    "confirm": "¡Genial!",
     "ignore": "Ignorar",
-    "config": "Configurar"
+    "config": "Configurar",
+    "confirm_awesome": "¡Increíble!"
   },
   "tabs": {
     "workout": "Workout",
@@ -191,7 +192,8 @@
     "removeFollowerTitle": "¿Eliminar seguidor?",
     "removeFollowerMsg": "No le avisaremos a este usuario que lo has eliminado de tus seguidores.",
     "remove": "Eliminar",
-    "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo."
+    "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+    "achievements": "Logros"
   },
   "alerts": {
     "missingData": "Faltan datos",
@@ -548,7 +550,8 @@
     "startEmpty": "+ Iniciar Entreno Vacío",
     "workoutInProgress": "Entrenamiento en curso",
     "goToWorkout": "Ir al Entrenamiento Activo",
-    "defaultName": "Atleta"
+    "defaultName": "Atleta",
+    "streak": "Racha"
   },
   "weeklyPacks": {
     "tabPacks": "Packs",
@@ -1027,5 +1030,70 @@
     "send": "Enviar Comentario",
     "successMsg": "Tu comentario ha sido enviado. ¡Lo revisaremos pronto!",
     "errorMsg": "No se pudo enviar el comentario. Intenta de nuevo más tarde."
+  },
+  "achievements": {
+    "workouts_1": {
+      "title": "Primera vez",
+      "desc": "Completaste tu primer entrenamiento. ¡El viaje comienza!"
+    },
+    "workouts_5": {
+      "title": "Calentando",
+      "desc": "Completaste 5 entrenamientos. ¡Sigue así!"
+    },
+    "workouts_10": {
+      "title": "Principiante",
+      "desc": "10 entrenamientos. Ya estás tomando ritmo."
+    },
+    "workouts_50": {
+      "title": "Constante",
+      "desc": "50 entrenamientos. ¡La disciplina se nota!"
+    },
+    "workouts_100": {
+      "title": "Centurión",
+      "desc": "100 entrenamientos. Eres una máquina."
+    },
+    "workouts_365": {
+      "title": "Un año de sudor",
+      "desc": "365 entrenamientos en total. ¡Increíble!"
+    },
+    "workouts_1000": {
+      "title": "Leyenda",
+      "desc": "1000 entrenamientos. Nivel Dios."
+    },
+    "streak_2": {
+      "title": "Fuego inicial",
+      "desc": "2 semanas seguidas. ¡Que no se apague!"
+    },
+    "streak_4": {
+      "title": "Un mes de fuego",
+      "desc": "4 semanas de racha. Un mes completo sin fallar."
+    },
+    "streak_10": {
+      "title": "Racha de Fuego",
+      "desc": "10 semanas imparables."
+    },
+    "streak_30": {
+      "title": "Racha Imparable",
+      "desc": "30 semanas seguidas. Eres imparable."
+    },
+    "streak_50": {
+      "title": "Fuego Eterno",
+      "desc": "50 semanas seguidas entrenando."
+    },
+    "streak_100": {
+      "title": "Centenario de Fuego",
+      "desc": "100 semanas. No conoces las excusas."
+    },
+    "streak_200": {
+      "title": "Deidad del Fuego",
+      "desc": "200 semanas. Imposible de alcanzar."
+    }
+  },
+  "gamification": {
+    "streakTitle": "¡Racha Aumentada!",
+    "streakDays": "días en racha",
+    "achievementUnlocked": "¡Nuevo Logro!",
+    "streakInfoTitle": "Tu Racha",
+    "streakInfoDesc": "🔥 Racha Activa: Aumenta 1 punto por cada día distinto que entrenes. ¡Solo se pierde si pasas una semana entera sin ir al gimnasio!\n\n🏆 Logros Semanales: Los logros evalúan semanas consecutivas entrenando (lun-dom). ¡No los pierdas!"
   }
 }
