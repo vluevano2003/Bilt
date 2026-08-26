@@ -261,13 +261,13 @@ const DashboardHeader = ({
               activeTab === "saved" && routineStyles.activeTabText,
             ]}
           >
-            {t("routines.savedRoutines")}
+            {t("routines.savedRoutines", { defaultValue: "Guardados" })}
           </Text>
         </TouchableOpacity>
       </View>
 
       {activeTab === "own" && (
-        <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(5) }}>
+        <View style={{ marginTop: verticalScale(10), paddingHorizontal: scale(5) }}>
           <View
             style={{
               flexDirection: "row",
@@ -323,12 +323,12 @@ const DashboardHeader = ({
               </Text>
             </View>
           </View>
-          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(15) }} />
+          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(10) }} />
         </View>
       )}
 
       {activeTab === "packs" && (
-        <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(5) }}>
+        <View style={{ marginTop: verticalScale(10), paddingHorizontal: scale(5) }}>
           <View
             style={{
               flexDirection: "row",
@@ -381,7 +381,7 @@ const DashboardHeader = ({
               </Text>
             </View>
           </View>
-          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(15) }} />
+          <View style={{ height: 1, backgroundColor: colors.border, marginTop: verticalScale(10) }} />
         </View>
       )}
     </View>

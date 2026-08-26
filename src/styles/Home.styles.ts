@@ -82,7 +82,7 @@ export const getHomeStyles = (colors: any) =>
       shadowOpacity: 0.1,
       shadowRadius: 4,
       elevation: 2,
-      marginBottom: verticalScale(25),
+      marginBottom: verticalScale(15),
     },
     weeklySummaryHeader: {
       flexDirection: "row",

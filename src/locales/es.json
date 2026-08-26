@@ -282,7 +282,7 @@
     "fromCreator": "De: @{{creator}}",
     "unsaveConfirmTitle": "Eliminar de mi perfil",
     "unsaveConfirmMsg": "¿Estás seguro de que quieres dejar de guardar esta rutina?",
-    "savedRoutines": "Rutinas Guardadas",
+    "savedRoutines": "Guardados",
     "cannotDeleteInPack": "No puedes eliminar esta rutina porque pertenece a un Pack Semanal. Quítala del pack primero.",
     "unsavePackWarning": "Esta rutina pertenece al pack guardado '{{packName}}'. Si la eliminas, se removerá el pack completo y todas sus rutinas. ¿Continuar?",
     "animationComingSoon": "Animación próximamente",

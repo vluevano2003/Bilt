@@ -34,7 +34,7 @@ export const getStyles = (colors: any) =>
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      paddingVertical: verticalScale(16),
+      paddingVertical: verticalScale(12),
       paddingHorizontal: scale(5),
       borderBottomWidth: 2,
       borderBottomColor: "transparent",

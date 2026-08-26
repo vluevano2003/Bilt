@@ -283,7 +283,7 @@
     "fromCreator": "From: @{{creator}}",
     "unsaveConfirmTitle": "Remove from my profile",
     "unsaveConfirmMsg": "Are you sure you want to stop saving this routine?",
-    "savedRoutines": "Saved Routines",
+    "savedRoutines": "Saved",
     "cannotDeleteInPack": "You cannot delete this routine because it belongs to a Weekly Pack. Remove it from the pack first.",
     "unsavePackWarning": "This routine belongs to the saved pack '{{packName}}'. Removing it will also remove the entire pack and all its routines. Continue?",
     "animationComingSoon": "Animation coming soon",
