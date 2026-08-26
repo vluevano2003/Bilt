@@ -229,12 +229,12 @@ export default function SocialScreen() {
   const { routines: myRoutines, deleteRoutine } = useRoutines();
 
   useEffect(() => {
-    loadHistory();
-  }, []);
+    if (user?.id) loadHistory();
+  }, [user?.id]);
 
   const loadHistory = async () => {
     try {
-      const stored = await AsyncStorage.getItem("@gym_tracker_search_history");
+      const stored = await AsyncStorage.getItem(`@gym_tracker_search_history_${user?.id}`);
       if (stored) setSearchHistory(JSON.parse(stored));
     } catch (error) {
       debugLog("Error loading history:", error);
@@ -246,7 +246,7 @@ export default function SocialScreen() {
       setSearchHistory(prev => {
         const filtered = prev.filter(item => item.id !== userItem.id);
         const newHistory = [userItem, ...filtered].slice(0, 20);
-        AsyncStorage.setItem("@gym_tracker_search_history", JSON.stringify(newHistory));
+        AsyncStorage.setItem(`@gym_tracker_search_history_${user?.id}`, JSON.stringify(newHistory));
         return newHistory;
       });
     } catch (error) {
@@ -258,7 +258,7 @@ export default function SocialScreen() {
     try {
       setSearchHistory(prev => {
         const newHistory = prev.filter(item => item.id !== userId);
-        AsyncStorage.setItem("@gym_tracker_search_history", JSON.stringify(newHistory));
+        AsyncStorage.setItem(`@gym_tracker_search_history_${user?.id}`, JSON.stringify(newHistory));
         return newHistory;
       });
     } catch (error) {
@@ -269,7 +269,7 @@ export default function SocialScreen() {
   const clearAllHistory = async () => {
     try {
       setSearchHistory([]);
-      await AsyncStorage.removeItem("@gym_tracker_search_history");
+      await AsyncStorage.removeItem(`@gym_tracker_search_history_${user?.id}`);
     } catch (error) {
       debugLog("Error clearing history:", error);
     }
@@ -342,6 +342,7 @@ export default function SocialScreen() {
         .from("users")
         .select("id, username, profile_picture_url")
         .ilike("username", `%${searchPattern}%`)
+        .neq("id", user?.id)
         .limit(10);
 
       if (error) throw error;
