@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { scale, verticalScale } from "../utils/Responsive";
+import { ClayCard } from "./ClayCard";
 
 /**
  * Componente de barra de navegación superior para el perfil de usuario. Incluye botones para volver, compartir y opciones adicionales.
@@ -160,48 +161,43 @@ export const UserInfoCard = ({
 
     <View style={styles.actionButtonContainer}>
       {profile.isOwnProfile ? (
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        <ClayCard
+          style={[styles.actionButton, { backgroundColor: colors.surface }]}
           onPress={() => router.navigate("/(tabs)/profile")}
         >
           <Text style={[styles.actionButtonText, { color: colors.textPrimary }]}>
             {t("profile.editProfile")}
           </Text>
-        </TouchableOpacity>
+        </ClayCard>
       ) : profile.hasPendingRequestFromThem ? (
         <View style={styles.followRequestContainer}>
-          <TouchableOpacity
+          <ClayCard
             style={[styles.actionButton, styles.acceptButton]}
             onPress={() => profile.handleFollowRequest(profileId!, true)}
+            color={colors.primary}
           >
             <Text style={[styles.actionButtonText, styles.buttonTextWhite]}>
               {t("social.accept")}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </ClayCard>
+          <ClayCard
             style={[styles.actionButton, styles.rejectButton]}
             onPress={() => profile.handleFollowRequest(profileId!, false)}
+            color={colors.surface}
           >
             <Text style={[styles.actionButtonText, styles.rejectButtonText]}>
               {t("social.reject")}
             </Text>
-          </TouchableOpacity>
+          </ClayCard>
         </View>
       ) : (
-        <TouchableOpacity
-          style={[
-            styles.actionButton,
-            {
-              backgroundColor:
-                profile.followStatus !== "none"
-                  ? colors.surface
-                  : colors.primary,
-              borderColor:
-                profile.followStatus !== "none"
-                  ? colors.border
-                  : colors.primary,
-            },
-          ]}
+        <ClayCard
+          style={styles.actionButton}
+          color={
+            profile.followStatus !== "none"
+              ? colors.surface
+              : colors.primary
+          }
           onPress={handleToggleFollow}
         >
           <Text
@@ -219,7 +215,7 @@ export const UserInfoCard = ({
                 ? t("social.requested")
                 : t("social.follow")}
           </Text>
-        </TouchableOpacity>
+        </ClayCard>
       )}
     </View>
   </View>

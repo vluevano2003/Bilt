@@ -44,6 +44,7 @@ import { ExerciseSelectorModal } from "../../src/components/ExerciseSelectorModa
 import { FeedbackModal } from "../../src/components/FeedbackModal";
 import { NotificationModal } from "../../src/components/NotificationModal";
 import { StreakInfoModal } from "../../src/components/GamificationModals";
+import { ClayCard } from "../../src/components/ClayCard";
 import {
   CreatePackModal,
   PackDetailsModal,
@@ -161,7 +162,7 @@ const DashboardHeader = ({
         </Text>
       </View>
 
-      <View style={homeStyles.card}>
+      <ClayCard style={homeStyles.card}>
         <View style={homeStyles.weeklySummaryHeader}>
           <Feather
             name="bar-chart-2"
@@ -213,7 +214,7 @@ const DashboardHeader = ({
             </View>
           </View>
         </View>
-      </View>
+      </ClayCard>
 
       <View style={routineStyles.tabsContainer}>
         <TouchableOpacity
@@ -436,7 +437,7 @@ export default function HomeScreen() {
     }, [t]),
   );
 
-  const { isPrivate, username, currentStreak } = useProfile();
+  const { isPrivate, username, currentStreak, refetchData: refetchProfile } = useProfile();
 
   const {
     loading: notificationsLoading,
@@ -525,6 +526,7 @@ export default function HomeScreen() {
     saveRoutine,
     deleteRoutine,
     refetchRoutines,
+    refetchExercises,
   } = useRoutines();
   const { startWorkout, activeRoutine } = useActiveWorkout();
   const editor = useRoutineEditor(saveRoutine, exercisesDb);
@@ -553,9 +555,11 @@ export default function HomeScreen() {
       refetchRoutines && refetchRoutines(),
       refetchPacks && refetchPacks(),
       refetchActivity && refetchActivity(),
+      refetchProfile && refetchProfile(),
+      refetchExercises && refetchExercises(),
     ]);
     setRefreshing(false);
-  }, [refetchRoutines, refetchPacks, refetchActivity]);
+  }, [refetchRoutines, refetchPacks, refetchActivity, refetchProfile, refetchExercises]);
 
   // Si la pantalla se abre con el parámetro openNotifications=true, se abre automáticamente el modal de notificaciones para mostrar las nuevas notificaciones al usuario. Esto permite redirigir al usuario directamente a las notificaciones desde otras partes de la app o desde una notificación push.
   useEffect(() => {
@@ -751,7 +755,7 @@ export default function HomeScreen() {
           if (activeTab === "packs") {
             const packItem = item as WeeklyPack;
             cardContent = (
-              <TouchableOpacity
+              <ClayCard
                 style={routineStyles.routineCard}
                 activeOpacity={0.8}
                 onPress={() => {
@@ -799,7 +803,7 @@ export default function HomeScreen() {
                     {t("weeklyPacks.routinesCount")}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </ClayCard>
             );
           } else {
             const routineItem = item as any;
@@ -809,7 +813,7 @@ export default function HomeScreen() {
                 .join(", ") || t("routines.noExercises");
 
             cardContent = (
-              <View style={routineStyles.routineCard}>
+              <ClayCard style={routineStyles.routineCard}>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => {
@@ -856,7 +860,7 @@ export default function HomeScreen() {
                     {t("routines.startWorkout")}
                   </Text>
                 </TouchableOpacity>
-              </View>
+              </ClayCard>
             );
           }
 

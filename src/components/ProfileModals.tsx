@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SocialUser } from "../../hooks/useProfile";
+import { ClayCard } from "./ClayCard";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { getStyles } from "../styles/Profile.styles";
@@ -214,7 +215,7 @@ export const PackDetailsModal = ({
                   ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
                   .join(", ") || t("routines.noExercises");
               return (
-                <View
+                <ClayCard
                   key={routine.id}
                   style={[
                     styles.routineCard,
@@ -225,6 +226,7 @@ export const PackDetailsModal = ({
                       alignItems: "flex-start",
                     },
                   ]}
+                  color={colors.surface}
                 >
                   <Text style={styles.routineName}>{routine.name}</Text>
                   <Text
@@ -237,7 +239,7 @@ export const PackDetailsModal = ({
                   >
                     {exercisesPreview}
                   </Text>
-                </View>
+                </ClayCard>
               );
             })}
             <View style={{ marginTop: verticalScale(20) }}>

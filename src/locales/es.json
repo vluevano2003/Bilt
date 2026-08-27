@@ -15,7 +15,8 @@
     "confirm": "¡Genial!",
     "ignore": "Ignorar",
     "config": "Configurar",
-    "confirm_awesome": "¡Increíble!"
+    "confirm_awesome": "¡Increíble!",
+    "close": "Cerrar"
   },
   "tabs": {
     "workout": "Workout",

@@ -57,9 +57,8 @@ export const getStyles = (colors: any) =>
     userCard: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: verticalScale(12),
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      padding: scale(15),
+      marginBottom: verticalScale(15),
     },
     userAvatar: {
       width: scale(50),
@@ -89,12 +88,8 @@ export const getStyles = (colors: any) =>
 
     //Tarjeta de publicación en feed
     feedCard: {
-      backgroundColor: colors.surface,
-      borderRadius: scale(12),
       padding: scale(15),
       marginBottom: verticalScale(15),
-      borderWidth: 1,
-      borderColor: colors.border,
     },
     feedHeader: {
       flexDirection: "row",

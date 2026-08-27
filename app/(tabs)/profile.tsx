@@ -19,6 +19,7 @@ import { moderateScale, verticalScale, scale } from "../../src/utils/Responsive"
 import { SocialUser, useProfile } from "../../hooks/useProfile";
 import { useAchievements, ACHIEVEMENTS_LIST } from "../../hooks/useAchievements";
 import { useUserActivity } from "../../hooks/useUserActivity";
+import { ClayCard } from "../../src/components/ClayCard";
 import { EditProfileModal } from "../../src/components/EditProfileModal";
 import { SocialListModal } from "../../src/components/ProfileModals";
 import { SettingsModal } from "../../src/components/SettingsModal";
@@ -211,7 +212,7 @@ const WorkoutHistoryList = ({
         const volumeUnit = sessionSystem === "metric" ? "kg" : "lbs";
 
         return (
-          <TouchableOpacity
+          <ClayCard
             key={session.id}
             style={[styles.routineCard, styles.historyCard]}
             onPress={() => openDetails(session)}
@@ -238,7 +239,7 @@ const WorkoutHistoryList = ({
                 {totalVolume} {volumeUnit}
               </Text>
             </View>
-          </TouchableOpacity>
+          </ClayCard>
         );
       })}
       {userHistory.length > historyLimit && (

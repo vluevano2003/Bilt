@@ -286,12 +286,8 @@ export const getStyles = (colors: any) =>
     },
     loadMoreText: { color: colors.primary, fontWeight: "bold" },
     routineCard: {
-      backgroundColor: colors.surface,
       padding: scale(15),
-      borderRadius: scale(10),
       marginBottom: verticalScale(15),
-      borderWidth: 1,
-      borderColor: colors.border,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",

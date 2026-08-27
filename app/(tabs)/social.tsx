@@ -32,6 +32,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { useTheme } from "../../src/context/ThemeContext";
 import { getStyles } from "../../src/styles/SocialScreen.styles";
 import { ItemDetailsModal } from "../../src/components/ProfileModals";
+import { ClayCard } from "../../src/components/ClayCard";
 
 const debugLog = (...args: any[]) => {
   if (__DEV__) console.log(...args);
@@ -79,7 +80,7 @@ const ITEMS_PER_PAGE = 15;
  * Componente memoizado para mostrar cada resultado de búsqueda de usuario, con su avatar, nombre de usuario y un botón para ir a su perfil.
  */
 const UserSearchCard = React.memo(({ item, colors, styles, onPress, onRemove }: any) => (
-  <TouchableOpacity style={styles.userCard} onPress={() => onPress(item)}>
+  <ClayCard style={styles.userCard} onPress={() => onPress(item)}>
     {item.profilePictureUrl ? (
       <Image
         source={{ uri: item.profilePictureUrl }}
@@ -106,7 +107,7 @@ const UserSearchCard = React.memo(({ item, colors, styles, onPress, onRemove }: 
         color={colors.textSecondary}
       />
     )}
-  </TouchableOpacity>
+  </ClayCard>
 ));
 
 /**
@@ -118,7 +119,7 @@ const FeedActivityCard = React.memo(
 
     return (
       <>
-        <TouchableOpacity style={styles.feedCard} activeOpacity={0.8} onPress={() => onPressItem && onPressItem(item)}>
+        <ClayCard style={styles.feedCard} activeOpacity={0.8} onPress={() => onPressItem && onPressItem(item)}>
           <View style={styles.feedHeader}>
             <TouchableOpacity onPress={() => onPressUser(item.userId)}>
               {item.userAvatar ? (
@@ -185,7 +186,7 @@ const FeedActivityCard = React.memo(
               )}
             </View>
           </View>
-        </TouchableOpacity>
+        </ClayCard>
 
         {showAd && (
           <View style={styles.adContainer}>

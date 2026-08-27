@@ -285,5 +285,6 @@ export const useRoutines = () => {
     saveRoutine,
     deleteRoutine,
     refetchRoutines: fetchRoutines,
+    refetchExercises: fetchExercisesFromDB,
   };
 };

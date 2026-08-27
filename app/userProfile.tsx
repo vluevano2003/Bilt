@@ -36,6 +36,7 @@ import {
   TopNavigationBar,
   UserInfoCard,
 } from "../src/components/UserProfileUI";
+import { ClayCard } from "../src/components/ClayCard";
 import { useTheme } from "../src/context/ThemeContext";
 import { getStyles } from "../src/styles/Profile.styles";
 import { shareProfile } from "../src/utils/shareHelpers";
@@ -341,7 +342,7 @@ export default function UserProfileScreen() {
                     ) : activeTab === "routines" ? (
                       displayedUserRoutines.length > 0 ? (
                         displayedUserRoutines.map((routine: any) => (
-                          <View key={routine.id} style={styles.routineCard}>
+                          <ClayCard key={routine.id} style={styles.routineCard}>
                             <TouchableOpacity
                               style={styles.routineInfo}
                               onPress={() => {
@@ -374,7 +375,7 @@ export default function UserProfileScreen() {
                                 color={colors.primary}
                               />
                             </TouchableOpacity>
-                          </View>
+                          </ClayCard>
                         ))
                       ) : (
                         <Text style={styles.emptyHistoryText}>
@@ -384,7 +385,7 @@ export default function UserProfileScreen() {
                     ) : activeTab === "packs" ? (
                       displayedUserPacks.length > 0 ? (
                         displayedUserPacks.map((pack: any) => (
-                          <TouchableOpacity
+                          <ClayCard
                             key={pack.id}
                             style={styles.routineCard}
                             onPress={() => {
@@ -406,7 +407,7 @@ export default function UserProfileScreen() {
                               size={moderateScale(22)}
                               color={colors.textSecondary}
                             />
-                          </TouchableOpacity>
+                          </ClayCard>
                         ))
                       ) : (
                         <Text style={styles.emptyHistoryText}>
@@ -422,17 +423,15 @@ export default function UserProfileScreen() {
                             const earned = achievements.find((a: any) => a.achievement_id === ach.id);
                             
                             return (
-                              <View key={ach.id} style={{ 
+                              <ClayCard key={ach.id} style={{ 
                                 width: '48%', 
-                                backgroundColor: colors.surface, 
                                 padding: moderateScale(12), 
-                                borderRadius: moderateScale(12), 
                                 marginBottom: verticalScale(15),
                                 alignItems: 'center',
                                 opacity: earned ? 1 : 0.5,
-                                borderWidth: 1,
-                                borderColor: earned ? colors.primary : colors.border
-                              }}>
+                              }}
+                              color={colors.surface}
+                              >
                                 <View style={{ 
                                   width: moderateScale(50), 
                                   height: moderateScale(50), 
@@ -464,7 +463,7 @@ export default function UserProfileScreen() {
                                     {ach.id.startsWith("workouts_") ? `${Math.min(new Set(userHistory.map((s: any) => new Date(s.completedAt).toDateString())).size, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ach.id.startsWith("streak_") ? `${Math.min(profile.currentWeeklyStreak || 0, parseInt(ach.id.split("_")[1]))} / ${ach.id.split("_")[1]}` : ""}
                                   </Text>
                                 )}
-                              </View>
+                              </ClayCard>
                             );
                           })}
                         </View>
@@ -474,7 +473,7 @@ export default function UserProfileScreen() {
                         {userHistory
                           .slice(0, historyLimit)
                           .map((session: any) => (
-                            <TouchableOpacity
+                            <ClayCard
                               key={session.id}
                               style={[styles.routineCard, styles.historyCard]}
                               onPress={() => {
@@ -524,7 +523,7 @@ export default function UserProfileScreen() {
                                     : "lbs"}
                                 </Text>
                               </View>
-                            </TouchableOpacity>
+                            </ClayCard>
                           ))}
                         {userHistory.length > historyLimit && (
                           <TouchableOpacity

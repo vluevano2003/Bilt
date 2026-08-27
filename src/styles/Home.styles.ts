@@ -72,16 +72,7 @@ export const getHomeStyles = (colors: any) =>
 
     //Tarjetas de resumen semanal
     card: {
-      backgroundColor: colors.surface,
       padding: scale(20),
-      borderRadius: scale(15),
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
       marginBottom: verticalScale(15),
     },
     weeklySummaryHeader: {

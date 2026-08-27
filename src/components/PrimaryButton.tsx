@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
+import { ClayCard } from "./ClayCard";
 
 interface ButtonProps {
   title: string;
@@ -34,27 +35,26 @@ export const PrimaryButton = ({
   const styles = getStyles(colors);
 
   return (
-    <TouchableOpacity
+    <ClayCard
+      color={colors.primary}
       style={[styles.buttonPrimary, style, disabled && { opacity: 0.6 }]}
-      onPress={onPress}
-      disabled={disabled || loading}
+      onPress={disabled || loading ? undefined : onPress}
     >
       {loading ? (
         <ActivityIndicator color="#FFF" />
       ) : (
         <Text style={styles.buttonTextPrimary}>{title}</Text>
       )}
-    </TouchableOpacity>
+    </ClayCard>
   );
 };
 
 const getStyles = (colors: any) =>
   StyleSheet.create({
     buttonPrimary: {
-      backgroundColor: colors.primary,
       padding: verticalScale(15),
-      borderRadius: scale(10),
       alignItems: "center",
+      justifyContent: "center",
       marginTop: verticalScale(10),
     },
     buttonTextPrimary: {

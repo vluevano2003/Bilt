@@ -22,7 +22,7 @@ import DraggableFlatList, {
   ScaleDecorator,
 } from "react-native-draggable-flatlist";
 import { Swipeable, TouchableOpacity as GHTouchableOpacity } from "react-native-gesture-handler";
-
+import { ClayCard } from "./ClayCard";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
@@ -702,12 +702,13 @@ export const PackDetailsModal = ({
                   ?.map((ex: any) => t(`exercises.${ex.exerciseDetails.id}`))
                   .join(", ") || t("routines.noExercises");
               return (
-                <View
+                <ClayCard
                   key={routine.id + idx}
                   style={[
                     styles.routineCard,
                     { padding: scale(15), marginBottom: verticalScale(15) },
                   ]}
+                  color={colors.surface}
                 >
                   <View style={styles.cardHeader}>
                     <Text style={styles.routineName}>
@@ -717,15 +718,16 @@ export const PackDetailsModal = ({
                   <Text style={styles.exercisePreview} numberOfLines={2}>
                     {exercisesPreview}
                   </Text>
-                  <TouchableOpacity
+                  <ClayCard
                     style={styles.startRoutineButton}
+                    color={colors.primary}
                     onPress={() => startWorkoutAndClose(routine)}
                   >
                     <Text style={styles.startRoutineText}>
                       {t("routines.startWorkout")}
                     </Text>
-                  </TouchableOpacity>
-                </View>
+                  </ClayCard>
+                </ClayCard>
               );
             })}
             <TouchableOpacity

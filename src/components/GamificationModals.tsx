@@ -14,6 +14,7 @@ import { FontAwesome5, Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import { ACHIEVEMENTS_LIST } from "../../hooks/useAchievements";
+import { ClayCard } from "./ClayCard";
 
 interface StreakModalProps {
   visible: boolean;
@@ -48,15 +49,17 @@ export const StreakModal = ({ visible, streak, onClose }: StreakModalProps) => {
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <Animated.View style={[styles.modalContainer, animatedStyle]}>
-          <FontAwesome5 name="fire" size={moderateScale(60)} color="#f97316" style={styles.iconShadow} />
-          <Text style={styles.title}>{t("gamification.streakTitle", { defaultValue: "¡Racha Aumentada!" })}</Text>
-          <Text style={styles.subtitle}>
-            {streak} {t("gamification.streakDays", { defaultValue: "entrenamientos en racha" })}
-          </Text>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>{t("common.confirm", { defaultValue: "¡Genial!" })}</Text>
-          </TouchableOpacity>
+        <Animated.View style={animatedStyle}>
+          <ClayCard style={styles.modalContainer}>
+            <FontAwesome5 name="fire" size={moderateScale(60)} color="#f97316" style={styles.iconShadow} />
+            <Text style={styles.title}>{t("gamification.streakTitle", { defaultValue: "¡Racha Aumentada!" })}</Text>
+            <Text style={styles.subtitle}>
+              {streak} {t("gamification.streakDays", { defaultValue: "entrenamientos en racha" })}
+            </Text>
+            <ClayCard style={styles.button} color="#f97316" onPress={onClose}>
+              <Text style={styles.buttonText}>{t("common.confirm", { defaultValue: "¡Genial!" })}</Text>
+            </ClayCard>
+          </ClayCard>
         </Animated.View>
       </View>
     </Modal>
@@ -98,17 +101,19 @@ export const AchievementModal = ({ visible, achievementId, onClose }: Achievemen
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <Animated.View style={[styles.modalContainer, animatedStyle, { borderColor: achievement.color, borderWidth: 2 }]}>
-          <View style={[styles.iconCircle, { backgroundColor: achievement.color + '20' }]}>
-             <Feather name={achievement.icon as any} size={moderateScale(50)} color={achievement.color} />
-          </View>
-          <Text style={styles.title}>{t("gamification.achievementUnlocked", { defaultValue: "¡Nuevo Logro!" })}</Text>
-          <Text style={[styles.achievementTitle, { color: achievement.color }]}>{t(achievement.titleKey)}</Text>
-          <Text style={styles.subtitle}>{t(achievement.descKey)}</Text>
-          
-          <TouchableOpacity style={[styles.button, { backgroundColor: achievement.color }]} onPress={onClose}>
-            <Text style={styles.buttonText}>{t("common.confirm", { defaultValue: "¡Increíble!" })}</Text>
-          </TouchableOpacity>
+        <Animated.View style={animatedStyle}>
+          <ClayCard style={[styles.modalContainer, { borderColor: achievement.color, borderWidth: 2 }]}>
+            <View style={[styles.iconCircle, { backgroundColor: achievement.color + '20' }]}>
+               <Feather name={achievement.icon as any} size={moderateScale(50)} color={achievement.color} />
+            </View>
+            <Text style={styles.title}>{t("gamification.achievementUnlocked", { defaultValue: "¡Nuevo Logro!" })}</Text>
+            <Text style={[styles.achievementTitle, { color: achievement.color }]}>{t(achievement.titleKey)}</Text>
+            <Text style={styles.subtitle}>{t(achievement.descKey)}</Text>
+            
+            <ClayCard style={styles.button} color={achievement.color} onPress={onClose}>
+              <Text style={styles.buttonText}>{t("common.confirm", { defaultValue: "¡Increíble!" })}</Text>
+            </ClayCard>
+          </ClayCard>
         </Animated.View>
       </View>
     </Modal>
@@ -124,7 +129,7 @@ export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClos
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={[styles.modalContainer, { paddingHorizontal: moderateScale(20), width: '90%' }]}>
+        <ClayCard style={[styles.modalContainer, { paddingHorizontal: moderateScale(20), width: '90%' }]}>
           <Text style={[styles.title, { marginBottom: verticalScale(20), marginTop: verticalScale(5) }]}>
             {t("gamification.streakInfoTitle")}
           </Text>
@@ -174,11 +179,10 @@ export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClos
               );
             })}
           </View>
-
-          <TouchableOpacity style={[styles.button, { marginTop: 0 }]} onPress={onClose}>
-            <Text style={styles.buttonText}>OK</Text>
-          </TouchableOpacity>
-        </View>
+          <ClayCard style={styles.button} color="#f97316" onPress={onClose}>
+            <Text style={styles.buttonText}>{t("common.close")}</Text>
+          </ClayCard>
+        </ClayCard>
       </View>
     </Modal>
   );
@@ -193,15 +197,8 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '80%',
-    backgroundColor: '#1e1e1e',
-    borderRadius: moderateScale(20),
     padding: moderateScale(20),
     alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 10,
   },
   iconShadow: {
     textShadowColor: 'rgba(249, 115, 22, 0.5)',

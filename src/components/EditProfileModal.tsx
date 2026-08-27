@@ -15,6 +15,7 @@ import { scale, verticalScale } from "../utils/Responsive";
 import { CustomInput } from "./CustomInput";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
+import { ClayCard } from "./ClayCard";
 
 /**
  * Modal para editar el perfil del usuario. Permite cambiar foto, nombre, sistema de medición, altura, peso y bio. También muestra información no editable como género y email.
@@ -196,22 +197,20 @@ export const EditProfileModal = ({
                   onPress={handleSave}
                   loading={isSaving}
                 />
-                <TouchableOpacity
+                <ClayCard
                   style={{
-                    backgroundColor: colors.border,
                     paddingVertical: verticalScale(14),
-                    borderRadius: scale(10),
                     alignItems: "center",
                     justifyContent: "center",
                   }}
-                  onPress={onClose}
-                  disabled={isSaving}
+                  color={colors.border}
+                  onPress={isSaving ? undefined : onClose}
                   activeOpacity={0.7}
                 >
                   <Text style={{ color: colors.textPrimary, fontWeight: "bold", fontSize: scale(16) }}>
                     {t("profile.cancel")}
                   </Text>
-                </TouchableOpacity>
+                </ClayCard>
               </View>
             </ScrollView>
           </View>

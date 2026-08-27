@@ -49,12 +49,8 @@ export const getStyles = (colors: any) =>
     activeTabText: { color: colors.primary },
     listContainer: { padding: scale(20), paddingBottom: verticalScale(120) },
     routineCard: {
-      backgroundColor: colors.surface,
-      borderRadius: scale(12),
       padding: scale(15),
       marginBottom: verticalScale(15),
-      borderWidth: 1,
-      borderColor: colors.border,
     },
     cardHeader: {
       flexDirection: "row",
