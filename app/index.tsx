@@ -155,7 +155,11 @@ export default function LoginScreen() {
   const showOverlay = isLoading || isGoogleLoading;
 
   if (isAuthLoading || (user && hasProfile)) {
-    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   // Resto del código de renderizado de la pantalla, incluyendo el formulario de login/registro, selección de idioma y tema, y el overlay de carga

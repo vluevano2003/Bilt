@@ -805,6 +805,7 @@ export const ActiveWorkoutProvider = ({
             routine_name: activeRoutine.name,
             duration_seconds: elapsedSecondsRef.current,
             exercises: completedExercises,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
           },
         ]);
 

@@ -276,10 +276,11 @@ export const ExerciseListItem = React.memo(
                     <View style={styles.colSet}>
                       <GHTouchableOpacity
                         onPress={() => {
-                          if (!isReadonly && onOpenSetTypeModal) {
+                          if (!isReadonly && !set.completed && onOpenSetTypeModal) {
                             onOpenSetTypeModal(exercise.id, set.id, set.type || "normal");
                           }
                         }}
+                        disabled={isReadonly || set.completed}
                         style={{
                           backgroundColor: (set.type && set.type !== "normal") ? getSetTypeColor(set.type, colors.surface, colors) : "rgba(0,0,0,0.05)",
                           width: scale(28),

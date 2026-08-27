@@ -9,6 +9,7 @@ import {
   Image,
   RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -379,6 +380,7 @@ export default function ProfileScreen() {
   const [historyLimit, setHistoryLimit] = useState(10);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"history" | "achievements">("history");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const { achievements, loading: achievementsLoading, refetchAchievements } = useAchievements(user?.id);
 
@@ -396,12 +398,15 @@ export default function ProfileScreen() {
    */
   const handleLogout = async () => {
     try {
+      setSettingsVisible(false);
+      setIsLoggingOut(true);
       if (user?.id) {
         await supabase.from("users").update({ push_token: null }).eq("id", user.id);
       }
       await supabase.auth.signOut();
     } catch (error) {
       debugLog("Error logging out:", error);
+      setIsLoggingOut(false);
     }
   };
 
@@ -611,6 +616,12 @@ export default function ProfileScreen() {
         loading={loadingSocial}
         onClose={() => setSocialModalVisible(false)}
       />
+      
+      {isLoggingOut && (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center", zIndex: 1000 }]}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+        </View>
+      )}
     </View>
   );
 }
