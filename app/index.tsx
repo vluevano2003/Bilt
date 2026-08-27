@@ -2,10 +2,11 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Alert,
   BackHandler,
   Image,
   KeyboardAvoidingView,
@@ -46,6 +47,25 @@ export default function LoginScreen() {
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Check if account was just deleted
+  useEffect(() => {
+    const checkAccountDeleted = async () => {
+      try {
+        const deleted = await AsyncStorage.getItem("account_deleted");
+        if (deleted === "true") {
+          await AsyncStorage.removeItem("account_deleted");
+          Alert.alert(
+            t("profile.accountDeletedTitle", { defaultValue: "Cuenta Eliminada" }),
+            t("profile.accountDeletedMsg", { defaultValue: "Tu cuenta ha sido eliminada correctamente." })
+          );
+        }
+      } catch (e) {
+        debugError("Error checking account_deleted flag", e);
+      }
+    };
+    checkAccountDeleted();
+  }, [t]);
 
   // Manejo del botón de retroceso en Android para evitar salidas accidentales
   useFocusEffect(
@@ -165,7 +185,7 @@ export default function LoginScreen() {
   // Resto del código de renderizado de la pantalla, incluyendo el formulario de login/registro, selección de idioma y tema, y el overlay de carga
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "padding"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
       <View

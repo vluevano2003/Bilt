@@ -225,7 +225,7 @@ export const getStyles = (colors: any) =>
       fontSize: moderateScale(14),
     },
     input: {
-      backgroundColor: "rgba(255,255,255,0.03)",
+      backgroundColor: "rgba(128, 128, 128, 0.1)",
       color: colors.textPrimary,
       fontSize: moderateScale(16),
       fontWeight: "bold",

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Modal,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -103,7 +104,7 @@ const ProfileHeader = ({
         paddingVertical: scale(4),
         borderRadius: scale(12),
         borderWidth: 2,
-        borderColor: colors.background,
+        borderColor: colors.surface,
         flexDirection: 'row',
         alignItems: 'center',
         shadowColor: currentStreak > 0 ? '#f97316' : '#000',
@@ -381,6 +382,7 @@ export default function ProfileScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"history" | "achievements">("history");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   
   const { achievements, loading: achievementsLoading, refetchAchievements } = useAchievements(user?.id);
 
@@ -422,7 +424,22 @@ export default function ProfileScreen() {
         {
           text: t("profile.deleteAccount"),
           style: "destructive",
-          onPress: deleteAccount,
+          onPress: async () => {
+            setSettingsVisible(false);
+            setIsDeletingAccount(true);
+            await AsyncStorage.setItem("account_deleted", "true");
+            
+            // Wait to show the loading animation, then delete
+            setTimeout(async () => {
+              const success = await deleteAccount();
+              if (success) {
+                await supabase.auth.signOut();
+              } else {
+                setIsDeletingAccount(false);
+                await AsyncStorage.removeItem("account_deleted");
+              }
+            }, 1500);
+          },
         },
       ],
     );
@@ -617,11 +634,11 @@ export default function ProfileScreen() {
         onClose={() => setSocialModalVisible(false)}
       />
       
-      {isLoggingOut && (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center", zIndex: 1000 }]}>
+      <Modal visible={isLoggingOut || isDeletingAccount} transparent={true} animationType="fade">
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center" }]}>
           <ActivityIndicator size="large" color="#FFFFFF" />
         </View>
-      )}
+      </Modal>
     </View>
   );
 }

@@ -200,7 +200,11 @@ export const useAuthForm = () => {
           t("profile.alerts.usernameTakenMsg"),
         );
       } else {
-        Alert.alert(t("alerts.error"), error.message || t("errors.unexpected"));
+        let errorMessage = error.message || t("errors.unexpected");
+        if (errorMessage === "User already registered") {
+          errorMessage = t("alerts.userAlreadyRegistered", { defaultValue: "Este correo ya está registrado. Por favor inicia sesión." });
+        }
+        Alert.alert(t("alerts.error"), errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -235,7 +239,11 @@ export const useAuthForm = () => {
       });
       if (error) throw error;
     } catch (error: any) {
-      Alert.alert(t("alerts.error"), error.message);
+      let errorMessage = error.message;
+      if (errorMessage === "Invalid login credentials") {
+        errorMessage = t("alerts.invalidCredentials", { defaultValue: "Correo o contraseña incorrectos." });
+      }
+      Alert.alert(t("alerts.error"), errorMessage);
     } finally {
       setIsLoading(false);
     }

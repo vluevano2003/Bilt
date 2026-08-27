@@ -158,6 +158,7 @@
     "alerts": {
       "error": "Error",
       "success": "Éxito",
+      "invalidCredentials": "El correo o contraseña que ingresaste son incorrectos.",
       "errorLoad": "No se pudo cargar la información del perfil.",
       "successSave": "Perfil actualizado correctamente.",
       "errorSave": "No se pudieron guardar los cambios.",
@@ -175,6 +176,9 @@
     "deleteAccount": "Eliminar Cuenta",
     "deleteAccountTitle": "Eliminar Cuenta",
     "deleteAccountMsg": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es permanente y no se puede deshacer.",
+    "accountDeletedTitle": "Cuenta Eliminada",
+    "accountDeletedMsg": "Tu cuenta ha sido eliminada correctamente.",
+    "deletingAccount": "Eliminando cuenta...",
     "unblock": "Desbloquear",
     "block": "Bloquear usuario",
     "blockConfirmTitle": "Bloquear",
@@ -200,6 +204,8 @@
   },
   "alerts": {
     "missingData": "Faltan datos",
+    "invalidCredentials": "El correo o contraseña que ingresaste son incorrectos.",
+    "userAlreadyRegistered": "Este correo ya está registrado. Por favor inicia sesión.",
     "completeMetrics": "Completa tus métricas para continuar.",
     "error": "Error",
     "mustBeNumbers": "Deben ser números.",

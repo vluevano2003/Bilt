@@ -836,12 +836,13 @@ export const useProfile = (profileUid?: string) => {
    * @returns
    */
   const deleteAccount = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) return false;
     try {
       await supabase.rpc("delete_user_account");
-      await supabase.auth.signOut();
+      return true;
     } catch (error) {
       Alert.alert(t("alerts.error"), t("errors.unexpected"));
+      return false;
     }
   };
 

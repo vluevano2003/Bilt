@@ -4,6 +4,7 @@ import { LayoutAnimation, Text, TextInput, TouchableOpacity, View } from "react-
 import { ScaleDecorator } from "react-native-draggable-flatlist";
 import { TouchableOpacity as GHTouchableOpacity, Swipeable } from "react-native-gesture-handler";
 import { moderateScale, scale, verticalScale } from "../utils/Responsive";
+import { useTheme } from "../context/ThemeContext";
 
 const cycleSetType = (currentType: string) => {
   switch (currentType) {
@@ -50,15 +51,15 @@ const getSetTypeColor = (type: string, defaultColor: string, colors: any) => {
   }
 };
 
-const getSetTypeBackground = (type: string | undefined) => {
+const getSetTypeBackground = (type: string | undefined, isDarkMode: boolean) => {
   switch (type) {
-    case "warmup": return "rgba(245, 158, 11, 0.05)"; // Amber
-    case "dropset": return "rgba(59, 130, 246, 0.05)"; // Blue
-    case "topset": return "rgba(239, 68, 68, 0.05)"; // Red
-    case "backoff": return "rgba(16, 185, 129, 0.05)"; // Green
+    case "warmup": return isDarkMode ? "rgba(245, 158, 11, 0.05)" : "rgba(245, 158, 11, 0.1)"; // Amber
+    case "dropset": return isDarkMode ? "rgba(59, 130, 246, 0.05)" : "rgba(59, 130, 246, 0.1)"; // Blue
+    case "topset": return isDarkMode ? "rgba(239, 68, 68, 0.05)" : "rgba(239, 68, 68, 0.1)"; // Red
+    case "backoff": return isDarkMode ? "rgba(16, 185, 129, 0.05)" : "rgba(16, 185, 129, 0.1)"; // Green
     case "normal":
     default:
-      return "rgba(255, 255, 255, 0.03)";
+      return isDarkMode ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.03)";
   }
 };
 
@@ -88,6 +89,7 @@ export const ExerciseListItem = React.memo(
     onToggleCompletion,
     onAddSet,
   }: any) => {
+    const { isDarkMode } = useTheme();
     const [swipingSets, setSwipingSets] = React.useState<Record<string, boolean>>({});
     const isCardio = exercise.exerciseDetails.muscleGroup === "cardio";
 
@@ -267,7 +269,7 @@ export const ExerciseListItem = React.memo(
                         overflow: "hidden",
                         borderLeftWidth: (!isReadonly && !set.completed) ? scale(4) : 0,
                         borderLeftColor: (!isReadonly && !set.completed) ? "rgba(239, 68, 68, 0.4)" : "transparent",
-                        backgroundColor: getSetTypeBackground(set.type)
+                        backgroundColor: getSetTypeBackground(set.type, isDarkMode)
                       },
                       set.completed && styles.setRowCompleted,
                       swipingSets[set.id] && { backgroundColor: "rgba(239, 68, 68, 0.15)" }

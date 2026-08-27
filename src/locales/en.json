@@ -175,6 +175,9 @@
     "deleteAccount": "Delete Account",
     "deleteAccountTitle": "Delete Account",
     "deleteAccountMsg": "Are you sure you want to delete your account? This action is permanent and cannot be undone.",
+    "accountDeletedTitle": "Account Deleted",
+    "accountDeletedMsg": "Your account has been deleted successfully.",
+    "deletingAccount": "Deleting account...",
     "unblock": "Unblock",
     "block": "Block user",
     "blockConfirmTitle": "Block",
@@ -200,6 +203,8 @@
   },
   "alerts": {
     "missingData": "Missing data",
+    "invalidCredentials": "The email or password you entered is incorrect.",
+    "userAlreadyRegistered": "This email is already registered. Please log in.",
     "completeMetrics": "Complete your metrics to continue.",
     "error": "Error",
     "mustBeNumbers": "Must be numbers.",

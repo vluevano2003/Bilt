@@ -1,19 +1,16 @@
+import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import React, { useEffect } from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withSequence,
-  withTiming,
-  withRepeat,
-  Easing,
-  runOnJS
-} from "react-native-reanimated";
-import { FontAwesome5, Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { moderateScale, scale, verticalScale } from "../utils/Responsive";
+import { Modal, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming
+} from "react-native-reanimated";
 import { ACHIEVEMENTS_LIST } from "../../hooks/useAchievements";
+import { useTheme } from "../context/ThemeContext";
+import { moderateScale, scale, verticalScale } from "../utils/Responsive";
 import { ClayCard } from "./ClayCard";
 
 interface StreakModalProps {
@@ -24,6 +21,7 @@ interface StreakModalProps {
 
 export const StreakModal = ({ visible, streak, onClose }: StreakModalProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const scaleAnim = useSharedValue(0.5);
   const opacityAnim = useSharedValue(0);
 
@@ -52,8 +50,8 @@ export const StreakModal = ({ visible, streak, onClose }: StreakModalProps) => {
         <Animated.View style={animatedStyle}>
           <ClayCard style={styles.modalContainer}>
             <FontAwesome5 name="fire" size={moderateScale(60)} color="#f97316" style={styles.iconShadow} />
-            <Text style={styles.title}>{t("gamification.streakTitle", { defaultValue: "¡Racha Aumentada!" })}</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{t("gamification.streakTitle", { defaultValue: "¡Racha Aumentada!" })}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               {streak} {t("gamification.streakDays", { defaultValue: "entrenamientos en racha" })}
             </Text>
             <ClayCard style={styles.button} color="#f97316" onPress={onClose}>
@@ -74,6 +72,7 @@ interface AchievementModalProps {
 
 export const AchievementModal = ({ visible, achievementId, onClose }: AchievementModalProps) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const scaleAnim = useSharedValue(0.5);
   const opacityAnim = useSharedValue(0);
 
@@ -104,12 +103,12 @@ export const AchievementModal = ({ visible, achievementId, onClose }: Achievemen
         <Animated.View style={animatedStyle}>
           <ClayCard style={[styles.modalContainer, { borderColor: achievement.color, borderWidth: 2 }]}>
             <View style={[styles.iconCircle, { backgroundColor: achievement.color + '20' }]}>
-               <Feather name={achievement.icon as any} size={moderateScale(50)} color={achievement.color} />
+              <Feather name={achievement.icon as any} size={moderateScale(50)} color={achievement.color} />
             </View>
-            <Text style={styles.title}>{t("gamification.achievementUnlocked", { defaultValue: "¡Nuevo Logro!" })}</Text>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{t("gamification.achievementUnlocked", { defaultValue: "¡Nuevo Logro!" })}</Text>
             <Text style={[styles.achievementTitle, { color: achievement.color }]}>{t(achievement.titleKey)}</Text>
-            <Text style={styles.subtitle}>{t(achievement.descKey)}</Text>
-            
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t(achievement.descKey)}</Text>
+
             <ClayCard style={styles.button} color={achievement.color} onPress={onClose}>
               <Text style={styles.buttonText}>{t("common.confirm", { defaultValue: "¡Increíble!" })}</Text>
             </ClayCard>
@@ -121,6 +120,7 @@ export const AchievementModal = ({ visible, achievementId, onClose }: Achievemen
 };
 export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
   const { t } = useTranslation();
+  const { colors, isDarkMode } = useTheme();
 
   if (!visible) return null;
 
@@ -130,18 +130,18 @@ export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClos
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <ClayCard style={[styles.modalContainer, { paddingHorizontal: moderateScale(20), width: '90%' }]}>
-          <Text style={[styles.title, { marginBottom: verticalScale(20), marginTop: verticalScale(5) }]}>
+          <Text style={[styles.title, { color: colors.textPrimary, marginBottom: verticalScale(20), marginTop: verticalScale(5) }]}>
             {t("gamification.streakInfoTitle")}
           </Text>
-          
+
           <View style={{ width: '100%', marginBottom: verticalScale(15) }}>
             {desc.split('\n\n').map((paragraph: string, index: number) => {
               if (!paragraph.trim()) return null;
-              
+
               let prefix = "";
               let content = paragraph;
               const colonIndex = paragraph.indexOf(":");
-              
+
               if (colonIndex !== -1 && colonIndex < 35) {
                 prefix = paragraph.substring(0, colonIndex + 1);
                 content = paragraph.substring(colonIndex + 1).trim();
@@ -151,25 +151,25 @@ export const StreakInfoModal = ({ visible, onClose }: { visible: boolean; onClos
                 <View
                   key={index}
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
                     padding: scale(15),
                     borderRadius: scale(12),
                     marginBottom: verticalScale(12),
                     borderWidth: 1,
-                    borderColor: "rgba(150, 150, 150, 0.1)",
+                    borderColor: colors.border,
                     width: '100%',
                   }}
                 >
                   <Text
                     style={{
-                      color: '#AAA',
+                      color: colors.textSecondary,
                       fontSize: moderateScale(13),
                       lineHeight: moderateScale(20),
                       textAlign: "justify",
                     }}
                   >
                     {prefix ? (
-                      <Text style={{ fontWeight: "bold", color: '#FFF', textTransform: 'uppercase' }}>
+                      <Text style={{ fontWeight: "bold", color: colors.textPrimary, textTransform: 'uppercase' }}>
                         {prefix}{" "}
                       </Text>
                     ) : null}
@@ -204,7 +204,11 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(249, 115, 22, 0.5)',
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 10,
-    marginBottom: verticalScale(15),
+    marginBottom: verticalScale(5),
+    paddingHorizontal: moderateScale(15),
+    lineHeight: moderateScale(90),
+    height: moderateScale(90),
+    textAlignVertical: 'center',
   },
   iconCircle: {
     width: moderateScale(100),
